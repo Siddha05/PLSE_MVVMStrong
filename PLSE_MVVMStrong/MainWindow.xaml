@@ -18,11 +18,15 @@
             <ColumnDefinition Width="2*" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
+        <Menu Grid.ColumnSpan="4" Foreground="White">
+            <MenuItem Header="Exit"/>
+        </Menu>
         <Image Source="Resources/минюст.jpg" Grid.Row="1" Margin="5" Panel.ZIndex="2" />
         <TextBlock Grid.Row="2" Text="Знания бывают двоякого рода: либо мы что нибудь знаем, либо мы знаем, где найти сведения об этом." TextWrapping="Wrap" TextAlignment="Center"
                        FontSize="16" FontWeight="Medium" FontFamily="Perpetua Titling MT" />
         <Grid Grid.ColumnSpan="4" Grid.Column="0" Background="BlueViolet" Panel.ZIndex="1">
             <TextBlock Name="watch" VerticalAlignment="Center" HorizontalAlignment="Right" Text="25 января 2019" FontSize="16" Foreground="White" Margin="0,0,35,0" />
+           
         </Grid>
         <Grid Grid.Column="3" Grid.RowSpan="3" Background="#FF781ED2" Panel.ZIndex="0" />
         <ListBox Grid.Row="1" Grid.Column="1" Grid.RowSpan="2" Grid.ColumnSpan="2" Margin="3" BorderThickness="0" />
