@@ -4,13 +4,17 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PLSE_MVVMStrong"
+        xmlns:viewmodel="clr-namespace:PLSE_MVVMStrong.ViewModel"
         mc:Ignorable="d"
-        Title="MainWindow" Height="650" Width="1000" WindowStyle="None" ResizeMode="CanMinimize">
+        Title="MainWindow" Height="650" Width="1000" WindowStyle="None" ResizeMode="CanMinimize" Name="mv" WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <Style TargetType="{x:Type MenuItem}">
             <Setter Property="Foreground" Value="Black" />
         </Style>
     </Window.Resources>
+    <Window.DataContext>
+        <viewmodel:MainVM />
+    </Window.DataContext>
     <Grid DockPanel.Dock="Top">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
@@ -23,22 +27,27 @@
             <ColumnDefinition Width="2*" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <Menu Grid.ColumnSpan="4" Height="35" FontSize="20" Background="BlueViolet">
-            <MenuItem Header="info" Foreground="White">
-                <MenuItem Header="1" />
+        <Menu Grid.ColumnSpan="2" Height="35" FontSize="20" Background="#FFBD8AEC">
+            <MenuItem Header="ПЛСЭ" Foreground="White">
+                <MenuItem Header="Специальности" Command="{Binding Path=OpenSpeciality}" CommandParameter="{Binding ElementName=mv}" />
+                <MenuItem Header="Сотрудники" />
+            </MenuItem>
+            <MenuItem Header="Запрос" Foreground="White">
+                <MenuItem Header="Экспертизы" />
                 <MenuItem Header="2" />
                 <Separator />
                 <MenuItem Header="3" />
             </MenuItem>
-            <MenuItem Header="Exit" Foreground="White" />
+            <MenuItem Header="Отчеты" Foreground="White" />
+            <MenuItem Header="Выход" Foreground="White" Command="{Binding Path=Exit}" CommandParameter="{Binding ElementName=mv}" />
         </Menu>
         <Image Source="Resources/минюст.jpg" Grid.Row="1" Margin="5" Panel.ZIndex="2" />
-        <TextBlock Grid.Row="2" Text="Знания бывают двоякого рода: либо мы что нибудь знаем, либо мы знаем, где найти сведения об этом." TextWrapping="Wrap" TextAlignment="Center"
-                       FontSize="16" FontWeight="Medium" FontFamily="Perpetua Titling MT" />
-        <!--<Grid Grid.ColumnSpan="4" Grid.Column="0" Grid.Row="1" Background="BlueViolet" Panel.ZIndex="1">
-            <TextBlock Name="watch" VerticalAlignment="Center" HorizontalAlignment="Right" Text="25 января 2019" FontSize="16" Foreground="White" Margin="0,0,35,0" />
-        </Grid>-->
+        <TextBlock Grid.Row="2" TextWrapping="Wrap" TextAlignment="Center"
+                       FontSize="16" FontWeight="Medium" FontFamily="Perpetua Titling MT" Text="{Binding Path=Aphorism, Mode=OneTime}">
+        </TextBlock>
+
         <Grid Grid.Column="3" Grid.RowSpan="3" Grid.Row="1" Background="#FF781ED2" Panel.ZIndex="0" />
-        <ListBox Grid.Row="1" Grid.Column="1" Grid.RowSpan="2" Grid.ColumnSpan="2" Margin="3" BorderThickness="0" />
+        <ListBox Grid.Row="1" Grid.Column="1" Grid.RowSpan="2" Grid.ColumnSpan="2" Margin="3" BorderThickness="0" ItemsSource="{Binding Path= Messages}" />
+        <TextBlock Background="#FFBD8AEC" Grid.Column="2" Grid.ColumnSpan="2" Foreground="White" Text="{Binding Path=Date, Mode=OneWay}" FontSize="16" TextAlignment="Center" Padding="0,3,0,0" />
     </Grid>
 </Window>
