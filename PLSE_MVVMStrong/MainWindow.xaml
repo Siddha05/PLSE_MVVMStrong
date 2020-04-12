@@ -74,78 +74,13 @@
             <ColumnDefinition Width="2*" />
             <ColumnDefinition Width="auto" />
         </Grid.ColumnDefinitions>
-        <Menu Grid.ColumnSpan="3" Height="35" FontSize="20">
-            <Menu.Background>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                    <GradientStop Color="#FFBD8AEC" Offset=".6"/>
-                    <GradientStop Color="Transparent" Offset="1"/>
-                </LinearGradientBrush>
-            </Menu.Background>
-            <MenuItem Header="ПЛСЭ" Foreground="White">
-                <MenuItem Header="Специальности" Command="{Binding Path=OpenSpeciality}" CommandParameter="{Binding ElementName=mv}" />
-                <MenuItem Header="Сотрудники" Command="{Binding Path=OpenEmployees}" CommandParameter="{Binding ElementName=mv}"/>
-                <MenuItem Header="Добавть" Command="{Binding Path=OpenResolutionAdd}" CommandParameter="{Binding ElementName=mv}" />
-                <MenuItem Header="Expertise" Command="{Binding Path=Expertises}" CommandParameter="{Binding ElementName=mv}"/>
-            </MenuItem>
-            <MenuItem Header="Запрос" Foreground="White">
-                <MenuItem Header="Экспертизы" />
-                <MenuItem Header="2" Click="MenuItem_Click"/>
-                <Separator />
-                <MenuItem Header="3" />
-            </MenuItem>
-            <MenuItem Header="Отчеты" Foreground="White" />
-            <MenuItem Header="Выход" Foreground="White" Command="{Binding Path=Exit}" CommandParameter="{Binding ElementName=mv}" />
-        </Menu>
-        <Image Source="Resources/минюст.jpg" Grid.Row="1" Margin="7" Panel.ZIndex="2" />
-        <TextBlock Grid.Row="2" TextWrapping="Wrap" TextAlignment="Center" Style="{x:Null}" Margin="7"
-                       FontSize="16" FontWeight="Medium" FontFamily="Perpetua Titling MT" Text="{Binding Path=Aphorism, Mode=OneTime}">
-        </TextBlock>
-        <ListBox Name="msgListBox" Grid.Row="1" Grid.Column="1" Grid.RowSpan="2" Grid.ColumnSpan="2" Margin="3" BorderThickness="0" ItemsSource="{Binding Path= Messages}"
-                 HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-            <i:Interaction.Triggers>
-                <i:EventTrigger EventName="MouseDoubleClick">
-                    <i:InvokeCommandAction Command="{Binding MessageListDoubleClick}" CommandParameter="{Binding ElementName=msgListBox, Path=SelectedItem}"/>
-                </i:EventTrigger>
-            </i:Interaction.Triggers>
-        </ListBox>
-        <TextBlock Grid.Column="2" Grid.ColumnSpan="2" Grid.Row="3" HorizontalAlignment="Left" Text="{Binding Path=Date, Mode=OneWay}"
-                   FontSize="16" TextAlignment="Center" Margin="190, 2,2,2" />
-        <StackPanel Orientation="Vertical" Grid.Column="3" Grid.RowSpan="2" Panel.ZIndex="4" Margin="4,0,4,0">
-            <Ellipse Width="70" Height="70" VerticalAlignment="Top" Margin="2, 10,2,2">
-            <Ellipse.Fill>
-                <ImageBrush ImageSource="{Binding Path=Employee.Image, Mode=OneWay}" Stretch="UniformToFill"/>
-            </Ellipse.Fill>
-            <Ellipse.ToolTip>
-                <TextBlock Style="{x:Null}" Text="Открыть профиль"/>
-            </Ellipse.ToolTip>
-            <i:Interaction.Triggers>
-                <i:EventTrigger EventName="MouseLeftButtonUp">
-                    <i:InvokeCommandAction Command="{Binding Path=OpenProfile}"/>
-                </i:EventTrigger>
-            </i:Interaction.Triggers>
-        </Ellipse>
-            <TextBlock Style="{x:Null}" Text="{Binding Path=Employee.Fio, Mode=OneWay}" FontSize="16" HorizontalAlignment="Center" Foreground="White">
-                <TextBlock.ToolTip>
-                    <TextBlock Style="{x:Null}" FontSize="12" Text="{Binding Path=Employee.Summary}"/>
-                </TextBlock.ToolTip>
-            </TextBlock>
-        </StackPanel>
-        
-        <Rectangle Grid.Column="3" Grid.RowSpan="3" Panel.ZIndex="0">
-            <Rectangle.Fill>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                    <GradientStop Color="#FFBD8AEC" Offset=".4"/>
-                    <GradientStop Color="Transparent" Offset="1"/>
-                </LinearGradientBrush>
-            </Rectangle.Fill>
-        </Rectangle>
-        <Rectangle Grid.Row="3" Grid.ColumnSpan="4" Panel.ZIndex="0">
-            <Rectangle.Fill>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                    <GradientStop Color="#FFBD8AEC" Offset=".4"/>
-                    <GradientStop Color="Transparent" Offset="1"/>
-                </LinearGradientBrush>
-            </Rectangle.Fill>
-        </Rectangle>
+        <Image Source="Resources/минюст.jpg" Grid.Row="1" Margin="5" Panel.ZIndex="2" />
+        <TextBlock Grid.Row="2" Text="Знания бывают двоякого рода: либо мы что нибудь знаем, либо мы знаем, где найти сведения об этом." TextWrapping="Wrap" TextAlignment="Center"
+                       FontSize="16" FontWeight="Medium" FontFamily="Perpetua Titling MT" />
+        <Grid Grid.ColumnSpan="4" Grid.Column="0" Background="BlueViolet" Panel.ZIndex="1">
+            <TextBlock Name="watch" VerticalAlignment="Center" HorizontalAlignment="Right" Text="25 января 2019" FontSize="16" Foreground="White" Margin="0,0,35,0" />
+        </Grid>
+        <Grid Grid.Column="3" Grid.RowSpan="3" Background="#FF781ED2" Panel.ZIndex="0" />
+        <ListBox Grid.Row="1" Grid.Column="1" Grid.RowSpan="2" Grid.ColumnSpan="2" Margin="3" BorderThickness="0" />
     </Grid>
 </Window>
