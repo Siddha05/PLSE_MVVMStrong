@@ -1,0 +1,61 @@
+﻿<Window x:Class="PLSE_MVVMStrong.View.Login"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PLSE_MVVMStrong.View"
+        xmlns:viewmodel="clr-namespace:PLSE_MVVMStrong.ViewModel"
+        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+        mc:Ignorable="d"
+        Title="Login" Height="400" Width="500" WindowStartupLocation="CenterScreen" WindowStyle="None" ResizeMode="NoResize"
+        FontSize="{StaticResource UIFontSize}" FontWeight="DemiBold" Name="wnd">
+    <Window.DataContext>
+        <viewmodel:LoginVM/>
+    </Window.DataContext>
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BTVConv"/>
+    </Window.Resources>
+    <Grid ShowGridLines="False">
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Color="#FF4141FF" Offset="0"/>
+                <GradientStop Color="#FF89BCF9" Offset="0.7"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="140"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height= "30"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <Image Source="/PLSE_MVVMStrong;component/Resources/МииЮст.png" Margin="10"/>
+        <TextBlock Grid.Row="1" Style="{x:Null}" Text="Логин" HorizontalAlignment="Center" Margin="5, 15,5,4" Foreground="White"/>
+        <TextBox Grid.Row="2" HorizontalAlignment="Center" Margin="4" Width="250" 
+                 Text="{Binding Login, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="TextChanged">
+                    <i:InvokeCommandAction Command="{Binding Path=TextChanged}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </TextBox>
+        <TextBlock Grid.Row="3" Style="{x:Null}" Text="Пароль" HorizontalAlignment="Center" Margin="4" Foreground="White"/>
+        <PasswordBox Name="passbox" Grid.Row="4" HorizontalAlignment="Center" Margin="5" Width="250" PasswordChar="*"  MaxLength ="30" >
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="PasswordChanged">
+                    <i:InvokeCommandAction Command="{Binding Path=PassChanged, UpdateSourceTrigger=PropertyChanged}" CommandParameter="{Binding ElementName=passbox}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </PasswordBox>
+        <TextBlock Grid.Row="5" Text="Неверный логин или пароль" Foreground="Red" Style="{x:Null}" HorizontalAlignment="Center" 
+                   Visibility="{Binding Path=Error, Converter={StaticResource BTVConv}}"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="6" VerticalAlignment="Center" Margin="5, 10,5,8">
+            <Button Style="{StaticResource BaseUIButton}" Foreground="{StaticResource SaveEnterColor}" Content="Войти" Margin="5" IsDefault="True"
+                    Command="{Binding Path=Inter}" CommandParameter="{Binding ElementName=wnd}"/>
+            <Button Style="{StaticResource BaseUIButton}" Foreground="{StaticResource ExitColor}" Content="Выход" Margin="5" IsCancel="True"
+                    Command="{Binding Path=Exit}" CommandParameter="{Binding ElementName=wnd}"/>
+        </StackPanel>
+    </Grid>
+</Window>

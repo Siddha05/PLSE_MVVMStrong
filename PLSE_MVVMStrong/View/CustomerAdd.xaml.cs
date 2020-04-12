@@ -1,4 +1,4 @@
-﻿using PLSE_MVVMStrong.ViewModel;
+﻿using PLSE_MVVMStrong.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,25 +11,18 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace PLSE_MVVMStrong
+namespace PLSE_MVVMStrong.View
 {
     /// <summary>
-    /// Логика взаимодействия для MainWindow.xaml
+    /// Логика взаимодействия для CustomerAdd.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class CustomerAdd : Window
     {
-        public MainWindow()
+        public CustomerAdd()
         {
             InitializeComponent();
-        }
-
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            MainVM._employee.Fname = "Алина";
-            MainVM._employee.Sname = "Уварова";
         }
     }
 }

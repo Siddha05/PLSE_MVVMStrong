@@ -5,49 +5,147 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PLSE_MVVMStrong"
         xmlns:viewmodel="clr-namespace:PLSE_MVVMStrong.ViewModel"
+        xmlns:model="clr-namespace:PLSE_MVVMStrong.Model"
+        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         mc:Ignorable="d"
-        Title="MainWindow" Height="650" Width="1000" WindowStyle="None" ResizeMode="CanMinimize" Name="mv" WindowStartupLocation="CenterScreen">
+        Title="MainWindow" Height="650" Width="1100" WindowStyle="None" ResizeMode="CanMinimize" Name="mv" WindowStartupLocation="CenterScreen"
+        >
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding Path=WindowLoaded}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
     <Window.Resources>
+        <viewmodel:MessageImageConverter x:Key="MsgImageConv"/>
         <Style TargetType="{x:Type MenuItem}">
             <Setter Property="Foreground" Value="Black" />
+        </Style>
+
+        <SolidColorBrush x:Key="MainUIBrush" Color="#FFBD8AEC"/>
+        <Style TargetType="{x:Type ListBoxItem}">
+            <Setter Property="BorderBrush" Value="{StaticResource MainUIBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                        <Border Name="brd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="7"
+                                Margin="2">
+                            <ContentPresenter>
+                                <ContentPresenter.ContentTemplate>
+                                    <DataTemplate DataType="Message">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="49"/>
+                                                <ColumnDefinition/>
+                                            </Grid.ColumnDefinitions>
+                                            <Viewbox Panel.ZIndex="2" VerticalAlignment="Center" Margin="2" >
+                                                <Image Source="{Binding Type, Converter={StaticResource MsgImageConv}}"/>
+                                            </Viewbox>
+                                            <TextBlock Style="{x:Null}" Grid.Column="1" TextWrapping="Wrap" FontSize="{StaticResource RegularFontSize}" 
+                                                       Text="{Binding Msg}" Margin="5,2,1,2"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ContentPresenter.ContentTemplate>
+                            </ContentPresenter>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter TargetName="brd" Property="Background" Value="#FFB3B3FF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Window.Resources>
     <Window.DataContext>
         <viewmodel:MainVM />
     </Window.DataContext>
-    <Grid DockPanel.Dock="Top">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
             <RowDefinition Height="3*" />
             <RowDefinition Height="3*" />
+            <RowDefinition Height="45"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="2*" />
             <ColumnDefinition Width="3*" />
             <ColumnDefinition Width="2*" />
-            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="auto" />
         </Grid.ColumnDefinitions>
-        <Menu Grid.ColumnSpan="2" Height="35" FontSize="20" Background="#FFBD8AEC">
+        <Menu Grid.ColumnSpan="3" Height="35" FontSize="20">
+            <Menu.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Color="#FFBD8AEC" Offset=".6"/>
+                    <GradientStop Color="Transparent" Offset="1"/>
+                </LinearGradientBrush>
+            </Menu.Background>
             <MenuItem Header="ПЛСЭ" Foreground="White">
                 <MenuItem Header="Специальности" Command="{Binding Path=OpenSpeciality}" CommandParameter="{Binding ElementName=mv}" />
-                <MenuItem Header="Сотрудники" />
+                <MenuItem Header="Сотрудники" Command="{Binding Path=OpenEmployees}" CommandParameter="{Binding ElementName=mv}"/>
+                <MenuItem Header="Добавть" Command="{Binding Path=OpenResolutionAdd}" CommandParameter="{Binding ElementName=mv}" />
+                <MenuItem Header="Expertise" Command="{Binding Path=Expertises}" CommandParameter="{Binding ElementName=mv}"/>
             </MenuItem>
             <MenuItem Header="Запрос" Foreground="White">
                 <MenuItem Header="Экспертизы" />
-                <MenuItem Header="2" />
+                <MenuItem Header="2" Click="MenuItem_Click"/>
                 <Separator />
                 <MenuItem Header="3" />
             </MenuItem>
             <MenuItem Header="Отчеты" Foreground="White" />
             <MenuItem Header="Выход" Foreground="White" Command="{Binding Path=Exit}" CommandParameter="{Binding ElementName=mv}" />
         </Menu>
-        <Image Source="Resources/минюст.jpg" Grid.Row="1" Margin="5" Panel.ZIndex="2" />
-        <TextBlock Grid.Row="2" TextWrapping="Wrap" TextAlignment="Center"
+        <Image Source="Resources/минюст.jpg" Grid.Row="1" Margin="7" Panel.ZIndex="2" />
+        <TextBlock Grid.Row="2" TextWrapping="Wrap" TextAlignment="Center" Style="{x:Null}" Margin="7"
                        FontSize="16" FontWeight="Medium" FontFamily="Perpetua Titling MT" Text="{Binding Path=Aphorism, Mode=OneTime}">
         </TextBlock>
-
-        <Grid Grid.Column="3" Grid.RowSpan="3" Grid.Row="1" Background="#FF781ED2" Panel.ZIndex="0" />
-        <ListBox Grid.Row="1" Grid.Column="1" Grid.RowSpan="2" Grid.ColumnSpan="2" Margin="3" BorderThickness="0" ItemsSource="{Binding Path= Messages}" />
-        <TextBlock Background="#FFBD8AEC" Grid.Column="2" Grid.ColumnSpan="2" Foreground="White" Text="{Binding Path=Date, Mode=OneWay}" FontSize="16" TextAlignment="Center" Padding="0,3,0,0" />
+        <ListBox Name="msgListBox" Grid.Row="1" Grid.Column="1" Grid.RowSpan="2" Grid.ColumnSpan="2" Margin="3" BorderThickness="0" ItemsSource="{Binding Path= Messages}"
+                 HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="MouseDoubleClick">
+                    <i:InvokeCommandAction Command="{Binding MessageListDoubleClick}" CommandParameter="{Binding ElementName=msgListBox, Path=SelectedItem}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </ListBox>
+        <TextBlock Grid.Column="2" Grid.ColumnSpan="2" Grid.Row="3" HorizontalAlignment="Left" Text="{Binding Path=Date, Mode=OneWay}"
+                   FontSize="16" TextAlignment="Center" Margin="190, 2,2,2" />
+        <StackPanel Orientation="Vertical" Grid.Column="3" Grid.RowSpan="2" Panel.ZIndex="4" Margin="4,0,4,0">
+            <Ellipse Width="70" Height="70" VerticalAlignment="Top" Margin="2, 10,2,2">
+            <Ellipse.Fill>
+                <ImageBrush ImageSource="{Binding Path=Employee.Image, Mode=OneWay}" Stretch="UniformToFill"/>
+            </Ellipse.Fill>
+            <Ellipse.ToolTip>
+                <TextBlock Style="{x:Null}" Text="Открыть профиль"/>
+            </Ellipse.ToolTip>
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="MouseLeftButtonUp">
+                    <i:InvokeCommandAction Command="{Binding Path=OpenProfile}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </Ellipse>
+            <TextBlock Style="{x:Null}" Text="{Binding Path=Employee.Fio, Mode=OneWay}" FontSize="16" HorizontalAlignment="Center" Foreground="White">
+                <TextBlock.ToolTip>
+                    <TextBlock Style="{x:Null}" FontSize="12" Text="{Binding Path=Employee.Summary}"/>
+                </TextBlock.ToolTip>
+            </TextBlock>
+        </StackPanel>
+        
+        <Rectangle Grid.Column="3" Grid.RowSpan="3" Panel.ZIndex="0">
+            <Rectangle.Fill>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#FFBD8AEC" Offset=".4"/>
+                    <GradientStop Color="Transparent" Offset="1"/>
+                </LinearGradientBrush>
+            </Rectangle.Fill>
+        </Rectangle>
+        <Rectangle Grid.Row="3" Grid.ColumnSpan="4" Panel.ZIndex="0">
+            <Rectangle.Fill>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Color="#FFBD8AEC" Offset=".4"/>
+                    <GradientStop Color="Transparent" Offset="1"/>
+                </LinearGradientBrush>
+            </Rectangle.Fill>
+        </Rectangle>
     </Grid>
 </Window>

@@ -6,52 +6,97 @@
         xmlns:local="clr-namespace:PLSE_MVVMStrong.View"
         xmlns:vm ="clr-namespace:PLSE_MVVMStrong.ViewModel"
         mc:Ignorable="d"
-        Title="Specialities" Name="sw" Width="1280" Height="700" WindowState="Maximized" WindowStyle="None">
+        Title="Specialities" Name="sw" Width="1400" Height="800" WindowState="Normal" WindowStyle="None" FontSize="16" WindowStartupLocation="CenterScreen">
     <Window.DataContext>
         <vm:SpecialityVM />
     </Window.DataContext>
+    <Window.Resources>
+        <vm:BoolToStatusConverter x:Key="BSConv"/>
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="3.5*" />
-            <ColumnDefinition />
+            <ColumnDefinition Width="4*" />
+            <ColumnDefinition Width="auto"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
             <RowDefinition />
             <RowDefinition />
-            <RowDefinition />
         </Grid.RowDefinitions>
-        <DataGrid AutoGenerateColumns="False" Grid.RowSpan="3" Grid.Row="1" Margin="3" CanUserAddRows="False" CanUserDeleteRows="False" ItemsSource="{Binding Path=Specialities}">
+        <DataGrid AutoGenerateColumns="False" Grid.RowSpan="3" Grid.Row="1" Margin="5,3,3,10" CanUserAddRows="False" CanUserDeleteRows="False"
+                  FontSize="{StaticResource UIFontSize}" ItemsSource="{Binding Path=Specialities}" RowDetailsVisibilityMode="VisibleWhenSelected">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Специальность" Width="3*" Binding="{Binding Path=FullTitle, Mode=OneWay}">
+                <DataGridTemplateColumn Width="3*">
+                    <DataGridTemplateColumn.Header>
+                        <TextBlock Style="{StaticResource HeaderTextBlock}" Text="Специальность"/>
+                    </DataGridTemplateColumn.Header>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Style="{x:Null}" x:Name="tb" Text="{Binding Path=FullTitle, Mode=OneWay}" TextWrapping="WrapWithOverflow"/>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding Path=IsValid}" Value="false">
+                                    <Setter TargetName="tb" Property="TextDecorations">
+                                        <Setter.Value>
+                                            <TextDecorationCollection>
+                                                <TextDecoration Location="Strikethrough" PenThicknessUnit="FontRecommended">
+                                                    <TextDecoration.Pen>
+                                                        <Pen Brush="Red" Thickness="2" />
+                                                    </TextDecoration.Pen>
+                                                </TextDecoration>
+                                            </TextDecorationCollection>
+                                        </Setter.Value>
+                                    </Setter>
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Width="150" Binding="{Binding Path=Categories, Mode=OneWay}">
+                    <DataGridTextColumn.Header>
+                        <TextBlock Style="{StaticResource HeaderTextBlock}" Text="Категории"/>
+                    </DataGridTextColumn.Header>
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
-                            <Setter Property="TextWrapping" Value="Wrap" />
+                            <Setter Property="TextAlignment" Value="Center" />
+                            <Setter Property="VerticalAlignment" Value="Center"/>
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="Вид" Width="*" Binding="{Binding Path=Species, Mode=OneWay}">
-                    <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="{x:Type TextBlock}">
-                            <Setter Property="TextWrapping" Value="Wrap" />
-                        </Style>
-                    </DataGridTextColumn.ElementStyle>
-                </DataGridTextColumn>
-                <DataGridTextColumn Header="Категории" Width="70" Binding="{Binding Path=Categories, Mode=OneWay}" />
-                <DataGridCheckBoxColumn Header="Действует?" Width="70" Binding="{Binding Path=IsValid, Mode=OneWay}" />
             </DataGrid.Columns>
+            <DataGrid.RowDetailsTemplate>
+                <DataTemplate>
+                    <Grid HorizontalAlignment="Left" Margin="25,10,5,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Style="{x:Null}" Text="Вид" FontWeight="DemiBold" Margin="5,5,5,0" HorizontalAlignment="Right"/>
+                        <TextBlock Style="{x:Null}" Grid.Column="1" Text="{Binding Path=Species, Mode=OneWay}" Margin="5,5,5,0"/>
+                        <TextBlock Grid.Row="1" Style="{x:Null}" Text="Акроним" FontWeight="DemiBold" Margin="5,1,5,0" HorizontalAlignment="Right"/>
+                        <TextBlock Style="{x:Null}" Grid.Row="1" Grid.Column="1" Text="{Binding Path=Acronym, TargetNullValue=н/д, Mode=OneWay}" Margin="5,1,5,0"/>
+                        <TextBlock Grid.Row="2" Style="{x:Null}" Text="Статус" FontWeight="DemiBold" Margin="5,1,5,0" HorizontalAlignment="Right"/>
+                        <TextBlock Style="{x:Null}" Grid.Row="2" Grid.Column="1" Text="{Binding Path=IsValid, Mode=OneWay, Converter={StaticResource BSConv}}" Margin="5,1,5,0"/>
+                        <TextBlock Grid.Row="3" Style="{x:Null}" Text="Последние изменения" FontWeight="DemiBold" Margin="5,1,5,0" HorizontalAlignment="Right"/>
+                        <TextBlock Style="{x:Null}" Grid.Row="3" Grid.Column="1" Text="{Binding Path=UpdateDate, StringFormat={}{0:d}, ConverterCulture='ru-RU', Mode=OneWay}" Margin="5,1,5,5"/>
+                    </Grid>
+                </DataTemplate>
+            </DataGrid.RowDetailsTemplate>
         </DataGrid>
-        <Button Content="exit" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding Path=Exit}"
-                CommandParameter="{Binding ElementName=sw}" />
-        <Canvas Grid.Column="1" Grid.Row="1">
-            <Button Content="AddNew" Canvas.Left="10" Canvas.Top="10" />
-            <Button Content="Delete" Canvas.Left="10" Canvas.Top="35" Width="50" Command="{Binding Path=Delete}" />
-            <Button Content="Edit" Canvas.Left="10" Canvas.Top="60" Width="50" />
-        </Canvas>
-        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="20,5,0,5">
-            <TextBox MinWidth="50" Width="219" Text="{Binding Path=SearchText}" />
-            <Button Content="Find" Margin="10,0,0,0" Width="47" Command="{Binding Path=Find}" />
+        <Button Style="{StaticResource BaseUIButton}" Content="Выход" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding Path=Exit}"
+                CommandParameter="{Binding ElementName=sw}" Foreground="SandyBrown" Height="36" Margin="5,270,5,15" />
+        <StackPanel Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" Margin="10,10">
+            <Button Style="{StaticResource BaseUIButton}" Foreground="#FF70BAFB" Content="Новая" Margin="5" Command="{Binding Path=AddNew}" />
+            <Button Content="Удалить" Style="{StaticResource BaseUIButton}" Foreground="Red" Command="{Binding Path=Delete}" Margin="5"/>
+            <Button Content="Редакт." Command="{Binding Path=Edit}" Style="{StaticResource BaseUIButton}" Foreground="#FF9BBF1E" Margin="5"/>
         </StackPanel>
-        <TextBlock HorizontalAlignment="Right" Text="{Binding Path=Specialities.Count, StringFormat=Записей: {0}}" Margin="0,0,20,0" TextAlignment="Center" />
+        <TextBox Style="{StaticResource SearchTextBox}" MinWidth="50" Width="270" Text="{Binding Path=SearchText, UpdateSourceTrigger=PropertyChanged}"
+                 Margin="20, 10,0,10" HorizontalAlignment="Left"/>
+        <TextBlock HorizontalAlignment="Right" Text="{Binding Path=Specialities.Count, StringFormat=Специальностей: {0}}" Margin="0,12,20,13" TextAlignment="Center" Height="Auto"/>
     </Grid>
 </Window>

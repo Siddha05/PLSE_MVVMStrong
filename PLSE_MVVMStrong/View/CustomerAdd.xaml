@@ -1,0 +1,79 @@
+﻿<Window x:Class="PLSE_MVVMStrong.View.CustomerAdd"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewmodel="clr-namespace:PLSE_MVVMStrong.ViewModel"
+        xmlns:local="clr-namespace:PLSE_MVVMStrong.View"
+        mc:Ignorable="d"
+        Title="CustomerAdd" Height="675" Width="620" Name="wnd" WindowStyle="None">
+    <Window.DataContext>
+        <viewmodel:CustomerAddVM />
+    </Window.DataContext>
+    <StackPanel Orientation="Vertical">
+        <Grid Margin="15,5,15,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="120" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <TextBlock Text="Фамилия*" />
+            <TextBox Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Customer.Sname, ValidatesOnExceptions=True}"/>
+            <CheckBox HorizontalAlignment="Left" Width="120" Margin="2,5,5,5" IsThreeState="False" IsChecked="{Binding Path=Customer.Declinated}"
+                      Grid.Column="2">
+                <CheckBox.Content>
+                    <TextBlock Text="Склонять" Style="{x:Null}" FontSize="12"/>
+                </CheckBox.Content>
+            </CheckBox>
+            <TextBlock Text="Имя*" Grid.Row="1" />
+            <TextBox Grid.Column="1" Grid.Row="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Customer.Fname, ValidatesOnExceptions=True}"/>
+            <TextBlock Text="Отчество*" Grid.Row="2" />
+            <TextBox Grid.Column="1" Grid.Row="2" Style="{StaticResource UITextBox}" Text="{Binding Path=Customer.Mname,ValidatesOnExceptions=True}"/>
+            <ToggleButton Grid.Row="3" IsChecked="{Binding Path=Customer.IsValid}" Style="{StaticResource ToggleValid}" Grid.ColumnSpan="3" Margin="30,5,30,5"
+                          Content="fdfd" Tag="dddd"/>
+            <TextBlock Text="Пол*" Grid.Row="4" />
+            <ComboBox Grid.Column="1" Grid.Row="4" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=Genders}" 
+                      Text="{Binding Path=Customer.Gender}"/>
+            <TextBlock Text="М. телефон" Grid.Row="5" />
+            <TextBox Grid.Column="1" Grid.Row="5" Style="{StaticResource UITextBox}" Text="{Binding Path=Customer.Mobilephone}"/>
+            <TextBlock Text="Р. телефон" Grid.Row="6" />
+            <TextBox Grid.Column="1" Grid.Row="6" Style="{StaticResource UITextBox}" Text="{Binding Path=Customer.Workphone}"/>
+            <TextBlock Text="Звание" Grid.Row="7" />
+            <ComboBox Grid.Column="1" Grid.Row="7" Grid.ColumnSpan="2" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=Ranks}" 
+                      Text="{Binding Path=Customer.Rank}" Width="426" Margin="5,5,0,5" IsTextSearchEnabled="True" IsEditable="True"/>
+            <TextBlock Text="Должность*" Grid.Row="8" />
+            <TextBox Grid.Column="1" Grid.Row="8" Grid.ColumnSpan="2" Style="{StaticResource UITextBox}" Text="{Binding Path=Customer.Office}" Margin="5,5,0,5" Width="426"/>
+            <TextBlock Text="Организация" Grid.Row="9" />
+            <TextBlock Style="{x:Null}" Margin="5,5,84,5" Grid.Row="9" Grid.Column="1" Text="{Binding Path=Customer.Organization.Name, TargetNullValue=не выбрано}"
+                       Grid.ColumnSpan="2">
+                <TextBlock.ToolTip>
+                    <TextBlock Text="{Binding Path=Customer.Organization.Requisite, Mode=OneWay}" Style="{x:Null}" FontSize="16"/>
+                </TextBlock.ToolTip>
+            </TextBlock>
+            <Button Grid.Row="9" Grid.Column="2" Style="{StaticResource SearchButton}" Width="37" Margin="5" Command="{Binding Path=SelectOrganization}" CommandParameter="{Binding ElementName=wnd}" />
+            <TextBlock Text="Отдел" Grid.Row="10" />
+            <TextBox Grid.Column="1" Grid.Row="10" Style="{StaticResource UITextBox}" Text="{Binding Path=Customer.Departament}"/>
+            <TextBlock Text="Email" Grid.Row="11" />
+            <TextBox Grid.Column="1" Grid.Row="11" Style="{StaticResource UITextBox}" Text="{Binding Path=Customer.Email}"/>
+        </Grid>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Style="{StaticResource BaseUIButton}" Content="Отмена" Foreground="Red"  Margin="0,10,5,5" Command="{Binding Path=Exit}" CommandParameter="{Binding ElementName=wnd}" />
+            <Button Style="{StaticResource BaseUIButton}" Content="Сохранить" Foreground="GreenYellow" Margin="5,10,0,5" Command="{Binding Path=AddCustomer}" CommandParameter="{Binding ElementName=wnd}" />
+        </StackPanel>
+    </StackPanel>
+</Window>

@@ -18,10 +18,7 @@ namespace PLSE_MVVMStrong.SQL
             set => _content = value;
         }
 
-        public ContentWrapper()
-        {
-        }
-
+        public ContentWrapper() { }
         public ContentWrapper(string q)
         {
             _content = q;
@@ -42,6 +39,7 @@ namespace PLSE_MVVMStrong.SQL
         private bool _null;
 
         public List<ContentWrapper> Questions => _quest;
+        public bool IsNull => _null;
 
         public override string ToString()
         {
@@ -52,9 +50,6 @@ namespace PLSE_MVVMStrong.SQL
             }
             return sb.ToString();
         }
-
-        public bool IsNull => _null;
-
         public static QuestionsList Null
         {
             get
@@ -64,7 +59,6 @@ namespace PLSE_MVVMStrong.SQL
                 return h;
             }
         }
-
         public static QuestionsList Parse(SqlString s)
         {
             if (s.IsNull)
@@ -77,7 +71,6 @@ namespace PLSE_MVVMStrong.SQL
             }
             return u;
         }
-
         public void Read(BinaryReader r)
         {
             _null = r.ReadBoolean();
@@ -88,7 +81,6 @@ namespace PLSE_MVVMStrong.SQL
                 _quest.Add(new ContentWrapper(item));
             }
         }
-
         public void Write(BinaryWriter w)
         {
             w.Write(_null);
@@ -99,7 +91,6 @@ namespace PLSE_MVVMStrong.SQL
         public QuestionsList()
         {
         }
-
         public QuestionsList(IEnumerable<ContentWrapper> r)
         {
             foreach (var item in r)
@@ -118,7 +109,6 @@ namespace PLSE_MVVMStrong.SQL
         private List<ContentWrapper> _objects = new List<ContentWrapper>();
 
         public List<ContentWrapper> Objects => _objects;
-
         public static ObjectsList Null
         {
             get
@@ -128,6 +118,7 @@ namespace PLSE_MVVMStrong.SQL
                 return h;
             }
         }
+        public bool IsNull => _null;
 
         public static ObjectsList Parse(SqlString s)
         {
@@ -140,7 +131,6 @@ namespace PLSE_MVVMStrong.SQL
             }
             return u;
         }
-
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
@@ -150,9 +140,7 @@ namespace PLSE_MVVMStrong.SQL
             }
             return sb.ToString();
         }
-
-        public bool IsNull => _null;
-
+        
         public void Read(BinaryReader r)
         {
             _null = r.ReadBoolean();
@@ -162,14 +150,12 @@ namespace PLSE_MVVMStrong.SQL
                 _objects.Add(new ContentWrapper(item));
             }
         }
-
         public void Write(BinaryWriter w)
         {
             w.Write(_null);
             string[] sa = _objects.ConvertAll<string>(n => n.ToString()).ToArray();
             w.Write(String.Join("*", sa));
         }
-
         public ObjectsList()
         {
         }

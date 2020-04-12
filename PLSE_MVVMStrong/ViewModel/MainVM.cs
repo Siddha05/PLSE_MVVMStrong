@@ -2,8 +2,11 @@
 using PLSE_MVVMStrong.View;
 using System;
 using System.Data.SqlClient;
+using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Threading;
 
 namespace PLSE_MVVMStrong.ViewModel
@@ -13,128 +16,144 @@ namespace PLSE_MVVMStrong.ViewModel
         private DispatcherTimer timer;
         private Progress<Message> informer;
         private MessageQuery messages = new MessageQuery();
-
-        private string[] aphorism =
-        {
-            "Начинающий видит много возможностей, эксперт — лишь несколько.",
-            "Авторитетность экспертного заключения обратно пропорциональна числу утверждений, понятных широкой публике.",
-            "Эксперт излагает объективную точку зрения. А именно свою собственную.",
-            "Эксперт – это человек, который совершил все возможные ошибки в очень узкой специальности.",
-            "Эксперт даст все нужные вам ответы, если получит нужные ему вопросы.",
-            "Сделайте три верные догадки подряд – и репутация эксперта вам обеспечена.",
-            "Если нужно выбрать среди экспертов одного настоящего, выбирай того, кто обещает наибольший срок завершения проекта и его наибольшую стоимость.",
-            "Если консультироваться с достаточно большим числом экспертов, можно подтвердить любую теорию.",
-            "Начальник не всегда прав, но он всегда начальник.",
-            "Не спеши выполнять приказ — его могут отменить.",
-            "От трудной работы еще никто не умирал. Но зачем испытывать судьбу?",
-            "Чем больше знаешь, тем больше знаешь лишнего.",
-            "Вывод — то место в тексте, где вы устали думать.",
-            "Если хотите остаться при своем мнении, держите его при себе.",
-            "Узы брака тяжелы. Поэтому нести их приходится вдвоем. А иногда даже втроем.",
-            "Если Вас уже третий рабочий день подряд клонит в сон, значит сегодня среда.",
-            "Ни одно доброе дело не должно оставаться безнаказанным.",
-            "Недостаточно иметь мозги, надо их иметь достаточно, чтобы воздержаться от того, чтобы иметь их слишком много.",
-            "Наличие мозгов — дополнительная нагрузка на позвоночник.",
-            "Работа в команде очень важна. Она позволяет свалить вину на другого.",
-            "Незаменимые бывают только аминокислоты.",
-            "Брак - единственная война, во время которой вы спите с врагом.",
-            "Любовь — это болезнь, требующая постельного режима.",
-            "Эксперт - это человек, который сделал больше ошибок, чем вы."
-        };
+        //public static Employee _employee = (Application.Current as App).LogedEmployee;
+        public static Employee _employee = CommonInfo.Employees.First(n => n.EmployeeID == 7);
+        private int EmpIndex = CommonInfo.Employees.IndexOf(_employee);
 
         #region Properties
-
         public string Date
         {
             get => (string)GetValue(DateProperty);
             set => SetValue(DateProperty, value);
         }
-
         public string Aphorism
         {
             get
             {
-                Random rd = new Random();
-                return aphorism[rd.Next(0, aphorism.Length-1)];
+                return (Application.Current as App).Aphorism;
             }
         }
-
         public MessageQuery Messages => messages;
-
         public static readonly DependencyProperty DateProperty =
             DependencyProperty.Register("Date", typeof(string), typeof(MainVM), new PropertyMetadata(null));
-
+        public Employee Employee
+        {
+            get { return _employee; }
+        }
         #endregion Properties
 
         #region Commands
-
-        private RelayCommand _exit;
-        public RelayCommand Exit => _exit;
-        private RelayCommand _spec;
-        public RelayCommand OpenSpeciality => _spec;
-
+        public RelayCommand Exit { get; }
+        public RelayCommand OpenSpeciality { get; }
+        public RelayCommand OpenResolutionAdd { get; }
+        public RelayCommand OpenEmployees { get; }
+        public RelayCommand OpenProfile { get; }
+        public RelayCommand Expertises { get; }
+        public RelayCommand WindowLoaded { get; }
+        public RelayCommand MessageListDoubleClick { get; }
         #endregion Commands
 
         public MainVM()
         {
-            _exit=new RelayCommand(o =>
-                                      {
-                                          var w = o as MainWindow;
-                                          if (w!=null) w.Close();
-                                      });
-            _spec=new RelayCommand(o =>
-                                  {
-                                      Specialities sw = new Specialities()
-                                      {
-                                          Owner=o as Window
-                                      };
-                                      sw.Show();
-                                  });
-            timer=new DispatcherTimer()
+            informer = new Progress<Message>(n => messages.Add(n));
+            Exit = new RelayCommand(o =>
+                                        {
+                                            var w = o as MainWindow;
+                                            if (w != null) w.Close();
+                                        });
+            OpenSpeciality = new RelayCommand(o =>
+                                    {
+                                        Specialities sw = new Specialities()
+                                        {
+                                            Owner = o as MainWindow
+                                        };
+                                        sw.Show();
+                                    });
+            OpenResolutionAdd = new RelayCommand(o =>
+                                        {
+                                            ResolutionAdd rw = new ResolutionAdd()
+                                            {
+                                                Owner = o as MainWindow
+                                            };
+                                            rw.Show();
+                                        });
+            OpenEmployees = new RelayCommand(n =>
             {
-                Interval=TimeSpan.FromSeconds(1)
+                var wnd = new Employees() { Owner = n as MainWindow };
+                wnd.Show();
+            });
+            OpenProfile = new RelayCommand(n =>
+                {
+                    var wnd = new Employees() { Owner = n as MainWindow, WindowStartupLocation = WindowStartupLocation.CenterScreen };
+                    if (wnd.ShowDialog() ?? false)
+                    {
+                        try
+                        {
+                            var vm = wnd.DataContext as EmployeesVM;
+                            if (vm == null) return;
+                            vm.Employee.SaveChanges(CommonInfo.connection);
+                            //foreach (var item in vm.ExpertList)
+                            //{
+                            //    item.SaveChanges(CommonInfo.connection);
+                            //}
+                            _employee = vm.Employee;
+                            CommonInfo.Employees[EmpIndex] = vm.Employee;
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(ex.Message);
+                        }
+                    }
+                });
+            Expertises = new RelayCommand(n =>
+            {
+                var wnd = new Expertises { Owner = n as MainWindow };
+                wnd.Show();
+            });
+            timer = new DispatcherTimer()
+            {
+                Interval = TimeSpan.FromSeconds(1)
             };
-            timer.Tick+=Timer_Tick;
+            WindowLoaded = new RelayCommand(n =>
+            {
+                ScanAnnualDate(informer);
+                ScanExpertises(informer);
+            });
+            MessageListDoubleClick = new RelayCommand(n =>
+            {
+                Messages.Remove(n as Message);
+            });
+            timer.Tick += Timer_Tick;
             timer.Start();
-            informer=new Progress<Message>(n => messages.Add(n));
-            messages.Add(new Message("Welcome, "+Environment.UserName, MsgType.Temporary));
-            try
-            {
-                if (CommonInfo.IsInitializated) ScanAsync(informer);
-            }
-            catch (SqlException e) when (e.Number==87)
-            {
-                MessageBox.Show("Ошибка при подключении к базе данных", "", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            catch (AggregateException e)
-            {
-                MessageBox.Show("Aggregate exeption catched");
-            }
+            var curhour = DateTime.Now.Hour;
+            if (curhour >= 4 && curhour <= 10) Messages.Add(new Message($"Доброе утро, {Employee.Fname} {Employee.Mname}", MsgType.Temporary, TimeSpan.FromSeconds(5)));
+            else if (curhour >= 11 && curhour <= 16) Messages.Add(new Message($"День добрый, {Employee.Fname} {Employee.Mname}", MsgType.Temporary, TimeSpan.FromSeconds(5)));
+            else if (curhour >= 17 && curhour <= 21) Messages.Add(new Message($"Добрый вечер, {Employee.Fname} {Employee.Mname}", MsgType.Temporary, TimeSpan.FromSeconds(5)));
+            else Messages.Add(new Message($"Доброй ночи, {Employee.Fname} {Employee.Mname}", MsgType.Normal, TimeSpan.FromSeconds(5)));
         }
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-            Date=DateTime.Now.ToString("F");
+            Date = DateTime.Now.ToString("F");
         }
-
-        public void ScanAsync(IProgress<Message> progress)
+        public void ScanAnnualDate(IProgress<Message> progress)
         {
             Task.Run(() =>
             {
-                if (CommonInfo.Employees!=null)
+                if (CommonInfo.Employees != null)
                 {
                     DateTime today = DateTime.Now;
                     foreach (var item in CommonInfo.Employees)
                     {
-                        if (item.Birthdate.HasValue&&item.Birthdate.Value.Day==today.Day&&item.Birthdate.Value.Month==today.Month)
+                        if (item.Birthdate.HasValue && item.Birthdate.Value.Day == today.Day && item.Birthdate.Value.Month == today.Month)
                         {
-                            int years = today.Year-item.Birthdate.Value.Year;
-                            progress.Report(new Message(item.ToString()+" празднует день рождения!!! ("+years.ToString()+")", MsgType.Congratulation));
+                            int years = today.Year - item.Birthdate.Value.Year;
+                            progress.Report(new Message(item.ToString() + " празднует день рождения!!! (" + years.ToString() + ")", MsgType.Congratulation));
                         }
-                        if (item.Hiredate.HasValue&&item.Hiredate.Value.Day==today.Day&&item.Hiredate.Value.Month==today.Month)
+                        if (item.Hiredate.HasValue && item.Hiredate.Value.Day == today.Day && item.Hiredate.Value.Month == today.Month)
                         {
-                            int years = today.Year-item.Hiredate.Value.Year;
-                            progress.Report(new Message(item.ToString()+" выслуга лет!!! ("+years.ToString()+")", MsgType.Congratulation));
+                            int years = today.Year - item.Hiredate.Value.Year;
+                            progress.Report(new Message(item.ToString() + " выслуга лет!!! (" + years.ToString() + ")", MsgType.Congratulation));
                         }
                     }
                 }
@@ -143,6 +162,37 @@ namespace PLSE_MVVMStrong.ViewModel
                     progress.Report(new Message("Список сотрудников не загружен", MsgType.Error));
                 }
             });
+        }
+        public void ScanExpertises (IProgress<Message> progress)
+        {
+            Task.Run(() =>
+            {
+                progress.Report(new Message($"Expertises not scanned!", MsgType.Warning));
+            });
+        }
+    }
+    [ValueConversion(typeof(MsgType), typeof(string))]
+    class MessageImageConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            MsgType msgtype = (MsgType)value;
+            switch (msgtype)
+            {
+                case MsgType.Error:
+                    return "Resources/Error.png";
+                case MsgType.Congratulation:
+                    return "Resources/GiftBox.png";
+                case MsgType.Warning:
+                    return "Resources/Warning.png";
+                default:
+                    return "Resources/Info.png";
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
         }
     }
 }

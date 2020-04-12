@@ -1,0 +1,58 @@
+﻿<Window x:Class="PLSE_MVVMStrong.View.Expertise_Add"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PLSE_MVVMStrong.View"
+        xmlns:viewmodel="clr-namespace:PLSE_MVVMStrong.ViewModel"
+        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+        mc:Ignorable="d"
+        Title="Expertise_Add" Height="450" Width="800" WindowStyle="None" Name="wnd">
+    <Window.DataContext>
+        <viewmodel:ExpertiseAddVM/>
+    </Window.DataContext>
+    <StackPanel Orientation="Vertical" Margin="15,10">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <TextBlock Text="Тип экспертизы"/>
+            <ComboBox Style="{StaticResource UIComboBox}" Grid.Column="1" Text="{Binding Path=Expertise.ExpertiseType}" ItemsSource="{Binding Path=ExpertiseType}"/>
+            <TextBlock Text="Номер" Grid.Row="1"/>
+            <TextBox Style="{StaticResource UITextBox}" Grid.Row="1" Grid.Column="1" Text="{Binding Path=Expertise.Number, ValidatesOnExceptions=True}"/>
+            <TextBlock Text="Дата начала" Grid.Row="2"/>
+            <DatePicker Grid.Column="1" Grid.Row="2" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Expertise.StartDate}"/>
+            <TextBlock Text="Срок" Grid.Row="3"/>
+            <StackPanel Orientation="Horizontal" Grid.Row="3" Grid.Column="1">
+                <Slider Name="slider" Maximum="30" Minimum="1" VerticalAlignment="Center" Margin="5,0" Width="350" HorizontalAlignment="Left"
+                    TickPlacement="BottomRight" TickFrequency="5" Value="{Binding Path=Expertise.TimeLimit}"/>
+                <TextBox Text="{Binding ElementName=slider, Path=Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="30" FontSize="16" FontWeight="Bold" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+            </StackPanel>
+            
+            <TextBlock Text="Эксперт" Grid.Row="4"/>
+            <ComboBox Name="cbexpert" Style="{StaticResource UIComboBox}" Grid.Row="4" Grid.Column="1" ItemsSource="{Binding Path=Experts}" DisplayMemberPath="FIO">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="SelectionChanged">
+                        <i:InvokeCommandAction Command="{Binding Path=ExpertChanged}" CommandParameter="{Binding ElementName =cbexpert, Path=SelectedItem}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </ComboBox>
+            <TextBlock Text="Специальность" Grid.Row="5"/>
+            <ComboBox Style="{StaticResource UIComboBox}" Grid.Row="5" Grid.Column="1" ItemsSource="{Binding Path=Specialities}" DisplayMemberPath="Speciality"
+                      SelectedItem="{Binding Path=Expertise.Expert}" HorizontalContentAlignment="Left" Width="600"/>
+        </Grid>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="5,20,5,5">
+            <Button Style="{StaticResource BaseUIButton}" Foreground="Red" Content="Отмена" Margin="5" Command="{Binding Path=Cancel}" CommandParameter="{Binding ElementName=wnd}"/>
+            <Button Style="{StaticResource BaseUIButton}" Foreground="GreenYellow" Content="Добавить" Margin="5" Command="{Binding Path=Select}" CommandParameter="{Binding ElementName=wnd}"/>
+        </StackPanel>
+    </StackPanel>
+</Window>
