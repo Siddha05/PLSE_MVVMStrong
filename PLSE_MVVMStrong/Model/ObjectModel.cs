@@ -374,7 +374,7 @@ namespace PLSE_MVVMStrong.Model
         /// Общая информация о ПЛСЭ
         /// </summary>
 
-        public static readonly Organization PLSE;
+        public static readonly Laboratory PLSE;
         private static ObservableCollection<Speciality> _specialities = new ObservableCollection<Speciality>();
         private static ObservableCollection<Organization> _organizations = new ObservableCollection<Organization>();
         private static ObservableCollection<Employee> _employees = new ObservableCollection<Employee>();
@@ -480,7 +480,7 @@ namespace PLSE_MVVMStrong.Model
                 ConnectTimeout = 5
             };
             connection = new SqlConnection(sb.ConnectionString);
-            PLSE = new Organization()
+            PLSE = new Laboratory()
             {
                 Name = "федеральное бюджетное учреждение Пензенская лаборатория судебной экспертизы Министерства юстиции Российской Федерации",
                 ShortName = "ФБУ Пензенская ЛСЭ Минюста России",
@@ -1210,7 +1210,38 @@ namespace PLSE_MVVMStrong.Model
             return resolutions;
         }
     }
-
+    public class UserPermissions
+    {
+        enum PluralType
+        {
+            Self,
+            Group,
+            All
+        }
+        enum PermissionAction
+        {
+            Add,
+            Edit,
+            Delete
+        }
+        enum PermissionGroup
+        {
+            Profile,
+            Expertise,
+            Bill,
+            Report,
+            Request,
+            Speciality,
+            Expert,
+            Settlement,
+            Equipment,
+            EquipmentUsage,
+            Resolution,
+            Customer,
+            Organization
+        }
+    
+    }
     public class RelayCommand : ICommand
     {
         private Action<object> _execute;
@@ -2103,7 +2134,7 @@ namespace PLSE_MVVMStrong.Model
             if (Flat != null) sb.Append(", кв. " + Flat);
             if (Settlement != null)
             {
-                sb.AppendLine();
+                sb.Append(", ");
                 sb.Append(Settlement.ToString());
             }
             return sb.ToString();
@@ -2135,7 +2166,7 @@ namespace PLSE_MVVMStrong.Model
         }
     }
 
-    public class Departament : IEquatable<Departament>
+    public sealed class Departament : IEquatable<Departament>
     {
         private string _title;
         private string _digitalcode;
@@ -3224,7 +3255,7 @@ namespace PLSE_MVVMStrong.Model
                 _propertyName = prop;
             }
         }
-        #region MyRegion
+        #region Fields
         private int _organizationID;
         private string _name;
         private string _shortname;
@@ -3559,7 +3590,10 @@ namespace PLSE_MVVMStrong.Model
             return Clone();
         }
     }
+    public class Laboratory : Organization
+    {
 
+    }
     public class Customer : Person, ICloneable
     {
         private int _customerID;
@@ -3774,7 +3808,7 @@ namespace PLSE_MVVMStrong.Model
         }
     }
 
-    public class Case : INotifyPropertyChanged
+    public sealed class Case : INotifyPropertyChanged
     {
         private string _number;
         private string _respondent;

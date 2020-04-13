@@ -48,9 +48,10 @@ namespace PLSE_MVVMStrong.ViewModel
         public RelayCommand OpenResolutionAdd { get; }
         public RelayCommand OpenEmployees { get; }
         public RelayCommand OpenProfile { get; }
-        public RelayCommand Expertises { get; }
+        public RelayCommand OpenExpertises { get; }
         public RelayCommand WindowLoaded { get; }
         public RelayCommand MessageListDoubleClick { get; }
+        public RelayCommand OpenAbout { get; }
         #endregion Commands
 
         public MainVM()
@@ -105,7 +106,7 @@ namespace PLSE_MVVMStrong.ViewModel
                         }
                     }
                 });
-            Expertises = new RelayCommand(n =>
+            OpenExpertises = new RelayCommand(n =>
             {
                 var wnd = new Expertises { Owner = n as MainWindow };
                 wnd.Show();
@@ -119,6 +120,11 @@ namespace PLSE_MVVMStrong.ViewModel
                 ScanAnnualDate(informer);
                 ScanExpertises(informer);
             });
+            OpenAbout = new RelayCommand(n =>
+           {
+               About wnd = new About();
+               wnd.Show();
+           });
             MessageListDoubleClick = new RelayCommand(n =>
             {
                 Messages.Remove(n as Message);
