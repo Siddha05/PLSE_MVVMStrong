@@ -31,6 +31,10 @@ namespace PLSE_MVVMStrong.ViewModel
         #endregion
         public LoginVM()
         {
+#if DEBUG
+            Login = "Кожаева";
+            Pass = "Кожаева";
+#endif
             Exit = new RelayCommand(n =>
             {
                 var wnd = n as View.Login;

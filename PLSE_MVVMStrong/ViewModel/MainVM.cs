@@ -62,14 +62,15 @@ namespace PLSE_MVVMStrong.ViewModel
                                             var w = o as MainWindow;
                                             if (w != null) w.Close();
                                         });
-            OpenSpeciality = new RelayCommand(o =>
-                                    {
-                                        Specialities sw = new Specialities()
-                                        {
-                                            Owner = o as MainWindow
-                                        };
-                                        sw.Show();
-                                    });
+            OpenSpeciality = new RelayCommand(exec: o =>
+                                     {
+                                         Specialities sw = new Specialities()
+                                         {
+                                             Owner = o as MainWindow
+                                         };
+                                         sw.Show();
+                                     },
+                                    type: RelayCommand.CommandType.View);
             OpenResolutionAdd = new RelayCommand(o =>
                                         {
                                             ResolutionAdd rw = new ResolutionAdd()

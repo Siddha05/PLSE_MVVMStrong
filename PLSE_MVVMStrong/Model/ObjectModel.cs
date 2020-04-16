@@ -1210,42 +1210,21 @@ namespace PLSE_MVVMStrong.Model
             return resolutions;
         }
     }
-    public class UserPermissions
-    {
-        enum PluralType
-        {
-            Self,
-            Group,
-            All
-        }
-        enum PermissionAction
-        {
-            Add,
-            Edit,
-            Delete
-        }
-        enum PermissionGroup
-        {
-            Profile,
-            Expertise,
-            Bill,
-            Report,
-            Request,
-            Speciality,
-            Expert,
-            Settlement,
-            Equipment,
-            EquipmentUsage,
-            Resolution,
-            Customer,
-            Organization
-        }
-    
-    }
+
     public class RelayCommand : ICommand
     {
+        public enum CommandType
+        {
+            None,
+            View,
+            Add,
+            Edit,
+            Delete 
+        }
+
         private Action<object> _execute;
         private Func<object, bool> _canexecute;
+        private CommandType _type;
 
         public event EventHandler CanExecuteChanged
         {
@@ -1253,16 +1232,15 @@ namespace PLSE_MVVMStrong.Model
             remove { CommandManager.RequerySuggested -= value; }
         }
 
-        public RelayCommand(Action<object> exec, Func<object, bool> canexec = null)
+        public RelayCommand(Action<object> exec, Func<object, bool> canexec = null, CommandType type = CommandType.None)
         {
-            _execute = exec; _canexecute = canexec;
+            _execute = exec; _canexecute = canexec; _type = type;
         }
 
         public bool CanExecute(object parameter)
         {
             return _canexecute == null || _canexecute.Invoke(parameter);
         }
-
         public void Execute(object parameter)
         {
             _execute(parameter);

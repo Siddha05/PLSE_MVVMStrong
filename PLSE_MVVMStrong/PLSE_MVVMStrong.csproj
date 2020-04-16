@@ -65,7 +65,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Model\ApplicationSet.cs" />
+    <Compile Include="Model\Dispatcher.cs" />
     <Compile Include="SQL\SQLTypes.cs" />
     <Compile Include="ViewModel\AboutVM.cs" />
     <Compile Include="ViewModel\CustomerAddVM.cs" />

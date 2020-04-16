@@ -1,4 +1,5 @@
 ﻿using PLSE_MVVMStrong.Model;
+using PLSE_MVVMStrong.View;
 using System;
 using System.Globalization;
 using System.Windows;
@@ -53,6 +54,13 @@ namespace PLSE_MVVMStrong
                 Random rd = new Random();
                 return aphorism[rd.Next(0, aphorism.Length - 1)];
             }
+        }
+        
+
+        public App()
+        {
+            WindowDispatcher WDispatcher = new WindowDispatcher();
+            WDispatcher.Register("MainWindow", new WindowManager<MainWindow>())
         }
     }
 
