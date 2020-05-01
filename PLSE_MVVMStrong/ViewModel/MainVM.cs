@@ -16,11 +16,14 @@ namespace PLSE_MVVMStrong.ViewModel
         private DispatcherTimer timer;
         private Progress<Message> informer;
         private MessageQuery messages = new MessageQuery();
-        //public static Employee _employee = (Application.Current as App).LogedEmployee;
+#if DEBUG
         public static Employee _employee = CommonInfo.Employees.First(n => n.EmployeeID == 7);
+#else 
+        public static Employee _employee = (Application.Current as App).LogedEmployee;
+#endif
         private int EmpIndex = CommonInfo.Employees.IndexOf(_employee);
 
-        #region Properties
+#region Properties
         public string Date
         {
             get => (string)GetValue(DateProperty);
@@ -40,9 +43,9 @@ namespace PLSE_MVVMStrong.ViewModel
         {
             get { return _employee; }
         }
-        #endregion Properties
+#endregion Properties
 
-        #region Commands
+#region Commands
         public RelayCommand Exit { get; }
         public RelayCommand OpenSpeciality { get; }
         public RelayCommand OpenResolutionAdd { get; }
@@ -52,7 +55,7 @@ namespace PLSE_MVVMStrong.ViewModel
         public RelayCommand WindowLoaded { get; }
         public RelayCommand MessageListDoubleClick { get; }
         public RelayCommand OpenAbout { get; }
-        #endregion Commands
+#endregion Commands
 
         public MainVM()
         {
@@ -62,15 +65,16 @@ namespace PLSE_MVVMStrong.ViewModel
                                             var w = o as MainWindow;
                                             if (w != null) w.Close();
                                         });
-            OpenSpeciality = new RelayCommand(exec: o =>
-                                     {
-                                         Specialities sw = new Specialities()
-                                         {
-                                             Owner = o as MainWindow
-                                         };
-                                         sw.Show();
-                                     },
-                                    type: RelayCommand.CommandType.View);
+            //OpenSpeciality = new RelayCommand(exec: o =>
+            //                         {
+            //                             Specialities sw = new Specialities()
+            //                             {
+            //                                 Owner = o as MainWindow
+            //                             };
+            //                             sw.Show();
+            //                         },
+            //                        type: RelayCommand.CommandType.View);
+            OpenSpeciality = (Application.Current as App).WDispatcher["Specialities"].Open;
             OpenResolutionAdd = new RelayCommand(o =>
                                         {
                                             ResolutionAdd rw = new ResolutionAdd()

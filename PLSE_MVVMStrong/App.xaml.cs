@@ -55,12 +55,14 @@ namespace PLSE_MVVMStrong
                 return aphorism[rd.Next(0, aphorism.Length - 1)];
             }
         }
-        
+        public WindowDispatcher WDispatcher { get; }
 
         public App()
         {
-            WindowDispatcher WDispatcher = new WindowDispatcher();
-            WDispatcher.Register("MainWindow", new WindowManager<MainWindow>())
+            WDispatcher = new WindowDispatcher();
+            //WDispatcher.Register("MainWindow", new WindowManager<MainWindow>(new Permission(PermissionPlural.All, PermissionAction.All)));
+            //WDispatcher.Register("Specialities", new WindowManager<Specialities>(new Permission(PermissionPlural.All, PermissionAction.All)));
+            
         }
     }
 

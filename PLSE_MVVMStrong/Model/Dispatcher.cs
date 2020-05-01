@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PLSE_MVVMStrong.View;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -98,58 +99,43 @@ namespace PLSE_MVVMStrong.Model
             Plurality = plural;
             Actions = action;
         }
+        public Permission(Employee employee)
+        {
+
+        }
     }
-    public class WindowManager<T> where T: Window, new()
+    public abstract class WMBase
     {
-        #region Fields
-        private T _target;
-        private Permission _permissions;
-        #endregion
-        #region Properties
-        public T Target => _target;
+        protected Permission _permissions;
+
         public Permission Permissions
         {
             get { return _permissions; }
             set { _permissions = value; }
         }
-        public RelayCommand Open { get; }
-        public RelayCommand Close { get; }
+        public abstract RelayCommand Open { get; }
+        public abstract RelayCommand Close { get; }
+    }
+    public class WindowManager<T>: WMBase where T: Window, new() 
+    {
+        #region Fields
+        private T _target;
+        #endregion
+        #region Properties
+        public T Target => _target;
+
+        override public RelayCommand Open { get; }
+        override public RelayCommand Close { get; }
         #endregion
 
-        
-        public void Show()
-        {
-            if (_target == null)
-            {
-                T wnd = new T();
-                if (wnd != null)
-                {
-                    _target = wnd;
-                    wnd.Show();
-                }
-            }
-            else _target.Focus();
-        }
-        public void ShowDialog()
-        {
-            if (_target == null)
-            {
-                T wnd = new T();
-                if (wnd != null)
-                {
-                    _target = wnd;
-                    wnd.ShowDialog();
-                }
-            }
-        }
-        //public void Close()
-        //{
-        //    if (_target != null) _target.Close();
-        //    _target = null;
-        //}
-        public WindowManager(Permission perm)
+        public WindowManager(Permission perm) : this()
         {
             _permissions = perm;
+           
+        }
+        public WindowManager()
+        {
+            _permissions = Permission.Default;
             Open = new RelayCommand(n =>
             {
                 if (_target == null)
@@ -158,30 +144,27 @@ namespace PLSE_MVVMStrong.Model
                     if (wnd != null)
                     {
                         _target = wnd;
+                        _target.Closed += (s, e) => _target = null; // memory leak!!!???
                         wnd.Show();
                     }
                 }
                 else _target.Focus();
             },
-            x => (_permissions.Actions & PermissionAction.View) != 0);
+                                    x => (_permissions.Actions & PermissionAction.View) != 0);
             Close = new RelayCommand(n =>
             {
                 _target.Close();
-                _target = null;
             });
-        }
-        public WindowManager()
-        {
-            _permissions = Permission.Default;
         }
     }
     public class WindowDispatcher
     {
         #region Fields
-        Dictionary<string, WindowManager<Window>> _dispatcher = new Dictionary<string, WindowManager<Window>>();
+        Dictionary<string, WMBase> _dispatcher;
         #endregion
         #region Properties
-        public WindowManager<Window> this[string id]
+        public Dictionary<string, WMBase> Dispatcher => _dispatcher;
+        public WMBase this[string id]
         {
             get
             {
@@ -189,9 +172,15 @@ namespace PLSE_MVVMStrong.Model
             }
         }
         #endregion
-        public void Register(string id, WindowManager<Window> wm)
+        public WindowDispatcher()
         {
-            _dispatcher.Add(id, wm);
+            _dispatcher = new Dictionary<string, WMBase>
+            {
+                ["MainWindow"] = new WindowManager<MainWindow>(new Permission(PermissionPlural.Self, PermissionAction.View)),
+                ["Specialities"] = new WindowManager<Specialities>(),
+                ["Expertises"] = new WindowManager<Expertises>()
+                
+            };
         }
         public void SetPermissions (string id, Permission perm)
         {

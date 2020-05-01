@@ -24,15 +24,14 @@
             <RowDefinition />
         </Grid.RowDefinitions>
         <DataGrid AutoGenerateColumns="False" Grid.RowSpan="3" Grid.Row="1" Margin="5,3,3,10" CanUserAddRows="False" CanUserDeleteRows="False"
-                  FontSize="{StaticResource UIFontSize}" ItemsSource="{Binding Path=Specialities}" RowDetailsVisibilityMode="VisibleWhenSelected">
+                  FontSize="{StaticResource UIFontSize}" ItemsSource="{Binding Path=Specialities}" ColumnHeaderStyle="{StaticResource DGColumnsHeader}" 
+                  RowStyle="{StaticResource DGRowStyle}" CellStyle="{StaticResource DGCellStyle}" Background="White">
             <DataGrid.Columns>
-                <DataGridTemplateColumn Width="3*">
-                    <DataGridTemplateColumn.Header>
-                        <TextBlock Style="{StaticResource HeaderTextBlock}" Text="Специальность"/>
-                    </DataGridTemplateColumn.Header>
+                <DataGridTemplateColumn Width="3*" Header="Специальность">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Style="{x:Null}" x:Name="tb" Text="{Binding Path=FullTitle, Mode=OneWay}" TextWrapping="WrapWithOverflow"/>
+                            <TextBlock Style="{x:Null}" x:Name="tb" Text="{Binding Path=FullTitle, Mode=OneWay}" TextWrapping="WrapWithOverflow" 
+                                       FontStyle="Italic" TextAlignment="Center"/>
                             <DataTemplate.Triggers>
                                 <DataTrigger Binding="{Binding Path=IsValid}" Value="false">
                                     <Setter TargetName="tb" Property="TextDecorations">
@@ -51,24 +50,21 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Width="150" Binding="{Binding Path=Categories, Mode=OneWay}">
-                    <DataGridTextColumn.Header>
-                        <TextBlock Style="{StaticResource HeaderTextBlock}" Text="Категории"/>
-                    </DataGridTextColumn.Header>
+                <DataGridTextColumn Width="150" Binding="{Binding Path=Categories, Mode=OneWay}" Header="Часы">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
                             <Setter Property="TextAlignment" Value="Center" />
                             <Setter Property="VerticalAlignment" Value="Center"/>
+                            <Setter Property="FontStyle" Value="Italic"/>
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
             </DataGrid.Columns>
             <DataGrid.RowDetailsTemplate>
                 <DataTemplate>
-                    <Grid HorizontalAlignment="Left" Margin="25,10,5,10">
+                    <Grid HorizontalAlignment="Left" Margin="35,10,5,10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="auto"/>
-                            <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition/>
@@ -76,20 +72,28 @@
                             <RowDefinition/>
                             <RowDefinition/>
                         </Grid.RowDefinitions>
-                        <TextBlock Style="{x:Null}" Text="Вид" FontWeight="DemiBold" Margin="5,5,5,0" HorizontalAlignment="Right"/>
-                        <TextBlock Style="{x:Null}" Grid.Column="1" Text="{Binding Path=Species, Mode=OneWay}" Margin="5,5,5,0"/>
-                        <TextBlock Grid.Row="1" Style="{x:Null}" Text="Акроним" FontWeight="DemiBold" Margin="5,1,5,0" HorizontalAlignment="Right"/>
-                        <TextBlock Style="{x:Null}" Grid.Row="1" Grid.Column="1" Text="{Binding Path=Acronym, TargetNullValue=н/д, Mode=OneWay}" Margin="5,1,5,0"/>
-                        <TextBlock Grid.Row="2" Style="{x:Null}" Text="Статус" FontWeight="DemiBold" Margin="5,1,5,0" HorizontalAlignment="Right"/>
-                        <TextBlock Style="{x:Null}" Grid.Row="2" Grid.Column="1" Text="{Binding Path=IsValid, Mode=OneWay, Converter={StaticResource BSConv}}" Margin="5,1,5,0"/>
-                        <TextBlock Grid.Row="3" Style="{x:Null}" Text="Последние изменения" FontWeight="DemiBold" Margin="5,1,5,0" HorizontalAlignment="Right"/>
-                        <TextBlock Style="{x:Null}" Grid.Row="3" Grid.Column="1" Text="{Binding Path=UpdateDate, StringFormat={}{0:d}, ConverterCulture='ru-RU', Mode=OneWay}" Margin="5,1,5,5"/>
+                        <TextBlock Style="{x:Null}" Margin="5,5,5,0">
+                            <Run FontWeight="DemiBold">Вид: </Run>
+                            <Run FontStyle="Italic" Text="{Binding Path=Species, Mode=OneWay}"/>
+                        </TextBlock>
+                        <TextBlock Grid.Row="1" Style="{x:Null}" Margin="5,1,5,0">
+                            <Run FontWeight="DemiBold">Акроним: </Run>
+                            <Run FontStyle="Italic" Text="{Binding Path=Acronym, Mode=OneWay}"/>
+                        </TextBlock>
+                        <TextBlock Grid.Row="2" Style="{x:Null}"  Margin="5,1,5,0">
+                            <Run FontWeight="DemiBold">Статус: </Run>
+                            <Run FontStyle="Italic" Text="{Binding Path=IsValid, Mode=OneWay, Converter={StaticResource BSConv}}"/>
+                        </TextBlock>
+                        <TextBlock Grid.Row="3" Style="{x:Null}" Margin="5,1,5,0">
+                           <Run FontWeight="DemiBold">Последние изменения: </Run>
+                            <Run FontStyle="Italic" Text="{Binding Path=UpdateDate, StringFormat={}{0:d}, ConverterCulture='ru-RU', Mode=OneWay}"/>
+                        </TextBlock>
                     </Grid>
                 </DataTemplate>
             </DataGrid.RowDetailsTemplate>
         </DataGrid>
-        <Button Style="{StaticResource BaseUIButton}" Content="Выход" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding Path=Exit}"
-                CommandParameter="{Binding ElementName=sw}" Foreground="SandyBrown" Height="36" Margin="5,270,5,15" />
+        <Button Style="{StaticResource ButtonExit}" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding Path=Exit}"
+                CommandParameter="{Binding ElementName=sw}"  Margin="5,270,5,15" />
         <StackPanel Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" Margin="10,10">
             <Button Style="{StaticResource BaseUIButton}" Foreground="#FF70BAFB" Content="Новая" Margin="5" Command="{Binding Path=AddNew}" />
             <Button Content="Удалить" Style="{StaticResource BaseUIButton}" Foreground="Red" Command="{Binding Path=Delete}" Margin="5"/>

@@ -3,9 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:PLSE_MVVMStrong"
              xmlns:system="clr-namespace:System;assembly=mscorlib"
-             StartupUri="View\Login.xaml" ShutdownMode="OnLastWindowClose">
+             StartupUri="MainWindow.xaml" ShutdownMode="OnLastWindowClose">
     <Application.Resources>
         <local:TextConverter x:Key="TextConverter" />
+        <BooleanToVisibilityConverter x:Key="BVConv"/>
         <system:Double x:Key="RegularFontSize">16</system:Double>
         <system:Double x:Key="UIFontSize">18</system:Double>
         <system:Double x:Key="HeaderFontSize">24</system:Double>
@@ -81,11 +82,6 @@
             <Setter Property="FontWeight" Value="DemiBold" />
             <Setter Property="Height" Value="35" />
         </Style>
-        <Style x:Key="HeaderTextBlock" TargetType="{x:Type TextBlock}">
-            <Setter Property="FontStyle" Value="Italic"/>
-            <Setter Property="FontSize" Value="{StaticResource HeaderFontSize}" />
-            <Setter Property="FontWeight" Value="DemiBold" />
-        </Style>
         <Style TargetType="{x:Type DatePicker}" x:Key="UIDatePicker">
             <Setter Property="FontSize" Value="{StaticResource UIFontSize}" />
             <Setter Property="Margin" Value="5" />
@@ -112,33 +108,81 @@
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="HorizontalAlignment" Value="Left" />
         </Style>
-        <Style TargetType="Button" x:Key="BaseUIButton" x:Shared="false">
+        <Style TargetType="Button" x:Key="BaseUIButton">
             <Setter Property="Width" Value="90" />
             <Setter Property="Height" Value="37" />
             <Setter Property="Background" Value="White" />
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="ForceCursor" Value="True"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="ToolTipService.InitialShowDelay" Value="1000"/>
+            <Setter Property="ToolTipService.ShowDuration" Value="3000"/>
             <Setter Property="BorderBrush" Value="{StaticResource UnselectedControl}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Name="brd" BorderThickness="1" BorderBrush="{StaticResource UnselectedControl}" Background="{TemplateBinding Background}">
-                            <TextBlock Name="tb" Style="{x:Null}" Text="{TemplateBinding Content}" TextAlignment="Center" Foreground="{TemplateBinding Foreground}" VerticalAlignment="Center"
-                                       FontSize="16" FontWeight="Bold"/>
+                        <Border Name="brd" BorderThickness="1" Background="{TemplateBinding Background}" BorderBrush="Black">
+                            <Grid>
+                                <Path Name="path" Fill="Transparent">
+                                    <Path.Data>
+                                        <PathGeometry>
+                                            <PathFigure StartPoint="0,0" IsClosed="True">
+                                                <LineSegment Point="10,0"/>
+                                                <LineSegment Point="0,10"/>
+                                            </PathFigure>
+                                        </PathGeometry>
+                                    </Path.Data>
+                                </Path>
+                                <TextBlock Name="tb" Style="{x:Null}" Text="{TemplateBinding Content}" TextAlignment="Center" Foreground="{TemplateBinding Foreground}" 
+                                       VerticalAlignment="Center" FontSize="16" FontWeight="Bold" RenderTransformOrigin="0.5, 0.5">
+                                    <TextBlock.RenderTransform>
+                                        <ScaleTransform x:Name="trs"/>
+                                    </TextBlock.RenderTransform>
+                                </TextBlock>
+                            </Grid>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="true">
-                                <Setter TargetName="brd" Property="BorderBrush" Value="{StaticResource SelectedControl}"/>
-                                <!--<Setter TargetName="brd" Property="Background" Value="#FF98BEFF"/>-->
+                                <Setter TargetName="brd" Property="BorderBrush" Value="#FF2222FB"/>
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="trs" Storyboard.TargetProperty="ScaleX" To="1.1" Duration="0:0:0.1"/>
+                                            <DoubleAnimation Storyboard.TargetName="trs" Storyboard.TargetProperty="ScaleY" To="1.1" Duration="0:0:0.1"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="trs" Storyboard.TargetProperty="ScaleX" Duration="0:0:0.1"/>
+                                            <DoubleAnimation Storyboard.TargetName="trs" Storyboard.TargetProperty="ScaleY" Duration="0:0:0.1"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                            <Trigger Property="IsDefault" Value="true">
+                                <Setter TargetName="path" Property="Fill" Value="#FF3AD333"/>
+                            </Trigger>
+                            <Trigger Property="IsCancel" Value="true">
+                                <Setter TargetName="path" Property="Fill" Value="Red"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="false">
                                 <Setter TargetName="tb" Property="Foreground" Value="Gray"/>
                                 <Setter TargetName="brd" Property="BorderBrush" Value="Gray"/>
+                                <Setter TargetName="path" Property="Fill" Value="gray"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+        </Style>
+        <Style BasedOn="{StaticResource BaseUIButton}" TargetType="{x:Type Button}" x:Key="ButtonExit">
+            <Setter Property="Content" Value="Выход"/>
+            <Setter Property="Foreground" Value="#FFD4681A"/>
+            <Setter Property="IsCancel" Value="True"/>
+            <Setter Property="ToolTip" Value="Закрыть окно"/>
         </Style>
         <Style TargetType="{x:Type ToggleButton}" x:Key="ToggleValid" x:Shared ="false">
             <Setter Property="OverridesDefaultStyle" Value="True"/>
@@ -188,10 +232,25 @@
             <Setter Property="FontSize" Value="{StaticResource UIFontSize}" />
             <Setter Property="Width" Value="200" />
             <Setter Property="Height" Value="30" />
-            <Setter Property="Template" Value="{StaticResource tbAdditonText}" />
-            <Setter Property="Tag" Value="Поиск" />
+            <Setter Property="Tag" Value="Введите текст для поиска" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Grid Width="{TemplateBinding Width}" Height="{TemplateBinding Height}" Name="grid">
+                            <TextBlock Name="block" Text="{TemplateBinding Tag}" Padding="10,2,0,0" Focusable="False" TextAlignment="Left" Style="{x:Null}"
+                                   Width="{Binding ElementName=grid, Path=ActualWidth}" Height="{Binding ElementName=grid, Path=ActualHeight}" Foreground="Gray"
+                                   FontStyle="Italic" FontWeight="Thin" FontSize="{TemplateBinding FontSize}" Background="{TemplateBinding Background}" VerticalAlignment="Center"/>
+                            <TextBox Name="box" Background="{Binding RelativeSource={RelativeSource Self}, Path=Text, Converter={StaticResource TextConverter}}"
+                                 FontSize="{TemplateBinding FontSize}" FontWeight="Normal" FontStyle="Normal" Style="{x:Null}" TextAlignment="Left" Panel.ZIndex="2"
+                                 Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type TextBox}}, Path=Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                            </TextBox>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
         <Style TargetType="{x:Type ToggleButton}" x:Key="ArrowToggle">
+            <Setter Property="ForceCursor" Value="True"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ToggleButton">
@@ -203,6 +262,9 @@
                             </Path>
                         </Grid>
                         <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="Cursor" Value="Hand"/>
+                            </Trigger>
                             <Trigger Property="IsChecked" Value="true">
                                 <Trigger.EnterActions>
                                     <BeginStoryboard>
@@ -223,6 +285,101 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+        </Style>
+        <Style TargetType="{x:Type DataGridColumnHeader}" x:Key="DGColumnsHeader">
+            <Setter Property="SeparatorBrush" Value="Black"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="{StaticResource HeaderFontSize}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type DataGridColumnHeader}">
+                        <Border Padding="0,3" BorderThickness="1,0,1,0" BorderBrush="{TemplateBinding SeparatorBrush}">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                    <GradientStop Offset="0" Color="#FFFBCE80" />
+                                    <GradientStop Offset="1" Color="#FFFBB132" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="{x:Type DataGridRow}" x:Key="DGRowStyle">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type DataGridRow}">
+                        <Border x:Name="brd" BorderThickness="1" BorderBrush="Blue" Margin="1,2" CornerRadius="3">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                    <GradientStop Color="#FFEDF1F3" Offset="0"/>
+                                    <GradientStop Color="#FFC9DCFD" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <SelectiveScrollingGrid>
+                                <SelectiveScrollingGrid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition Height="auto"/>
+                                </SelectiveScrollingGrid.RowDefinitions>
+                                <SelectiveScrollingGrid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition/>
+                                </SelectiveScrollingGrid.ColumnDefinitions>
+                                <DataGridCellsPresenter Grid.Column="1" ItemsPanel="{TemplateBinding ItemsPanel}" 
+                                                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                <DataGridDetailsPresenter Name="dp" Grid.Row="1" Grid.Column="1" Height="150" Visibility="Visible"
+                                                                 SelectiveScrollingGrid.SelectiveScrollingOrientation="{Binding AreRowDetailsFrozen, ConverterParameter={x:Static SelectiveScrollingOrientation.Vertical}, Converter={x:Static DataGrid.RowDetailsScrollingConverter}, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" >
+                                </DataGridDetailsPresenter>
+                                <ToggleButton Name="tb" Grid.RowSpan="2" Style="{StaticResource ArrowToggle}" IsChecked="False" Height="25" Margin="5,5,2,5" 
+                                                      Foreground="#FF6FD809"/>
+                            </SelectiveScrollingGrid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter TargetName="brd" Property="Background" Value="#FF83E5F5"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="true">
+                                <Setter TargetName="brd" Property="Background" Value="#FF1285F7"/>
+                                <Setter TargetName="brd" Property="TextBlock.Foreground" Value="White"/>
+                            </Trigger>
+                            <DataTrigger Binding="{Binding ElementName=tb, Path=IsChecked}" Value="true">
+                                <DataTrigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="dp" Storyboard.TargetProperty="Height" From="0" To="150" Duration="0:0:0.3"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.EnterActions>
+                                <DataTrigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="dp" Storyboard.TargetProperty="Height" To="0" Duration="0:0:0.3"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.ExitActions>
+                            </DataTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="DataGridCell" x:Key="DGCellStyle">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="DataGridCell">
+                        <ContentPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="{x:Type ToolTip}">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="FontSize" Value="{StaticResource RegularFontSize}"/>
+            <Setter Property="FontWeight" Value="Normal"/>
         </Style>
     </Application.Resources>
 </Application>

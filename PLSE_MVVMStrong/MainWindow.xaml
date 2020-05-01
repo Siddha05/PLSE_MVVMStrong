@@ -20,7 +20,6 @@
         <Style TargetType="{x:Type MenuItem}">
             <Setter Property="Foreground" Value="Black" />
         </Style>
-         
         <SolidColorBrush x:Key="MainUIBrush" Color="#FFBD8AEC"/>
         <Style TargetType="{x:Type ListBoxItem}">
             <Setter Property="BorderBrush" Value="{StaticResource MainUIBrush}"/>

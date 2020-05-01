@@ -45,15 +45,16 @@ namespace PLSE_MVVMStrong.ViewModel
                 var em = CommonInfo.Employees.FirstOrDefault(e => e.Sname == Login && e.Password == Pass);
                 if (em != null)
                 {
-                    var app = (Application.Current as App);
-                    app.LogedEmployee = em;
-                    var mwnd = new MainWindow();
-                    app.MainWindow = mwnd;
-                    mwnd.Show();
+                    //var app = (Application.Current as App);
+                    //app.LogedEmployee = em;
+                    //var mwnd = new MainWindow();
+                    //app.MainWindow = mwnd;
+                    //mwnd.Show();
+                    (Application.Current as App).WDispatcher["MainWindow"].Open.Execute(null);
                     (n as Window).Close(); 
                 }
                 else Error = true;
-            });
+            }, x => (Application.Current as App).WDispatcher["MainWindow"].Open.CanExecute(null));
             PassChanged = new RelayCommand(n =>
             {
                 Pass = (n as System.Windows.Controls.PasswordBox).Password;

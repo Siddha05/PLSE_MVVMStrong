@@ -13,7 +13,6 @@
     </Window.DataContext>
     <Window.Resources>
         <viewmodel:ExpertiseLinkConverter x:Key="ExpLinkConv"/>
-        <BooleanToVisibilityConverter x:Key="BVConv"/>
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -25,108 +24,8 @@
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
         <DataGrid Margin="2" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" CanUserResizeRows="False" Background="White"
-                  ItemsSource="{Binding Path=ExpertiseList}" GridLinesVisibility="None" BorderBrush="#FF0097FF">
-            <DataGrid.ColumnHeaderStyle>
-                <Style TargetType="DataGridColumnHeader">
-                    <Setter Property="SeparatorBrush" Value="Black"/>
-                    <Setter Property="Height" Value="40"/>
-                    <Setter Property="FontWeight" Value="Bold"/>
-                    <Setter Property="FontStyle" Value="Italic"/>
-                    <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                    <Setter Property="FontSize" Value="{StaticResource HeaderFontSize}"/>
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="{x:Type DataGridColumnHeader}">
-                                <Border Padding="0,3" BorderThickness="1">
-                                    <Border.BorderBrush>
-                                        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                                            <GradientStop Offset="0" Color="#A5A5A5" />
-                                            <GradientStop Offset="1" Color="#4B4B4B" />
-                                        </LinearGradientBrush>
-                                    </Border.BorderBrush>
-                                    <Border.Background>
-                                        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                                            <GradientStop Offset="0" Color="#FF7BCEF5" />
-                                            <GradientStop Offset="1" Color="#FF0097FF" />
-                                        </LinearGradientBrush>
-                                    </Border.Background>
-                                    <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
-                                </Border>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-            </DataGrid.ColumnHeaderStyle>
-            <DataGrid.RowStyle>
-                <Style TargetType="{x:Type DataGridRow}">
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="{x:Type DataGridRow}">
-                                <Border x:Name="brd" BorderThickness="1" BorderBrush="Blue" Margin="1,2">
-                                    <Border.Background>
-                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                            <GradientStop Color="#FFEDF1F3" Offset="0"/>
-                                            <GradientStop Color="#FFC9DCFD" Offset="1"/>
-                                        </LinearGradientBrush>
-                                    </Border.Background>
-                                    <SelectiveScrollingGrid>
-                                        <SelectiveScrollingGrid.RowDefinitions>
-                                            <RowDefinition/>
-                                            <RowDefinition Height="auto"/>
-                                        </SelectiveScrollingGrid.RowDefinitions>
-                                        <SelectiveScrollingGrid.ColumnDefinitions>
-                                            <ColumnDefinition Width="auto"/>
-                                            <ColumnDefinition/>
-                                        </SelectiveScrollingGrid.ColumnDefinitions>
-                                        <DataGridCellsPresenter Grid.Column="1" ItemsPanel="{TemplateBinding ItemsPanel}" 
-                                                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
-                                        <DataGridDetailsPresenter Name="dp" Grid.Row="1" Grid.Column="1" Visibility="{Binding ElementName=tb, Path=IsChecked, Converter={StaticResource BVConv}}"
-                                                                 SelectiveScrollingGrid.SelectiveScrollingOrientation="{Binding AreRowDetailsFrozen, ConverterParameter={x:Static SelectiveScrollingOrientation.Vertical}, Converter={x:Static DataGrid.RowDetailsScrollingConverter}, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" >
-                                        </DataGridDetailsPresenter>
-                                        <ToggleButton Name="tb" Grid.RowSpan="2" Style="{StaticResource ArrowToggle}" IsChecked="False" Height="25" Margin="5,0,0,0" 
-                                                      Foreground="#FF6FD809"/>
-                                    </SelectiveScrollingGrid>
-                                </Border>
-                                <ControlTemplate.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="true">
-                                        <Setter TargetName="brd" Property="Background" Value="#FF83E5F5"/>
-                                    </Trigger>
-                                    <Trigger Property="IsSelected" Value="true">
-                                        <Setter TargetName="brd" Property="Background" Value="#FF1285F7"/>
-                                    </Trigger>
-                                    <DataTrigger Binding="{Binding ElementName=tb, Path=IsChecked}" Value="true">
-                                        <DataTrigger.EnterActions>
-                                            <BeginStoryboard>
-                                                <Storyboard>
-                                                    <DoubleAnimation Storyboard.TargetName="dp" Storyboard.TargetProperty="Height" From="0" To="120" Duration="0:0:0.3"/>
-                                                </Storyboard>
-                                            </BeginStoryboard>
-                                        </DataTrigger.EnterActions>
-                                        <DataTrigger.ExitActions>
-                                            <BeginStoryboard>
-                                                <Storyboard>
-                                                    <DoubleAnimation Storyboard.TargetName="dp" Storyboard.TargetProperty="Height" To="0" Duration="0:0:0.3"/>
-                                                </Storyboard>
-                                            </BeginStoryboard>
-                                        </DataTrigger.ExitActions>
-                                    </DataTrigger>
-                                </ControlTemplate.Triggers>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-            </DataGrid.RowStyle>
-            <DataGrid.CellStyle>
-                <Style TargetType="DataGridCell">
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="DataGridCell">
-                                <ContentPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-            </DataGrid.CellStyle>
+                  ItemsSource="{Binding Path=ExpertiseList}" GridLinesVisibility="None" BorderBrush="#FF0097FF" ColumnHeaderStyle="{StaticResource DGColumnsHeader}"
+                  RowStyle="{StaticResource DGRowStyle}" CellStyle="{StaticResource DGCellStyle}" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
             <DataGrid.RowDetailsTemplate>
                 <DataTemplate DataType="ResEx">
                     <Grid HorizontalAlignment="Center">
