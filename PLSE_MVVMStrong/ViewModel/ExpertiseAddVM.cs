@@ -34,14 +34,14 @@ namespace PLSE_MVVMStrong.ViewModel
         {
             Cancel = new RelayCommand(n =>
             {
-                var wnd = n as Expertise_Add;
+                var wnd = n as ExpertiseAdd;
                 if (wnd == null) return;
                 wnd.DialogResult = false;
                 wnd.Close();
             });
             Select = new RelayCommand(n =>
             {
-                var wnd = n as Expertise_Add;
+                var wnd = n as ExpertiseAdd;
                 if (wnd == null) return;
                 wnd.DialogResult = true;
                 wnd.Close();

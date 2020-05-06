@@ -1,7 +1,11 @@
 ﻿using PLSE_MVVMStrong.Model;
 using PLSE_MVVMStrong.View;
 using System;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Data;
 
@@ -10,7 +14,7 @@ namespace PLSE_MVVMStrong
     /// <summary>
     /// Логика взаимодействия для App.xaml
     /// </summary>
-    public partial class App : Application
+    public partial class App : Application, INotifyPropertyChanged
     {
         #region Fields
         private static string[] aphorism =
@@ -45,8 +49,23 @@ namespace PLSE_MVVMStrong
             "Бисексуальность удваивает ваши шансы найти себе пару в субботу вечером.",
             "Теория — это когда все известно, но ничего не работает. Практика — это когда все работает, но никто не знает почему. Мы же объединяем теорию и практику: ничего не работает... и никто не знает почему!"
         };
+        private Employee _logempl;
+        public event PropertyChangedEventHandler PropertyChanged;
         #endregion
-        public Employee LogedEmployee { get; set; }
+        #region Properties
+        public Employee LogedEmployee
+        {
+            get => _logempl;
+            set
+            {
+                if(value != _logempl)
+                {
+                    _logempl = value;
+                    OnPropertyChanged();
+                    SetPermission();
+                }
+            }
+        }
         public string Aphorism
         {
             get
@@ -55,14 +74,24 @@ namespace PLSE_MVVMStrong
                 return aphorism[rd.Next(0, aphorism.Length - 1)];
             }
         }
-        public WindowDispatcher WDispatcher { get; }
-
+        public Permission Permissions { get; private set; }
+        #endregion
+        private void SetPermission()
+        {
+            Permissions = new Permission(_logempl);
+        }
+        private void OnPropertyChanged([CallerMemberName]string prop = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
+        }
         public App()
         {
-            WDispatcher = new WindowDispatcher();
-            //WDispatcher.Register("MainWindow", new WindowManager<MainWindow>(new Permission(PermissionPlural.All, PermissionAction.All)));
-            //WDispatcher.Register("Specialities", new WindowManager<Specialities>(new Permission(PermissionPlural.All, PermissionAction.All)));
-            
+#if DEBUG
+            Random rnd = new Random();
+            int i = rnd.Next(1, 50);
+            System.Diagnostics.Debug.Print("Random: " + i.ToString());
+            (Application.Current as App).LogedEmployee = CommonInfo.Employees.First(n => n.EmployeeID == i);
+#endif
         }
     }
 
@@ -76,6 +105,21 @@ namespace PLSE_MVVMStrong
                 return "Transparent";
             }
             return "White";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    [ValueConversion(typeof(DateTime?), typeof(string))]
+    public class NullableDateToStringConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var t = value as DateTime?;
+            if ( t != null && t.HasValue) return t.Value.ToString("D");
+            return null;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

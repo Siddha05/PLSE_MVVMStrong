@@ -161,7 +161,7 @@ namespace PLSE_MVVMStrong.ViewModel
                 });
             AddExpertise = new RelayCommand(n =>
             {
-                var wnd = new Expertise_Add { Owner = n as ResolutionAdd};
+                var wnd = new ExpertiseAdd { Owner = n as ResolutionAdd};
                 wnd.ShowDialog();
                 if (wnd.DialogResult ?? false)
                 {

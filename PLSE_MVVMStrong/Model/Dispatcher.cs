@@ -78,114 +78,239 @@ namespace PLSE_MVVMStrong.Model
     //}
     public class Permission
     {
+        #region Fields
+        Dictionary<string, bool> _command;
+        
+        #endregion
         public PermissionPlural Plurality { get; }
-        public PermissionAction Actions { get; }
+        public Dictionary<string,bool> Actions => _command;
            
         public static Permission Default
             {
                 get => new Permission();
             }
-        public override string ToString()
-            {
-                return $"for {Plurality} actions: {Actions}";
-            }
         private Permission()
         {
             Plurality = PermissionPlural.Self;
-            Actions = PermissionAction.None;
-        }
-        public Permission(PermissionPlural plural, PermissionAction action)
-        {
-            Plurality = plural;
-            Actions = action;
-        }
-        public Permission(Employee employee)
-        {
-
-        }
-    }
-    public abstract class WMBase
-    {
-        protected Permission _permissions;
-
-        public Permission Permissions
-        {
-            get { return _permissions; }
-            set { _permissions = value; }
-        }
-        public abstract RelayCommand Open { get; }
-        public abstract RelayCommand Close { get; }
-    }
-    public class WindowManager<T>: WMBase where T: Window, new() 
-    {
-        #region Fields
-        private T _target;
-        #endregion
-        #region Properties
-        public T Target => _target;
-
-        override public RelayCommand Open { get; }
-        override public RelayCommand Close { get; }
-        #endregion
-
-        public WindowManager(Permission perm) : this()
-        {
-            _permissions = perm;
-           
-        }
-        public WindowManager()
-        {
-            _permissions = Permission.Default;
-            Open = new RelayCommand(n =>
+            _command = new Dictionary<string, bool>
             {
-                if (_target == null)
-                {
-                    T wnd = new T();
-                    if (wnd != null)
-                    {
-                        _target = wnd;
-                        _target.Closed += (s, e) => _target = null; // memory leak!!!???
-                        wnd.Show();
-                    }
-                }
-                else _target.Focus();
-            },
-                                    x => (_permissions.Actions & PermissionAction.View) != 0);
-            Close = new RelayCommand(n =>
-            {
-                _target.Close();
-            });
-        }
-    }
-    public class WindowDispatcher
-    {
-        #region Fields
-        Dictionary<string, WMBase> _dispatcher;
-        #endregion
-        #region Properties
-        public Dictionary<string, WMBase> Dispatcher => _dispatcher;
-        public WMBase this[string id]
-        {
-            get
-            {
-                return _dispatcher[id];
-            }
-        }
-        #endregion
-        public WindowDispatcher()
-        {
-            _dispatcher = new Dictionary<string, WMBase>
-            {
-                ["MainWindow"] = new WindowManager<MainWindow>(new Permission(PermissionPlural.Self, PermissionAction.View)),
-                ["Specialities"] = new WindowManager<Specialities>(),
-                ["Expertises"] = new WindowManager<Expertises>()
-                
+                ["SpecialitiesView"] = false,
+                ["SpecialitiesAdd"] = false,
+                ["SpecialitiesEdit"] = false,
+                ["SpecialitiesDelete"] = false,
+                ["ExpertView"] = false,
+                ["ExpertAdd"] = false,
+                ["ExpertEdit"] = false,
+                ["ExpertDelete"] = false,
+                ["ExpertiseView"] = false,
+                ["ExpertiseAdd"] = false,
+                ["ExpertiseEdit"] = false,
+                ["ExpertiseDelete"] = false,
+                ["ResolutionView"] = false,
+                ["ResolutionAdd"] = false,
+                ["ResolutionEdit"] = false,
+                ["ResolutionDelete"] = false,
+                ["SettlementView"] = false,
+                ["SettlementAdd"] = false,
+                ["SettlementEdit"] = false,
+                ["SettlementDelete"] = false,
+                ["BillView"] = false,
+                ["BillAdd"] = false,
+                ["BillEdit"] = false,
+                ["BillDelete"] = false,
+                ["RequestAdd"] = false,
+                ["RequesEdit"] = false,
+                ["RequestDelete"] = false,
+                ["ReportAdd"] = false,
+                ["ReportEdit"] = false,
+                ["ReportDelete"] = false,
+                ["EquipmentView"] = false,
+                ["EquipmentAdd"] = false,
+                ["EquipmentEdit"] = false,
+                ["EquipmentDelete"] = false,
+                ["EquipmentUsageAdd"] = false,
+                ["EquipmentUsageDelete"] = false,
+                ["EquipmentUsageEdit"] = false,
+                ["CustomerView"] = false,
+                ["CustomerAdd"] = false,
+                ["CustomerEdit"] = false,
+                ["CustomerDelete"] = false,
+                ["OrganizationView"] = false,
+                ["OrganizationAdd"] = false,
+                ["OrganizationEdit"] = false,
+                ["OrganizationDelete"] = false,
+                ["EmployeesView"] = false,
+                ["EmployeesAdd"] = false,
+                ["EmployeesEdit"] = false,
+                ["EmployeesDelete"] = false
             };
         }
-        public void SetPermissions (string id, Permission perm)
+        public Permission(Employee employee) : this()
         {
-            _dispatcher[id].Permissions = perm;
+            switch (employee.Profile)
+            {
+                case PermissionProfile.Admin:
+                    _command = _command.ToDictionary(k => k.Key, v => true);
+                    break;
+                case PermissionProfile.Boss:
+                    Plurality = PermissionPlural.All;
+                    _command["SpecialitiesView"] = true;
+                    _command["SpecialitiesAdd"] = true;
+                    _command["SpecialitiesEdit"] = true;
+                    _command["SpecialitiesDelete"] = true;
+                    _command["ExpertView"] = true;
+                    _command["ExpertiseView"] = true;
+                    _command["ExpertiseAdd"] = true;
+                    _command["ExpertiseEdit"] = true;
+                    _command["ExpertiseDelete"] = true;
+                    _command["ResolutionView"] = true;
+                    _command["ResolutionAdd"] = true;
+                    _command["ResolutionEdit"] = true;
+                    _command["ResolutionDelete"] = true;
+                    _command["SettlementView"] = true;
+                    _command["BillView"] = true;
+                    _command["BillAdd"] = true;
+                    _command["BillEdit"] = true;
+                    _command["BillDelete"] = true;
+                    _command["RequestAdd"] = true;
+                    _command["RequesEdit"] = true;
+                    _command["RequestDelete"] = true;
+                    _command["ReportAdd"] = true;
+                    _command["ReportEdit"] = true;
+                    _command["ReportDelete"] = true;
+                    _command["EquipmentView"] = true;
+                    _command["EquipmentAdd"] = true;
+                    _command["EquipmentEdit"] = true;
+                    _command["EquipmentDelete"] = true;
+                    _command["EquipmentUsageAdd"] = true;
+                    _command["EquipmentUsageDelete"] = true;
+                    _command["EquipmentUsageEdit"] = true;
+                    _command["CustomerView"] = true;
+                    _command["CustomerAdd"] = true;
+                    _command["CustomerEdit"] = true;
+                    _command["CustomerDelete"] = true;
+                    _command["OrganizationView"] = true;
+                    _command["OrganizationAdd"] = true;
+                    _command["OrganizationEdit"] = true;
+                    _command["OrganizationDelete"] = true;
+                    _command["EmployeesView"] = true;
+                    _command["EmployeesAdd"] = true;
+                    _command["EmployeesEdit"] = true;
+                    break;
+                case PermissionProfile.Subboss:
+                    Plurality = PermissionPlural.Group;
+                    _command["SpecialitiesView"] = true;
+                    _command["ExpertView"] = true;
+                    _command["ExpertiseView"] = true;
+                    _command["ExpertiseAdd"] = true;
+                    _command["ExpertiseEdit"] = true;
+                    _command["ExpertiseDelete"] = true;
+                    _command["ResolutionView"] = true;
+                    _command["ResolutionAdd"] = true;
+                    _command["ResolutionEdit"] = true;
+                    _command["ResolutionDelete"] = true;
+                    _command["SettlementView"] = true;
+                    _command["BillView"] = true;
+                    _command["BillAdd"] = true;
+                    _command["BillEdit"] = true;
+                    _command["BillDelete"] = true;
+                    _command["RequestAdd"] = true;
+                    _command["RequesEdit"] = true;
+                    _command["RequestDelete"] = true;
+                    _command["ReportAdd"] = true;
+                    _command["ReportEdit"] = true;
+                    _command["ReportDelete"] = true;
+                    _command["EquipmentView"] = true;
+                    _command["EquipmentAdd"] = true;
+                    _command["EquipmentEdit"] = true;
+                    _command["EquipmentDelete"] = true;
+                    _command["EquipmentUsageAdd"] = true;
+                    _command["EquipmentUsageDelete"] = true;
+                    _command["EquipmentUsageEdit"] = true;
+                    _command["CustomerView"] = true;
+                    _command["CustomerAdd"] = true;
+                    _command["CustomerEdit"] = true;
+                    _command["CustomerDelete"] = true;
+                    _command["OrganizationView"] = true;
+                    _command["OrganizationAdd"] = true;
+                    _command["OrganizationEdit"] = true;
+                    _command["OrganizationDelete"] = true;
+                    _command["EmployeesView"] = true;
+                    break;
+                case PermissionProfile.Accountant:
+                    Plurality = PermissionPlural.All;
+                    _command["SpecialitiesView"] = true;
+                    _command["ExpertView"] = true;
+                    _command["ExpertiseView"] = true;
+                    _command["ResolutionView"] = true;
+                    _command["SettlementView"] = true;
+                    _command["BillView"] = true;
+                    _command["BillAdd"] = true;
+                    _command["BillEdit"] = true;
+                    _command["BillDelete"] = true;
+                    _command["EquipmentView"] = true;
+                    _command["CustomerView"] = true;
+                    _command["CustomerAdd"] = true;
+                    _command["CustomerEdit"] = true;
+                    _command["CustomerDelete"] = true;
+                    _command["OrganizationView"] = true;
+                    _command["OrganizationAdd"] = true;
+                    _command["OrganizationEdit"] = true;
+                    _command["OrganizationDelete"] = true;
+                    _command["EmployeesView"] = true;
+                    break;
+                case PermissionProfile.Expert:
+                    _command["SpecialitiesView"] = true;
+                    _command["ExpertView"] = true;
+                    _command["ExpertAdd"] = true;
+                    _command["ExpertEdit"] = true;
+                    _command["ExpertDelete"] = true;
+                    _command["ExpertiseView"] = true;
+                    _command["ExpertiseAdd"] = true;
+                    _command["ExpertiseEdit"] = true;
+                    _command["ExpertiseDelete"] = true;
+                    _command["ResolutionView"] = true;
+                    _command["ResolutionAdd"] = true;
+                    _command["ResolutionEdit"] = true;
+                    _command["ResolutionDelete"] = true;
+                    _command["SettlementView"] = true;
+                    _command["BillView"] = true;
+                    _command["BillAdd"] = true;
+                    _command["BillEdit"] = true;
+                    _command["BillDelete"] = true;
+                    _command["RequestAdd"] = true;
+                    _command["RequesEdit"] = true;
+                    _command["RequestDelete"] = true;
+                    _command["ReportAdd"] = true;
+                    _command["ReportEdit"] = true;
+                    _command["ReportDelete"] = true;
+                    _command["EquipmentView"] = true;
+                    _command["EquipmentUsageAdd"] = true;
+                    _command["EquipmentUsageDelete"] = true;
+                    _command["EquipmentUsageEdit"] = true;
+                    _command["CustomerView"] = true;
+                    _command["CustomerAdd"] = true;
+                    _command["CustomerEdit"] = true;
+                    _command["CustomerDelete"] = true;
+                    _command["OrganizationView"] = true;
+                    _command["OrganizationAdd"] = true;
+                    _command["OrganizationEdit"] = true;
+                    _command["OrganizationDelete"] = true;
+                    _command["EmployeesView"] = true;
+                    break;
+                case PermissionProfile.Laboratorian:
+                    break;
+                case PermissionProfile.Clerk:
+                    break;
+                case PermissionProfile.Staffinspector:
+                    break;
+                case PermissionProfile.Provisionboss:
+                    break;
+                case PermissionProfile.Rightless:
+                    break;
+                default:
+                    break;
+            }
         }
-
     }
 }

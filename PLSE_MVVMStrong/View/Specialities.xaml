@@ -26,6 +26,37 @@
         <DataGrid AutoGenerateColumns="False" Grid.RowSpan="3" Grid.Row="1" Margin="5,3,3,10" CanUserAddRows="False" CanUserDeleteRows="False"
                   FontSize="{StaticResource UIFontSize}" ItemsSource="{Binding Path=Specialities}" ColumnHeaderStyle="{StaticResource DGColumnsHeader}" 
                   RowStyle="{StaticResource DGRowStyle}" CellStyle="{StaticResource DGCellStyle}" Background="White">
+            <DataGrid.RowDetailsTemplate>
+                <DataTemplate>
+                    <Grid HorizontalAlignment="Left" Margin="35,10,5,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Style="{x:Null}" Margin="5,5,5,0">
+                            <Run FontWeight="DemiBold">Вид: </Run>
+                            <Run FontStyle="Italic" Text="{Binding Path=Species, Mode=OneWay}"/>
+                        </TextBlock>
+                        <TextBlock Grid.Row="1" Style="{x:Null}" Margin="5,1,5,0">
+                            <Run FontWeight="DemiBold">Акроним: </Run>
+                            <Run FontStyle="Italic" Text="{Binding Path=Acronym, Mode=OneWay}"/>
+                        </TextBlock>
+                        <TextBlock Grid.Row="2" Style="{x:Null}"  Margin="5,1,5,0">
+                            <Run FontWeight="DemiBold">Статус: </Run>
+                            <Run FontStyle="Italic" Text="{Binding Path=IsValid, Mode=OneWay, Converter={StaticResource BSConv}}"/>
+                        </TextBlock>
+                        <TextBlock Grid.Row="3" Style="{x:Null}" Margin="5,1,5,0">
+                           <Run FontWeight="DemiBold">Последние изменения: </Run>
+                            <Run FontStyle="Italic" Text="{Binding Path=UpdateDate, StringFormat={}{0:d}, ConverterCulture='ru-RU', Mode=OneWay}"/>
+                        </TextBlock>
+                    </Grid>
+                </DataTemplate>
+            </DataGrid.RowDetailsTemplate>
             <DataGrid.Columns>
                 <DataGridTemplateColumn Width="3*" Header="Специальность">
                     <DataGridTemplateColumn.CellTemplate>
@@ -60,37 +91,7 @@
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
             </DataGrid.Columns>
-            <DataGrid.RowDetailsTemplate>
-                <DataTemplate>
-                    <Grid HorizontalAlignment="Left" Margin="35,10,5,10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="auto"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                        </Grid.RowDefinitions>
-                        <TextBlock Style="{x:Null}" Margin="5,5,5,0">
-                            <Run FontWeight="DemiBold">Вид: </Run>
-                            <Run FontStyle="Italic" Text="{Binding Path=Species, Mode=OneWay}"/>
-                        </TextBlock>
-                        <TextBlock Grid.Row="1" Style="{x:Null}" Margin="5,1,5,0">
-                            <Run FontWeight="DemiBold">Акроним: </Run>
-                            <Run FontStyle="Italic" Text="{Binding Path=Acronym, Mode=OneWay}"/>
-                        </TextBlock>
-                        <TextBlock Grid.Row="2" Style="{x:Null}"  Margin="5,1,5,0">
-                            <Run FontWeight="DemiBold">Статус: </Run>
-                            <Run FontStyle="Italic" Text="{Binding Path=IsValid, Mode=OneWay, Converter={StaticResource BSConv}}"/>
-                        </TextBlock>
-                        <TextBlock Grid.Row="3" Style="{x:Null}" Margin="5,1,5,0">
-                           <Run FontWeight="DemiBold">Последние изменения: </Run>
-                            <Run FontStyle="Italic" Text="{Binding Path=UpdateDate, StringFormat={}{0:d}, ConverterCulture='ru-RU', Mode=OneWay}"/>
-                        </TextBlock>
-                    </Grid>
-                </DataTemplate>
-            </DataGrid.RowDetailsTemplate>
+           
         </DataGrid>
         <Button Style="{StaticResource ButtonExit}" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding Path=Exit}"
                 CommandParameter="{Binding ElementName=sw}"  Margin="5,270,5,15" />

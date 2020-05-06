@@ -1,10 +1,7 @@
-﻿using Microsoft.Win32;
-using PLSE_MVVMStrong.Model;
-using PLSE_MVVMStrong.View;
+﻿using PLSE_MVVMStrong.Model;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,77 +12,67 @@ namespace PLSE_MVVMStrong.ViewModel
 {
     class EmployeesVM : DependencyObject
     {
+        #region Fields
+        ListCollectionView _emloyeesList = new ListCollectionView(CommonInfo.Employees);
+        #endregion
         #region Properties
-        public ObservableCollection<Expert> ExpertList { get; }
-        public Employee Employee { get; }
-        public ListCollectionView SettlementsList { get; } = new ListCollectionView(CommonInfo.Settlements);
-        public IReadOnlyCollection<string> StreetTypeList { get; } = CommonInfo.StreetTypes;
-        public IReadOnlyCollection<string> EmployeeStatus { get; } = CommonInfo.EmployeeStatus;
-        public IReadOnlyCollection<string> Genders { get; } = CommonInfo.Genders;
-        public IReadOnlyCollection<string> InnerOffice { get; } = CommonInfo.InnerOfficies;
-        public ObservableCollection<Departament> Departaments { get; } = CommonInfo.Departaments;
-        public IEnumerable<Speciality> SpecialitiesList { get; }
-        public bool PopupVisibility
+        public ListCollectionView EmloyeesList
         {
-            get { return (bool)GetValue(PopupVisibilityProperty); }
-            set { SetValue(PopupVisibilityProperty, value); }
+            get => _emloyeesList;
         }
-        public static readonly DependencyProperty PopupVisibilityProperty =
-            DependencyProperty.Register("PopupVisibility", typeof(bool), typeof(EmployeesVM), new PropertyMetadata(false));
-
-        //public Employee Employee
-        //{
-        //    get { return (Employee)GetValue(EmployeeProperty); }
-        //    set { SetValue(EmployeeProperty, value); }
-        //}
-        //public static readonly DependencyProperty EmployeeProperty =
-        //    DependencyProperty.Register("Employee", typeof(Employee), typeof(EmployeesVM), new PropertyMetadata(null));
+        public string SearchText
+        {
+            get { return (string)GetValue(SearchTextProperty); }
+            set { SetValue(SearchTextProperty, value); }
+        }
+        public static readonly DependencyProperty SearchTextProperty =
+            DependencyProperty.Register("SearchText", typeof(string), typeof(EmployeesVM), new PropertyMetadata("", SearchTextChanged));
 
         #endregion
-
         #region Commands
-        public RelayCommand Exit { get; }
-        public RelayCommand ImageSelect { get; }
-        public RelayCommand SettlementTextChanged { get; }
-        public RelayCommand SettlementSelect { get; }
-        public RelayCommand Save { get; }
-        public RelayCommand AddSpeciality { get; }
-        public RelayCommand DeleteSpeciality { get; }
+        public RelayCommand Close { get; }
+        public RelayCommand AddEmployee { get; }
+        public RelayCommand EditEmployee { get; }
+        public RelayCommand DeleteEmployee { get; }
+        public RelayCommand Sort { get; }
+        public RelayCommand Group { get; }
         #endregion
         public EmployeesVM()
         {
-            this.Employee = MainVM._employee.Clone();
-            ExpertList = new ObservableCollection<Expert>(CommonInfo.Experts.Where(n => n.Employee.EmployeeID == Employee.EmployeeID));
-            Exit = new RelayCommand(n =>
+            _emloyeesList.SortDescriptions.Add(new System.ComponentModel.SortDescription("Sname", System.ComponentModel.ListSortDirection.Ascending));
+            Close = new RelayCommand(n =>
             {
-                var wnd = n as Employees;
-                if (wnd == null) return;
-                wnd.DialogResult = false;
+                var wnd = n as View.Employees;
                 wnd.Close();
             });
-            Save = new RelayCommand(n =>
+            Group = new RelayCommand(n =>
             {
-                var wnd = n as Employees;
-                if (wnd == null) return;
-                wnd.DialogResult = true;
-                wnd.Close();
-            });
-            ImageSelect = new RelayCommand(n =>
-            {
-                OpenFileDialog openFile = new OpenFileDialog()
+                switch (n.ToString())
                 {
-                    DefaultExt = ".jpg",
-                    Filter = @"image file|*.jpg",
-                    Title = "Выберите изображение"
-                };
-                if (openFile.ShowDialog() == true)
-                {
-                        FileInfo fileInfo = new FileInfo(openFile.FileName);
-                        FileStream fs = new FileStream(openFile.FileName, FileMode.Open, FileAccess.Read);
-                        BinaryReader br = new BinaryReader(fs);
-                        Employee.Foto = br.ReadBytes((int)fileInfo.Length);
+                    case "Departament":
+                        _emloyeesList.GroupDescriptions.Clear();
+                        _emloyeesList.GroupDescriptions.Add(new PropertyGroupDescription("Departament"));
+                        break;
+                    case "Status":
+                        _emloyeesList.GroupDescriptions.Clear();
+                        _emloyeesList.GroupDescriptions.Add(new PropertyGroupDescription("EmployeeStatus"));
+                        break;
+                    default:
+                        _emloyeesList.GroupDescriptions.Clear();
+                        break;
                 }
             });
+
+        }
+        private static void SearchTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var vm = d as EmployeesVM;
+            if (vm == null)
+            {
+                Debug.Print("NULL");
+                return;
+            }
+            vm._emloyeesList.Filter = n => (n as Employee).Sname.StartsWith(vm.SearchText, StringComparison.CurrentCultureIgnoreCase);
         }
     }
 }

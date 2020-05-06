@@ -25,7 +25,19 @@ namespace PLSE_MVVMStrong.Model
         New = 0x0002,
         Edited = 0x0004
     }
-
+    public enum PermissionProfile
+    {
+        Admin,
+        Boss,
+        Subboss,
+        Accountant,
+        Expert,
+        Laboratorian,
+        Clerk,
+        Staffinspector,
+        Provisionboss,
+        Rightless
+    }
     internal enum WordKind
     {
         Neuter,
@@ -698,6 +710,7 @@ namespace PLSE_MVVMStrong.Model
                 int colPassword = rd.GetOrdinal("UserPassword");
                 int colUpdateDate = rd.GetOrdinal("UpdateDate");
                 int colStructure = rd.GetOrdinal("Structure");
+                int colProfile = rd.GetOrdinal("PermissionProfile");
                 while (rd.Read())
                 {
                     Adress adr = new Adress(settlement: rd[colSettlementID] == DBNull.Value ? null : Settlements.Single(x => x.SettlementID == rd.GetInt32(colSettlementID)),
@@ -728,6 +741,7 @@ namespace PLSE_MVVMStrong.Model
                                                 gender: rd.GetString(colGender),
                                                 mobilephone: rd[colMobilePhone] == DBNull.Value ? null : rd.GetString(colMobilePhone),
                                                 email: rd[colEmail] == DBNull.Value ? null : rd.GetString(colEmail),
+                                                profile: (PermissionProfile)rd.GetByte(colProfile),
                                                 password: rd[colPassword] == DBNull.Value ? null : rd.GetString(colPassword),
                                                 updatedate: rd.GetDateTime(colUpdateDate),
                                                 vr: Version.Original);
@@ -1213,18 +1227,8 @@ namespace PLSE_MVVMStrong.Model
 
     public class RelayCommand : ICommand
     {
-        public enum CommandType
-        {
-            None,
-            View,
-            Add,
-            Edit,
-            Delete 
-        }
-
         private Action<object> _execute;
         private Func<object, bool> _canexecute;
-        private CommandType _type;
 
         public event EventHandler CanExecuteChanged
         {
@@ -1232,9 +1236,9 @@ namespace PLSE_MVVMStrong.Model
             remove { CommandManager.RequerySuggested -= value; }
         }
 
-        public RelayCommand(Action<object> exec, Func<object, bool> canexec = null, CommandType type = CommandType.None)
+        public RelayCommand(Action<object> exec, Func<object, bool> canexec = null)
         {
-            _execute = exec; _canexecute = canexec; _type = type;
+            _execute = exec; _canexecute = canexec;
         }
 
         public bool CanExecute(object parameter)
@@ -1488,7 +1492,10 @@ namespace PLSE_MVVMStrong.Model
             }
             _updatedate = DateTime.Now;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
+#if DEBUG
             Debug.WriteLine("Property changed " + prop, "NotifyBase delegate");
+#endif
+           
         }
         protected object ConvertToDBNull<T>(T obj)
         {
@@ -2033,9 +2040,7 @@ namespace PLSE_MVVMStrong.Model
         private string _structure;
 
         #endregion Fields
-
         #region Properties
-
         public string Structure
         {
             get => _structure;
@@ -2078,11 +2083,9 @@ namespace PLSE_MVVMStrong.Model
         }
         public bool InstanceValidState => _settlement != null && !String.IsNullOrWhiteSpace(_streetprefix) && !String.IsNullOrWhiteSpace(_street)
                                              && !String.IsNullOrWhiteSpace(_housing);
-
         #endregion Properties
 
         public event PropertyChangedEventHandler PropertyChanged;
-
         protected void OnAdressPropertyChanged([CallerMemberName]string prop = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
@@ -2139,7 +2142,7 @@ namespace PLSE_MVVMStrong.Model
                 Housing = _housing,
                 Streetprefix = _streetprefix,
                 Street = _street,
-                Settlement = _settlement.Clone()
+                Settlement = _settlement?.Clone()
             };
         }
     }
@@ -2310,7 +2313,12 @@ namespace PLSE_MVVMStrong.Model
         }
         public string Workphone
         {
-            get => _workphone;
+            get
+            {
+                if (Adress.Settlement?.Telephonecode != null)
+                    return $"({Adress.Settlement.Telephonecode}) {_workphone}";
+                else return _workphone;
+            }
             set
             {
                 if (_workphone == value) return;
@@ -2694,6 +2702,7 @@ namespace PLSE_MVVMStrong.Model
         private string _employeeStaus;
         private DateTime? _birthdate;
         private DateTime? _hiredate;
+        private PermissionProfile _profile;
         private string _password;
         private byte[] _foto;
         #endregion
@@ -2791,6 +2800,18 @@ namespace PLSE_MVVMStrong.Model
                 }
             }
         }
+        public PermissionProfile Profile
+        {
+            get => _profile;
+            set
+            {
+                if (value != _profile)
+                {
+                    _profile = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
         public string Password
         {
             get => _password;
@@ -2845,6 +2866,10 @@ namespace PLSE_MVVMStrong.Model
                 return image;
             }
         }
+        public int FullAge
+        {
+            get => (int)Age();
+        }
         [Obsolete]
         public string Summary => DisplayInfo();
         #endregion
@@ -2853,7 +2878,7 @@ namespace PLSE_MVVMStrong.Model
         }
         public Employee(string firstname, string middlename, string secondname, string mobilephone, string workphone, string gender, string email, Adress adress, bool declinated, Version vr, DateTime updatedate,
                         int id, string education1, string education2, string education3, string sciencedegree, string inneroffice, Departament departament, string condition,
-                        DateTime? birthdate, DateTime? hiredate, string password, byte[] foto)
+                        DateTime? birthdate, DateTime? hiredate, PermissionProfile profile, string password, byte[] foto)
             : base(firstname, middlename, secondname, mobilephone, workphone, gender, email, adress, declinated, vr, updatedate)
         {
             _employeeID = id;
@@ -2866,6 +2891,7 @@ namespace PLSE_MVVMStrong.Model
             _employeeStaus = condition;
             _birthdate = birthdate;
             _hiredate = hiredate;
+            _profile = profile;
             _password = password;
             _foto = foto;
         }
@@ -2894,6 +2920,7 @@ namespace PLSE_MVVMStrong.Model
             sb.AppendLine("Mobile:  " + Mobilephone); sb.AppendLine("Email:" + Email);
             sb.AppendLine("InnerOffice:  " + Inneroffice);
             sb.AppendLine("Dep:  " + Departament.Acronym);
+            sb.AppendLine("Profile: " + Profile.ToString());
             sb.AppendLine("Status:  " + EmployeeStatus);
             sb.AppendLine("Adress:  " + Adress?.ToString());
             sb.AppendLine(Version + "\t" + UpdateDate);
@@ -2939,6 +2966,7 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@Gend", SqlDbType.NVarChar, 15).Value = Gender;
             cmd.Parameters.Add("@Mphone", SqlDbType.VarChar, 20).Value = ConvertToDBNull(Mobilephone);
             cmd.Parameters.Add("@Email", SqlDbType.NVarChar, 50).Value = ConvertToDBNull(Email);
+            cmd.Parameters.Add("@Profile", SqlDbType.TinyInt).Value = (byte)Profile;
             var par = cmd.Parameters.Add("@InsertedID", SqlDbType.Int);
             par.Direction = ParameterDirection.Output;
             try
@@ -2987,6 +3015,7 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@Gend", SqlDbType.NVarChar, 15).Value = Gender;
             cmd.Parameters.Add("@Mphone", SqlDbType.VarChar, 20).Value = ConvertToDBNull(Mobilephone);
             cmd.Parameters.Add("@Email", SqlDbType.NVarChar, 50).Value = ConvertToDBNull(Email);
+            cmd.Parameters.Add("@Profile", SqlDbType.TinyInt).Value = (byte)Profile;
             cmd.Parameters.Add("@EmployeeID", SqlDbType.Int).Value = EmployeeID;
             try
             {
@@ -3026,7 +3055,7 @@ namespace PLSE_MVVMStrong.Model
         {
             return new Employee(Fname, Mname, Sname, Mobilephone, Workphone, Gender, Email, Adress.Clone(), Declinated, this.Version, this.UpdateDate, EmployeeID,
                                 Education1, Education2, Education3, Sciencedegree, Inneroffice, new Departament(Departament), EmployeeStatus, Birthdate,
-                                Hiredate, Password, (byte[])Foto?.Clone());
+                                Hiredate, _profile, Password, (byte[])Foto?.Clone());
         }
         object ICloneable.Clone()
         {

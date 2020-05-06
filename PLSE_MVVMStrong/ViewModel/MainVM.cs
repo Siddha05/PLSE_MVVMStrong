@@ -15,13 +15,9 @@ namespace PLSE_MVVMStrong.ViewModel
     {
         private DispatcherTimer timer;
         private Progress<Message> informer;
+        private App app = Application.Current as App;
         private MessageQuery messages = new MessageQuery();
-#if DEBUG
-        public static Employee _employee = CommonInfo.Employees.First(n => n.EmployeeID == 7);
-#else 
-        public static Employee _employee = (Application.Current as App).LogedEmployee;
-#endif
-        private int EmpIndex = CommonInfo.Employees.IndexOf(_employee);
+        private int empIndex;
 
 #region Properties
         public string Date
@@ -33,19 +29,25 @@ namespace PLSE_MVVMStrong.ViewModel
         {
             get
             {
-                return (Application.Current as App).Aphorism;
+                return app.Aphorism;
             }
         }
         public MessageQuery Messages => messages;
         public static readonly DependencyProperty DateProperty =
             DependencyProperty.Register("Date", typeof(string), typeof(MainVM), new PropertyMetadata(null));
+
         public Employee Employee
         {
-            get { return _employee; }
+            get { return (Employee)GetValue(EmployeeProperty); }
+            set { SetValue(EmployeeProperty, value); }
         }
-#endregion Properties
+        public static readonly DependencyProperty EmployeeProperty =
+            DependencyProperty.Register("Employee", typeof(Employee), typeof(MainVM), new PropertyMetadata((Application.Current as App).LogedEmployee));
 
-#region Commands
+
+        #endregion Properties
+
+        #region Commands
         public RelayCommand Exit { get; }
         public RelayCommand OpenSpeciality { get; }
         public RelayCommand OpenResolutionAdd { get; }
@@ -59,22 +61,23 @@ namespace PLSE_MVVMStrong.ViewModel
 
         public MainVM()
         {
+            empIndex = CommonInfo.Employees.IndexOf(Employee);
             informer = new Progress<Message>(n => messages.Add(n));
             Exit = new RelayCommand(o =>
                                         {
                                             var w = o as MainWindow;
                                             if (w != null) w.Close();
                                         });
-            //OpenSpeciality = new RelayCommand(exec: o =>
-            //                         {
-            //                             Specialities sw = new Specialities()
-            //                             {
-            //                                 Owner = o as MainWindow
-            //                             };
-            //                             sw.Show();
-            //                         },
-            //                        type: RelayCommand.CommandType.View);
-            OpenSpeciality = (Application.Current as App).WDispatcher["Specialities"].Open;
+            OpenSpeciality = new RelayCommand(exec: o =>
+                                     {
+                                         Specialities sw = new Specialities()
+                                         {
+                                             Owner = o as MainWindow
+                                         };
+                                         sw.Show();
+                                     },
+                                     canexec: o => app.Permissions.Actions["SpecialitiesView"]
+                                     );
             OpenResolutionAdd = new RelayCommand(o =>
                                         {
                                             ResolutionAdd rw = new ResolutionAdd()
@@ -82,28 +85,32 @@ namespace PLSE_MVVMStrong.ViewModel
                                                 Owner = o as MainWindow
                                             };
                                             rw.Show();
-                                        });
+                                        },
+                                        o => app.Permissions.Actions["ResolutionAdd"]
+                                        );
             OpenEmployees = new RelayCommand(n =>
             {
-                var wnd = new Employees() { Owner = n as MainWindow };
-                wnd.Show();
-            });
+                Employees ew = new Employees
+                {
+                    Owner = n as MainWindow
+                };
+                ew.Show();
+            },
+                o => app.Permissions.Actions["EmployeesView"]    
+            );
             OpenProfile = new RelayCommand(n =>
                 {
-                    var wnd = new Employees() { Owner = n as MainWindow, WindowStartupLocation = WindowStartupLocation.CenterScreen };
+                    var wnd = new Profile() { Owner = n as MainWindow, WindowStartupLocation = WindowStartupLocation.CenterScreen };
                     if (wnd.ShowDialog() ?? false)
                     {
                         try
                         {
-                            var vm = wnd.DataContext as EmployeesVM;
+                            var vm = wnd.DataContext as ProfileVM;
                             if (vm == null) return;
                             vm.Employee.SaveChanges(CommonInfo.connection);
-                            //foreach (var item in vm.ExpertList)
-                            //{
-                            //    item.SaveChanges(CommonInfo.connection);
-                            //}
-                            _employee = vm.Employee;
-                            CommonInfo.Employees[EmpIndex] = vm.Employee;
+                            app.LogedEmployee = vm.Employee;
+                            Employee = vm.Employee;
+                            CommonInfo.Employees[empIndex] = vm.Employee;
                         }
                         catch (Exception ex)
                         {
@@ -115,7 +122,9 @@ namespace PLSE_MVVMStrong.ViewModel
             {
                 var wnd = new Expertises { Owner = n as MainWindow };
                 wnd.Show();
-            });
+            },
+                o => app.Permissions.Actions["ExpertiseView"]
+                );
             timer = new DispatcherTimer()
             {
                 Interval = TimeSpan.FromSeconds(1)
@@ -142,7 +151,7 @@ namespace PLSE_MVVMStrong.ViewModel
             else if (curhour >= 17 && curhour <= 21) Messages.Add(new Message($"Добрый вечер, {Employee.Fname} {Employee.Mname}", MsgType.Temporary, TimeSpan.FromSeconds(5)));
             else Messages.Add(new Message($"Доброй ночи, {Employee.Fname} {Employee.Mname}", MsgType.Normal, TimeSpan.FromSeconds(5)));
         }
-
+        
         private void Timer_Tick(object sender, EventArgs e)
         {
             Date = DateTime.Now.ToString("F");

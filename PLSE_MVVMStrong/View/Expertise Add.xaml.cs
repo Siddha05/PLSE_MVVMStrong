@@ -17,9 +17,9 @@ namespace PLSE_MVVMStrong.View
     /// <summary>
     /// Логика взаимодействия для Expertise_Add.xaml
     /// </summary>
-    public partial class Expertise_Add : Window
+    public partial class ExpertiseAdd : Window
     {
-        public Expertise_Add()
+        public ExpertiseAdd()
         {
             InitializeComponent();
         }
