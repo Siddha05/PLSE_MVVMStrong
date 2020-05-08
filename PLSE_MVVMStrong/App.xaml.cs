@@ -112,19 +112,19 @@ namespace PLSE_MVVMStrong
             throw new NotImplementedException();
         }
     }
-    [ValueConversion(typeof(DateTime?), typeof(string))]
-    public class NullableDateToStringConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            var t = value as DateTime?;
-            if ( t != null && t.HasValue) return t.Value.ToString("D");
-            return null;
-        }
+    //[ValueConversion(typeof(DateTime?), typeof(string))]
+    //public class NullableDateToStringConverter : IValueConverter
+    //{
+    //    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    //    {
+    //        var t = value as DateTime?;
+    //        if ( t != null && t.HasValue) return t.Value.ToString("D");
+    //        return null;
+    //    }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
+    //    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
+    //}
 }

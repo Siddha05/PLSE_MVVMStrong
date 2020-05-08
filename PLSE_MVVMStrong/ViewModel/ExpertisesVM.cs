@@ -68,6 +68,7 @@ namespace PLSE_MVVMStrong.ViewModel
             ObjectsList objects = new ObjectsList();
             QuestionsList questions = new QuestionsList();
             questions.Questions.Add(new ContentWrapper("Question 1"));
+            objects.Objects.Add(new ContentWrapper("Object 1"));
             Resolution res = new Resolution(1, new DateTime(2019, 11, 21), new DateTime(2019, 11, 21),
                                             "определение",
                                             CommonInfo.Customers.First(n => n.CustomerID == 4),
@@ -76,6 +77,12 @@ namespace PLSE_MVVMStrong.ViewModel
                                             questions,
                                             "в работе",
                                             Model.Version.Original, new DateTime(2019, 11, 21));
+            res.Case.Number = "1220522142222000";
+            res.Case.Plaintiff = "Карпухин А.В.";
+            res.Case.Respondent = "ОАО \"Фирма всяческих производственных направленностей\"";
+            res.Case.TypeCase = new KeyValuePair<string, string>("2", "гражданское");
+            res.Case.Annotate = "по факту мошенничества и незаконных действий в отношении Карпухина А.В., а также возмещения причиненного ущерба";
+            res.Case.Comment = "Длинный комментарий, написанный по поводу визуального тестирования расположения и восприятия на форме отображения состояния экспертизы по требованию и нет";
             questions.Questions.Add(new ContentWrapper("Question 2"));
             Resolution res2 = new Resolution(2, new DateTime(2020, 03, 23), new DateTime(2020, 3, 24),
                                             "определение",

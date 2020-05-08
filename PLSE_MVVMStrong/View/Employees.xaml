@@ -12,7 +12,6 @@
         <viewmodel:EmployeesVM/>
     </Window.DataContext>
     <Window.Resources>
-        <plse_mvvmstrong:NullableDateToStringConverter x:Key="NullableDateToStringConv"/>
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -56,7 +55,7 @@
                 <Run Text="{Binding Path=EmloyeesList.CurrentItem.Departament.Acronym}"/>
                 <LineBreak/>
                 <Run Text="Дата рождения: "/>
-                <Run Text="{Binding Path=EmloyeesList.CurrentItem.Birthdate, Converter={StaticResource NullableDateToStringConv}}"/>
+                <Run Text="{Binding Path=EmloyeesList.CurrentItem.Birthdate, StringFormat={}{0:D}, ConverterCulture='ru-RU'}"/>
                 <Run Text="{Binding Path=EmloyeesList.CurrentItem.FullAge, StringFormat=({0} лет), Mode=OneWay}"/>
                 <LineBreak/>
                 <Run Text="Дата найма: "/>

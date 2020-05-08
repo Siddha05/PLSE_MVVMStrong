@@ -4997,14 +4997,14 @@ namespace PLSE_MVVMStrong.Model
             get
             {
                 StringBuilder sb = new StringBuilder();
-                sb.Append(StartDate.ToString("d")); sb.AppendLine("\tначало производства");
+                sb.Append(StartDate.ToString("d")); sb.AppendLine(" начало производства");
                 foreach (var item in _requests.OrderBy(n => n.RequestDate))
                 {
-                    sb.Append(item.RequestDate.ToString("d")); sb.Append("\t"); sb.AppendLine(item.RequestType);
+                    sb.Append(item.RequestDate.ToString("d")); sb.Append(" "); sb.AppendLine(item.RequestType);
                 }
                 if (EndDate != null)
                 {
-                    sb.Append(EndDate.Value.ToString("d")); sb.AppendLine("\tсдана");
+                    sb.Append(EndDate.Value.ToString("d")); sb.AppendLine(" сдана");
                 }
                 return sb.ToString();
             }

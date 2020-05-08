@@ -7,7 +7,7 @@
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:local="clr-namespace:PLSE_MVVMStrong.View"
         mc:Ignorable="d"
-        Title="Expertises" Width="1980" WindowStartupLocation="CenterScreen" WindowState="Maximized" ResizeMode="CanMinimize">
+        Title="Expertises" Width="1880" ResizeMode="CanMinimize" Height="1000">
     <Window.DataContext>
         <viewmodel:ExpertisesVM/>
     </Window.DataContext>
@@ -28,35 +28,62 @@
                   RowStyle="{StaticResource DGRowStyle}" CellStyle="{StaticResource DGCellStyle}" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
             <DataGrid.RowDetailsTemplate>
                 <DataTemplate DataType="ResEx">
-                    <Grid HorizontalAlignment="Center">
+                    <Grid HorizontalAlignment="Stretch" Margin="40,15,0,2">
                         <Grid.RowDefinitions>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
+                            <RowDefinition Height="auto"/>
                             <RowDefinition/>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="auto"/>
-                            <ColumnDefinition/>
-                            <ColumnDefinition Width="30"/>
+                            <ColumnDefinition Width="60"/>
                             <ColumnDefinition Width="auto"/>
-                            <ColumnDefinition/>
+                            <ColumnDefinition Width="60"/>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="60"/>
+                            <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="Срок" Grid.Row="2"/>
-                        <TextBlock Grid.Column="1" Grid.Row="2" Text="{Binding Path=Expertise.TimeLimit}" HorizontalAlignment="Left"/>
-                        <TextBlock Grid.Row="1" Text="Дата сдачи"/>
-                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Path=Expertise.EndDate, StringFormat=d, ConverterCulture='ru-Ru', TargetNullValue=-}"/>
-                        <TextBlock Text="Тип"/>
-                        <TextBlock Text="{Binding Path=Expertise.ExpertiseType}" HorizontalAlignment="Left" Grid.Column="1"/>
-                        <TextBlock Text="В работе" Grid.Row="3"/>
-                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Path=Expertise.Inwork}" HorizontalAlignment="Left"/>
-
-                        <TextBlock Grid.Row="1" Grid.Column="3" Text="Связанные экспертизы" Margin="20,0"/>
-                        <TextBlock Grid.Row="1" Grid.Column="4" Margin="20,0" Text="{Binding Path=Resolution.Expertisies.Count, Converter={StaticResource ExpLinkConv}}" HorizontalAlignment="Left"/>
-                        <TextBlock Grid.Row="2" Grid.Column="3" Text="Вопросы" Margin="20,0"/>
-                        <TextBlock Grid.Row="2" Grid.Column="4" Text="{Binding Path=Resolution.Questions.Questions.Count}" HorizontalAlignment="Left"
-                                       ToolTip="{Binding Path=Resolution.QeustionsString}" Margin="20,0"/>
-                        
+                        <TextBlock Style="{x:Null}" Text="Экспертиза" HorizontalAlignment="Center" Margin="0,0,0,5" FontSize="{StaticResource RegularFontSize}" FontWeight="Medium"/>
+                        <TextBlock Grid.Row="1" Style="{x:Null}" FontSize="14" FontWeight="Normal">
+                            <Run Text="{Binding Path=Expertise.Inwork, StringFormat='Дней в работе: {0}', Mode=OneWay}"/>
+                            <LineBreak/>
+                            <Run Text="{Binding Path=Expertise.EndDate, StringFormat='Дата сдачи: {0}', Mode=OneWay}"/>
+                            <LineBreak/>
+                            <Run Text="{Binding Path=Expertise.ExpertiseType, StringFormat='Тип: {0}', Mode=OneWay}"/>
+                            <LineBreak/>
+                            <Run Text="{Binding Path=Expertise.ExpertiseStatus, StringFormat='Статус: {0}', Mode=OneWay}"/>
+                        </TextBlock>
+                        <TextBlock Style="{x:Null}" Grid.Column="2" Text="Материалы дела" HorizontalAlignment="Center" Margin="0,0,0,5" FontSize="{StaticResource RegularFontSize}" FontWeight="Medium"/>
+                        <ScrollViewer Grid.Column="2" Grid.Row="1" Margin="2,0,0,0" VerticalScrollBarVisibility="Auto">
+                            <TextBlock Style="{x:Null}" Grid.Column="1" Grid.Row="1" FontSize="14" FontWeight="Normal" TextWrapping="Wrap" MaxWidth="400" >
+                            <Run Text="{Binding Path=Resolution.Case.Number, StringFormat='Номер дела: {0}', Mode=OneWay}"/>
+                            <LineBreak />
+                            <Run Text="{Binding Path=Resolution.Case.Plaintiff, StringFormat='Истец: {0}',Mode=OneWay}"/>
+                            <LineBreak />
+                            <Run Text="{Binding Path=Resolution.Case.Respondent, StringFormat='Ответчик: {0}',Mode=OneWay}"/>
+                            <LineBreak />
+                            <Run Text="{Binding Path=Resolution.Case.Annotate, StringFormat='Аннотация: {0}', Mode=OneWay}"/>
+                            <LineBreak/>
+                            <Run Text="{Binding Path=Resolution.Case.Comment, StringFormat='Комментарий: {0}', Mode=OneWay}"/>
+                            </TextBlock>
+                        </ScrollViewer>
+                        <TextBlock Style="{x:Null}" Grid.Column="4" Text="Движение экспертизы" HorizontalAlignment="Center" Margin="0,0,0,5" FontSize="{StaticResource RegularFontSize}" FontWeight="Medium"/>
+                        <ScrollViewer Grid.Column="4" Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="2,0,0,0">
+                            <TextBlock Style="{x:Null}" FontSize="14" FontWeight="Normal" Text="{Binding Path=Expertise.RequestSummary}" />
+                        </ScrollViewer>
+                        <TextBlock Style="{x:Null}" Grid.Column="6" Grid.Row="1" FontSize="{StaticResource RegularFontSize}" FontWeight="Normal" TextAlignment="Center"
+                                   >
+                            <Run Text="{Binding Path=Resolution.Expertisies.Count, Converter={StaticResource ExpLinkConv}, Mode=OneWay, StringFormat='Связянных экспертиз: {0}'}"
+                                  ToolTipService.HasDropShadow="True" ToolTipService.ShowDuration="10000"/>
+                            <LineBreak/>
+                            <Run Text="{Binding Path=Resolution.Questions.Questions.Count, Mode=OneWay, StringFormat='Вопросов: {0}'}"
+                                  ToolTipService.HasDropShadow="True" ToolTipService.ShowDuration="20000">
+                                <Run.ToolTip>
+                                    <ToolTip Style="{StaticResource CastomToolTip}" Content="{Binding Path=Resolution.QeustionsString, Mode=OneWay}"/>
+                                </Run.ToolTip>
+                            </Run>
+                            <LineBreak/>
+                            <Run Text="{Binding Path=Resolution.Objects.Objects.Count, Mode=OneWay, StringFormat='Предоставленные объекты: {0}'}"/>
+                        </TextBlock>
                     </Grid>
                 </DataTemplate>
             </DataGrid.RowDetailsTemplate>
@@ -160,9 +187,9 @@
             <ComboBox Grid.Column="1" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=ExpertList}" DisplayMemberPath="Employee.Fio"
                       SelectedItem="{Binding Path=QEmployee}"/>
             <TextBlock Grid.Row="1" Text="Статус"/>
-            <ComboBox Grid.Column="1" Grid.Row="1" ItemsSource="{Binding Path=ExpertiseStatus}" 
+            <ComboBox Grid.Column="1" Grid.Row="1" ItemsSource="{Binding Path=ExpertiseStatus}" Style="{StaticResource UIComboBox}"
                       SelectedItem="{Binding Path=QExpertiseStatus}">
-                <ComboBox.Style>
+                <!--<ComboBox.Style>
                     <Style TargetType="{x:Type ComboBox}">
                         <Setter Property="FontSize" Value="{StaticResource UIFontSize}"/>
                         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -197,7 +224,7 @@
                             </Setter.Value>
                         </Setter>
                     </Style>
-                </ComboBox.Style>
+                </ComboBox.Style>-->
             </ComboBox>
             <TextBlock Grid.Row="2" Text="Тип"/>
             <ComboBox Grid.Column="1" Grid.Row="2" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=ExpertiseTypes}"

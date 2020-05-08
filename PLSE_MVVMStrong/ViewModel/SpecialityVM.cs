@@ -5,14 +5,15 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
+
 namespace PLSE_MVVMStrong.ViewModel
 {
     internal class SpecialityVM : DependencyObject
     {
+        #region Fields
+        App app = Application.Current as App;
+        #endregion
         #region Properties
-
-        public double SWidth { get; }
-        public double SHeight { get; }
         public ListCollectionView Specialities { get; } = new ListCollectionView(CommonInfo.Specialities);
 
         public string SearchText
@@ -43,11 +44,9 @@ namespace PLSE_MVVMStrong.ViewModel
 
         public SpecialityVM()
         {
-            Delete = new RelayCommand(RemoveSpec);
-            AddNew = new RelayCommand(AddSpeciality);
-            Edit = new RelayCommand(EditSpeciality);
-            SWidth = SystemParameters.WorkArea.Width;
-            SHeight = SystemParameters.WorkArea.Height;
+            Delete = new RelayCommand(RemoveSpec, n => app.Permissions.Actions["SpecialitiesDelete"]);
+            AddNew = new RelayCommand(AddSpeciality, n => app.Permissions.Actions["SpecialitiesAdd"]);
+            Edit = new RelayCommand(EditSpeciality, n => app.Permissions.Actions["SpecialitiesEdit"]);
         }
         private static void SearchTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {

@@ -72,6 +72,10 @@ namespace PLSE_MVVMStrong.ViewModel
                                      {
                                          Specialities sw = new Specialities()
                                          {
+                                             Left = 0,
+                                             Top = 0,
+                                             Width = SystemParameters.WorkArea.Width,
+                                             Height = SystemParameters.WorkArea.Height,
                                              Owner = o as MainWindow
                                          };
                                          sw.Show();

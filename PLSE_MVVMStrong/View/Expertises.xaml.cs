@@ -22,6 +22,9 @@ namespace PLSE_MVVMStrong.View
         public Expertises()
         {
             InitializeComponent();
+            Top = 0; Left = 0;
+            Width = SystemParameters.WorkArea.Width;
+            Height = SystemParameters.WorkArea.Height;
         }
 
     }
