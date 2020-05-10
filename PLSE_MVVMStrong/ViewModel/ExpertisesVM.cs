@@ -1,5 +1,6 @@
 ﻿using PLSE_MVVMStrong.Model;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -13,14 +14,21 @@ namespace PLSE_MVVMStrong.ViewModel
 {
     class ExpertisesVM :DependencyObject
     {
-        public class ResEx
+        public class ExpertWrapper
         {
-            public Resolution Resolution { get; set; }
-            public Expertise Expertise { get; set; }
-            public ResEx() { }
-            public ResEx(Resolution r , Expertise e)
+            private readonly string _name;
+            private readonly List<int> _id;
+            public string Name => _name;
+            public List<int> Identify => _id;
+
+            public ExpertWrapper(string name, IEnumerable<int> id)
             {
-                this.Resolution = r; this.Expertise = e;
+                _name = name;
+                _id = new List<int>(id);
+            }
+            public override string ToString()
+            {
+                return _name;
             }
         }
         #region Fields
@@ -29,29 +37,39 @@ namespace PLSE_MVVMStrong.ViewModel
         #region Properties
         public IEnumerable<string> ExpertiseTypes { get; }
         public IEnumerable<string> ExpertiseStatus { get; }
-        public List<Resolution> Resolutions { get; set; }
-        public List<ResEx> ExpertiseList
+        public List<Expertise> ExpertiseList
         {
-            get { return (List<ResEx>)GetValue(ExpertiseListProperty); }
+            get { return (List<Expertise>)GetValue(ExpertiseListProperty); }
             set { SetValue(ExpertiseListProperty, value); }
         }
         public static readonly DependencyProperty ExpertiseListProperty =
-            DependencyProperty.Register("ExpertiseList", typeof(List<ResEx>), typeof(ExpertisesVM), new PropertyMetadata(null));
+            DependencyProperty.Register("ExpertiseList", typeof(List<Expertise>), typeof(ExpertisesVM), new PropertyMetadata(null));
 
-        public IEnumerable<Expert> ExpertList { get; } = CommonInfo.Experts.GroupBy(n => n.Employee.EmployeeID).Select(n => n.First());
+        //public IEnumerable<Expert> ExpertList { get; } = CommonInfo.Experts.GroupBy(n => n.Employee.EmployeeID).Select(n => n.First());
+        public ListCollectionView ExpertsList { get; } = new ListCollectionView(CommonInfo.Experts.GroupBy(n => n.Employee.EmployeeID).Select(n => n.First()).ToList());
         public int ExpiredExpertise
         {
-            get => ExpertiseList.Where(n => (n.Expertise.Remain2 ?? 1) < 0).Count();
+            get => ExpertiseList.Where(n => (n.Remain2 ?? 1) < 0).Count();
         }
         public int AttentionExpertise { get; } = 2;
         public Expert QEmployee { get; set; }
         public string QExpertiseType { get; set; } = "все";
         public string QExpertiseStatus { get; set; } = "все";
-        public DateTime QSStardDate { get; set; }
-        public DateTime QEStartDate { get; set; }
-        public DateTime QSEndDate { get; set; }
-        public DateTime QEEndtDate { get; set; }
-        private string DynamicQuery { get; }
+        public DateTime? QSStardDate { get; set; }
+        public DateTime? QEStartDate { get; set; }
+        public DateTime? QSEndDate { get; set; }
+        public DateTime? QEEndDate { get; set; }
+        //public string DynamicQuery
+        //{
+        //    get
+        //    {
+        //        return Query(status: QExpertiseStatus == "все"? null : QExpertiseStatus,
+        //                    type: QExpertiseType == "все" ? null : QExpertiseType,
+        //                    sdate1: QSStardDate, sdate2: QEStartDate,
+        //                    edate1: QSEndDate, edate2: QEEndDate,
+        //                    id: null);
+        //    }
+        //}
         #endregion
         #region Commands
         public RelayCommand Find { get; }
@@ -61,10 +79,9 @@ namespace PLSE_MVVMStrong.ViewModel
         {
             ExpertiseTypes = CommonInfo.ExpertiseTypes.Concat(all);
             ExpertiseStatus = CommonInfo.ExpertiseStatus.Concat(all);
-
-
-            Resolutions = new List<Resolution>();
-            ExpertiseList = new List<ResEx>();
+            ExpertsList.GroupDescriptions.Add(new PropertyGroupDescription("Employee.Departament"));
+            ExpertiseList = new List<Expertise>();
+            #region dubugInit
             ObjectsList objects = new ObjectsList();
             QuestionsList questions = new QuestionsList();
             questions.Questions.Add(new ContentWrapper("Question 1"));
@@ -92,70 +109,128 @@ namespace PLSE_MVVMStrong.ViewModel
                                             questions,
                                             "в работе",
                                             Model.Version.Original, new DateTime(2020, 3, 24));
-            res.Expertisies.Add(new Expertise(1, "324",
+            Expertise e1 = new Expertise(1, "324",
                                                 CommonInfo.Experts.First(n => n.ExpertID == 7),
                                                 "в работе",
                                                 new DateTime(2019, 11, 21),
                                                 null,
                                                 30,
-                                                1,
                                                 "первичная",
                                                 null,
                                                 null,
-                                                Model.Version.Original));
-            res.Expertisies.Add(new Expertise(2, "325",
+                                                Model.Version.Original);
+            Expertise e2 = new Expertise(2, "325",
                                                 CommonInfo.Experts.First(n => n.ExpertID == 59),
                                                 "в работе",
                                                 new DateTime(2019, 11, 21),
                                                 null,
                                                 30,
-                                                1,
                                                 "первичная",
                                                 null,
                                                 null,
-                                                Model.Version.Original));
-            res2.Expertisies.Add(new Expertise(3, "1438",
+                                                Model.Version.Original);
+            Expertise e3 = new Expertise(3, "1438",
                                                CommonInfo.Experts.First(n => n.ExpertID == 6),
                                                "в работе",
                                                new DateTime(2020, 3, 24),
                                                null,
                                                20,
-                                               2,
                                                "первичная",
                                                null,
                                                null,
-                                               Model.Version.Original));
+                                               Model.Version.Original);
+            res.Expertisies.Add(e1);
+            res.Expertisies.Add(e2);
+            res2.Expertisies.Add(e3);
+            ExpertiseList.Add(e1); ExpertiseList.Add(e2); ExpertiseList.Add(e3);
+            #endregion
 
-            Resolutions.Add(res); Resolutions.Add(res2);
-            ExpertiseList = Resolutions.Join(Resolutions.SelectMany(n => n.Expertisies),
-                                              kr => kr.ResolutionID,
-                                              ke => ke.ResolutionID,
-                                              (r, e) => new ResEx(r, e)).ToList();
             Find = new RelayCommand(x =>
             {
-                Resolutions = CommonInfo.LoadResolution(QEmployee.Employee.EmployeeID);
-                var lResex = Resolutions.Join(Resolutions.SelectMany(n => n.Expertisies.Where(f => f.Expert.Employee.EmployeeID == QEmployee.Employee.EmployeeID)),
-                                                        kr => kr.ResolutionID,
-                                                        ke => ke.ResolutionID,
-                                                        (r, e) => new ResEx(r, e));
-                if(QExpertiseStatus != "все")
-                {
-                    Debug.Print($"Status: {QExpertiseStatus}");
-                    lResex = lResex.Where(n => n.Expertise.ExpertiseStatus == QExpertiseStatus);
-                }
-                if (QExpertiseType != "все")
-                {
-                    Debug.Print($"Type: {QExpertiseType}");
-                    lResex = lResex.Where(n => n.Expertise.ExpertiseType == QExpertiseType);
-                }
-                ExpertiseList = lResex.ToList();
+                //ExpertiseList = CommonInfo.LoadResolution(DynamicQuery).SelectMany(n => n.Expertisies).ToList();
+                //var selections = x as IList;
+
+               string q = Query(status: QExpertiseStatus == "все" ? null : QExpertiseStatus,
+                            type: QExpertiseType == "все" ? null : QExpertiseType,
+                            sdate1: QSStardDate, sdate2: QEStartDate,
+                            edate1: QSEndDate, edate2: QEEndDate,
+                            id: (x as IList));
+                System.Diagnostics.Debug.Print(q);
+                MessageBox.Show(q);
+               
             });
         }
-        string Query(int emp)
+        string Query(string status = null, string type = null, DateTime? sdate1 = null, DateTime? sdate2 = null, DateTime? edate1 = null, DateTime? edate2 = null, IList id = null)
         {
-            StringBuilder qer = new StringBuilder("select * from Activity.fResolution3(" + emp.ToString() +")", 300);
-
-            return qer.ToString();
+            bool set_where = false;
+            string and = "and", where = "where";
+            StringBuilder query = new StringBuilder(500);
+            query.AppendLine(@"select
+		                e.ExpertiseID, e.Number,e.ExpertiseStatusID,e.StartDate,e.ExecutionDate,e.TypeExpertise, e.PreviousExpertise, e.SpendHours, e.Timelimit,e.ExpertID,
+		                b.BillDate, b.BillID, b.BillNumber, b.HourPrice, b.NHours, b.Paid, b.PaidDate, b.PayerID,
+		                r.DelayDate, r.Reason, r.ReportDate, r.ReportID,
+		                rq.Comment as RequestComment, rq.DateRequest, rq.RequestID, rq.TypeRequest,
+		                rl.CustomerID,rl.PrescribeType, rl.ProvidedObjects, rl.Questions,rl.RegDate, rl.ResolDate,rl.ResolutionID,rl.TypeResolID, rl.ResolutionStatusID, 
+		                rl.Annotate, rl.Comment, rl.DispatchDate, rl.NumberCase, rl.Plaintiff, rl.Respondent, rl.TypeCase
+		                from Activity.tblExpertises as e
+		                left join Activity.tblBills as b
+		                on e.ExpertiseID = b.ExpertiseID
+		                left join Activity.tblReports as r
+		                on e.ExpertiseID = r.ExpertiseID
+		                left join Activity.tblRequest as rq
+		                on e.ExpertiseID = rq.ExpertiseID
+		                join Activity.tblResolutions as rl
+		                on e.ResolutionID = rl.ResolutionID
+		                join InnResources.tblExperts as ex
+		                on ex.ExpertID = e.ExpertID");
+            if (status != null)
+            {
+                query.AppendLine($"where e.ExpertiseStatusID = '{status}'");
+                set_where = true;
+            }
+            if (type != null)
+            {
+                query.AppendLine($"{(set_where ? and: where)} e.TypeExpertise = '{type}'");
+                set_where = true;
+            }
+            if (sdate1 != null)
+            {
+                query.AppendLine($"{(set_where ? and : where)} e.StartDate > '{sdate1.Value.ToString("yyyy-MM-dd")}'");
+                set_where = true;
+            }
+            if (sdate2 != null)
+            {
+                query.AppendLine($"{(set_where ? and : where)} e.StartDate < '{sdate2.Value.ToString("yyyy-MM-dd")}'");
+                set_where = true;
+            }
+            if (edate1 != null)
+            {
+                query.AppendLine($"{(set_where ? and : where)} e.ExecutionDate > '{edate1.Value.ToString("yyyy-MM-dd")}'");
+                set_where = true;
+            }
+            if (edate2 != null)
+            {
+                query.AppendLine($"{(set_where ? and : where)} e.ExecutionDate < '{edate2.Value.ToString("yyyy-MM-dd")}'");
+                set_where = true;
+            }
+            if (id != null && id.Count > 0)
+            {
+                StringBuilder sb = new StringBuilder(55);
+                foreach (var item in id)
+                {
+                    sb.Append(",");
+                    var e = item as Expert;
+                    if(e != null) sb.Append(e.Employee.EmployeeID.ToString());
+                }
+                sb.Remove(0, 1);
+                query.AppendLine($"{(set_where ? and : where)} (ex.EmployeeID in ({sb})");
+                query.AppendLine(@"or e.ResolutionID in (select distinct ResolutionID
+                                                                from Activity.tblExpertises as e
+                                                                join InnResources.tblExperts as ex
+                                                                on e.ExpertID = ex.ExpertID");
+                query.AppendLine($"where ex.EmployeeID in ({sb})))");
+            }
+            return query.ToString();
         }
     }
     [ValueConversion(typeof(int), typeof(int))]

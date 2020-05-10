@@ -938,156 +938,6 @@ namespace PLSE_MVVMStrong.Model
                 {
                     int colExpertiseID = rd.GetOrdinal("ExpertiseID");
                     int colNumber = rd.GetOrdinal("Number");
-                    int colExpertiseStatus = rd.GetOrdinal("StatusID");
-                    int colStartDate = rd.GetOrdinal("StartDate");
-                    int colExecutionDate = rd.GetOrdinal("ExecutionDate");
-                    int colExpertiseType = rd.GetOrdinal("TypeExpertise");
-                    int colPreviousExpertise = rd.GetOrdinal("PreviousExpertise");
-                    int colSpendHours = rd.GetOrdinal("SpendHours");
-                    int colTimelimit = rd.GetOrdinal("Timelimit");
-                    int colExpertID = rd.GetOrdinal("ExpertID");
-                    int colBillDate = rd.GetOrdinal("BillDate");
-                    int colBillID = rd.GetOrdinal("BillID");
-                    int colBillNumber = rd.GetOrdinal("BillNumber");
-                    int colHourprice = rd.GetOrdinal("HourPrice");
-                    int colNHours = rd.GetOrdinal("NHours");
-                    int colPaid = rd.GetOrdinal("Paid");
-                    int colPaidDate = rd.GetOrdinal("PaidDate");
-                    int colPayer = rd.GetOrdinal("PayerID");
-                    int colDelayDate = rd.GetOrdinal("DelayDate");
-                    int colReason = rd.GetOrdinal("Reason");
-                    int colReportDate = rd.GetOrdinal("ReportDate");
-                    int colReportID = rd.GetOrdinal("ReportID");
-                    int colRequestComment = rd.GetOrdinal("RequestComment");
-                    int colRequestDate = rd.GetOrdinal("DateRequest");
-                    int colRequestID = rd.GetOrdinal("RequestID");
-                    int colRequestType = rd.GetOrdinal("TypeRequest");
-                    int colCustomerID = rd.GetOrdinal("CustomerID");
-                    int colPrescribeType = rd.GetOrdinal("PrescribeType");
-                    int colObjects = rd.GetOrdinal("ProvidedObjects");
-                    int colQuestions = rd.GetOrdinal("Questions");
-                    int colRegDate = rd.GetOrdinal("RegDate");
-                    int colResolDate = rd.GetOrdinal("ResolDate");
-                    int colResolutionID = rd.GetOrdinal("ResolutionID");
-                    int colResolutionType = rd.GetOrdinal("TyperesolID");
-                    int colResolutionStatus = rd.GetOrdinal("ResolutionStatusID");
-                    int colAnnotate = rd.GetOrdinal("Annotate");
-                    int colCaseComment = rd.GetOrdinal("Comment");
-                    int colDispatchDate = rd.GetOrdinal("DispatchDate");
-                    int colNumberCase = rd.GetOrdinal("NumberCase");
-                    int colPlaintiff = rd.GetOrdinal("Plaintiff");
-                    int colRespondent = rd.GetOrdinal("Respondent");
-                    int colCaseType = rd.GetOrdinal("TypeCase");
-                    Resolution _resolution;
-                    Expertise _expertise;
-                    while (rd.Read())
-                    {
-                        if (!resolutions.Any(n => n.ResolutionID == rd.GetInt32(colResolutionID)))
-                        {
-                            _resolution = new Resolution(
-                                                id: rd.GetInt32(colResolutionID),
-                                                registrationdate: rd.GetDateTime(colRegDate),
-                                                resolutiondate: rd[colResolDate] == DBNull.Value ? null : new DateTime?(rd.GetDateTime(colResolDate)),
-                                                resolutiontype: rd.GetString(colResolutionType),
-                                                customer: Customers.Single(n => n.CustomerID == rd.GetInt32(colCustomerID)),
-                                                obj: rd[colObjects] == DBNull.Value ? null : (ObjectsList)rd[colObjects],
-                                                quest: (QuestionsList)rd[colQuestions],
-                                                status: rd.GetString(colResolutionStatus),
-                                                prescribe: rd[colPrescribeType] == DBNull.Value ? null : rd.GetString(colPrescribeType),
-                                                vr: Version.Original,
-                                                updatedate: DateTime.Now
-                                                );
-                            if (rd[colAnnotate] != DBNull.Value) _resolution.Case.Annotate = rd.GetString(colAnnotate);
-                            if (rd[colDispatchDate] != DBNull.Value) _resolution.Case.DispatchDate = new DateTime?(rd.GetDateTime(colDispatchDate));
-                            if (rd[colCaseComment] != DBNull.Value) _resolution.Case.Comment = rd.GetString(colCaseComment);
-                            if (rd[colNumberCase] != DBNull.Value) _resolution.Case.Number = rd.GetString(colNumberCase);
-                            if (rd[colPlaintiff] != DBNull.Value) _resolution.Case.Plaintiff = rd.GetString(colPlaintiff);
-                            if (rd[colRespondent] != DBNull.Value) _resolution.Case.Respondent = rd.GetString(colRespondent);
-                            if (rd[colCaseType] != DBNull.Value) _resolution.Case.TypeCase = CaseTypes.Single(n => n.Value == rd.GetString(colCaseType));
-                            resolutions.Add(_resolution);
-                        }
-                        else _resolution = resolutions.Single(n => n.ResolutionID == rd.GetInt32(colResolutionID));
-                        if (!_resolution.Expertisies.Any(n => n.ExpertiseID == rd.GetInt32(colExpertiseID)))
-                        {
-                            _expertise = new Expertise(id: rd.GetInt32(colExpertiseID),
-                                                        number: rd.GetString(colNumber),
-                                                        expert: Experts.Single(n => n.ExpertID == rd.GetInt32(colExpertID)),
-                                                        status: rd.GetString(colExpertiseStatus),
-                                                        start: rd.GetDateTime(colStartDate),
-                                                        end: rd[colExecutionDate] == DBNull.Value ? null : new DateTime?(rd.GetDateTime(colExecutionDate)),
-                                                        timelimit: rd.GetByte(colTimelimit),
-                                                        resolid: _resolution.ResolutionID,
-                                                        type: rd.GetString(colExpertiseType),
-                                                        previous: rd[colPreviousExpertise] == DBNull.Value ? null : new Int32?(rd.GetInt32(colPreviousExpertise)),
-                                                        spendhours: rd[colSpendHours] == DBNull.Value ? null : new short?(rd.GetInt16(colSpendHours)),
-                                                        vr: Version.Original
-                                                        );
-                            _resolution.Expertisies.Add(_expertise);
-                        }
-                        else _expertise = _resolution.Expertisies.Single(n => n.ExpertiseID == rd.GetInt32(colExpertiseID));
-                        if (rd[colRequestID] != DBNull.Value && !_expertise.Requests.Any(n => n.RequestID == rd.GetInt32(colRequestID)))
-                        {
-                            var _request = new Request(id: rd.GetInt32(colRequestID),
-                                                        expid: _expertise.ExpertiseID,
-                                                        requestdate: rd.GetDateTime(colRequestDate),
-                                                        type: rd.GetString(colRequestType),
-                                                        comment: rd[colRequestComment] == DBNull.Value ? null : rd.GetString(colRequestComment),
-                                                        vr: Version.Original);
-                            _expertise.Requests.Add(_request);
-                        }
-                        if (rd[colReportID] != DBNull.Value && !_expertise.Reports.Any(n => n.ReportID == rd.GetInt32(colReportID)))
-                        {
-                            var _report = new Report(id: rd.GetInt32(colReportID),
-                                                        expid: _expertise.ExpertiseID,
-                                                        repdate: rd.GetDateTime(colReportDate),
-                                                        delay: rd.GetDateTime(colDelayDate),
-                                                        reason: rd[colReason] == DBNull.Value ? null : rd.GetString(colReason),
-                                                        vr: Version.Original);
-                            _expertise.Reports.Add(_report);
-                        }
-                        if (rd[colBillID] != DBNull.Value && !_expertise.Bills.Any(n => n.BillID == rd.GetInt32(colBillID)))
-                        {
-                            var _bill = new Bill(id: rd.GetInt32(colBillID),
-                                                expertise: _expertise.ExpertiseID,
-                                                number: rd.GetString(colBillNumber),
-                                                billdate: rd.GetDateTime(colBillDate),
-                                                paiddate: rd[colPaidDate] == DBNull.Value ? null : new DateTime?(rd.GetDateTime(colPaidDate)),
-                                                payer: rd.GetString(colPayer),
-                                                hours: rd.GetByte(colNHours),
-                                                hourprice: rd.GetDecimal(colHourprice),
-                                                paid: rd.GetDecimal(colPaid),
-                                                vr: Version.Original);
-                            _expertise.Bills.Add(_bill);
-                        }
-                    }
-                    rd.Close();
-                }
-            }
-            //catch (Exception)
-            //{
-            //    throw;
-            //}
-            finally
-            {
-                connection.Close();
-            }
-            return resolutions;
-        }
-        public static List<Resolution> LoadResolution(int empID)
-        {
-            SqlCommand cmd = connection.CreateCommand();
-            cmd.CommandType = CommandType.Text;
-            cmd.CommandText = "Select * from Activity.fResolution3(@Empl);";
-            cmd.Parameters.Add("@Empl", SqlDbType.Int).Value = empID;
-            List<Resolution> resolutions = new List<Resolution>();
-            try
-            {
-                connection.Open();
-                var rd = cmd.ExecuteReader();
-                if (rd.HasRows)
-                {
-                    int colExpertiseID = rd.GetOrdinal("ExpertiseID");
-                    int colNumber = rd.GetOrdinal("Number");
                     int colExpertiseStatus = rd.GetOrdinal("ExpertiseStatusID");
                     int colStartDate = rd.GetOrdinal("StartDate");
                     int colExecutionDate = rd.GetOrdinal("ExecutionDate");
@@ -1128,8 +978,8 @@ namespace PLSE_MVVMStrong.Model
                     int colPlaintiff = rd.GetOrdinal("Plaintiff");
                     int colRespondent = rd.GetOrdinal("Respondent");
                     int colCaseType = rd.GetOrdinal("TypeCase");
-                    Resolution _resolution;
-                    Expertise _expertise;
+                    Resolution _resolution = null;
+                    Expertise _expertise = null;
                     while (rd.Read())
                     {
                         if (!resolutions.Any(n => n.ResolutionID == rd.GetInt32(colResolutionID)))
@@ -1156,7 +1006,6 @@ namespace PLSE_MVVMStrong.Model
                             if (rd[colCaseType] != DBNull.Value) _resolution.Case.TypeCase = CaseTypes.Single(n => n.Value == rd.GetString(colCaseType));
                             resolutions.Add(_resolution);
                         }
-                        else _resolution = resolutions.Single(n => n.ResolutionID == rd.GetInt32(colResolutionID));
                         if (!_resolution.Expertisies.Any(n => n.ExpertiseID == rd.GetInt32(colExpertiseID)))
                         {
                             _expertise = new Expertise(id: rd.GetInt32(colExpertiseID),
@@ -1165,40 +1014,49 @@ namespace PLSE_MVVMStrong.Model
                                                         status: rd.GetString(colExpertiseStatus),
                                                         start: rd.GetDateTime(colStartDate),
                                                         end: rd[colExecutionDate] == DBNull.Value ? null : new DateTime?(rd.GetDateTime(colExecutionDate)),
-                                                        timelimit: rd.GetByte(colTimelimit),
-                                                        resolid: _resolution.ResolutionID,
+                                                        timelimit: rd.GetByte(colTimelimit),                                                       
                                                         type: rd.GetString(colExpertiseType),
                                                         previous: rd[colPreviousExpertise] == DBNull.Value ? null : new Int32?(rd.GetInt32(colPreviousExpertise)),
                                                         spendhours: rd[colSpendHours] == DBNull.Value ? null : new short?(rd.GetInt16(colSpendHours)),
                                                         vr: Version.Original
                                                         );
-                            _resolution.Expertisies.Add(_expertise);
+                            if (_resolution.ResolutionID == rd.GetInt32(colResolutionID))
+                            {
+                                _resolution.Expertisies.Add(_expertise);
+                            }
+                            else resolutions.First(n => n.ResolutionID == rd.GetInt32(colResolutionID)).Expertisies.Add(_expertise);
                         }
-                        else _expertise = _resolution.Expertisies.Single(n => n.ExpertiseID == rd.GetInt32(colExpertiseID));
                         if (rd[colRequestID] != DBNull.Value && !_expertise.Requests.Any(n => n.RequestID == rd.GetInt32(colRequestID)))
                         {
                             var _request = new Request(id: rd.GetInt32(colRequestID),
-                                                        expid: _expertise.ExpertiseID,
                                                         requestdate: rd.GetDateTime(colRequestDate),
                                                         type: rd.GetString(colRequestType),
                                                         comment: rd[colRequestComment] == DBNull.Value ? null : rd.GetString(colRequestComment),
                                                         vr: Version.Original);
-                            _expertise.Requests.Add(_request);
+                            if (_expertise.ExpertiseID == rd.GetInt32(colExpertiseID))
+                            {
+                                _expertise.Requests.Add(_request);
+                            }
+                            else resolutions.First(n => n.ResolutionID == rd.GetInt32(colResolutionID)).Expertisies.First(n => n.ExpertiseID == rd.GetInt32(colExpertiseID))
+                                                                                                    .Requests.Add(_request);
                         }
                         if (rd[colReportID] != DBNull.Value && !_expertise.Reports.Any(n => n.ReportID == rd.GetInt32(colReportID)))
                         {
                             var _report = new Report(id: rd.GetInt32(colReportID),
-                                                        expid: _expertise.ExpertiseID,
                                                         repdate: rd.GetDateTime(colReportDate),
                                                         delay: rd.GetDateTime(colDelayDate),
                                                         reason: rd[colReason] == DBNull.Value ? null : rd.GetString(colReason),
                                                         vr: Version.Original);
-                            _expertise.Reports.Add(_report);
+                            if (_expertise.ExpertiseID == rd.GetInt32(colExpertiseID))
+                            {
+                                _expertise.Reports.Add(_report);
+                            }
+                            else resolutions.First(n => n.ResolutionID == rd.GetInt32(colResolutionID)).Expertisies.First(n => n.ExpertiseID == rd.GetInt32(colExpertiseID))
+                                                                                                    .Reports.Add(_report);
                         }
                         if (rd[colBillID] != DBNull.Value && !_expertise.Bills.Any(n => n.BillID == rd.GetInt32(colBillID)))
                         {
                             var _bill = new Bill(id: rd.GetInt32(colBillID),
-                                                expertise: _expertise.ExpertiseID,
                                                 number: rd.GetString(colBillNumber),
                                                 billdate: rd.GetDateTime(colBillDate),
                                                 paiddate: rd[colPaidDate] == DBNull.Value ? null : new DateTime?(rd.GetDateTime(colPaidDate)),
@@ -1207,22 +1065,177 @@ namespace PLSE_MVVMStrong.Model
                                                 hourprice: rd.GetDecimal(colHourprice),
                                                 paid: rd.GetDecimal(colPaid),
                                                 vr: Version.Original);
-                            _expertise.Bills.Add(_bill);
+                            if (_expertise.ExpertiseID == rd.GetInt32(colExpertiseID))
+                            {
+                                _expertise.Bills.Add(_bill);
+                            }
+                            else resolutions.First(n => n.ResolutionID == rd.GetInt32(colResolutionID)).Expertisies.First(n => n.ExpertiseID == rd.GetInt32(colExpertiseID))
+                                                                                                    .Bills.Add(_bill);
                         }
                     }
                     rd.Close();
                 }
             }
-            //catch (Exception)
-            //{
-            //    throw;
-            //}
+            catch (Exception)
+            {
+                throw;
+            }
             finally
             {
                 connection.Close();
             }
             return resolutions;
         }
+        //public static List<Resolution> LoadResolution(int empID)
+        //{
+        //    SqlCommand cmd = connection.CreateCommand();
+        //    cmd.CommandType = CommandType.Text;
+        //    cmd.CommandText = "Select * from Activity.fResolution3(@Empl);";
+        //    cmd.Parameters.Add("@Empl", SqlDbType.Int).Value = empID;
+        //    List<Resolution> resolutions = new List<Resolution>();
+        //    try
+        //    {
+        //        connection.Open();
+        //        var rd = cmd.ExecuteReader();
+        //        if (rd.HasRows)
+        //        {
+        //            int colExpertiseID = rd.GetOrdinal("ExpertiseID");
+        //            int colNumber = rd.GetOrdinal("Number");
+        //            int colExpertiseStatus = rd.GetOrdinal("ExpertiseStatusID");
+        //            int colStartDate = rd.GetOrdinal("StartDate");
+        //            int colExecutionDate = rd.GetOrdinal("ExecutionDate");
+        //            int colExpertiseType = rd.GetOrdinal("TypeExpertise");
+        //            int colPreviousExpertise = rd.GetOrdinal("PreviousExpertise");
+        //            int colSpendHours = rd.GetOrdinal("SpendHours");
+        //            int colTimelimit = rd.GetOrdinal("Timelimit");
+        //            int colExpertID = rd.GetOrdinal("ExpertID");
+        //            int colBillDate = rd.GetOrdinal("BillDate");
+        //            int colBillID = rd.GetOrdinal("BillID");
+        //            int colBillNumber = rd.GetOrdinal("BillNumber");
+        //            int colHourprice = rd.GetOrdinal("HourPrice");
+        //            int colNHours = rd.GetOrdinal("NHours");
+        //            int colPaid = rd.GetOrdinal("Paid");
+        //            int colPaidDate = rd.GetOrdinal("PaidDate");
+        //            int colPayer = rd.GetOrdinal("PayerID");
+        //            int colDelayDate = rd.GetOrdinal("DelayDate");
+        //            int colReason = rd.GetOrdinal("Reason");
+        //            int colReportDate = rd.GetOrdinal("ReportDate");
+        //            int colReportID = rd.GetOrdinal("ReportID");
+        //            int colRequestComment = rd.GetOrdinal("RequestComment");
+        //            int colRequestDate = rd.GetOrdinal("DateRequest");
+        //            int colRequestID = rd.GetOrdinal("RequestID");
+        //            int colRequestType = rd.GetOrdinal("TypeRequest");
+        //            int colCustomerID = rd.GetOrdinal("CustomerID");
+        //            int colPrescribeType = rd.GetOrdinal("PrescribeType");
+        //            int colObjects = rd.GetOrdinal("ProvidedObjects");
+        //            int colQuestions = rd.GetOrdinal("Questions");
+        //            int colRegDate = rd.GetOrdinal("RegDate");
+        //            int colResolDate = rd.GetOrdinal("ResolDate");
+        //            int colResolutionID = rd.GetOrdinal("ResolutionID");
+        //            int colResolutionType = rd.GetOrdinal("TyperesolID");
+        //            int colResolutionStatus = rd.GetOrdinal("ResolutionStatusID");
+        //            int colAnnotate = rd.GetOrdinal("Annotate");
+        //            int colCaseComment = rd.GetOrdinal("Comment");
+        //            int colDispatchDate = rd.GetOrdinal("DispatchDate");
+        //            int colNumberCase = rd.GetOrdinal("NumberCase");
+        //            int colPlaintiff = rd.GetOrdinal("Plaintiff");
+        //            int colRespondent = rd.GetOrdinal("Respondent");
+        //            int colCaseType = rd.GetOrdinal("TypeCase");
+        //            Resolution _resolution;
+        //            Expertise _expertise;
+        //            while (rd.Read())
+        //            {
+        //                if (!resolutions.Any(n => n.ResolutionID == rd.GetInt32(colResolutionID)))
+        //                {
+        //                    _resolution = new Resolution(
+        //                                        id: rd.GetInt32(colResolutionID),
+        //                                        registrationdate: rd.GetDateTime(colRegDate),
+        //                                        resolutiondate: rd[colResolDate] == DBNull.Value ? null : new DateTime?(rd.GetDateTime(colResolDate)),
+        //                                        resolutiontype: rd.GetString(colResolutionType),
+        //                                        customer: Customers.Single(n => n.CustomerID == rd.GetInt32(colCustomerID)),
+        //                                        obj: rd[colObjects] == DBNull.Value ? null : (ObjectsList)rd[colObjects],
+        //                                        quest: (QuestionsList)rd[colQuestions],
+        //                                        status: rd.GetString(colResolutionStatus),
+        //                                        prescribe: rd[colPrescribeType] == DBNull.Value ? null : rd.GetString(colPrescribeType),
+        //                                        vr: Version.Original,
+        //                                        updatedate: DateTime.Now
+        //                                        );
+        //                    if (rd[colAnnotate] != DBNull.Value) _resolution.Case.Annotate = rd.GetString(colAnnotate);
+        //                    if (rd[colDispatchDate] != DBNull.Value) _resolution.Case.DispatchDate = new DateTime?(rd.GetDateTime(colDispatchDate));
+        //                    if (rd[colCaseComment] != DBNull.Value) _resolution.Case.Comment = rd.GetString(colCaseComment);
+        //                    if (rd[colNumberCase] != DBNull.Value) _resolution.Case.Number = rd.GetString(colNumberCase);
+        //                    if (rd[colPlaintiff] != DBNull.Value) _resolution.Case.Plaintiff = rd.GetString(colPlaintiff);
+        //                    if (rd[colRespondent] != DBNull.Value) _resolution.Case.Respondent = rd.GetString(colRespondent);
+        //                    if (rd[colCaseType] != DBNull.Value) _resolution.Case.TypeCase = CaseTypes.Single(n => n.Value == rd.GetString(colCaseType));
+        //                    resolutions.Add(_resolution);
+        //                }
+        //                else _resolution = resolutions.Single(n => n.ResolutionID == rd.GetInt32(colResolutionID));
+        //                if (!_resolution.Expertisies.Any(n => n.ExpertiseID == rd.GetInt32(colExpertiseID)))
+        //                {
+        //                    _expertise = new Expertise(id: rd.GetInt32(colExpertiseID),
+        //                                                number: rd.GetString(colNumber),
+        //                                                expert: Experts.Single(n => n.ExpertID == rd.GetInt32(colExpertID)),
+        //                                                status: rd.GetString(colExpertiseStatus),
+        //                                                start: rd.GetDateTime(colStartDate),
+        //                                                end: rd[colExecutionDate] == DBNull.Value ? null : new DateTime?(rd.GetDateTime(colExecutionDate)),
+        //                                                timelimit: rd.GetByte(colTimelimit),
+        //                                                resolid: _resolution.ResolutionID,
+        //                                                type: rd.GetString(colExpertiseType),
+        //                                                previous: rd[colPreviousExpertise] == DBNull.Value ? null : new Int32?(rd.GetInt32(colPreviousExpertise)),
+        //                                                spendhours: rd[colSpendHours] == DBNull.Value ? null : new short?(rd.GetInt16(colSpendHours)),
+        //                                                vr: Version.Original
+        //                                                );
+        //                    _resolution.Expertisies.Add(_expertise);
+        //                }
+        //                else _expertise = _resolution.Expertisies.Single(n => n.ExpertiseID == rd.GetInt32(colExpertiseID));
+        //                if (rd[colRequestID] != DBNull.Value && !_expertise.Requests.Any(n => n.RequestID == rd.GetInt32(colRequestID)))
+        //                {
+        //                    var _request = new Request(id: rd.GetInt32(colRequestID),
+        //                                                expid: _expertise.ExpertiseID,
+        //                                                requestdate: rd.GetDateTime(colRequestDate),
+        //                                                type: rd.GetString(colRequestType),
+        //                                                comment: rd[colRequestComment] == DBNull.Value ? null : rd.GetString(colRequestComment),
+        //                                                vr: Version.Original);
+        //                    _expertise.Requests.Add(_request);
+        //                }
+        //                if (rd[colReportID] != DBNull.Value && !_expertise.Reports.Any(n => n.ReportID == rd.GetInt32(colReportID)))
+        //                {
+        //                    var _report = new Report(id: rd.GetInt32(colReportID),
+        //                                                expid: _expertise.ExpertiseID,
+        //                                                repdate: rd.GetDateTime(colReportDate),
+        //                                                delay: rd.GetDateTime(colDelayDate),
+        //                                                reason: rd[colReason] == DBNull.Value ? null : rd.GetString(colReason),
+        //                                                vr: Version.Original);
+        //                    _expertise.Reports.Add(_report);
+        //                }
+        //                if (rd[colBillID] != DBNull.Value && !_expertise.Bills.Any(n => n.BillID == rd.GetInt32(colBillID)))
+        //                {
+        //                    var _bill = new Bill(id: rd.GetInt32(colBillID),
+        //                                        expertise: _expertise.ExpertiseID,
+        //                                        number: rd.GetString(colBillNumber),
+        //                                        billdate: rd.GetDateTime(colBillDate),
+        //                                        paiddate: rd[colPaidDate] == DBNull.Value ? null : new DateTime?(rd.GetDateTime(colPaidDate)),
+        //                                        payer: rd.GetString(colPayer),
+        //                                        hours: rd.GetByte(colNHours),
+        //                                        hourprice: rd.GetDecimal(colHourprice),
+        //                                        paid: rd.GetDecimal(colPaid),
+        //                                        vr: Version.Original);
+        //                    _expertise.Bills.Add(_bill);
+        //                }
+        //            }
+        //            rd.Close();
+        //        }
+        //    }
+        //    //catch (Exception)
+        //    //{
+        //    //    throw;
+        //    //}
+        //    finally
+        //    {
+        //        connection.Close();
+        //    }
+        //    return resolutions;
+        //}
     }
 
     public class RelayCommand : ICommand
@@ -1346,7 +1359,6 @@ namespace PLSE_MVVMStrong.Model
         public Message(string msg) : this(msg, MsgType.Temporary, TimeSpan.FromSeconds(5)) { }
         public Message(string msg, MsgType type) : this(msg, type, TimeSpan.FromSeconds(5)) { }
     }
-
     public class MessageQuery : ObservableCollection<Message>
     {
         private DispatcherTimer timer;
@@ -1372,7 +1384,6 @@ namespace PLSE_MVVMStrong.Model
             timer.Start();
         }
     }
-
     public class Passport
     {
         private string _firstName;
@@ -1460,12 +1471,6 @@ namespace PLSE_MVVMStrong.Model
             set => _firstName = value;
         }
     }
-
-    public interface IRelatedContainer
-    {
-        void SynchonizeID();
-    }
-
     public abstract class NotifyBase : INotifyPropertyChanged
     {
         private Version _version;
@@ -1760,7 +1765,6 @@ namespace PLSE_MVVMStrong.Model
         }    
         #endregion
     }
-
     public class Settlement : NotifyBase, IEquatable<Settlement>, ICloneable
     {
         #region Fields
@@ -2015,7 +2019,6 @@ namespace PLSE_MVVMStrong.Model
         }
         #endregion  
     }
-
     internal class AdressEventArgs : EventArgs
     {
         private string _propertyName;
@@ -2026,7 +2029,6 @@ namespace PLSE_MVVMStrong.Model
             _propertyName = prop;
         }
     }
-
     public class Adress : IEquatable<Adress>, INotifyPropertyChanged, ICloneable
     {
         #region Fields
@@ -2146,7 +2148,6 @@ namespace PLSE_MVVMStrong.Model
             };
         }
     }
-
     public sealed class Departament : IEquatable<Departament>
     {
         private string _title;
@@ -3959,38 +3960,11 @@ namespace PLSE_MVVMStrong.Model
     }
 
     /// <summary>
-    /// Абстрактный класс для содержимого с изменяющимся ParentID
-    /// </summary>
-    public abstract class RelatedContent : NotifyBase
-    {
-        protected int _id;
-        protected int _parentid;
-
-        protected int ParentID
-        {
-            get => _parentid;
-            private set => _parentid = value;
-        }
-        protected int ID
-        {
-            get => _id;
-            private set => _id = value;
-        }
-
-        public void SetParentID(int id)
-        {
-            ParentID = id;
-        }
-        protected override abstract void AddToDB(SqlConnection con);
-        protected override abstract void DeleteFromDB(SqlConnection con);
-        protected override abstract void EditToDB(SqlConnection con);
-    }
-
-    /// <summary>
     /// The main <c>Resolution</c> class
     /// </summary>
-    public sealed class Resolution : NotifyBase, IRelatedContainer
+    public sealed class Resolution : NotifyBase
     {
+        #region Fields
         private int _resID;
         private DateTime _regdate;
         private DateTime? _resdate;
@@ -4002,6 +3976,8 @@ namespace PLSE_MVVMStrong.Model
         private QuestionsList _quest = new QuestionsList();
         private string _status;
         private readonly ObservableCollection<Expertise> _expertisies = new ObservableCollection<Expertise>();
+        #endregion
+       
         #region Property
         public string ResolutionStatus
         {
@@ -4109,7 +4085,6 @@ namespace PLSE_MVVMStrong.Model
             private set
             {
                 _resID = value;
-                SynchonizeID();
             }
         }
         public ObservableCollection<Expertise> Expertisies => _expertisies;
@@ -4128,7 +4103,6 @@ namespace PLSE_MVVMStrong.Model
         }
         #endregion
         
-
         public Resolution() : base()
         {
             _expertisies.CollectionChanged += ExpertiseListChanged;
@@ -4171,7 +4145,7 @@ namespace PLSE_MVVMStrong.Model
                 case NotifyCollectionChangedAction.Add:
                     foreach (Expertise item in e.NewItems)
                     {
-                        item.SetParentID(ResolutionID);
+                        item.FromResolution = this;
                     }
                     OnPropertyChanged("Expertisies");
                     break;
@@ -4184,7 +4158,7 @@ namespace PLSE_MVVMStrong.Model
                         {
                             item.DBDelete(CommonInfo.connection);
                         }
-                        OnPropertyChanged("Expertisies");
+                        OnPropertyChanged("Expertises");
                     }
                     catch (Exception)
                     {
@@ -4358,13 +4332,6 @@ namespace PLSE_MVVMStrong.Model
                 cmd.Connection.Close();
             }
         }
-        public void SynchonizeID()
-        {
-            foreach (var item in _expertisies)
-            {
-                item.SetParentID(_resID);
-            }
-        }
     }
 
     public class Equipment : NotifyBase
@@ -4505,8 +4472,18 @@ namespace PLSE_MVVMStrong.Model
         }
     }
     // NOT COMPLEATED
-    public class EquipmentUsage : RelatedContent
+    public class EquipmentUsage : NotifyBase
     {
+        #region Fields
+        private Expertise _expertise;
+        #endregion
+        #region Properties
+        public Expertise FromExpertise
+        {
+            get => _expertise;
+            set { _expertise = value; }
+        }
+        #endregion
         protected override void AddToDB(SqlConnection con)
         {
             throw new NotImplementedException();
@@ -4520,7 +4497,6 @@ namespace PLSE_MVVMStrong.Model
             throw new NotImplementedException();
         }
     }
-
     public class ExpertiseDetail : NotifyBase
     {
         private int _id;
@@ -4717,10 +4693,13 @@ namespace PLSE_MVVMStrong.Model
         }
     }
 
-    public sealed class Expertise : RelatedContent, IRelatedContainer
+    public sealed class Expertise : NotifyBase
     {
+        #region Fields
+        private int _id;
         private string _number;
         private Expert _expert;
+        private Resolution _resolution;
         private string _status;
         private DateTime _startdate;
         private DateTime? _enddate;
@@ -4731,8 +4710,10 @@ namespace PLSE_MVVMStrong.Model
         private ObservableCollection<Request> _requests = new ObservableCollection<Request>();
         private ObservableCollection<Report> _raports = new ObservableCollection<Report>();
         private ObservableCollection<Bill> _bills = new ObservableCollection<Bill>();
-        private ObservableCollection<EquipmentUsage> _equipment = new ObservableCollection<EquipmentUsage>();
+        private ObservableCollection<EquipmentUsage> _equipmentusage = new ObservableCollection<EquipmentUsage>();
+        #endregion
 
+        #region Properties
         public short? SpendHours
         {
             get => _spendhours;
@@ -4771,7 +4752,11 @@ namespace PLSE_MVVMStrong.Model
                 }
             }
         }
-        public int ResolutionID => _parentid;
+        public Resolution FromResolution
+        {
+            get => _resolution;
+            set { _resolution = value; }
+        }
         public byte TimeLimit
         {
             get => _timelimit;
@@ -4853,23 +4838,6 @@ namespace PLSE_MVVMStrong.Model
             private set
             {
                 _id = value;
-                SynchonizeID();
-                //foreach (var item in Bills)
-                //{
-                //    item.SetParentID(ExpertiseID);
-                //}
-                //foreach (var item in Reports)
-                //{
-                //    item.SetParentID(ExpertiseID);
-                //}
-                //foreach (var item in Requests)
-                //{
-                //    item.SetParentID(ExpertiseID);
-                //}
-                //foreach (var item in Equipments)
-                //{
-                //    item.SetParentID(ExpertiseID);
-                //}
             }
         }
         public string Remain
@@ -4968,7 +4936,9 @@ namespace PLSE_MVVMStrong.Model
         public ObservableCollection<Request> Requests => _requests;
         public ObservableCollection<Report> Reports => _raports;
         public ObservableCollection<Bill> Bills => _bills;
-        public ObservableCollection<EquipmentUsage> Equipments => _equipment;
+        public ObservableCollection<EquipmentUsage> EquipmentUsage => _equipmentusage;
+        #endregion
+       
 
         public static Expertise New => new Expertise()
         {
@@ -5010,34 +4980,126 @@ namespace PLSE_MVVMStrong.Model
             }
         }
 
-        private void OnListChanged<T>(object o, NotifyCollectionChangedEventArgs e) where T : RelatedContent
+        private void OnBillListChanged(object o, NotifyCollectionChangedEventArgs e)
         {
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
-                    foreach (T item in e.NewItems)
+                    foreach (Bill item in e.NewItems)
                     {
-                        item.SetParentID(ExpertiseID);
+                        item.FromExpertise = this;
                     }
-                    OnPropertyChanged(typeof(T).Name + "s");
+                    OnPropertyChanged("Bills");
                     break;
 
                 case NotifyCollectionChangedAction.Reset:
                 case NotifyCollectionChangedAction.Remove:
                     try
                     {
-                        foreach (T item in e.OldItems)
+                        foreach (Bill item in e.OldItems)
                         {
                             item.DBDelete(CommonInfo.connection);
                         }
-                        OnPropertyChanged(typeof(T).Name);
+                        OnPropertyChanged("Bills");
                     }
                     catch (Exception)
                     {
                         throw;
                     }
                     break;
+                default:
+                    break;
+            }
+        }
+        private void OnRequestListChanged(object o, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                    foreach (Request item in e.NewItems)
+                    {
+                        item.FromExpertise = this;
+                    }
+                    OnPropertyChanged("Requests");
+                    break;
 
+                case NotifyCollectionChangedAction.Reset:
+                case NotifyCollectionChangedAction.Remove:
+                    try
+                    {
+                        foreach (Request item in e.OldItems)
+                        {
+                            item.DBDelete(CommonInfo.connection);
+                        }
+                        OnPropertyChanged("Requests");
+                    }
+                    catch (Exception)
+                    {
+                        throw;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+        private void OnReportListChanged(object o, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                    foreach (Report item in e.NewItems)
+                    {
+                        item.FromExpertise = this;
+                    }
+                    OnPropertyChanged("Reports");
+                    break;
+
+                case NotifyCollectionChangedAction.Reset:
+                case NotifyCollectionChangedAction.Remove:
+                    try
+                    {
+                        foreach (Report item in e.OldItems)
+                        {
+                            item.DBDelete(CommonInfo.connection);
+                        }
+                        OnPropertyChanged("Reports");
+                    }
+                    catch (Exception)
+                    {
+                        throw;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+        private void OnEquipmenUsageListChanged(object o, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                    foreach (EquipmentUsage item in e.NewItems)
+                    {
+                        item.FromExpertise = this;
+                    }
+                    OnPropertyChanged("Equipments");
+                    break;
+
+                case NotifyCollectionChangedAction.Reset:
+                case NotifyCollectionChangedAction.Remove:
+                    try
+                    {
+                        foreach (Equipment item in e.OldItems)
+                        {
+                            item.DBDelete(CommonInfo.connection);
+                        }
+                        OnPropertyChanged("Equipments");
+                    }
+                    catch (Exception)
+                    {
+                        throw;
+                    }
+                    break;
                 default:
                     break;
             }
@@ -5045,16 +5107,16 @@ namespace PLSE_MVVMStrong.Model
 
         public Expertise() : base()
         {
-            _bills.CollectionChanged += OnListChanged<Bill>;
+            _bills.CollectionChanged +=OnBillListChanged;
             ((INotifyPropertyChanged)_bills).PropertyChanged += (n, e) => OnPropertyChanged(nameof(Bills));
-            _requests.CollectionChanged += OnListChanged<Request>;
+            _requests.CollectionChanged += OnRequestListChanged;
             ((INotifyPropertyChanged)_requests).PropertyChanged += (n, e) => OnPropertyChanged(nameof(Requests));
-            _raports.CollectionChanged += OnListChanged<Report>;
+            _raports.CollectionChanged += OnReportListChanged;
             ((INotifyPropertyChanged)_raports).PropertyChanged += (n, e) => OnPropertyChanged(nameof(Reports));
-            _equipment.CollectionChanged += OnListChanged<EquipmentUsage>;
-            ((INotifyPropertyChanged)_equipment).PropertyChanged += (n, e) => OnPropertyChanged(nameof(Equipments));
+            _equipmentusage.CollectionChanged += OnEquipmenUsageListChanged;
+            ((INotifyPropertyChanged)_equipmentusage).PropertyChanged += (n, e) => OnPropertyChanged(nameof(EquipmentUsage));
         }
-        public Expertise(int id, string number, Expert expert, string status, DateTime start, DateTime? end, byte timelimit, int resolid, string type, int? previous,
+        public Expertise(int id, string number, Expert expert, string status, DateTime start, DateTime? end, byte timelimit, string type, int? previous,
                         short? spendhours, Version vr)
             : this()
         {
@@ -5065,7 +5127,6 @@ namespace PLSE_MVVMStrong.Model
             _startdate = start;
             _enddate = end;
             _timelimit = timelimit;
-            _parentid = resolid;
             _type = type;
             _prevexp = previous;
             _spendhours = spendhours;
@@ -5087,7 +5148,7 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@StartDate", SqlDbType.Date).Value = _startdate;
             cmd.Parameters.Add("@ExDate", SqlDbType.Date).Value = ConvertToDBNull(_enddate);
             cmd.Parameters.Add("@Limit", SqlDbType.TinyInt).Value = _timelimit;
-            cmd.Parameters.Add("@Resol", SqlDbType.Int).Value = _parentid;
+            cmd.Parameters.Add("@Resol", SqlDbType.Int).Value = _resolution.ResolutionID;
             cmd.Parameters.Add("@Type", SqlDbType.NVarChar, 50).Value = _type;
             cmd.Parameters.Add("@PreviousExpertise", SqlDbType.Int).Value = ConvertToDBNull(_prevexp);
             var par = cmd.Parameters.Add("@InsertedID", SqlDbType.Int);
@@ -5109,7 +5170,7 @@ namespace PLSE_MVVMStrong.Model
                 {
                     item.SaveChanges(con);
                 }
-                foreach (var item in _equipment)
+                foreach (var item in _equipmentusage)
                 {
                     item.SaveChanges(con);
                 }
@@ -5135,7 +5196,7 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@StartDate", SqlDbType.Date).Value = _startdate;
             cmd.Parameters.Add("@ExDate", SqlDbType.Date).Value = ConvertToDBNull(_enddate);
             cmd.Parameters.Add("@Limit", SqlDbType.TinyInt).Value = _timelimit;
-            cmd.Parameters.Add("@Resol", SqlDbType.Int).Value = _parentid;
+            cmd.Parameters.Add("@Resol", SqlDbType.Int).Value = _resolution.ResolutionID;
             cmd.Parameters.Add("@Type", SqlDbType.NVarChar, 50).Value = _type;
             cmd.Parameters.Add("@PreviousExpertise", SqlDbType.Int).Value = ConvertToDBNull(_prevexp);
             cmd.Parameters.Add("@ExpIden", SqlDbType.Int).Value = _id;
@@ -5155,7 +5216,7 @@ namespace PLSE_MVVMStrong.Model
                 {
                     item.SaveChanges(con);
                 }
-                foreach (var item in _equipment)
+                foreach (var item in _equipmentusage)
                 {
                     item.SaveChanges(con);
                 }
@@ -5198,25 +5259,6 @@ namespace PLSE_MVVMStrong.Model
         {
             return _expert != null && IsValidNumber(_number) && !String.IsNullOrWhiteSpace(_status) && !String.IsNullOrWhiteSpace(_type);
         }
-        public void SynchonizeID()
-        {
-            foreach (var item in _bills)
-            {
-                item.SetParentID(_id);
-            }
-            foreach (var item in _requests)
-            {
-                item.SetParentID(_id);
-            }
-            foreach (var item in _raports)
-            {
-                item.SetParentID(_id);
-            }
-            foreach (var item in _equipment)
-            {
-                item.SetParentID(_id);
-            }
-        }
     }
 
     /// <summary>
@@ -5226,8 +5268,11 @@ namespace PLSE_MVVMStrong.Model
     /// <para>Номер счета используется нативный.</para>
     /// <para>Позже возможно изменение реализации.</para>
     /// </remarks>
-    public sealed class Bill : RelatedContent
+    public sealed class Bill : NotifyBase
     {
+        #region Fields
+        private int _id;
+        private Expertise _expertise;
         private string _number;
         private DateTime _billdate;
         private DateTime? _paiddate;
@@ -5235,9 +5280,14 @@ namespace PLSE_MVVMStrong.Model
         private byte _hours;
         private decimal _hourprice;
         private decimal _paid;
-
+        #endregion
+        #region Properties
         public int BillID => _id;
-        public int ExpertiseID => _parentid;
+        public Expertise FromExpertise
+        {
+            get => _expertise;
+            set { _expertise = value; }
+        }
         /// <summary>
         /// Номер счета
         /// </summary>
@@ -5344,12 +5394,13 @@ namespace PLSE_MVVMStrong.Model
             }
         }
         public decimal Balance => _hours * _hourprice - _paid;
-
+        #endregion
+        
         public Bill() : base() { }
-        public Bill(int id, int expertise, string number, DateTime billdate, DateTime? paiddate, string payer, byte hours, decimal hourprice, decimal paid, Version vr)
+        public Bill(int id, string number, DateTime billdate, DateTime? paiddate, string payer, byte hours, decimal hourprice, decimal paid, Version vr)
 
         {
-            _id = id; _parentid = expertise; _number = number;
+            _id = id; _number = number;
             _billdate = billdate; _paiddate = paiddate; _payer = payer;
             _hours = hours; _hourprice = hourprice; _paid = paid;
             Version = vr;
@@ -5372,7 +5423,7 @@ namespace PLSE_MVVMStrong.Model
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.CommandText = "Activity.prAddBill";
             cmd.Parameters.Add("@Num", SqlDbType.Char, 5).Value = _number;
-            cmd.Parameters.Add("@ExpertiseID", SqlDbType.Int).Value = _parentid;
+            cmd.Parameters.Add("@ExpertiseID", SqlDbType.Int).Value = _expertise.ExpertiseID;
             cmd.Parameters.Add("@BillDate", SqlDbType.Date).Value = _billdate;
             cmd.Parameters.Add("@PayerID", SqlDbType.NVarChar, 18).Value = _payer;
             cmd.Parameters.Add("@Nhours", SqlDbType.TinyInt).Value = _hours;
@@ -5401,7 +5452,7 @@ namespace PLSE_MVVMStrong.Model
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.CommandText = "Activity.prAddBill";
             cmd.Parameters.Add("@Num", SqlDbType.Char, 5).Value = _number;
-            cmd.Parameters.Add("@ExpertiseID", SqlDbType.Int).Value = _parentid;
+            cmd.Parameters.Add("@ExpertiseID", SqlDbType.Int).Value = _expertise.ExpertiseID;
             cmd.Parameters.Add("@BillDate", SqlDbType.Date).Value = _billdate;
             cmd.Parameters.Add("@PayerID", SqlDbType.NVarChar, 18).Value = _payer;
             cmd.Parameters.Add("@Nhours", SqlDbType.TinyInt).Value = _hours;
@@ -5445,15 +5496,23 @@ namespace PLSE_MVVMStrong.Model
             }
         }
     }
-
-    public sealed class Request : RelatedContent
+    public sealed class Request : NotifyBase
     {
+        #region Fields
+        private int _id;
+        private Expertise _expertise;
         private DateTime _date;
         private string _type;
         private string _comment;
+        #endregion
+        
 
         public int RequestID => _id;
-        public int ExpertiseID => _parentid;
+        public Expertise FromExpertise
+        {
+            get => _expertise;
+            set { _expertise = value; }
+        }
         public DateTime RequestDate
         {
             get => _date;
@@ -5489,9 +5548,9 @@ namespace PLSE_MVVMStrong.Model
         }
 
         public Request() : base() { }
-        public Request(int id, int expid, DateTime requestdate, string type, string comment, Version vr)
+        public Request(int id, DateTime requestdate, string type, string comment, Version vr)
         {
-            _id = id; _parentid = expid; _date = requestdate; _type = type; _comment = comment; Version = vr;
+            _id = id; _date = requestdate; _type = type; _comment = comment; Version = vr;
         }
 
         public override string ToString()
@@ -5503,7 +5562,7 @@ namespace PLSE_MVVMStrong.Model
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.CommandText = "Activity.prAddRequest";
-            cmd.Parameters.Add("@ExpID", SqlDbType.Int).Value = _parentid;
+            cmd.Parameters.Add("@ExpID", SqlDbType.Int).Value = _expertise.ExpertiseID;
             cmd.Parameters.Add("@Date", SqlDbType.Date).Value = _date;
             cmd.Parameters.Add("@Type", SqlDbType.NVarChar, 30).Value = _type;
             cmd.Parameters.Add("@Comment", SqlDbType.NVarChar, 500).Value = ConvertToDBNull(_comment);
@@ -5530,7 +5589,7 @@ namespace PLSE_MVVMStrong.Model
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.CommandText = "Activity.prEditRequest";
-            cmd.Parameters.Add("@ExpID", SqlDbType.Int).Value = _parentid;
+            cmd.Parameters.Add("@ExpID", SqlDbType.Int).Value = _expertise.ExpertiseID;
             cmd.Parameters.Add("@Date", SqlDbType.Date).Value = _date;
             cmd.Parameters.Add("@Type", SqlDbType.NVarChar, 30).Value = _type;
             cmd.Parameters.Add("@Comment", SqlDbType.NVarChar, 500).Value = ConvertToDBNull(_comment);
@@ -5571,15 +5630,23 @@ namespace PLSE_MVVMStrong.Model
             }
         }
     }
-
-    public sealed class Report : RelatedContent
+    public sealed class Report : NotifyBase
     {
+        #region Fields
+        private int _id;
+        private Expertise _expertise;
         private DateTime _repdate;
         private DateTime _delay;
         private string _reason;
+        #endregion
 
+        #region Properties
         public int ReportID => _id;
-        public int ExpertiseID => _parentid;
+        public Expertise FromExpertise
+        {
+            get => _expertise;
+            set { _expertise = value; }
+        }
         public DateTime ReportDate
         {
             get => _repdate;
@@ -5613,11 +5680,13 @@ namespace PLSE_MVVMStrong.Model
                 }
             }
         }
+        #endregion
+        
 
         public Report() : base() { }
-        public Report(int id, int expid, DateTime repdate, DateTime delay, string reason, Version vr)
+        public Report(int id, DateTime repdate, DateTime delay, string reason, Version vr)
         {
-            _id = id; _parentid = expid; _repdate = repdate; _delay = delay; _reason = reason; Version = vr;
+            _id = id; _repdate = repdate; _delay = delay; _reason = reason; Version = vr;
         }
 
         public override string ToString()
@@ -5629,7 +5698,7 @@ namespace PLSE_MVVMStrong.Model
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.CommandText = "Activity.prAddReport";
-            cmd.Parameters.Add("@ExpID", SqlDbType.Int).Value = _parentid;
+            cmd.Parameters.Add("@ExpID", SqlDbType.Int).Value = _expertise.ExpertiseID;
             cmd.Parameters.Add("@RepDate", SqlDbType.Date).Value = _repdate;
             cmd.Parameters.Add("@DelayDate", SqlDbType.Date).Value = _delay;
             cmd.Parameters.Add("@Reason", SqlDbType.NVarChar, 500).Value = ConvertToDBNull(_reason);
@@ -5656,7 +5725,7 @@ namespace PLSE_MVVMStrong.Model
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.CommandText = "Activity.prEditReport";
-            cmd.Parameters.Add("@ExpID", SqlDbType.Int).Value = _parentid;
+            cmd.Parameters.Add("@ExpID", SqlDbType.Int).Value = _expertise.ExpertiseID;
             cmd.Parameters.Add("@RepDate", SqlDbType.Date).Value = _repdate;
             cmd.Parameters.Add("@DelayDate", SqlDbType.Date).Value = _delay;
             cmd.Parameters.Add("@Reason", SqlDbType.NVarChar, 500).Value = ConvertToDBNull(_reason);

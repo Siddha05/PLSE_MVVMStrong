@@ -26,6 +26,5 @@ namespace PLSE_MVVMStrong.View
             Width = SystemParameters.WorkArea.Width;
             Height = SystemParameters.WorkArea.Height;
         }
-
     }
 }
