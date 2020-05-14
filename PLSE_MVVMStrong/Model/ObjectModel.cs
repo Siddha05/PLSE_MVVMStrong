@@ -4933,6 +4933,7 @@ namespace PLSE_MVVMStrong.Model
             }
         }
         public string Inwork => EndDate == null ? (DateTime.Now - StartDate).Days.ToString() : (EndDate.Value - StartDate).Days.ToString();
+        public int LinkedExpertise => (_resolution?.Expertisies.Count - 1) ?? 0;
         public ObservableCollection<Request> Requests => _requests;
         public ObservableCollection<Report> Reports => _raports;
         public ObservableCollection<Bill> Bills => _bills;
@@ -4968,9 +4969,11 @@ namespace PLSE_MVVMStrong.Model
             {
                 StringBuilder sb = new StringBuilder();
                 sb.Append(StartDate.ToString("d")); sb.AppendLine(" начало производства");
-                foreach (var item in _requests.OrderBy(n => n.RequestDate))
+                var rqs = _requests.Select(n => new { D = n.RequestDate, T = n.RequestType });
+                var rp = _raports.Select(n => new { D = n.ReportDate, T = $"продлена до {n.DelayDate.ToString("d")}" });
+                foreach (var item in rqs.Concat(rp).OrderBy(n => n.D))
                 {
-                    sb.Append(item.RequestDate.ToString("d")); sb.Append(" "); sb.AppendLine(item.RequestType);
+                    sb.Append(item.D.ToString("d")); sb.Append(" "); sb.AppendLine(item.T);
                 }
                 if (EndDate != null)
                 {

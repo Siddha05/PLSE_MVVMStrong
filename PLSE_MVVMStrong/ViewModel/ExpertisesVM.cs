@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 
 namespace PLSE_MVVMStrong.ViewModel
@@ -45,14 +46,13 @@ namespace PLSE_MVVMStrong.ViewModel
         public static readonly DependencyProperty ExpertiseListProperty =
             DependencyProperty.Register("ExpertiseList", typeof(List<Expertise>), typeof(ExpertisesVM), new PropertyMetadata(null));
 
-        //public IEnumerable<Expert> ExpertList { get; } = CommonInfo.Experts.GroupBy(n => n.Employee.EmployeeID).Select(n => n.First());
+        
         public ListCollectionView ExpertsList { get; } = new ListCollectionView(CommonInfo.Experts.GroupBy(n => n.Employee.EmployeeID).Select(n => n.First()).ToList());
         public int ExpiredExpertise
         {
             get => ExpertiseList.Where(n => (n.Remain2 ?? 1) < 0).Count();
         }
         public int AttentionExpertise { get; } = 2;
-        public Expert QEmployee { get; set; }
         public string QExpertiseType { get; set; } = "все";
         public string QExpertiseStatus { get; set; } = "все";
         public DateTime? QSStardDate { get; set; }
@@ -79,9 +79,55 @@ namespace PLSE_MVVMStrong.ViewModel
         {
             ExpertiseTypes = CommonInfo.ExpertiseTypes.Concat(all);
             ExpertiseStatus = CommonInfo.ExpertiseStatus.Concat(all);
-            ExpertsList.GroupDescriptions.Add(new PropertyGroupDescription("Employee.Departament"));
+            var app = Application.Current as App;
+            //switch (app.LogedEmployee.Profile)
+            //{
+            //    case PermissionProfile.Admin:
+            //        break;
+            //    case PermissionProfile.Boss:
+            //        break;
+            //    case PermissionProfile.Subboss:
+            //        break;
+            //    case PermissionProfile.Accountant:
+            //        break;
+            //    case PermissionProfile.Expert:
+            //        break;
+            //    case PermissionProfile.Laboratorian:
+            //        break;
+            //    case PermissionProfile.Clerk:
+            //        break;
+            //    case PermissionProfile.Staffinspector:
+            //        break;
+            //    case PermissionProfile.Provisionboss:
+            //        break;
+            //    case PermissionProfile.Rightless:
+            //        break;
+            //    default:
+            //        break;
+            //}
+            //switch (app.Permissions.Plurality)
+            //{
+            //    case PermissionPlural.Self:
+            //        ExpertsList = new ListCollectionView(CommonInfo.Experts.Where(n => n.Employee.EmployeeID == app.LogedEmployee.EmployeeID)
+            //                                                                .GroupBy(n => n.Employee.EmployeeID).Select(n => n.First())
+            //                                                                .ToList());
+            //        break;
+            //    case PermissionPlural.Group:
+            //        ExpertsList = new ListCollectionView(CommonInfo.Experts.Where(n => n.Employee.Departament.DepartamentID == app.LogedEmployee.Departament.DepartamentID)
+            //                                                                .GroupBy(n => n.Employee.EmployeeID).Select(n => n.First())
+            //                                                                .ToList());
+            //        ExpertsList.SortDescriptions.Add(new System.ComponentModel.SortDescription("Sname", System.ComponentModel.ListSortDirection.Ascending));
+            //        break;
+            //    case PermissionPlural.All:
+            //        ExpertsList = new ListCollectionView(CommonInfo.Experts.GroupBy(n => n.Employee.EmployeeID).Select(n => n.First()).ToList());
+            //        ExpertsList.SortDescriptions.Add(new System.ComponentModel.SortDescription("Sname", System.ComponentModel.ListSortDirection.Ascending));
+            //        ExpertsList.GroupDescriptions.Add(new PropertyGroupDescription("Employee.Departament"));
+            //        break;
+            //    default:
+            //        break;
+            //}
             ExpertiseList = new List<Expertise>();
-            #region dubugInit
+            #region Init
             ObjectsList objects = new ObjectsList();
             QuestionsList questions = new QuestionsList();
             questions.Questions.Add(new ContentWrapper("Question 1"));
@@ -144,23 +190,31 @@ namespace PLSE_MVVMStrong.ViewModel
             res2.Expertisies.Add(e3);
             ExpertiseList.Add(e1); ExpertiseList.Add(e2); ExpertiseList.Add(e3);
             #endregion
-
             Find = new RelayCommand(x =>
             {
-                //ExpertiseList = CommonInfo.LoadResolution(DynamicQuery).SelectMany(n => n.Expertisies).ToList();
-                //var selections = x as IList;
-
-               string q = Query(status: QExpertiseStatus == "все" ? null : QExpertiseStatus,
-                            type: QExpertiseType == "все" ? null : QExpertiseType,
-                            sdate1: QSStardDate, sdate2: QEStartDate,
-                            edate1: QSEndDate, edate2: QEEndDate,
-                            id: (x as IList));
-                System.Diagnostics.Debug.Print(q);
-                MessageBox.Show(q);
-               
+                var lb = x as ListBox;
+                IEnumerable<int> sel = null;
+                if (lb.SelectedItem != null)
+                {
+                    sel = lb.SelectedItems.Cast<Expert>().Select(n => n.Employee.EmployeeID);
+                }
+                else
+                {
+                    sel = lb.ItemsSource.Cast<Expert>().Select(n => n.Employee.EmployeeID);
+                }
+                string q = Query(status: QExpertiseStatus == "все" ? null : QExpertiseStatus,
+                             type: QExpertiseType == "все" ? null : QExpertiseType,
+                             sdate1: QSStardDate, sdate2: QEStartDate,
+                             edate1: QSEndDate, edate2: QEEndDate,
+                             id: sel);
+                Debug.Print(q);
+                ExpertiseList = CommonInfo.LoadResolution(q).SelectMany(n => n.Expertisies)
+                                                            .Join(sel, ke => ke.Expert.Employee.EmployeeID, ks => ks, (e, s) => e)
+                                                            .ToList();
             });
         }
-        string Query(string status = null, string type = null, DateTime? sdate1 = null, DateTime? sdate2 = null, DateTime? edate1 = null, DateTime? edate2 = null, IList id = null)
+        string Query(string status = null, string type = null, DateTime? sdate1 = null, DateTime? sdate2 = null,
+                        DateTime? edate1 = null, DateTime? edate2 = null, IEnumerable<int> id = null)
         {
             bool set_where = false;
             string and = "and", where = "where";
@@ -213,38 +267,26 @@ namespace PLSE_MVVMStrong.ViewModel
                 query.AppendLine($"{(set_where ? and : where)} e.ExecutionDate < '{edate2.Value.ToString("yyyy-MM-dd")}'");
                 set_where = true;
             }
-            if (id != null && id.Count > 0)
+            if (id != null)
             {
                 StringBuilder sb = new StringBuilder(55);
                 foreach (var item in id)
                 {
                     sb.Append(",");
-                    var e = item as Expert;
-                    if(e != null) sb.Append(e.Employee.EmployeeID.ToString());
+                    sb.Append(item.ToString());
                 }
-                sb.Remove(0, 1);
-                query.AppendLine($"{(set_where ? and : where)} (ex.EmployeeID in ({sb})");
-                query.AppendLine(@"or e.ResolutionID in (select distinct ResolutionID
+                if (sb.Length > 0)
+                {
+                    sb.Remove(0, 1);
+                    query.AppendLine($"{(set_where ? and : where)} (ex.EmployeeID in ({sb})");
+                    query.AppendLine(@"or e.ResolutionID in (select distinct ResolutionID
                                                                 from Activity.tblExpertises as e
                                                                 join InnResources.tblExperts as ex
                                                                 on e.ExpertID = ex.ExpertID");
-                query.AppendLine($"where ex.EmployeeID in ({sb})))");
+                    query.AppendLine($"where ex.EmployeeID in ({sb})))");
+                }     
             }
             return query.ToString();
         }
-    }
-    [ValueConversion(typeof(int), typeof(int))]
-    class ExpertiseLinkConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            int val = (int)value;
-            return val - 1;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
+    } 
 }

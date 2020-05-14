@@ -258,5 +258,14 @@
   <ItemGroup>
     <Resource Include="Resources\peoples.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\question.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\link.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\dollar.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

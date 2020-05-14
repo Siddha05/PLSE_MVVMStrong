@@ -12,7 +12,47 @@
         <viewmodel:ExpertisesVM/>
     </Window.DataContext>
     <Window.Resources>
-        <viewmodel:ExpertiseLinkConverter x:Key="ExpLinkConv"/>
+        <Style x:Key="LBItem" TargetType="{x:Type ListBoxItem}">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                        <Border Name="brd" BorderThickness="1" BorderBrush="Blue" Margin="1,2" CornerRadius="2">
+                            <ContentPresenter Name="prs" TextBlock.Foreground="Gray">
+                                <ContentPresenter.ContentTemplate>
+                                    <DataTemplate DataType="Expert">
+                                        <Border>
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="60"/>
+                                                </Grid.RowDefinitions>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="60"/>
+                                                    <ColumnDefinition/>
+                                                </Grid.ColumnDefinitions>
+                                                <Ellipse Stroke="Blue" Margin="1" Panel.ZIndex="3" StrokeThickness="1">
+                                                    <Ellipse.Fill>
+                                                        <ImageBrush ImageSource="{Binding Path=Employee.Image}" Stretch="UniformToFill"/>
+                                                    </Ellipse.Fill>
+                                                </Ellipse>
+                                                <TextBlock Style="{x:Null}" Grid.Column="1" Text="{Binding Path=Employee.Fio}" VerticalAlignment="Center"
+                                                       FontSize="16" Margin="15,0"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ContentPresenter.ContentTemplate>
+                            </ContentPresenter>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="true">
+                                <Setter TargetName="brd" Property="Background" Value="Blue"/>
+                                <Setter TargetName="prs" Property="TextBlock.Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -27,8 +67,8 @@
                   ItemsSource="{Binding Path=ExpertiseList}" GridLinesVisibility="None" BorderBrush="#FF0097FF" ColumnHeaderStyle="{StaticResource DGColumnsHeader}"
                   RowStyle="{StaticResource DGRowStyle}" CellStyle="{StaticResource DGCellStyle}" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
             <DataGrid.RowDetailsTemplate>
-                <DataTemplate DataType="ResEx">
-                    <Grid HorizontalAlignment="Stretch" Margin="40,15,0,2">
+                <DataTemplate DataType="Expertise">
+                    <Grid HorizontalAlignment="Stretch" Margin="40,15,0,2" >
                         <Grid.RowDefinitions>
                             <RowDefinition Height="auto"/>
                             <RowDefinition/>
@@ -46,7 +86,7 @@
                         <TextBlock Grid.Row="1" Style="{x:Null}" FontSize="14" FontWeight="Normal">
                             <Run Text="{Binding Inwork, StringFormat='Дней в работе: {0}', Mode=OneWay}"/>
                             <LineBreak/>
-                            <Run Text="{Binding Path=EndDate, StringFormat='Дата сдачи: {0}', Mode=OneWay}"/>
+                            <Run Text="{Binding Path=EndDate, StringFormat='Дата сдачи: {0:d}', ConverterCulture='ru-RU', Mode=OneWay}"/>
                             <LineBreak/>
                             <Run Text="{Binding Path=ExpertiseType, StringFormat='Тип: {0}', Mode=OneWay}"/>
                             <LineBreak/>
@@ -70,9 +110,9 @@
                         <ScrollViewer Grid.Column="4" Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="2,0,0,0">
                             <TextBlock Style="{x:Null}" FontSize="14" FontWeight="Normal" Text="{Binding Path=RequestSummary}" />
                         </ScrollViewer>
-                        <TextBlock Style="{x:Null}" Grid.Column="6" Grid.Row="1" FontSize="{StaticResource RegularFontSize}" FontWeight="Normal" TextAlignment="Center"
+                        <!--<TextBlock Style="{x:Null}" Grid.Column="6" Grid.Row="1" FontSize="{StaticResource RegularFontSize}" FontWeight="Normal" TextAlignment="Center"
                                    >
-                            <Run Text="{Binding Path=FromResolution.Expertisies.Count, Converter={StaticResource ExpLinkConv}, Mode=OneWay, StringFormat='Связянных экспертиз: {0}'}"
+                            <Run Text="{Binding Path=LinkedExpertise, Mode=OneWay, StringFormat='Связянных экспертиз: {0}'}"
                                   ToolTipService.HasDropShadow="True" ToolTipService.ShowDuration="10000"/>
                             <LineBreak/>
                             <Run Text="{Binding Path=FromResolution.Questions.Questions.Count, Mode=OneWay, StringFormat='Вопросов: {0}'}"
@@ -82,16 +122,59 @@
                                 </Run.ToolTip>
                             </Run>
                             <LineBreak/>
+                            <Run Text="{Binding Path=Bills.Count, Mode=OneWay, StringFormat='Счета: {0}'}">
+                                <Run.ToolTip>
+                                    <ToolTip Style="{StaticResource CastomToolTip}" Content="{Binding Path=BillSummary, Mode=OneWay}"/>
+                                </Run.ToolTip>
+                            </Run>
+                            <LineBreak/>
                             <Run Text="{Binding Path=FromResolution.Objects.Objects.Count, Mode=OneWay, StringFormat='Предоставленные объекты: {0}'}"/>
-                        </TextBlock>
+                        </TextBlock>-->
+                        <Grid Grid.Column="6" Grid.RowSpan="2" VerticalAlignment="Center" HorizontalAlignment="Left">
+                            <Grid.Resources>
+                                <Style TargetType="Image">
+                                    <Setter Property="Width" Value="40"/>
+                                    <Setter Property="Height" Value="40"/>
+                                    <Setter Property="RenderOptions.ClearTypeHint" Value="Enabled"/>
+                                </Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="FontSize" Value="{StaticResource RegularFontSize}"/>
+                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                    <Setter Property="Margin" Value="4,0"/>
+                                    <Setter Property="FontSize" Value="{StaticResource HeaderFontSize}"/>
+                                </Style>
+                            </Grid.Resources>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <Image Source="pack://application:,,,/Resources/link.png" ToolTip="Связанные экспертизы"/>
+                            <TextBlock Name="tbLink" Grid.Column="1" Text="{Binding Path=LinkedExpertise, Mode=OneWay}"/>
+                            <Image Grid.Row="1" Source="pack://application,,,/Resources/dollar.png" RenderTransformOrigin=".5,.5" ToolTip="Счета">
+                                <Image.RenderTransform>
+                                    <ScaleTransform ScaleX=".8" ScaleY=".8"/>
+                                </Image.RenderTransform>
+                            </Image>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Path=Bills.Count, Mode=OneWay}"/>
+                            <Image Grid.Row="2" Source="pack://application,,,/Resources/question.png" ToolTip="Вопросы"/>
+                            <TextBlock Grid.Column="1" Grid.Row="2" Text="{Binding Path=FromResolution.Questions.Questions.Count, Mode=OneWay}"/>
+                        </Grid>
                     </Grid>
+                    <DataTemplate.Triggers>
+                        
+                    </DataTemplate.Triggers>
                 </DataTemplate>
             </DataGrid.RowDetailsTemplate>
             <DataGrid.Columns>
                 <DataGridTemplateColumn Width="90" Header="Номер">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate DataType="ResEx">
-                            <TextBlock HorizontalAlignment="Center" Text="{Binding Path=Expertise.Number}" FontSize="18" VerticalAlignment="Center"/>
+                            <TextBlock HorizontalAlignment="Center" Text="{Binding Path=Number}" FontSize="18" VerticalAlignment="Center"/>
                             <DataTemplate.Triggers>
 
                             </DataTemplate.Triggers>
@@ -101,11 +184,11 @@
                 <DataGridTemplateColumn Width="*" Header="Эксперт">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Style="{x:Null}" Text="{Binding Path=Expertise.Expert}" FontSize="18" TextWrapping="Wrap" TextAlignment="Center"/>
+                            <TextBlock Style="{x:Null}" Text="{Binding Path=Expert}" FontSize="18" TextWrapping="Wrap" TextAlignment="Center"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Width="110" Binding="{Binding Path=Expertise.StartDate, Mode=OneWay, StringFormat=d, ConverterCulture='ru-RU'}" Header="Начата">
+                <DataGridTextColumn Width="110" Binding="{Binding Path=StartDate, Mode=OneWay, StringFormat=d, ConverterCulture='ru-RU'}" Header="Начата">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
                             <Setter Property="FontSize" Value="18"/>
@@ -114,7 +197,7 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Width="130" Binding="{Binding Path=Expertise.Remain, Mode=OneWay}" Header="Осталось">
+                <DataGridTextColumn Width="130" Binding="{Binding Path=Remain2, Mode=OneWay, TargetNullValue='сдана'}" Header="Осталось">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
                             <Setter Property="FontSize" Value="18"/>
@@ -126,7 +209,7 @@
                 <DataGridTemplateColumn Width="*" Header="Заказчик">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate DataType="Expertise">
-                            <TextBlock Style="{x:Null}" Text="{Binding Path=Resolution.Customer.Requisite}" FontSize="18" VerticalAlignment="Center" TextAlignment="Center"/>
+                            <TextBlock Style="{x:Null}" Text="{Binding Path=FromResolution.Customer.Requisite}" FontSize="18" VerticalAlignment="Center" TextAlignment="Center"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
@@ -170,22 +253,10 @@
                 <TextBlock Style="{x:Null}" Margin="5,0,15,0" Text="{Binding Path=AttentionExpertise, StringFormat=Требующих внимания: {0}}"/>
             </StatusBarItem>
         </StatusBar>
-        <Grid Grid.Column="1" Margin="0,30">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto"/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-            </Grid.RowDefinitions>
-            <TextBlock Text="Эксперт"/>
-            <ListBox Name="lbExperts" Grid.Column="1" Margin="5" FontSize="16" ItemsSource="{Binding Path=ExpertsList}" DisplayMemberPath="Employee.Fio"
-                      MaxHeight="400" SelectionMode="Multiple">
+        <StackPanel Orientation="Vertical" Grid.Column ="4">
+            <TextBlock Text="Эксперт" Style="{x:Null}" FontSize="18" FontWeight="DemiBold" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Center"/>
+            <ListBox Name="lbExperts" Grid.ColumnSpan="2" Margin="5" FontSize="16" ItemsSource="{Binding Path=ExpertsList}"
+                      MaxHeight="400" SelectionMode="Multiple" ItemContainerStyle="{StaticResource LBItem}" BorderThickness="0">
                 <ListBox.GroupStyle>
                     <GroupStyle>
                         <GroupStyle.ContainerStyle>
@@ -203,10 +274,12 @@
                         </GroupStyle.ContainerStyle>
                     </GroupStyle>
                 </ListBox.GroupStyle>
+               
             </ListBox>
-            <TextBlock Grid.Row="1" Text="Статус"/>
+            <TextBlock Style="{x:Null}" FontSize="18" FontWeight="DemiBold" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Center" 
+                       Text="Статус экспертизы"/>
             <ComboBox Grid.Column="1" Grid.Row="1" ItemsSource="{Binding Path=ExpertiseStatus}" Style="{StaticResource UIComboBox}"
-                      SelectedItem="{Binding Path=QExpertiseStatus}">
+                      SelectedItem="{Binding Path=QExpertiseStatus}" HorizontalAlignment="Center">
                 <!--<ComboBox.Style>
                     <Style TargetType="{x:Type ComboBox}">
                         <Setter Property="FontSize" Value="{StaticResource UIFontSize}"/>
@@ -244,9 +317,12 @@
                     </Style>
                 </ComboBox.Style>-->
             </ComboBox>
-            <TextBlock Grid.Row="2" Text="Тип"/>
-            <ComboBox Grid.Column="1" Grid.Row="2" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=ExpertiseTypes}"
+            <TextBlock Style="{x:Null}" FontSize="18" FontWeight="DemiBold" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Center" 
+                       Text="Тип экспертизы"/>
+            <ComboBox Grid.Column="1" Grid.Row="2" HorizontalAlignment="Center" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=ExpertiseTypes}"
                       SelectedItem="{Binding Path=QExpertiseType}"/>
+            <TextBlock Style="{x:Null}" FontSize="18" FontWeight="DemiBold" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Center"
+                       Text="Периоды"/>
             <Expander Grid.Row="3" Grid.ColumnSpan="2" FontSize="{StaticResource UIFontSize}" FontWeight="Bold" Header="Период начала"
                       Margin="5" BorderThickness="2" BorderBrush="#FF0097FF">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="2,3,2,7" Height="40">
@@ -264,8 +340,7 @@
                 </StackPanel>
             </Expander>
             <Button Grid.Row="20" Grid.ColumnSpan="2" Style="{StaticResource BaseUIButton}" Content="Поиск" Foreground="Blue" Margin="5, 20" 
-                    Command="{Binding Path=Find}" CommandParameter="{Binding ElementName=lbExperts, Path=SelectedItems}"/>
-            <TextBlock Name="tbq" HorizontalAlignment="Left" Margin="42,118,0,-485" Grid.Row="5" TextWrapping="Wrap" Text="TQuery" VerticalAlignment="Top" Height="486" Grid.ColumnSpan="2" Width="345"/>
-        </Grid>
+                    Command="{Binding Path=Find}" CommandParameter="{Binding ElementName=lbExperts}"/>
+        </StackPanel>
     </Grid>
 </Window>
