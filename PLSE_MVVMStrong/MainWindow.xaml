@@ -83,9 +83,17 @@
             </Menu.Background>
             <MenuItem Header="ПЛСЭ" Foreground="White">
                 <MenuItem Header="Специальности" Command="{Binding Path=OpenSpeciality}" CommandParameter="{Binding ElementName=mv}" />
-                <MenuItem Header="Сотрудники" Icon="d:\PLSE Images\peoples.ico" Command="{Binding Path=OpenEmployees}" CommandParameter="{Binding ElementName=mv}"/>
+                <MenuItem Header="Сотрудники" Command="{Binding Path=OpenEmployees}" CommandParameter="{Binding ElementName=mv}">
+                    <MenuItem.Icon>
+                        <Image Source="pack://application:,,,/Resources/peoples.ico"/>
+                    </MenuItem.Icon>
+                </MenuItem>
                 <Separator BorderThickness="1" BorderBrush="Black"/>
-                <MenuItem Header="О лаборатории" Icon="Resources\information.ico" Command="{Binding Path=OpenAbout}" CommandParameter="{Binding ElementName=mv}"/>
+                <MenuItem Header="О лаборатории" Command="{Binding Path=OpenAbout}" CommandParameter="{Binding ElementName=mv}">
+                    <MenuItem.Icon>
+                        <Image Source="pack://application:,,,/Resources/information.ico"/>
+                    </MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
             <MenuItem Header="Экспертизы" Foreground="White">
                 <MenuItem Header="Просмотр" Command="{Binding Path=OpenExpertises}" CommandParameter="{Binding ElementName=mv}"/>

@@ -68,69 +68,40 @@
                   RowStyle="{StaticResource DGRowStyle}" CellStyle="{StaticResource DGCellStyle}" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
             <DataGrid.RowDetailsTemplate>
                 <DataTemplate DataType="Expertise">
-                    <Grid HorizontalAlignment="Stretch" Margin="40,15,0,2" >
+                    <Grid HorizontalAlignment="Stretch" Margin="40,15,5,5" >
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="auto"/>
                             <RowDefinition/>
+                            <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="auto"/>
-                            <ColumnDefinition Width="60"/>
+                            <ColumnDefinition Width="50"/>
                             <ColumnDefinition Width="auto"/>
-                            <ColumnDefinition Width="60"/>
+                            <ColumnDefinition Width="50"/>
                             <ColumnDefinition Width="auto"/>
-                            <ColumnDefinition Width="60"/>
+                            <ColumnDefinition Width="50"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Style="{x:Null}" Text="Экспертиза" HorizontalAlignment="Center" Margin="0,0,0,5" FontSize="{StaticResource RegularFontSize}" FontWeight="Medium"/>
-                        <TextBlock Grid.Row="1" Style="{x:Null}" FontSize="14" FontWeight="Normal">
+                        <TextBlock Style="{x:Null}" Grid.Column="6" Margin="0,13,0,0" FontSize="{StaticResource RegularFontSize}"
+                                   FontStyle="Italic" TextWrapping="Wrap">
+                            <Run Text="{Binding Path=FromResolution.Case.Essense, Mode=OneWay}"/>
+                            <LineBreak/>
+                            <LineBreak/>
+                            <Run Text="{Binding Path=FromResolution.Case.Comment, Mode=OneWay, StringFormat='Комментарий: {0}'}"/>
+                        </TextBlock>
+                        <TextBlock Style="{x:Null}" FontSize="14" FontWeight="Normal" Margin="0,13,0,0">
+                            <Run Text="{Binding Path=ExpertiseStatus, StringFormat='Статус: {0}', Mode=OneWay}"/>
+                            <LineBreak/>
                             <Run Text="{Binding Inwork, StringFormat='Дней в работе: {0}', Mode=OneWay}"/>
                             <LineBreak/>
                             <Run Text="{Binding Path=EndDate, StringFormat='Дата сдачи: {0:d}', ConverterCulture='ru-RU', Mode=OneWay}"/>
                             <LineBreak/>
                             <Run Text="{Binding Path=ExpertiseType, StringFormat='Тип: {0}', Mode=OneWay}"/>
-                            <LineBreak/>
-                            <Run Text="{Binding Path=ExpertiseStatus, StringFormat='Статус: {0}', Mode=OneWay}"/>
                         </TextBlock>
-                        <TextBlock Style="{x:Null}" Grid.Column="2" Text="Материалы дела" HorizontalAlignment="Center" Margin="0,0,0,5" FontSize="{StaticResource RegularFontSize}" FontWeight="Medium"/>
-                        <ScrollViewer Grid.Column="2" Grid.Row="1" Margin="2,0,0,0" VerticalScrollBarVisibility="Auto">
-                            <TextBlock Style="{x:Null}" Grid.Column="1" Grid.Row="1" FontSize="14" FontWeight="Normal" TextWrapping="Wrap" MaxWidth="400" >
-                            <Run Text="{Binding Path=FromResolution.Case.Number, StringFormat='Номер дела: {0}', Mode=OneWay}"/>
-                            <LineBreak />
-                            <Run Text="{Binding Path=FromResolution.Case.Plaintiff, StringFormat='Истец: {0}',Mode=OneWay}"/>
-                            <LineBreak />
-                            <Run Text="{Binding Path=FromResolution.Case.Respondent, StringFormat='Ответчик: {0}',Mode=OneWay}"/>
-                            <LineBreak />
-                            <Run Text="{Binding Path=FromResolution.Case.Annotate, StringFormat='Аннотация: {0}', Mode=OneWay}"/>
-                            <LineBreak/>
-                            <Run Text="{Binding Path=FromResolution.Case.Comment, StringFormat='Комментарий: {0}', Mode=OneWay}"/>
-                            </TextBlock>
-                        </ScrollViewer>
-                        <TextBlock Style="{x:Null}" Grid.Column="4" Text="Движение экспертизы" HorizontalAlignment="Center" Margin="0,0,0,5" FontSize="{StaticResource RegularFontSize}" FontWeight="Medium"/>
-                        <ScrollViewer Grid.Column="4" Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="2,0,0,0">
+                        <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" Margin="0,13,0,0">
                             <TextBlock Style="{x:Null}" FontSize="14" FontWeight="Normal" Text="{Binding Path=RequestSummary}" />
                         </ScrollViewer>
-                        <!--<TextBlock Style="{x:Null}" Grid.Column="6" Grid.Row="1" FontSize="{StaticResource RegularFontSize}" FontWeight="Normal" TextAlignment="Center"
-                                   >
-                            <Run Text="{Binding Path=LinkedExpertise, Mode=OneWay, StringFormat='Связянных экспертиз: {0}'}"
-                                  ToolTipService.HasDropShadow="True" ToolTipService.ShowDuration="10000"/>
-                            <LineBreak/>
-                            <Run Text="{Binding Path=FromResolution.Questions.Questions.Count, Mode=OneWay, StringFormat='Вопросов: {0}'}"
-                                  ToolTipService.HasDropShadow="True" ToolTipService.ShowDuration="20000">
-                                <Run.ToolTip>
-                                    <ToolTip Style="{StaticResource CastomToolTip}" Content="{Binding Path=FromResolution.QeustionsString, Mode=OneWay}"/>
-                                </Run.ToolTip>
-                            </Run>
-                            <LineBreak/>
-                            <Run Text="{Binding Path=Bills.Count, Mode=OneWay, StringFormat='Счета: {0}'}">
-                                <Run.ToolTip>
-                                    <ToolTip Style="{StaticResource CastomToolTip}" Content="{Binding Path=BillSummary, Mode=OneWay}"/>
-                                </Run.ToolTip>
-                            </Run>
-                            <LineBreak/>
-                            <Run Text="{Binding Path=FromResolution.Objects.Objects.Count, Mode=OneWay, StringFormat='Предоставленные объекты: {0}'}"/>
-                        </TextBlock>-->
-                        <Grid Grid.Column="6" Grid.RowSpan="2" VerticalAlignment="Center" HorizontalAlignment="Left">
+                        <Grid Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Left">
                             <Grid.Resources>
                                 <Style TargetType="Image">
                                     <Setter Property="Width" Value="40"/>
@@ -155,15 +126,17 @@
                             </Grid.RowDefinitions>
                             <Image Source="pack://application:,,,/Resources/link.png" ToolTip="Связанные экспертизы"/>
                             <TextBlock Name="tbLink" Grid.Column="1" Text="{Binding Path=LinkedExpertise, Mode=OneWay}"/>
-                            <Image Grid.Row="1" Source="pack://application,,,/Resources/dollar.png" RenderTransformOrigin=".5,.5" ToolTip="Счета">
+                            <Image Grid.Row="1" Source="pack://application:,,,/Resources/dollar.png" RenderTransformOrigin=".5,.5" ToolTip="Выписанные за экспертизу счета">
                                 <Image.RenderTransform>
                                     <ScaleTransform ScaleX=".8" ScaleY=".8"/>
                                 </Image.RenderTransform>
                             </Image>
                             <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Path=Bills.Count, Mode=OneWay}"/>
-                            <Image Grid.Row="2" Source="pack://application,,,/Resources/question.png" ToolTip="Вопросы"/>
+                            <Image Grid.Row="2" Source="pack://application:,,,/Resources/question.png" ToolTip="Поставленные на разрешение вопросы"/>
                             <TextBlock Grid.Column="1" Grid.Row="2" Text="{Binding Path=FromResolution.Questions.Questions.Count, Mode=OneWay}"/>
                         </Grid>
+                        <Button Style="{StaticResource SearchButton}" Grid.Row="1" Grid.Column="6" Width="35" Height="35" HorizontalAlignment="Right" Margin="0,5,15,5"
+                                Background="Transparent"/>
                     </Grid>
                     <DataTemplate.Triggers>
                         

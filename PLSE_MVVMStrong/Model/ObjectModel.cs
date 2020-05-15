@@ -3918,6 +3918,10 @@ namespace PLSE_MVVMStrong.Model
                 }
             }
         }
+        public string Essense
+        {
+            get => $"по материалам дела № {_number} {_annotate}";
+        }
 
         public Case() : base() { }
         public Case(int id, string number, KeyValuePair<string, string> type, string respondent, string plaintiff, string annotate, string comment = null, DateTime? dispatchdate = null)

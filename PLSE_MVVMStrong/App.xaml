@@ -16,6 +16,8 @@
         <SolidColorBrush x:Key="ExitColor" Color="#FFDA7B1D"/>
         <SolidColorBrush x:Key="SaveEnterColor" Color="#FF89C330"/>
 
+        <BitmapImage x:Key="lens" UriSource="Resources\lens.jpg" SourceRect="210 10 480 480"/>
+
         <ControlTemplate x:Key="tbAdditonText" TargetType="TextBox">
             <Grid Width="{TemplateBinding Width}" Height="{TemplateBinding Height}" Name="grid">
                 <Grid.ColumnDefinitions>
@@ -208,20 +210,37 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        <Style TargetType="{x:Type Button}" x:Key="SearchButton" x:Shared="false">
+        <Style TargetType="{x:Type Button}" x:Key="SearchButton">
             <Setter Property="OverridesDefaultStyle" Value="True"/>
-            <Setter Property="Height" Value="{Binding RelativeSource={RelativeSource Self}, Path=Width}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Name="brd" Width="{TemplateBinding Width}" Height="{TemplateBinding Width}" BorderThickness="1" BorderBrush="{StaticResource UnselectedControl}">
-                            <Viewbox>
-                                <Image Source="Resources\17.png"/>
-                            </Viewbox>
-                        </Border>
+                        <Ellipse Width="{TemplateBinding Width}" Height="{TemplateBinding Height}" RenderTransformOrigin=".5,.5">
+                            <Ellipse.Fill>
+                                <ImageBrush ImageSource="{StaticResource lens}" Stretch="Fill"/>
+                            </Ellipse.Fill>
+                            <Ellipse.RenderTransform>
+                                <ScaleTransform x:Name="trs"/>
+                            </Ellipse.RenderTransform>
+                        </Ellipse>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="true">
-                                <Setter TargetName="brd" Property="BorderBrush" Value="{StaticResource SelectedControl}"/>
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="trs" Storyboard.TargetProperty="ScaleX" To="1.2" Duration="0:0:0.2"/>
+                                            <DoubleAnimation Storyboard.TargetName="trs" Storyboard.TargetProperty="ScaleY" To="1.2" Duration="0:0:0.2"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="trs" Storyboard.TargetProperty="ScaleX" Duration="0:0:0.1"/>
+                                            <DoubleAnimation Storyboard.TargetName="trs" Storyboard.TargetProperty="ScaleY" Duration="0:0:0.1"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -312,13 +331,13 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type DataGridRow}">
-                        <Border x:Name="brd" BorderThickness="1" BorderBrush="Blue" Margin="1,2" CornerRadius="3">
-                            <Border.Background>
+                        <Border x:Name="brd" BorderThickness="2" BorderBrush="Blue" Margin="1,2" CornerRadius="3">
+                            <!--<Border.Background>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                                     <GradientStop Color="#FFEDF1F3" Offset="0"/>
                                     <GradientStop Color="#FFC9DCFD" Offset="1"/>
                                 </LinearGradientBrush>
-                            </Border.Background>
+                            </Border.Background>-->
                             <SelectiveScrollingGrid>
                                 <SelectiveScrollingGrid.RowDefinitions>
                                     <RowDefinition/>
@@ -328,7 +347,7 @@
                                     <ColumnDefinition Width="auto"/>
                                     <ColumnDefinition/>
                                 </SelectiveScrollingGrid.ColumnDefinitions>
-                                <DataGridCellsPresenter Grid.Column="1" ItemsPanel="{TemplateBinding ItemsPanel}" 
+                                <DataGridCellsPresenter Name = "prs" Grid.Column="1" ItemsPanel="{TemplateBinding ItemsPanel}" 
                                                             SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                                 <DataGridDetailsPresenter Name="dp" Grid.Row="1" Grid.Column="1" Height="200" Visibility="Visible"
                                                                  SelectiveScrollingGrid.SelectiveScrollingOrientation="{Binding AreRowDetailsFrozen, ConverterParameter={x:Static SelectiveScrollingOrientation.Vertical}, Converter={x:Static DataGrid.RowDetailsScrollingConverter}, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" >
@@ -339,10 +358,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="true">
-                                <Setter TargetName="brd" Property="Background" Value="#FF83E5F5"/>
+                                <Setter TargetName="brd" Property="Background" Value="LightBlue"/>
                             </Trigger>
                             <Trigger Property="IsSelected" Value="true">
-                                <Setter TargetName="brd" Property="Background" Value="#FF1285F7"/>
+                                <Setter TargetName="brd" Property="Background" Value="#FF549EE8"/>
                                 <Setter TargetName="brd" Property="TextBlock.Foreground" Value="White"/>
                             </Trigger>
                             <DataTrigger Binding="{Binding ElementName=tb, Path=IsChecked}" Value="true">
