@@ -220,7 +220,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Ellipse Width="{TemplateBinding Width}" Height="{TemplateBinding Height}" RenderTransformOrigin=".5,.5" Stroke="White" StrokeThickness="2">
+                        <Ellipse Name="el" Width="{TemplateBinding Width}" Height="{TemplateBinding Height}" RenderTransformOrigin=".5,.5" Stroke="White" StrokeThickness="2">
                             <Ellipse.Fill>
                                 <ImageBrush ImageSource="{StaticResource lens}" Stretch="Fill"/>
                             </Ellipse.Fill>
@@ -246,6 +246,19 @@
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </Trigger.ExitActions>
+                                <Setter Property="ForceCursor" Value="True"/>
+                                <Setter Property="Cursor" Value="Hand"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter TargetName="el" Property="Fill">
+                                    <Setter.Value>
+                                        <ImageBrush Stretch="Fill">
+                                            <ImageBrush.ImageSource>
+                                                <FormatConvertedBitmap Source="{StaticResource lens}" DestinationFormat="Gray32Float"/>
+                                            </ImageBrush.ImageSource>
+                                        </ImageBrush>
+                                    </Setter.Value>
+                                </Setter>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -283,6 +296,8 @@
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </Trigger.ExitActions>
+                                <Setter Property="ForceCursor" Value="True"/>
+                                <Setter Property="Cursor" Value="Hand"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -344,7 +359,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Ellipse Width="{TemplateBinding Width}" Height="{TemplateBinding Height}" RenderTransformOrigin=".5,.5" Stroke="White" StrokeThickness="2">
+                        <Ellipse Name="el" Width="{TemplateBinding Width}" Height="{TemplateBinding Height}" RenderTransformOrigin=".5,.5" Stroke="White" StrokeThickness="2">
                             <Ellipse.Fill>
                                 <ImageBrush ImageSource="Resources\additem.png" Stretch="Fill" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.ClearTypeHint="Enabled"/>
                             </Ellipse.Fill>
@@ -372,6 +387,67 @@
                                 </Trigger.ExitActions>
                                 <Setter Property="ForceCursor" Value="True"/>
                                 <Setter Property="Cursor" Value="Hand"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter TargetName="el" Property="Fill">
+                                    <Setter.Value>
+                                        <ImageBrush Stretch="Fill">
+                                            <ImageBrush.ImageSource>
+                                                <FormatConvertedBitmap Source="Resources\additem.png" DestinationFormat="Gray32Float"/>
+                                            </ImageBrush.ImageSource>
+                                        </ImageBrush>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="{x:Type Button}" x:Key="EditButton">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Ellipse Name="el" Width="{TemplateBinding Width}" Height="{TemplateBinding Height}" RenderTransformOrigin=".5,.5" Stroke="White" StrokeThickness="2">
+                            <Ellipse.Fill>
+                                <ImageBrush ImageSource="Resources\edit.png" Stretch="Fill" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.ClearTypeHint="Enabled"/>
+                            </Ellipse.Fill>
+                            <Ellipse.RenderTransform>
+                                <ScaleTransform x:Name="trs"/>
+                            </Ellipse.RenderTransform>
+                        </Ellipse>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="trs" Storyboard.TargetProperty="ScaleX" To="1.2" Duration="0:0:0.1"/>
+                                            <DoubleAnimation Storyboard.TargetName="trs" Storyboard.TargetProperty="ScaleY" To="1.2" Duration="0:0:0.1"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="trs" Storyboard.TargetProperty="ScaleX" Duration="0:0:0.1"/>
+                                            <DoubleAnimation Storyboard.TargetName="trs" Storyboard.TargetProperty="ScaleY" Duration="0:0:0.1"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                                <Setter Property="ForceCursor" Value="True"/>
+                                <Setter Property="Cursor" Value="Hand"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter TargetName="el" Property="Fill">
+                                    <Setter.Value>
+                                        <ImageBrush Stretch="Fill">
+                                            <ImageBrush.ImageSource>
+                                                <FormatConvertedBitmap Source="Resources\edit.png" DestinationFormat="Gray32Float"/>
+                                            </ImageBrush.ImageSource>
+                                        </ImageBrush>
+                                    </Setter.Value>
+                                </Setter>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>

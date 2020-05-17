@@ -4840,7 +4840,7 @@ namespace PLSE_MVVMStrong.Model
         {
             get
             {
-                return $"{_number}/{Expert.Employee.Departament.DigitalCode}-{_resolution.Case.TypeCase.Value}";
+                return $"{_number}/{Expert.Employee?.Departament.DigitalCode}-{_resolution?.Case.TypeCase.Value}";
             }
         }
         public int ExpertiseID

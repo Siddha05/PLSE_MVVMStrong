@@ -87,6 +87,9 @@ namespace PLSE_MVVMStrong.ViewModel
 
         public ResolutionAddVM()
         {
+#if DEBUG
+            Resolution.Case.TypeCase = new KeyValuePair<string, string>("гражданское", "2");
+#endif
             Resolution.PropertyChanged += Resolution_PropertyChanged;
             Resolution.Expertisies.Add(new Expertise(id: 0,
                                                       number: "12",

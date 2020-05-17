@@ -103,11 +103,8 @@
                                     TextWrapping="Wrap" Name="caseComment" Height="100" Text="{Binding Path=Resolution.Case.Comment}" />
             </Grid>
         </ScrollViewer>
-        <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <Button Style="{StaticResource BaseUIButton}" Content="Сохранить" Foreground="GreenYellow" Command="{Binding Path=Save}"/>
-            <Button Content="Выход"  HorizontalAlignment="Left" Margin="5" Style="{StaticResource BaseUIButton}" Foreground="SandyBrown"
-                Command="{Binding Path=Exit}" CommandParameter="{Binding ElementName=wnd}" />
-        </StackPanel>
+        <Button Style="{StaticResource BaseUIButton}" Grid.Column="1" Grid.Row="1" Content="Сохранить" Foreground="GreenYellow" Command="{Binding Path=Save}"
+                HorizontalAlignment="Right" Margin="5,85, 40,10"/>
         <StackPanel Grid.Column="1" Orientation="Vertical">
             <TextBlock Style="{x:Null}" Text="{Binding Path=Resolution.Expertisies.Count, StringFormat=Экспертизы {0}}" FontSize="{StaticResource HeaderFontSize}" 
                        FontWeight="Bold" HorizontalAlignment="Center" Margin="0,15,0,5"/>
@@ -120,12 +117,12 @@
                                 <RowDefinition/>
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="70"/>
+                                <ColumnDefinition Width="90"/>
                                 <ColumnDefinition/>
-                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="120"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Name="tbNumber" Text="{Binding Path=Number, Mode=OneWay}" FontWeight="Bold" Foreground="#FF261ED3" VerticalAlignment="Center"
-                                           HorizontalAlignment="Center" FontSize="20" Grid.RowSpan="2"/>
+                            <TextBlock Name="tbNumber" Text="{Binding Path=FullNumber, Mode=OneWay}" FontWeight="Bold" Foreground="#FF261ED3" VerticalAlignment="Center"
+                                           HorizontalAlignment="Center" FontSize="18" Grid.RowSpan="2" Margin="5,0,5,0"/>
                             <TextBlock Grid.Column="1" Style="{x:Null}"  Margin="8,1,1,1" HorizontalAlignment="Left" FontSize="16" FontWeight="DemiBold" 
                                         Text="{Binding Path=Expert.Employee, Mode=OneWay}" TextDecorations="Underline">
                             </TextBlock>
@@ -133,26 +130,17 @@
                                        TextWrapping="Wrap" MaxWidth="450" Text="{Binding Path=Expert.Speciality.Code, Mode=OneWay}" FontStyle="Italic"/>
                             <TextBlock Grid.Column="2" Style="{x:Null}" Grid.RowSpan="2" FontSize="16" Margin="2,2,6,2" VerticalAlignment="Center"
                                        TextAlignment="Center">
-                                <Run Text="{Binding Path=StartDate, Mode=OneWay,StringFormat={}{0:d}, ConverterCulture='ru-RU'}"/>
+                                <Run Text="{Binding Path=StartDate, Mode=OneWay,StringFormat='от {0:d}', ConverterCulture='ru-RU'}"/>
                                 <LineBreak/>
-                                <Run Text="{Binding Path=TimeLimit, Mode=OneWay}" FontSize="20" Foreground="#FF261ED3" FontWeight="Bold"
+                                <Run Text="{Binding Path=TimeLimit, Mode=OneWay, StringFormat='срок {0}д.'}" FontSize="18" Foreground="#FF261ED3" FontWeight="Bold"
                                      />
                             </TextBlock>
                         </Grid>
-                        <DataTemplate.Triggers>
-                            <DataTrigger Binding="{Binding Path=ExpertiseStatus}" Value="в работе">
-                                <Setter TargetName="tbNumber" Property="Foreground" Value="#FFE49A1A"/>
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding Path=ExpertiseStatus}" Value="сдана">
-                                <Setter TargetName="tbNumber" Property="Foreground" Value="#FF10CB10"/>
-                            </DataTrigger>
-                        </DataTemplate.Triggers>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
                 <ListBox.ItemContainerStyle>
                     <Style TargetType="{x:Type ListBoxItem}">
                         <Setter Property="OverridesDefaultStyle" Value="True"/>
-                        <!--<Setter Property="Height" Value="100"/>-->
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="{x:Type ListBoxItem}">
@@ -163,9 +151,6 @@
                                         <Trigger Property="IsSelected" Value="true">
                                             <Setter TargetName="brd" Property="Background" Value="#FF8BAEF9"/>
                                         </Trigger>
-                                        <!--<Trigger Property="IsMouseOver" Value="true">
-                                            <Setter TargetName="brd" Property="Background" Value="Chocolate"/>
-                                        </Trigger>-->
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
                             </Setter.Value>
@@ -174,9 +159,9 @@
                 </ListBox.ItemContainerStyle>
             </ListBox>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,20,0">
-                <Button Style="{StaticResource AddItemButton}" Width="40" Height="40" Margin="1" Command="{Binding Path=AddExpertise}"
+                <Button Style="{StaticResource AddItemButton}" Width="45" Height="45" Margin="1" Command="{Binding Path=AddExpertise}"
                         CommandParameter="{Binding ElementName=wnd}"/>
-                <Button Style="{StaticResource DeleteButton}" Width="40" Height="40" Margin="1" Command="{Binding Path=DeleteExpertise}"/>
+                <Button Style="{StaticResource DeleteButton}" Width="45" Height="45" Margin="1" Command="{Binding Path=DeleteExpertise}"/>
             </StackPanel>
         </StackPanel>
         <!--<TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="20,24,0,0" TextWrapping="Wrap"  VerticalAlignment="Top"
