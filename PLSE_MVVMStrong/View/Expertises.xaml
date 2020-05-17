@@ -136,10 +136,10 @@
                             <TextBlock Grid.Column="1" Grid.Row="2" Text="{Binding Path=FromResolution.Questions.Questions.Count, Mode=OneWay}"/>
                         </Grid>
                         <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="6" HorizontalAlignment="Right">
-                             <Button Style="{StaticResource WordButton}" Width="35" Height="35" Margin="0,5,5,5"/>
+                            <Button Style="{StaticResource EditButton}" Width="35" Height="35" Margin="0,5,5,5"/>
+                            <Button Style="{StaticResource WordButton}" Width="35" Height="35" Margin="0,5,5,5"/>
                             <Button Style="{StaticResource SearchButton}" Width="35" Height="35"  Margin="0,5,15,5"/>
                         </StackPanel>
-                        
                     </Grid>
                     <DataTemplate.Triggers>
                         
@@ -192,25 +192,17 @@
             </DataGrid.Columns>
             <DataGrid.ContextMenu>
                 <ContextMenu>
-                    <ContextMenu.Template>
-                        <ControlTemplate TargetType="{x:Type ContextMenu}">
-                            <Border Background="White" BorderBrush="Black" BorderThickness="1" Padding="2">
-                                <ContentPresenter/>
-                            </Border>
-                        </ControlTemplate>
-                    </ContextMenu.Template>
                     <MenuItem Header="Создать">
-                        <MenuItem Header="Создать">
                             <MenuItem Header="Подписку экспетра"/>
                             <MenuItem Header="Заключение"/>
                             <MenuItem Header="Уведомление и рапорт"/>
                             <MenuItem Header="Сопроводительное письмо"/>
-                            <MenuItem Header="Уведомление"/>
+                            <MenuItem Header="Уведомление (по уг.)"/>
                             <MenuItem Header="Ходатайство"/>
-                        </MenuItem>
-                        <MenuItem Header="Детализация"/>
-                        <MenuItem Header="Открыть"/>
                     </MenuItem>
+                    <MenuItem Header="Детализация"/>
+                    <MenuItem Header="Открыть"/>
+                    <MenuItem Header="Редактировать"/>
                 </ContextMenu>
             </DataGrid.ContextMenu>
         </DataGrid>

@@ -87,32 +87,32 @@ namespace PLSE_MVVMStrong.ViewModel
 
         public ResolutionAddVM()
         {
-#if DEBUG
-            Resolution.Case.TypeCase = new KeyValuePair<string, string>("гражданское", "2");
-#endif
+//#if DEBUG
+//            Resolution.Case.TypeCase = new KeyValuePair<string, string>("гражданское", "2");
+//#endif
             Resolution.PropertyChanged += Resolution_PropertyChanged;
-            Resolution.Expertisies.Add(new Expertise(id: 0,
-                                                      number: "12",
-                                                      expert: CommonInfo.Experts.Single(n => n.ExpertID == 6),
-                                                      status: "в работе",
-                                                      start: DateTime.Now,
-                                                      end: null,
-                                                      timelimit: (byte)20,
-                                                      type: "первичная",
-                                                      previous: null,
-                                                      spendhours: null,
-                                                      vr: Model.Version.New));
-            Resolution.Expertisies.Add(new Expertise(id: 0,
-                                                      number: "2056",
-                                                      expert: CommonInfo.Experts.Single(n => n.ExpertID == 8),
-                                                      status: "выполнена",
-                                                      start: DateTime.Now.AddDays(-34),
-                                                      end: DateTime.Now.AddDays(-11),
-                                                      timelimit: (byte)30,
-                                                      type: "первичная",
-                                                      previous: null,
-                                                      spendhours: 48,
-                                                      vr: Model.Version.New));
+            //Resolution.Expertisies.Add(new Expertise(id: 0,
+            //                                          number: "12",
+            //                                          expert: CommonInfo.Experts.Single(n => n.ExpertID == 6),
+            //                                          status: "в работе",
+            //                                          start: DateTime.Now,
+            //                                          end: null,
+            //                                          timelimit: (byte)20,
+            //                                          type: "первичная",
+            //                                          previous: null,
+            //                                          spendhours: null,
+            //                                          vr: Model.Version.New));
+            //Resolution.Expertisies.Add(new Expertise(id: 0,
+            //                                          number: "2056",
+            //                                          expert: CommonInfo.Experts.Single(n => n.ExpertID == 8),
+            //                                          status: "выполнена",
+            //                                          start: DateTime.Now.AddDays(-34),
+            //                                          end: DateTime.Now.AddDays(-11),
+            //                                          timelimit: (byte)30,
+            //                                          type: "первичная",
+            //                                          previous: null,
+            //                                          spendhours: 48,
+            //                                          vr: Model.Version.New));
             AddCustomer = new RelayCommand(o =>
                                             {
                                                 var wnd = new View.CustomerSelect() { Owner = o as View.ResolutionAdd };

@@ -23,7 +23,8 @@ namespace PLSE_MVVMStrong.Model
     {
         Original = 0x0001,
         New = 0x0002,
-        Edited = 0x0004
+        Edited = 0x0004,
+        ContentEdited = 0x008
     }
     public enum PermissionProfile
     {
@@ -1489,16 +1490,20 @@ namespace PLSE_MVVMStrong.Model
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected void OnPropertyChanged([CallerMemberName]string prop = null)
+        protected void OnPropertyChanged([CallerMemberName]string prop = null, bool content = false)
         {
             if (_version == Version.Original)
             {
-                if (prop != "Version") Version = Version.Edited;
+                if (prop != "Version")
+                {
+                    if (content) Version = Version.ContentEdited;
+                    else Version = Version.Edited;
+                }           
             }
             _updatedate = DateTime.Now;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
 #if DEBUG
-            Debug.WriteLine("Property changed " + prop, "NotifyBase delegate");
+            Debug.WriteLine($"Property changed {prop} ({Version})", "NotifyBase delegate");
 #endif
            
         }
@@ -1519,6 +1524,9 @@ namespace PLSE_MVVMStrong.Model
                 case Version.Edited:
                     EditToDB(con);
                     break;
+                case Version.ContentEdited:
+                    ContentToDB(con);
+                    break;
                 default:
                     break;
             }
@@ -1533,6 +1541,7 @@ namespace PLSE_MVVMStrong.Model
         protected abstract void AddToDB(SqlConnection con);
         protected abstract void EditToDB(SqlConnection con);
         protected abstract void DeleteFromDB(SqlConnection con);
+        protected abstract void ContentToDB(SqlConnection con);
 
         public NotifyBase() : this(Version.New, DateTime.Now) {}
         public NotifyBase(Version vr) : this(vr, DateTime.Now) {}
@@ -1736,6 +1745,10 @@ namespace PLSE_MVVMStrong.Model
                 cmd.Connection.Close();
             }
         }
+        protected override void ContentToDB(SqlConnection con)
+        {
+            throw new NotSupportedException("Функция не может быть вызвана из данного класса");
+        }
         public override string ToString()
         {
             return Code;
@@ -1762,7 +1775,9 @@ namespace PLSE_MVVMStrong.Model
             if (String.IsNullOrWhiteSpace(_code)) return false;
 
             return true;
-        }    
+        }
+
+        
         #endregion
     }
     public class Settlement : NotifyBase, IEquatable<Settlement>, ICloneable
@@ -1981,6 +1996,10 @@ namespace PLSE_MVVMStrong.Model
                 cmd.Connection.Close();
             }
         }
+        protected override void ContentToDB(SqlConnection con)
+        {
+            throw new NotSupportedException("Функция не может быть вызвана из данного класса");
+        }
         public bool IsValidTitle()
         {
             return !String.IsNullOrWhiteSpace(_title);
@@ -2017,7 +2036,9 @@ namespace PLSE_MVVMStrong.Model
         {
             return (IsValidTitle() && _settlementtype != null && _significance != null);
         }
-        #endregion  
+
+        
+        #endregion
     }
     internal class AdressEventArgs : EventArgs
     {
@@ -2687,6 +2708,10 @@ namespace PLSE_MVVMStrong.Model
         {
             throw new NotImplementedException();
         }
+        protected override void ContentToDB(SqlConnection con)
+        {
+            throw new NotSupportedException("Функция не может быть вызвана из данного класса");
+        }
         #endregion
     }
 
@@ -3052,6 +3077,10 @@ namespace PLSE_MVVMStrong.Model
                 cmd.Connection.Close();
             }
         }
+        protected override void ContentToDB(SqlConnection con)
+        {
+            base.ContentToDB(con);
+        }
         public new Employee Clone()
         {
             return new Employee(Fname, Mname, Sname, Mobilephone, Workphone, Gender, Email, Adress.Clone(), Declinated, this.Version, this.UpdateDate, EmployeeID,
@@ -3235,6 +3264,10 @@ namespace PLSE_MVVMStrong.Model
             {
                 cmd.Connection.Close();
             }
+        }
+        protected override void ContentToDB(SqlConnection con)
+        {
+            throw new NotSupportedException("Функция не может быть вызвана из данного класса");
         }
         public override string ToString()
         {
@@ -3547,6 +3580,10 @@ namespace PLSE_MVVMStrong.Model
                 cmd.Connection.Close();
             }
         }
+        protected override void ContentToDB(SqlConnection con)
+        {
+            throw new NotSupportedException("Функция не может быть вызвана из данного класса");
+        }
         public string ToString(string format, IFormatProvider formatProvider)
         {
             if (String.IsNullOrEmpty(format)) format = "n";
@@ -3597,6 +3634,8 @@ namespace PLSE_MVVMStrong.Model
         {
             return Clone();
         }
+
+        
     }
     public class Laboratory : Organization
     {
@@ -4131,7 +4170,7 @@ namespace PLSE_MVVMStrong.Model
 
         private void ExpertiseStatusChanged(object o, PropertyChangedEventArgs e)
         {
-            OnPropertyChanged("Expertisies");
+            OnPropertyChanged("Expertisies", true);
             if (e.PropertyName == "ExpertiseStatus")
             {
                 foreach (var item in _expertisies)
@@ -4151,7 +4190,7 @@ namespace PLSE_MVVMStrong.Model
                     {
                         item.FromResolution = this;
                     }
-                    OnPropertyChanged("Expertisies");
+                    OnPropertyChanged("Expertisies", true);
                     break;
 
                 case NotifyCollectionChangedAction.Reset:
@@ -4162,7 +4201,7 @@ namespace PLSE_MVVMStrong.Model
                         {
                             item.DBDelete(CommonInfo.connection);
                         }
-                        OnPropertyChanged("Expertises");
+                        OnPropertyChanged("Expertises", true);
                     }
                     catch (Exception)
                     {
@@ -4239,8 +4278,8 @@ namespace PLSE_MVVMStrong.Model
             par = cmd.Parameters.Add("@InsertedID", SqlDbType.Int);
             par.Direction = ParameterDirection.Output;
             cmd.Connection.Open();
-            var tran = con.BeginTransaction();
-            cmd.Transaction = tran;
+            //var tran = con.BeginTransaction();
+            //cmd.Transaction = tran;
             try
             {        
                 cmd.ExecuteNonQuery();
@@ -4249,16 +4288,18 @@ namespace PLSE_MVVMStrong.Model
                 {
                     item.SaveChanges(con);
                 }
+                
                 Version = Version.Original;
+                //tran.Commit();
             }
             catch (Exception)
             {
-                tran.Rollback();
+                //tran.Rollback();
                 throw;
             }
             finally
             {
-                tran.Commit();
+                
                 cmd.Connection.Close();
             }
         }
@@ -4294,17 +4335,6 @@ namespace PLSE_MVVMStrong.Model
                 foreach (var item in _expertisies)
                 {
                     item.SaveChanges(con);
-                    //switch (item.Version)
-                    //{
-                    //    case Version.New:
-                    //        item.AddToDB(con);
-                    //        break;
-                    //    case Version.Edited:
-                    //        item.EditToDB(con);
-                    //        break;
-                    //    default:
-                    //        break;
-                    //}
                 }
                 Version = Version.Original;
             }
@@ -4335,6 +4365,14 @@ namespace PLSE_MVVMStrong.Model
             {
                 cmd.Connection.Close();
             }
+        }
+        protected override void ContentToDB(SqlConnection con)
+        {
+            foreach (var item in _expertisies)
+            {
+                item.SaveChanges(con);
+            }
+            Version = Version.Original;
         }
     }
 
@@ -4474,6 +4512,10 @@ namespace PLSE_MVVMStrong.Model
                 cmd.Connection.Close();
             }
         }
+        protected override void ContentToDB(SqlConnection con)
+        {
+            throw new NotSupportedException($"Невозможно вызвать функцию из класса Equipment");
+        }
     }
     // NOT COMPLEATED
     public class EquipmentUsage : NotifyBase
@@ -4492,6 +4534,12 @@ namespace PLSE_MVVMStrong.Model
         {
             throw new NotImplementedException();
         }
+
+        protected override void ContentToDB(SqlConnection con)
+        {
+            throw new NotSupportedException($"Невозможно вызвать функцию из класса EquipmentUsage");
+        }
+
         protected override void DeleteFromDB(SqlConnection con)
         {
             throw new NotImplementedException();
@@ -4689,11 +4737,15 @@ namespace PLSE_MVVMStrong.Model
         }
         protected override void AddToDB(SqlConnection con)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException("Невозможно вызвать функцию из класса ExpertiseDetail");
         }
         protected override void DeleteFromDB(SqlConnection con)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException("Невозможно вызвать функцию из класса ExpertiseDetail");
+        }
+        protected override void ContentToDB(SqlConnection con)
+        {
+            throw new NotSupportedException("Невозможно вызвать функцию из класса ExpertiseDetail");
         }
     }
 
@@ -5003,7 +5055,7 @@ namespace PLSE_MVVMStrong.Model
                     {
                         item.FromExpertise = this;
                     }
-                    OnPropertyChanged("Bills");
+                    OnPropertyChanged("Bills", true);
                     break;
 
                 case NotifyCollectionChangedAction.Reset:
@@ -5014,7 +5066,7 @@ namespace PLSE_MVVMStrong.Model
                         {
                             item.DBDelete(CommonInfo.connection);
                         }
-                        OnPropertyChanged("Bills");
+                        OnPropertyChanged("Bills", true);
                     }
                     catch (Exception)
                     {
@@ -5034,7 +5086,7 @@ namespace PLSE_MVVMStrong.Model
                     {
                         item.FromExpertise = this;
                     }
-                    OnPropertyChanged("Requests");
+                    OnPropertyChanged("Requests", true);
                     break;
 
                 case NotifyCollectionChangedAction.Reset:
@@ -5045,7 +5097,7 @@ namespace PLSE_MVVMStrong.Model
                         {
                             item.DBDelete(CommonInfo.connection);
                         }
-                        OnPropertyChanged("Requests");
+                        OnPropertyChanged("Requests", true);
                     }
                     catch (Exception)
                     {
@@ -5065,7 +5117,7 @@ namespace PLSE_MVVMStrong.Model
                     {
                         item.FromExpertise = this;
                     }
-                    OnPropertyChanged("Reports");
+                    OnPropertyChanged("Reports", true);
                     break;
 
                 case NotifyCollectionChangedAction.Reset:
@@ -5076,7 +5128,7 @@ namespace PLSE_MVVMStrong.Model
                         {
                             item.DBDelete(CommonInfo.connection);
                         }
-                        OnPropertyChanged("Reports");
+                        OnPropertyChanged("Reports",true);
                     }
                     catch (Exception)
                     {
@@ -5096,7 +5148,7 @@ namespace PLSE_MVVMStrong.Model
                     {
                         item.FromExpertise = this;
                     }
-                    OnPropertyChanged("Equipments");
+                    OnPropertyChanged("Equipments", true);
                     break;
 
                 case NotifyCollectionChangedAction.Reset:
@@ -5107,7 +5159,7 @@ namespace PLSE_MVVMStrong.Model
                         {
                             item.DBDelete(CommonInfo.connection);
                         }
-                        OnPropertyChanged("Equipments");
+                        OnPropertyChanged("Equipments", true);
                     }
                     catch (Exception)
                     {
@@ -5122,13 +5174,13 @@ namespace PLSE_MVVMStrong.Model
         public Expertise() : base()
         {
             _bills.CollectionChanged +=OnBillListChanged;
-            ((INotifyPropertyChanged)_bills).PropertyChanged += (n, e) => OnPropertyChanged(nameof(Bills));
+            ((INotifyPropertyChanged)_bills).PropertyChanged += (n, e) => OnPropertyChanged(nameof(Bills), true);
             _requests.CollectionChanged += OnRequestListChanged;
-            ((INotifyPropertyChanged)_requests).PropertyChanged += (n, e) => OnPropertyChanged(nameof(Requests));
+            ((INotifyPropertyChanged)_requests).PropertyChanged += (n, e) => OnPropertyChanged(nameof(Requests), true);
             _raports.CollectionChanged += OnReportListChanged;
-            ((INotifyPropertyChanged)_raports).PropertyChanged += (n, e) => OnPropertyChanged(nameof(Reports));
+            ((INotifyPropertyChanged)_raports).PropertyChanged += (n, e) => OnPropertyChanged(nameof(Reports), true);
             _equipmentusage.CollectionChanged += OnEquipmenUsageListChanged;
-            ((INotifyPropertyChanged)_equipmentusage).PropertyChanged += (n, e) => OnPropertyChanged(nameof(EquipmentUsage));
+            ((INotifyPropertyChanged)_equipmentusage).PropertyChanged += (n, e) => OnPropertyChanged(nameof(EquipmentUsage), true);
         }
         public Expertise(int id, string number, Expert expert, string status, DateTime start, DateTime? end, byte timelimit, string type, int? previous,
                         short? spendhours, Version vr)
@@ -5263,6 +5315,26 @@ namespace PLSE_MVVMStrong.Model
             {
                 cmd.Connection.Close();
             }
+        }
+        protected override void ContentToDB(SqlConnection con)
+        {
+            foreach (var item in _bills)
+            {
+                item.SaveChanges(con);
+            }
+            foreach (var item in _requests)
+            {
+                item.SaveChanges(con);
+            }
+            foreach (var item in _raports)
+            {
+                item.SaveChanges(con);
+            }
+            foreach (var item in _equipmentusage)
+            {
+                item.SaveChanges(con);
+            }
+            Version = Version.Original;
         }
         private bool IsValidNumber(string num)
         {
@@ -5509,6 +5581,10 @@ namespace PLSE_MVVMStrong.Model
                 cmd.Connection.Close();
             }
         }
+        protected override void ContentToDB(SqlConnection con)
+        {
+            throw new NotSupportedException("Невозможно вызвать функцию из класса Bill");
+        }
     }
     public sealed class Request : NotifyBase
     {
@@ -5642,6 +5718,10 @@ namespace PLSE_MVVMStrong.Model
             {
                 cmd.Connection.Close();
             }
+        }
+        protected override void ContentToDB(SqlConnection con)
+        {
+            throw new NotSupportedException("Невозможно вызвать функцию из класса Request");
         }
     }
     public sealed class Report : NotifyBase
@@ -5778,6 +5858,10 @@ namespace PLSE_MVVMStrong.Model
             {
                 cmd.Connection.Close();
             }
+        }
+        protected override void ContentToDB(SqlConnection con)
+        {
+            throw new NotSupportedException("Невозможно вызвать функцию из класса Report");
         }
     }
 }

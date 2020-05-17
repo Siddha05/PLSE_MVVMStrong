@@ -61,7 +61,14 @@ namespace PLSE_MVVMStrong.ViewModel
         #endregion
         #region Commands
         public RelayCommand Find { get; }
-        public RelayCommand ShowDetails { get; } 
+        public RelayCommand ShowDetails { get; }
+        public RelayCommand EditExpertise { get; }
+        public RelayCommand OpenWord { get; }
+        public RelayCommand CreateSubscribe { get; }
+        public RelayCommand CreateNotificationReport { get; }
+        public RelayCommand CreateRequest { get; }
+        public RelayCommand CreateCaseNotification { get; }
+        public RelayCommand CreateConclusion { get; }
         #endregion
         public ExpertisesVM()
         {
