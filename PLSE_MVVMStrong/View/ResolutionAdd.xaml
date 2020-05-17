@@ -24,7 +24,7 @@
             <RowDefinition Height="4*" />
             <RowDefinition />
         </Grid.RowDefinitions>
-        <ScrollViewer Grid.RowSpan="3" Margin="5" Name="scview">
+        <ScrollViewer Grid.RowSpan="3" Margin="5" Name="scview" VerticalScrollBarVisibility="Auto">
             <Grid VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto" />
@@ -51,53 +51,55 @@
                     <RowDefinition />
                     <RowDefinition />
                 </Grid.RowDefinitions>
-                <TextBlock Grid.ColumnSpan="3" Text="Основание для производства" Style="{x:Null}" FontSize="{StaticResource HeaderFontSize}" FontWeight="Bold" FontStyle="Italic" HorizontalAlignment="Center"
+                <TextBlock Grid.ColumnSpan="3" Text="Основание для производства" FontSize="{StaticResource HeaderFontSize}" FontWeight="Bold" FontStyle="Italic" HorizontalAlignment="Center"
                            Margin="5,5,5,10" />
-                <TextBlock Text="Основание" Grid.Row="1" />
+                <TextBlock Text="Основание" Grid.Row="1" Style="{StaticResource UITextBlock}"/>
                 <ComboBox Name="cbTypeResolution" Grid.Column="1" Grid.Row="1"  Style="{StaticResource UIComboBox}"
                                   ItemsSource="{Binding Path=ResolutionTypes}" Text ="{Binding Path=Resolution.ResolutionType}" VerticalContentAlignment="Center" Margin="5,5,0,5" Width="303" />
-                <TextBlock Grid.Row="2" Text="Статус" />
+                <TextBlock Grid.Row="2" Text="Статус" Style="{StaticResource UITextBlock}"/>
                 <ComboBox Grid.Column="1" Grid.Row="2"  Name="resStatus" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=ResolutionStatus}"
                                   Text="{Binding Path=Resolution.ResolutionStatus}" Margin="5,5,0,5" Width="303" />
-                <TextBlock Grid.Row="3"  Text="Дата регистрации*" />
+                <TextBlock Grid.Row="3"  Text="Дата регистрации*" Style="{StaticResource UITextBlock}"/>
                 <DatePicker Grid.Row="3" Grid.Column="1"  Name="resRegistrationDate"
                                 Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Resolution.RegistrationDate, ValidatesOnExceptions=True}" />
-                <TextBlock Grid.Row="4" Text="Дата вынесения" />
+                <TextBlock Grid.Row="4" Text="Дата вынесения" Style="{StaticResource UITextBlock}"/>
                 <DatePicker Grid.Row="4" Grid.Column="1"  Name="resDate" Style="{StaticResource UIDatePicker}"
                                     SelectedDate="{Binding Path=Resolution.ResolutionDate}" />
-                <TextBlock Text="Нативный вид" Grid.Row="5" />
+                <TextBlock Text="Нативный вид" Grid.Row="5" Style="{StaticResource UITextBlock}"/>
                 <TextBox Name="resPrescribeType" Grid.Row="5" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Resolution.PrescribeType}" Margin="5,5,0,5" Width="633" />
-                <TextBlock Grid.Row="6" Text="Заказчик*" />
-                <TextBlock Grid.Row="6" Grid.Column="1" Style="{x:Null}" Text="{Binding Path=Resolution.Customer.Requisite, TargetNullValue=не выбрано}" Margin="5,5,0,5" Width="633"
-                           HorizontalAlignment="Left" FontSize="{StaticResource UIFontSize}" />
-                <Button Grid.Row="6" Grid.Column="2" Style="{StaticResource SearchButton}" Command="{Binding Path=AddCustomer}" Width="40"/>
+                <TextBlock Grid.Row="6" Text="Заказчик*" Style="{StaticResource UITextBlock}"/>
+                <StackPanel Orientation="Horizontal" Grid.Row="6" Grid.Column="1">
+                    <TextBlock  Style="{x:Null}" Text="{Binding Path=Resolution.Customer.Requisite, TargetNullValue='не выбрано'}" 
+                           Margin="5,5,5,5" Width="auto" HorizontalAlignment="Left" FontSize="{StaticResource UIFontSize}" />
+                    <Button Grid.Row="6" Grid.Column="2" Style="{StaticResource SearchButton}" Command="{Binding Path=AddCustomer}" Width="35" Height="35"/>
+                </StackPanel>
                 <Button Name="bObjects" Content ="Объекты" Grid.Row="7" Grid.Column="1" Style="{StaticResource BaseUIButton}" Foreground="#FF010ABB" 
                         Command="{Binding Path=ObjectsClick}" CommandParameter="{Binding ElementName=popO}" Margin="5,4,340,4" Width="Auto"/>
                 <Button Name="bQuestions" Content="Вопросы" Grid.Row="8" Grid.Column="1" Style="{StaticResource BaseUIButton}" Foreground="#FF010ABB" 
                         Command="{Binding Path=QuestionsClick}" CommandParameter="{Binding ElementName=popQ}" Margin="5,0,340,0" Width="Auto" />
                 <TextBlock Grid.Row="9" Grid.ColumnSpan="3" Text="Материалы дела" Style="{x:Null}" FontSize="{StaticResource HeaderFontSize}" FontWeight="Bold" FontStyle="Italic" HorizontalAlignment="Center"
                            Margin="5,10,5,10" />
-                <TextBlock Text="Тип*" Grid.Row="10" />
+                <TextBlock Text="Тип*" Grid.Row="10" Style="{StaticResource UITextBlock}"/>
                 <ComboBox Name="cbTypeCase" Grid.Column="1" Grid.Row="10" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=CaseTypesList}" DisplayMemberPath="Key"
                            IsEnabled="{Binding Path=Resolution.ResolutionType, Converter={StaticResource RTypeConverter}}" 
                           SelectedItem="{Binding Path=CaseType}" Margin="5,5,0,5" Width="430"/>
-                <TextBlock Grid.Row="11" Text="Номер" Visibility="{Binding ElementName=tbNumber, Path=Visibility}" />
+                <TextBlock Grid.Row="11" Text="Номер" Visibility="{Binding ElementName=tbNumber, Path=Visibility}" Style="{StaticResource UITextBlock}"/>
                 <TextBox Name="tbNumber" Grid.Column="1" Grid.Row="11" Style="{StaticResource UITextBox}" Text="{Binding Path=Resolution.Case.Number}"
                                  Visibility ="{Binding Path=NumberVisible, Mode=OneWay}" Margin="5,5,0,5" Width="430" />
-                <TextBlock Grid.Row="12" Text="Дата" />
+                <TextBlock Grid.Row="12" Text="Дата" Style="{StaticResource UITextBlock}"/>
                 <DatePicker Grid.Row="12" Grid.Column="1" Style="{StaticResource UIDatePicker}"
                                     SelectedDate="{Binding Path=Resolution.Case.DispatchDate}" />
-                <TextBlock Grid.Row="13" Text="Анотация" />
-                <TextBox Grid.Row="13" Grid.Column="1" MinLines="8" AcceptsReturn="True"
+                <TextBlock Grid.Row="13" Text="Анотация" Style="{StaticResource UITextBlock}"/>
+                <TextBox Grid.Row="13" Grid.Column="1" MinLines="8" AcceptsReturn="True" FontSize="{StaticResource UIFontSize}"
                                     TextWrapping="Wrap" Name="caseAnnotate" Height="100" Text="{Binding Path=Resolution.Case.Annotate}" Margin="5" />
-                <TextBlock  Grid.Row="14" Text="Истец" Visibility="{Binding ElementName=tbPlaintiff, Path=Visibility}" />
+                <TextBlock  Grid.Row="14" Text="Истец" Visibility="{Binding ElementName=tbPlaintiff, Path=Visibility}" Style="{StaticResource UITextBlock}"/>
                 <TextBox Name="tbPlaintiff" Grid.Row="14" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Resolution.Case.Plaintiff}"
-                                 Visibility="{Binding Path=RespondentVisible, Mode=OneWay}" Margin="5,5,0,5" Width="430" />
-                <TextBlock Grid.Row="15" Text="Ответчик" Visibility="{Binding ElementName=tbRespondent, Path=Visibility}" />
+                                 Visibility="{Binding Path=RespondentVisible, Mode=OneWay}" Margin="5,5,0,5" Width="430"/>
+                <TextBlock Grid.Row="15" Text="Ответчик" Visibility="{Binding ElementName=tbRespondent, Path=Visibility}" Style="{StaticResource UITextBlock}"/>
                 <TextBox Name="tbRespondent" Grid.Row="15" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Resolution.Case.Respondent}"
                                  Visibility="{Binding ElementName=tbPlaintiff, Path=Visibility}" Margin="5,5,0,5" Width="430" />
-                <TextBlock Grid.Row="16" Text="Комментарий" />
-                <TextBox Grid.Row="16" Grid.Column="1" Grid.RowSpan="2" MinLines="20" AcceptsReturn="True" Margin="5"
+                <TextBlock Grid.Row="16" Text="Комментарий" Style="{StaticResource UITextBlock}"/>
+                <TextBox Grid.Row="16" Grid.Column="1" Grid.RowSpan="2" MinLines="20" AcceptsReturn="True" Margin="5" FontSize="{StaticResource UIFontSize}"
                                     TextWrapping="Wrap" Name="caseComment" Height="100" Text="{Binding Path=Resolution.Case.Comment}" />
             </Grid>
         </ScrollViewer>
@@ -109,7 +111,7 @@
         <StackPanel Grid.Column="1" Orientation="Vertical">
             <TextBlock Style="{x:Null}" Text="{Binding Path=Resolution.Expertisies.Count, StringFormat=Экспертизы {0}}" FontSize="{StaticResource HeaderFontSize}" 
                        FontWeight="Bold" HorizontalAlignment="Center" Margin="0,15,0,5"/>
-            <ListBox Margin="15,10" BorderThickness="0" Height="600" MinWidth="630" ItemsSource="{Binding Path=Resolution.Expertisies}" HorizontalContentAlignment="Stretch">
+            <ListBox Margin="15,10" BorderThickness="0" MaxHeight="600" MinWidth="630" ItemsSource="{Binding Path=Resolution.Expertisies}" HorizontalContentAlignment="Stretch">
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="Expertise">
                         <Grid>
@@ -122,7 +124,7 @@
                                 <ColumnDefinition/>
                                 <ColumnDefinition Width="100"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Name="tbNumber" Text="{Binding Path=Number, Mode=OneWay}" FontWeight="Bold" Foreground="#FFBEE43E" VerticalAlignment="Center"
+                            <TextBlock Name="tbNumber" Text="{Binding Path=Number, Mode=OneWay}" FontWeight="Bold" Foreground="#FF261ED3" VerticalAlignment="Center"
                                            HorizontalAlignment="Center" FontSize="20" Grid.RowSpan="2"/>
                             <TextBlock Grid.Column="1" Style="{x:Null}"  Margin="8,1,1,1" HorizontalAlignment="Left" FontSize="16" FontWeight="DemiBold" 
                                         Text="{Binding Path=Expert.Employee, Mode=OneWay}" TextDecorations="Underline">
@@ -133,7 +135,7 @@
                                        TextAlignment="Center">
                                 <Run Text="{Binding Path=StartDate, Mode=OneWay,StringFormat={}{0:d}, ConverterCulture='ru-RU'}"/>
                                 <LineBreak/>
-                                <Run Text="{Binding Path=Remain, Mode=OneWay, TargetNullValue=сдана}" FontSize="20" Foreground="#FF261ED3" FontWeight="Bold"
+                                <Run Text="{Binding Path=TimeLimit, Mode=OneWay}" FontSize="20" Foreground="#FF261ED3" FontWeight="Bold"
                                      />
                             </TextBlock>
                         </Grid>
@@ -171,10 +173,10 @@
                     </Style>
                 </ListBox.ItemContainerStyle>
             </ListBox>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button Style="{StaticResource BaseUIButton}" Content="Добавить" Foreground="#FF4DC9CD" Margin="5" Command="{Binding Path=AddExpertise}"
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,20,0">
+                <Button Style="{StaticResource AddItemButton}" Width="40" Height="40" Margin="1" Command="{Binding Path=AddExpertise}"
                         CommandParameter="{Binding ElementName=wnd}"/>
-                <Button Style="{StaticResource BaseUIButton}" Content="Удалить" Foreground="Red" Margin="5" Command="{Binding Path=DeleteExpertise}"/>
+                <Button Style="{StaticResource DeleteButton}" Width="40" Height="40" Margin="1" Command="{Binding Path=DeleteExpertise}"/>
             </StackPanel>
         </StackPanel>
         <!--<TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="20,24,0,0" TextWrapping="Wrap"  VerticalAlignment="Top"

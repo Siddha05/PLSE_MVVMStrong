@@ -1738,7 +1738,7 @@ namespace PLSE_MVVMStrong.Model
         }
         public override string ToString()
         {
-            return Acronym ?? Code;
+            return Code;
         }
         public Speciality Clone()
         {
@@ -4834,6 +4834,13 @@ namespace PLSE_MVVMStrong.Model
                     _number = value;
                     OnPropertyChanged();
                 }
+            }
+        }
+        public string FullNumber
+        {
+            get
+            {
+                return $"{_number}/{Expert.Employee.Departament.DigitalCode}-{_resolution.Case.TypeCase.Value}";
             }
         }
         public int ExpertiseID

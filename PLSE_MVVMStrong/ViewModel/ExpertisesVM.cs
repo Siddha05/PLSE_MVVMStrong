@@ -46,7 +46,6 @@ namespace PLSE_MVVMStrong.ViewModel
         public static readonly DependencyProperty ExpertiseListProperty =
             DependencyProperty.Register("ExpertiseList", typeof(List<Expertise>), typeof(ExpertisesVM), new PropertyMetadata(null));
 
-        
         public ListCollectionView ExpertsList { get; } = new ListCollectionView(CommonInfo.Experts.GroupBy(n => n.Employee.EmployeeID).Select(n => n.First()).ToList());
         public int ExpiredExpertise
         {
@@ -59,21 +58,10 @@ namespace PLSE_MVVMStrong.ViewModel
         public DateTime? QEStartDate { get; set; }
         public DateTime? QSEndDate { get; set; }
         public DateTime? QEEndDate { get; set; }
-        //public string DynamicQuery
-        //{
-        //    get
-        //    {
-        //        return Query(status: QExpertiseStatus == "все"? null : QExpertiseStatus,
-        //                    type: QExpertiseType == "все" ? null : QExpertiseType,
-        //                    sdate1: QSStardDate, sdate2: QEStartDate,
-        //                    edate1: QSEndDate, edate2: QEEndDate,
-        //                    id: null);
-        //    }
-        //}
         #endregion
         #region Commands
         public RelayCommand Find { get; }
-        public RelayCommand Test { get; } 
+        public RelayCommand ShowDetails { get; } 
         #endregion
         public ExpertisesVM()
         {

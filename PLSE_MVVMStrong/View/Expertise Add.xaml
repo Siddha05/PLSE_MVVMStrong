@@ -7,7 +7,7 @@
         xmlns:viewmodel="clr-namespace:PLSE_MVVMStrong.ViewModel"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         mc:Ignorable="d"
-        Title="Expertise_Add" Height="450" Width="800" WindowStyle="None" Name="wnd">
+        Title="Новая экспертиза" Height="390" Width="800" Name="wnd" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize">
     <Window.DataContext>
         <viewmodel:ExpertiseAddVM/>
     </Window.DataContext>
@@ -25,34 +25,34 @@
                 <RowDefinition/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
-            <TextBlock Text="Тип экспертизы"/>
+            <TextBlock Text="Тип экспертизы" Style="{StaticResource UITextBlock}"/>
             <ComboBox Style="{StaticResource UIComboBox}" Grid.Column="1" Text="{Binding Path=Expertise.ExpertiseType}" ItemsSource="{Binding Path=ExpertiseType}"/>
-            <TextBlock Text="Номер" Grid.Row="1"/>
+            <TextBlock Text="Номер" Grid.Row="1" Style="{StaticResource UITextBlock}"/>
             <TextBox Style="{StaticResource UITextBox}" Grid.Row="1" Grid.Column="1" Text="{Binding Path=Expertise.Number, ValidatesOnExceptions=True}"/>
-            <TextBlock Text="Дата начала" Grid.Row="2"/>
+            <TextBlock Text="Дата начала" Grid.Row="2" Style="{StaticResource UITextBlock}"/>
             <DatePicker Grid.Column="1" Grid.Row="2" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Expertise.StartDate}"/>
-            <TextBlock Text="Срок" Grid.Row="3"/>
+            <TextBlock Text="Срок" Grid.Row="3" Style="{StaticResource UITextBlock}"/>
             <StackPanel Orientation="Horizontal" Grid.Row="3" Grid.Column="1">
                 <Slider Name="slider" Maximum="30" Minimum="1" VerticalAlignment="Center" Margin="5,0" Width="350" HorizontalAlignment="Left"
-                    TickPlacement="BottomRight" TickFrequency="5" Value="{Binding Path=Expertise.TimeLimit}"/>
-                <TextBox Text="{Binding ElementName=slider, Path=Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="30" FontSize="16" FontWeight="Bold" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+                    TickPlacement="BottomRight" Ticks="5 10 15 20 25 30" TickFrequency="5" Value="{Binding Path=Expertise.TimeLimit}" Foreground="Black"/>
+                <TextBox Text="{Binding ElementName=slider, Path=Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="30" FontSize="22" 
+                         VerticalAlignment="Center" FontWeight="Bold" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
             </StackPanel>
-            
-            <TextBlock Text="Эксперт" Grid.Row="4"/>
-            <ComboBox Name="cbexpert" Style="{StaticResource UIComboBox}" Grid.Row="4" Grid.Column="1" ItemsSource="{Binding Path=Experts}" DisplayMemberPath="FIO">
+
+            <TextBlock Text="Эксперт" Grid.Row="4" Style="{StaticResource UITextBlock}"/>
+            <ComboBox Name="cbexpert" Style="{StaticResource UIComboBox}" Grid.Row="4" Grid.Column="1" ItemsSource="{Binding Path=Experts}" DisplayMemberPath="Fio">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="SelectionChanged">
                         <i:InvokeCommandAction Command="{Binding Path=ExpertChanged}" CommandParameter="{Binding ElementName =cbexpert, Path=SelectedItem}"/>
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
             </ComboBox>
-            <TextBlock Text="Специальность" Grid.Row="5"/>
+            <TextBlock Text="Специальность" Grid.Row="5" Style="{StaticResource UITextBlock}"/>
             <ComboBox Style="{StaticResource UIComboBox}" Grid.Row="5" Grid.Column="1" ItemsSource="{Binding Path=Specialities}" DisplayMemberPath="Speciality"
                       SelectedItem="{Binding Path=Expertise.Expert}" HorizontalContentAlignment="Left" Width="600"/>
         </Grid>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="5,20,5,5">
-            <Button Style="{StaticResource BaseUIButton}" Foreground="Red" Content="Отмена" Margin="5" Command="{Binding Path=Cancel}" CommandParameter="{Binding ElementName=wnd}"/>
-            <Button Style="{StaticResource BaseUIButton}" Foreground="GreenYellow" Content="Добавить" Margin="5" Command="{Binding Path=Select}" CommandParameter="{Binding ElementName=wnd}"/>
-        </StackPanel>
+        <!--<Button Style="{StaticResource BaseUIButton}" Foreground="Red" Content="Отмена" Margin="5" Command="{Binding Path=Cancel}" CommandParameter="{Binding ElementName=wnd}"/>-->
+        <Button Style="{StaticResource BaseUIButton}" Foreground="GreenYellow" Content="Добавить" HorizontalAlignment="Right" Margin="0,20,20,5"
+                Command="{Binding Path=Select}" CommandParameter="{Binding ElementName=wnd}"/>
     </StackPanel>
 </Window>

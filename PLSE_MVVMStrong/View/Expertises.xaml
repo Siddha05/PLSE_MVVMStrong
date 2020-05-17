@@ -135,8 +135,11 @@
                             <Image Grid.Row="2" Source="pack://application:,,,/Resources/question.png" ToolTip="Поставленные на разрешение вопросы"/>
                             <TextBlock Grid.Column="1" Grid.Row="2" Text="{Binding Path=FromResolution.Questions.Questions.Count, Mode=OneWay}"/>
                         </Grid>
-                        <Button Style="{StaticResource SearchButton}" Grid.Row="1" Grid.Column="6" Width="35" Height="35" HorizontalAlignment="Right" Margin="0,5,15,5"
-                                Background="Transparent"/>
+                        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="6" HorizontalAlignment="Right">
+                             <Button Style="{StaticResource WordButton}" Width="35" Height="35" Margin="0,5,5,5"/>
+                            <Button Style="{StaticResource SearchButton}" Width="35" Height="35"  Margin="0,5,15,5"/>
+                        </StackPanel>
+                        
                     </Grid>
                     <DataTemplate.Triggers>
                         
@@ -197,8 +200,16 @@
                         </ControlTemplate>
                     </ContextMenu.Template>
                     <MenuItem Header="Создать">
-                        <MenuItem Header="1"/>
-                        <MenuItem Header="2"/>
+                        <MenuItem Header="Создать">
+                            <MenuItem Header="Подписку экспетра"/>
+                            <MenuItem Header="Заключение"/>
+                            <MenuItem Header="Уведомление и рапорт"/>
+                            <MenuItem Header="Сопроводительное письмо"/>
+                            <MenuItem Header="Уведомление"/>
+                            <MenuItem Header="Ходатайство"/>
+                        </MenuItem>
+                        <MenuItem Header="Детализация"/>
+                        <MenuItem Header="Открыть"/>
                     </MenuItem>
                 </ContextMenu>
             </DataGrid.ContextMenu>

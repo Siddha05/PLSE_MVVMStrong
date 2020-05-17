@@ -10,6 +10,7 @@
         <system:Double x:Key="RegularFontSize">14</system:Double>
         <system:Double x:Key="UIFontSize">16</system:Double>
         <system:Double x:Key="HeaderFontSize">22</system:Double>
+        <system:Double x:Key="UIHeigth">32</system:Double>
 
         <SolidColorBrush x:Key="UnselectedControl" Color="Gray"/>
         <SolidColorBrush x:Key="SelectedControl" Color="#FF0B0B9E"/>
@@ -17,6 +18,7 @@
         <SolidColorBrush x:Key="SaveEnterColor" Color="#FF89C330"/>
 
         <BitmapImage x:Key="lens" UriSource="Resources\lens.jpg" SourceRect="210 10 480 480"/>
+        
 
         <ControlTemplate x:Key="tbAdditonText" TargetType="TextBox">
             <Grid Width="{TemplateBinding Width}" Height="{TemplateBinding Height}" Name="grid">
@@ -65,7 +67,7 @@
             <Setter Property="FontSize" Value="{StaticResource UIFontSize}" />
             <Setter Property="FontWeight" Value="Normal" />
             <Setter Property="MinWidth" Value="270" />
-            <Setter Property="Height" Value="35" />
+            <Setter Property="Height" Value="{StaticResource UIHeigth}" />
             <Setter Property="BorderThickness" Value="1" />
             <Style.Triggers>
                 <Trigger Property="Validation.HasError" Value="True">
@@ -77,12 +79,13 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-        <Style TargetType="{x:Type TextBlock}">
+        <Style TargetType="{x:Type TextBlock}" x:Key="UITextBlock">
             <Setter Property="HorizontalAlignment" Value="Right" />
             <Setter Property="Margin" Value="5" />
             <Setter Property="FontSize" Value="{StaticResource UIFontSize}" />
             <Setter Property="FontWeight" Value="DemiBold" />
-            <Setter Property="Height" Value="35" />
+            <Setter Property="Height" Value="{StaticResource UIHeigth}" />
+            
         </Style>
         <Style TargetType="{x:Type DatePicker}" x:Key="UIDatePicker">
             <Setter Property="FontSize" Value="{StaticResource UIFontSize}" />
@@ -90,7 +93,8 @@
             <Setter Property="FontWeight" Value="Normal" />
             <Setter Property="MinWidth" Value="220" />
             <Setter Property="HorizontalAlignment" Value="Left" />
-            <Setter Property="Height" Value="40" />
+            <Setter Property="Height" Value="{StaticResource UIHeigth}" />
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Style.Triggers>
                 <Trigger Property="Validation.HasError" Value="true">
                     <Setter Property="ToolTip">
@@ -103,10 +107,11 @@
         </Style>
         <Style TargetType="ComboBox" x:Key="UIComboBox">
             <Setter Property="FontSize" Value="{StaticResource UIFontSize}" />
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Margin" Value="5" />
             <Setter Property="FontWeight" Value="Normal" />
             <Setter Property="MinWidth" Value="270" />
-            <Setter Property="Height" Value="40" />
+            <Setter Property="Height" Value="{StaticResource UIHeigth}" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="HorizontalAlignment" Value="Left" />
         </Style>
@@ -215,7 +220,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Ellipse Width="{TemplateBinding Width}" Height="{TemplateBinding Height}" RenderTransformOrigin=".5,.5">
+                        <Ellipse Width="{TemplateBinding Width}" Height="{TemplateBinding Height}" RenderTransformOrigin=".5,.5" Stroke="White" StrokeThickness="2">
                             <Ellipse.Fill>
                                 <ImageBrush ImageSource="{StaticResource lens}" Stretch="Fill"/>
                             </Ellipse.Fill>
@@ -228,8 +233,8 @@
                                 <Trigger.EnterActions>
                                     <BeginStoryboard>
                                         <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="trs" Storyboard.TargetProperty="ScaleX" To="1.2" Duration="0:0:0.2"/>
-                                            <DoubleAnimation Storyboard.TargetName="trs" Storyboard.TargetProperty="ScaleY" To="1.2" Duration="0:0:0.2"/>
+                                            <DoubleAnimation Storyboard.TargetName="trs" Storyboard.TargetProperty="ScaleX" To="1.2" Duration="0:0:0.1"/>
+                                            <DoubleAnimation Storyboard.TargetName="trs" Storyboard.TargetProperty="ScaleY" To="1.2" Duration="0:0:0.1"/>
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </Trigger.EnterActions>
@@ -241,6 +246,132 @@
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </Trigger.ExitActions>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="{x:Type Button}" x:Key="WordButton">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Ellipse Width="{TemplateBinding Width}" Height="{TemplateBinding Height}" RenderTransformOrigin=".5,.5" Stroke="White" StrokeThickness="2">
+                            <Ellipse.Fill>
+                                <ImageBrush ImageSource="Resources/Word.png" Stretch="Fill"/>
+                            </Ellipse.Fill>
+                            <Ellipse.RenderTransform>
+                                <ScaleTransform x:Name="trs"/>
+                            </Ellipse.RenderTransform>
+                        </Ellipse>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="trs" Storyboard.TargetProperty="ScaleX" To="1.2" Duration="0:0:0.1"/>
+                                            <DoubleAnimation Storyboard.TargetName="trs" Storyboard.TargetProperty="ScaleY" To="1.2" Duration="0:0:0.1"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="trs" Storyboard.TargetProperty="ScaleX" Duration="0:0:0.1"/>
+                                            <DoubleAnimation Storyboard.TargetName="trs" Storyboard.TargetProperty="ScaleY" Duration="0:0:0.1"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="{x:Type Button}" x:Key="DeleteButton">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Ellipse Name="el"  Width="{TemplateBinding Width}" Height="{TemplateBinding Height}" RenderTransformOrigin=".5,.5" Stroke="White" StrokeThickness="2">
+                            <Ellipse.Fill>
+                                <ImageBrush ImageSource="Resources\delete.png" Stretch="Fill"/>
+                            </Ellipse.Fill>
+                            <Ellipse.RenderTransform>
+                                <ScaleTransform x:Name="trs"/>
+                            </Ellipse.RenderTransform>
+                        </Ellipse>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="trs" Storyboard.TargetProperty="ScaleX" To="1.2" Duration="0:0:0.1"/>
+                                            <DoubleAnimation Storyboard.TargetName="trs" Storyboard.TargetProperty="ScaleY" To="1.2" Duration="0:0:0.1"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="trs" Storyboard.TargetProperty="ScaleX" Duration="0:0:0.1"/>
+                                            <DoubleAnimation Storyboard.TargetName="trs" Storyboard.TargetProperty="ScaleY" Duration="0:0:0.1"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                                <Setter Property="ForceCursor" Value="True"/>
+                                <Setter Property="Cursor" Value="Hand"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter TargetName="el" Property="Fill">
+                                    <Setter.Value>
+                                        <ImageBrush Stretch="Fill">
+                                            <ImageBrush.ImageSource>
+                                                <FormatConvertedBitmap Source="Resources\delete.png" DestinationFormat="Gray32Float"/>
+                                            </ImageBrush.ImageSource>
+                                        </ImageBrush>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="{x:Type Button}" x:Key="AddItemButton">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Ellipse Width="{TemplateBinding Width}" Height="{TemplateBinding Height}" RenderTransformOrigin=".5,.5" Stroke="White" StrokeThickness="2">
+                            <Ellipse.Fill>
+                                <ImageBrush ImageSource="Resources\additem.png" Stretch="Fill" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.ClearTypeHint="Enabled"/>
+                            </Ellipse.Fill>
+                            <Ellipse.RenderTransform>
+                                <ScaleTransform x:Name="trs"/>
+                            </Ellipse.RenderTransform>
+                        </Ellipse>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="trs" Storyboard.TargetProperty="ScaleX" To="1.2" Duration="0:0:0.1"/>
+                                            <DoubleAnimation Storyboard.TargetName="trs" Storyboard.TargetProperty="ScaleY" To="1.2" Duration="0:0:0.1"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="trs" Storyboard.TargetProperty="ScaleX" Duration="0:0:0.1"/>
+                                            <DoubleAnimation Storyboard.TargetName="trs" Storyboard.TargetProperty="ScaleY" Duration="0:0:0.1"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                                <Setter Property="ForceCursor" Value="True"/>
+                                <Setter Property="Cursor" Value="Hand"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>

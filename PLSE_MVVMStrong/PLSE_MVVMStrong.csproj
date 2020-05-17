@@ -270,5 +270,14 @@
   <ItemGroup>
     <Resource Include="Resources\lens.jpg" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Word.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\additem.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\delete.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
