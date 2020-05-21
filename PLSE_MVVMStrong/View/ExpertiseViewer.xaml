@@ -1,0 +1,170 @@
+﻿<Window x:Class="PLSE_MVVMStrong.View.ExpertiseViewer"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PLSE_MVVMStrong.View"
+        xmlns:viewmodel="clr-namespace:PLSE_MVVMStrong.ViewModel"
+        mc:Ignorable="d"
+        Title="ExpertiseViewer" Height="750" Width="1280">
+    <Window.DataContext>
+        <viewmodel:ExpertiseViewerVM/>
+    </Window.DataContext>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <GroupBox Header="Основание" Margin="5" BorderBrush="Black" FontSize="{StaticResource HeaderFontSize}" FontStyle="Italic" FontWeight="DemiBold">
+            <Grid Margin="2,5,2,5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="Основание" Style="{StaticResource UITextBlock}"/>
+                <ComboBox Grid.Column="1" Style="{StaticResource UIComboBox}" SelectedItem="{Binding Path=Expertise.FromResolution.ResolutionType}" ItemsSource="{Binding Path=ResolutionTypes}"
+                          IsEnabled="{Binding Path=DiscartChanges}"/>
+                <TextBlock Grid.Row="1" Style="{StaticResource UITextBlock}" Text="Зарегистрировано"/>
+                <DatePicker Grid.Column="1" Grid.Row="1" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Expertise.FromResolution.RegistrationDate}"
+                            IsEnabled="{Binding Path=DiscartChanges}"/>
+                <TextBlock Grid.Row="1" Grid.Column="2" Style="{StaticResource UITextBlock}" Text="Вынесено"/>
+                <DatePicker Grid.Column="3" Grid.Row="1" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Expertise.FromResolution.ResolutionDate}"
+                            IsEnabled="{Binding Path=DiscartChanges}"/>
+                <TextBlock Grid.Row="2" Style="{StaticResource UITextBlock}" Text="Заказчик"/>
+                <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3">
+                    <TextBlock Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" Text="{Binding Path=Expertise.FromResolution.Customer.Requisite}" 
+                   FontSize="{StaticResource UIFontSize}" Margin="5" FontWeight="Normal" IsEnabled="{Binding Path=DiscartChanges}"/>
+                    <Button Style="{StaticResource SearchButton}" Margin="15,0" Width="30" Height="30" Command="{Binding Path=CustomerSelect}"/>
+                </StackPanel>
+                
+                <TextBlock Grid.Row="3" Style="{StaticResource UITextBlock}" Text="Статус"/>
+                <ComboBox Grid.Row="3" Grid.Column="1" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=ResolutionStatus}"
+                          IsEnabled="{Binding Path=DiscartChanges}" SelectedItem="{Binding Path=Expertise.FromResolution.ResolutionStatus}"/>
+                <TextBlock Grid.Row="4" Style="{StaticResource UITextBlock}" Text="Нативный вид"/>
+                <TextBox Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" Text="{Binding Path=Expertise.FromResolution.PrescribeType}" 
+                         IsEnabled="{Binding Path=DiscartChanges}" Style="{StaticResource UITextBox}"/>
+                <Expander Grid.Row="11" Header="Вопросы" Margin="5"/>
+                <Expander Grid.Row="12" Header="Объекты" Margin="5"/>
+                <TextBlock Grid.Row="5" Style="{StaticResource UITextBlock}" Text="Номер дела"/>
+                <TextBox Grid.Row="5" Grid.Column="1" Style="{StaticResource UITextBox}" IsEnabled="{Binding Path=DiscartChanges}"
+                         Text="{Binding Path=Expertise.FromResolution.Case.Number}" MinWidth="180"/>
+                <TextBlock Grid.Row="5" Grid.Column="2" Style="{StaticResource UITextBlock}" Text="Вид дела"/>
+                <ComboBox Grid.Row="5" Grid.Column="3" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path = CaseTypes}"
+                          SelectedItem="{Binding Path=Expertise.FromResolution.Case.TypeCase}" IsEnabled="{Binding Path=DiscartChanges}"/>
+                <TextBlock Grid.Row="6" Style="{StaticResource UITextBlock }" Text="Истец"/>
+                <TextBox Grid.Row="6" Grid.Column="1" Style="{StaticResource UITextBox}" IsEnabled="{Binding Path=DiscartChanges}"
+                         Text="{Binding Path=Expertise.FromResolution.Case.Plaintiff}" Grid.ColumnSpan="3" MinWidth="400"/>
+                <TextBlock Grid.Row="7" Style="{StaticResource UITextBlock}" Text="Ответчик"/>
+                <TextBox Grid.Row="7" Grid.Column="1" Style="{StaticResource UITextBox}" IsEnabled="{Binding Path=DiscartChanges}" 
+                         Text="{Binding Path=Expertise.FromResolution.Case.Respondent}" Grid.ColumnSpan="3" MinWidth="400"/>
+                <TextBlock Style="{StaticResource UITextBlock}" Grid.Row="8" Text="Дата дела"/>
+                <DatePicker Style="{StaticResource UIDatePicker}" Grid.Row="8" Grid.Column="1" IsEnabled="{Binding Path=DiscartChanges}" 
+                            SelectedDate="{Binding Path=Expertise.FromResolution.Case.DispatchDate}"/>
+                <TextBlock Grid.Row="9" Style="{StaticResource UITextBlock}" Text="Аннотация"/>
+                <TextBox Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="3" MinLines="3"  TextWrapping="Wrap" Margin="5" IsEnabled="{Binding Path=DiscartChanges}"
+                         Text="{Binding Path=Expertise.FromResolution.Case.Annotate}" FontSize="{StaticResource UIFontSize}" FontWeight="Normal"/>
+                <TextBlock Grid.Row="10" Style="{StaticResource UITextBlock}" Text="Комментарий"/>
+                <TextBox Grid.Row="10" Grid.Column="1" Grid.ColumnSpan="3" MinLines="3"  TextWrapping="Wrap" Margin="5" IsEnabled="{Binding Path=DiscartChanges}"
+                         Text="{Binding Path=Expertise.FromResolution.Case.Comment}" FontSize="{StaticResource UIFontSize}" FontWeight="Normal"/>
+
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="Экспертиза" Grid.Column="1" Margin="5" BorderBrush="Black" FontSize="{StaticResource HeaderFontSize}" FontStyle="Italic" FontWeight="DemiBold">
+            <Grid Margin="2,5,2,5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Style="{StaticResource UITextBlock }" Text="Тип"/>
+                <ComboBox Grid.Column="1" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=ExpertiseTypes}" 
+                          SelectedItem="{Binding Path=Expertise.ExpertiseType}" IsEnabled="{Binding Path=DiscartChanges}"/>
+                <TextBlock Grid.Row="1" Style="{StaticResource UITextBlock}" Text="Номер"/>
+                <TextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource UITextBox}" IsEnabled="{Binding Path=DiscartChanges}" Text="{Binding Path=Expertise.Number}"/>
+                <TextBlock Grid.Row="2" Style="{StaticResource UITextBlock}" Text="Статус"/>
+                <TextBox Grid.Column="1" Grid.Row="2" Style="{StaticResource UITextBox}" 
+                         Text="{Binding Path=Expertise.ExpertiseStatus}" IsEnabled="{Binding Path=DiscartChanges}"/>
+                <TextBlock Grid.Row="3" Style="{StaticResource UITextBlock}" Text="Начата"/>
+                <DatePicker Grid.Row="3" Grid.Column="1" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Expertise.StartDate}" IsEnabled ="{Binding Path=DiscartChanges}"/>
+                <TextBlock Grid.Row="3" Grid.Column="2" Style="{StaticResource UITextBlock}" Text="Завершена"/>
+                <DatePicker Grid.Row="3" Grid.Column="3" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Expertise.EndDate}" IsEnabled="{Binding Path=DiscartChanges}"/>
+                <TextBlock Grid.Row="4" Style="{StaticResource UITextBlock}" Text="Эксперт"/>
+                <ComboBox Grid.Row="4" Grid.Column="1" Style="{StaticResource ResourceKey=UIComboBox}" ItemsSource="{Binding Path=Experts}" 
+                          SelectedItem="{Binding Path=Expertise.Expert}" DisplayMemberPath="Employee.Fio" IsEnabled="{Binding Path=DiscartChanges}"/>
+                <TextBlock Grid.Row="5" Style="{StaticResource UITextBlock}" Text="Спец-сть"/>
+                <ComboBox Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="3" Margin="5" FontSize="{StaticResource UIFontSize}" FontWeight="Normal" ItemsSource="{Binding Path=Specialities}" 
+                          SelectedItem="{Binding Path=Expertise.Expert}" DisplayMemberPath="Speciality.Code" IsEnabled="{Binding Path=DiscartChanges}"/>
+                <TextBlock Grid.Row="6" Style="{StaticResource UITextBlock}" Text="Срок"/>
+                <TextBox Grid.Row="6" Grid.Column="1" Style="{StaticResource UITextBox}" IsEnabled="{Binding Path=DiscartChanges}"
+                         Text="{Binding Path=Expertise.TimeLimit}" MinWidth="50"/>
+                <TextBlock Grid.Row="6" Grid.Column="2" Style="{StaticResource UITextBlock}" Text="Затрачено часов"/>
+                <TextBox Grid.Row="6" Grid.Column="3" Style="{StaticResource UITextBox}" IsEnabled="{Binding Path=DiscartChanges}"
+                         Text="{Binding Path=Expertise.SpendHours}" MinWidth="50"/>
+                <Expander Grid.Row="7" Grid.ColumnSpan="3" Margin="5">
+                    <Expander.Header>
+                        <StackPanel Orientation="Horizontal" Height="30">
+                            <TextBlock Text="Завершение"/>
+                            <Viewbox Margin="5,0">
+                                <Image Source="pack://application:,,,/Resources/finish.png"/>
+                            </Viewbox>
+                            
+                        </StackPanel>
+                    </Expander.Header>
+                </Expander>
+                <Expander Grid.Row="8" Grid.ColumnSpan="3" Header="Bills" Margin="5"/>
+                <Expander Grid.Row="9" Grid.ColumnSpan="3" Header="Reports" Margin="5"/>
+                <Expander Grid.Row="10" Grid.ColumnSpan="3" Header="Request" Margin="5"/>
+                <Expander Grid.Row="11" Grid.ColumnSpan="3" Header="EqupmentUsage" Margin="5"/>
+            </Grid>
+        </GroupBox>
+        
+        <!--<TextBlock Grid.Column="0" Grid.Row="4" Style="{StaticResource UITextBlock}" Text="ExpNumb"/>
+        <TextBox Grid.Column="1" Grid.Row="4" Style="{StaticResource UITextBox}" Text="{Binding Path=Expertise.Number}"/>
+        <TextBlock Grid.Row="4" Grid.Column="2" Style="{StaticResource UITextBlock}" Text="ExpStatus"/>
+        <ComboBox Grid.Row="4" Grid.Column="3" Style="{StaticResource UIComboBox}" SelectedItem="{Binding Path=Expertise.ExpertiseStatus}"/>
+        <TextBlock Grid.Row="5" Style="{StaticResource UITextBlock }" Text="ExpStartDate"/>
+        <DatePicker Grid.Row="5" Grid.Column="1" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Expertise.StartDate}"/>
+        <TextBlock Grid.Row="5" Grid.Column="2" Style="{StaticResource UITextBlock }" Text="ExpEndDate"/>
+        <DatePicker Grid.Row="5" Grid.Column="3" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Expertise.EndDate}"/>
+        <TextBlock Grid.Row="6" Style="{StaticResource UITextBlock}" Text="TimeLimit"/>
+        <TextBox Grid.Row="6" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Expertise.TimeLimit}" Width="50"/>
+        <TextBlock Grid.Row="6" Grid.Column="2" Style="{StaticResource UITextBlock}" Text="ExpType"/>
+        <ComboBox Grid.Row="6" Grid.Column="3" Style="{StaticResource UIComboBox}" SelectedItem="{Binding Path=Expertise.ExpertiseType}"/>
+        <TextBlock Grid.Row="7" Text="SpendHours" Style="{StaticResource UITextBlock}"/>
+        <TextBlock Grid.Row="7" Grid.Column="2" Style="{StaticResource UITextBlock}" Text="Expert"/>
+        <ComboBox Grid.Column="3" Grid.Row="7" SelectedItem="{Binding Path=Expertise.Expert}" Style="{StaticResource UIComboBox}"/>-->
+    </Grid>
+</Window>

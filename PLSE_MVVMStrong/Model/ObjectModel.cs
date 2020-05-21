@@ -4695,7 +4695,6 @@ namespace PLSE_MVVMStrong.Model
         }
 
         public ExpertiseDetail() : base() { }
-
         public ExpertiseDetail(int id, short? nobj, short? ncat, short? nver, short? nalt, short? nnmet, short? nnmat, short? nncom, short? nnother, string comment, short? eval, Version vr)
             : base(vr)
         {
@@ -4995,8 +4994,8 @@ namespace PLSE_MVVMStrong.Model
                 else return null;
             }
         }
-        public string Inwork => EndDate == null ? (DateTime.Now - StartDate).Days.ToString() : (EndDate.Value - StartDate).Days.ToString();
-        public int LinkedExpertise => (_resolution?.Expertisies.Count - 1) ?? 0;
+        public int Inwork => EndDate == null ? (DateTime.Now - StartDate).Days : (EndDate.Value - StartDate).Days;
+        public int LinkedExpertiseCount => (_resolution?.Expertisies.Count - 1) ?? 0;
         public ObservableCollection<Request> Requests => _requests;
         public ObservableCollection<Report> Reports => _raports;
         public ObservableCollection<Bill> Bills => _bills;

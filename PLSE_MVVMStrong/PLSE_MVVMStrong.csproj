@@ -38,6 +38,9 @@
     <Reference Include="Database2">
       <HintPath>..\..\Database2\Database2\bin\Debug\Database2.dll</HintPath>
     </Reference>
+    <Reference Include="LingvoNET, Version=1.1.2.0, Culture=neutral, PublicKeyToken=7d49b21a20bef57b, processorArchitecture=MSIL">
+      <HintPath>..\packages\LingvoNET.1.1.2\lib\LingvoNET.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Expression.Interactions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Windows.Interactivity.WPF.2.0.20525\lib\net40\Microsoft.Expression.Interactions.dll</HintPath>
     </Reference>
@@ -71,6 +74,7 @@
     <Compile Include="ViewModel\CustomerAddVM.cs" />
     <Compile Include="ViewModel\CustomerSelectVM.cs" />
     <Compile Include="ViewModel\EmployeesVM.cs" />
+    <Compile Include="ViewModel\ExpertiseViewerVM.cs" />
     <Compile Include="ViewModel\ProfileVM.cs" />
     <Compile Include="ViewModel\ExpertAddVM.cs" />
     <Compile Include="ViewModel\ExpertiseAddVM.cs" />
@@ -93,6 +97,9 @@
     </Compile>
     <Compile Include="View\Employees.xaml.cs">
       <DependentUpon>Employees.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\ExpertiseViewer.xaml.cs">
+      <DependentUpon>ExpertiseViewer.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\Profile.xaml.cs">
       <DependentUpon>Profile.xaml</DependentUpon>
@@ -149,6 +156,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\Employees.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\ExpertiseViewer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -281,6 +292,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\edit.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\finish.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

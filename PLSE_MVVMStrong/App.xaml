@@ -7,10 +7,11 @@
     <Application.Resources>
         <local:TextConverter x:Key="TextConverter" />
         <BooleanToVisibilityConverter x:Key="BVConv"/>
-        <system:Double x:Key="RegularFontSize">14</system:Double>
-        <system:Double x:Key="UIFontSize">16</system:Double>
-        <system:Double x:Key="HeaderFontSize">22</system:Double>
-        <system:Double x:Key="UIHeigth">32</system:Double>
+        <system:Double x:Key="RegularFontSize">12</system:Double>
+        <system:Double x:Key="UIFontSize">14</system:Double>
+        <system:Double x:Key="HeaderFontSize">20</system:Double>
+        <system:Double x:Key="UIHeigth">30</system:Double>
+        <system:Double x:Key="UIWidth">180</system:Double>
 
         <SolidColorBrush x:Key="UnselectedControl" Color="Gray"/>
         <SolidColorBrush x:Key="SelectedControl" Color="#FF0B0B9E"/>
@@ -91,7 +92,7 @@
             <Setter Property="FontSize" Value="{StaticResource UIFontSize}" />
             <Setter Property="Margin" Value="5" />
             <Setter Property="FontWeight" Value="Normal" />
-            <Setter Property="MinWidth" Value="220" />
+            <Setter Property="MinWidth" Value="{StaticResource UIWidth}" />
             <Setter Property="HorizontalAlignment" Value="Left" />
             <Setter Property="Height" Value="{StaticResource UIHeigth}" />
             <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -110,7 +111,7 @@
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Margin" Value="5" />
             <Setter Property="FontWeight" Value="Normal" />
-            <Setter Property="MinWidth" Value="270" />
+            <Setter Property="MinWidth" Value="{StaticResource UIWidth}" />
             <Setter Property="Height" Value="{StaticResource UIHeigth}" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="HorizontalAlignment" Value="Left" />
