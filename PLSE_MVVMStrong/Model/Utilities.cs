@@ -90,6 +90,12 @@ namespace PLSE_MVVMStrong.Model
         {
             return s == null ? null : s.Replace(" ", "");
         }
+        public static string BeforeFirstDot(this string s)
+        {
+            int posdot = s.IndexOf('.');
+            if (posdot < 0) return s;
+            else return s.Substring(0, posdot + 2);
+        }
     }
 
     public static class DateUtil

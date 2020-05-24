@@ -396,19 +396,21 @@ namespace PLSE_MVVMStrong.Model
         private static ObservableCollection<Settlement> _settlements = new ObservableCollection<Settlement>();
         private static ObservableCollection<Departament> departaments = new ObservableCollection<Departament>();
         private static string[] _status = { "действует", "не действует" };
-        private static IReadOnlyList<string> _genders;
-        private static IReadOnlyList<string> _streettypes;
-        private static IReadOnlyList<string> _inneroffices;
-        private static IReadOnlyList<string> _settlementprefixs;
-        private static IReadOnlyList<string> _settlementsigns;
-        private static IReadOnlyList<string> _employeestatus;
-        private static IReadOnlyDictionary<string, string> _casetypes;
-        private static IReadOnlyList<string> _expertisetypes;
-        private static IReadOnlyList<string> _resolutiontypes;
-        private static IReadOnlyList<string> _expertisestatus;
-        private static IReadOnlyList<string> _resolutionstatus;
-        private static IReadOnlyList<string> _ranks;
-        private static IReadOnlyList<string> _outeroffices;
+        static string[] _requesttypes = { "запрос", "осмотр", "ответ" };
+        static string[] _payers = { "истца", "ответчика", "истца и ответчика", "иное" };
+        static IReadOnlyList<string> _genders;
+        static IReadOnlyList<string> _streettypes;
+        static IReadOnlyList<string> _inneroffices;
+        static IReadOnlyList<string> _settlementprefixs;
+        static IReadOnlyList<string> _settlementsigns;
+        static IReadOnlyList<string> _employeestatus;
+        static IReadOnlyDictionary<string, string> _casetypes;
+        static IReadOnlyList<string> _expertisetypes;
+        static IReadOnlyList<string> _resolutiontypes;
+        static IReadOnlyList<string> _expertisestatus;
+        static IReadOnlyList<string> _resolutionstatus;
+        static IReadOnlyList<string> _ranks;
+        static IReadOnlyList<string> _outeroffices;
 
         public static bool IsInitializated { get; private set; }
         public static IReadOnlyList<string> OuterOffices
@@ -446,6 +448,8 @@ namespace PLSE_MVVMStrong.Model
         public static IReadOnlyList<string> StreetTypes => _streettypes;
         public static IReadOnlyList<string> Genders => _genders;
         public static IReadOnlyList<string> Status => _status;
+
+        //public static IReadOnlyList<string> RequestTypes => _requesttypes; // skip downloding from DB
 
         public static ObservableCollection<Settlement> Settlements
         {
@@ -1645,7 +1649,7 @@ namespace PLSE_MVVMStrong.Model
         {
             get
             {
-                if (Acronym != null) return Code + " (" + Acronym + ")";
+                if (Acronym != null) return $"{Code} ({Acronym})";
                 else return Code;
             }
         }
@@ -4762,6 +4766,7 @@ namespace PLSE_MVVMStrong.Model
         private string _type;
         private int? _prevexp;
         private short? _spendhours;
+        //ExpertiseDetail _detail;
         private ObservableCollection<Request> _requests = new ObservableCollection<Request>();
         private ObservableCollection<Report> _raports = new ObservableCollection<Report>();
         private ObservableCollection<Bill> _bills = new ObservableCollection<Bill>();
@@ -4887,6 +4892,15 @@ namespace PLSE_MVVMStrong.Model
                 }
             }
         }
+        //public ExpertiseDetail ExpertiseDetail
+        //{
+        //    get => _detail;
+        //    set
+        //    {
+        //        _detail = value;
+        //        OnPropertyChanged();
+        //    }
+        //}
         public string FullNumber
         {
             get

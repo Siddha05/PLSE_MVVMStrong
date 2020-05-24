@@ -63,9 +63,9 @@ namespace PLSE_MVVMStrong.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap _17 {
+        internal static System.Drawing.Bitmap additem {
             get {
-                object obj = ResourceManager.GetObject("_17", resourceCulture);
+                object obj = ResourceManager.GetObject("additem", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -73,9 +73,9 @@ namespace PLSE_MVVMStrong.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap additem {
+        internal static System.Drawing.Bitmap delay {
             get {
-                object obj = ResourceManager.GetObject("additem", resourceCulture);
+                object obj = ResourceManager.GetObject("delay", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -181,6 +181,16 @@ namespace PLSE_MVVMStrong.Properties {
         }
         
         /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap microscope {
+            get {
+                object obj = ResourceManager.GetObject("microscope", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Icon, аналогичного (Значок).
         /// </summary>
         internal static System.Drawing.Icon peoples {
@@ -196,6 +206,16 @@ namespace PLSE_MVVMStrong.Properties {
         internal static System.Drawing.Bitmap question {
             get {
                 object obj = ResourceManager.GetObject("question", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap request {
+            get {
+                object obj = ResourceManager.GetObject("request", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

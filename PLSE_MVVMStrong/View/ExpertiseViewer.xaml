@@ -15,7 +15,11 @@
             <ColumnDefinition/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <GroupBox Header="Основание" Margin="5" BorderBrush="Black" FontSize="{StaticResource HeaderFontSize}" FontStyle="Italic" FontWeight="DemiBold">
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <GroupBox Header="Основание" Margin="5" BorderBrush="Black" FontSize="{StaticResource HeaderFontSize}" FontStyle="Italic" FontWeight="DemiBold" Grid.RowSpan="2">
             <Grid Margin="2,5,2,5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"/>
@@ -60,14 +64,14 @@
                 <TextBlock Grid.Row="4" Style="{StaticResource UITextBlock}" Text="Нативный вид"/>
                 <TextBox Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" Text="{Binding Path=Expertise.FromResolution.PrescribeType}" 
                          IsEnabled="{Binding Path=DiscartChanges}" Style="{StaticResource UITextBox}"/>
-                <Expander Grid.Row="11" Header="Вопросы" Margin="5"/>
-                <Expander Grid.Row="12" Header="Объекты" Margin="5"/>
+                <Expander Grid.Row="11" Header="Вопросы" Margin="5" Grid.ColumnSpan="4"/>
+                <Expander Grid.Row="12" Header="Объекты" Margin="5" Grid.ColumnSpan="4"/>
                 <TextBlock Grid.Row="5" Style="{StaticResource UITextBlock}" Text="Номер дела"/>
                 <TextBox Grid.Row="5" Grid.Column="1" Style="{StaticResource UITextBox}" IsEnabled="{Binding Path=DiscartChanges}"
                          Text="{Binding Path=Expertise.FromResolution.Case.Number}" MinWidth="180"/>
                 <TextBlock Grid.Row="5" Grid.Column="2" Style="{StaticResource UITextBlock}" Text="Вид дела"/>
-                <ComboBox Grid.Row="5" Grid.Column="3" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path = CaseTypes}"
-                          SelectedItem="{Binding Path=Expertise.FromResolution.Case.TypeCase}" IsEnabled="{Binding Path=DiscartChanges}"/>
+                <ComboBox Grid.Row="5" Grid.Column="3" Style="{StaticResource UIComboBox}" 
+                           IsEnabled="{Binding Path=DiscartChanges}"/>
                 <TextBlock Grid.Row="6" Style="{StaticResource UITextBlock }" Text="Истец"/>
                 <TextBox Grid.Row="6" Grid.Column="1" Style="{StaticResource UITextBox}" IsEnabled="{Binding Path=DiscartChanges}"
                          Text="{Binding Path=Expertise.FromResolution.Case.Plaintiff}" Grid.ColumnSpan="3" MinWidth="400"/>
@@ -83,9 +87,9 @@
                 <TextBlock Grid.Row="10" Style="{StaticResource UITextBlock}" Text="Комментарий"/>
                 <TextBox Grid.Row="10" Grid.Column="1" Grid.ColumnSpan="3" MinLines="3"  TextWrapping="Wrap" Margin="5" IsEnabled="{Binding Path=DiscartChanges}"
                          Text="{Binding Path=Expertise.FromResolution.Case.Comment}" FontSize="{StaticResource UIFontSize}" FontWeight="Normal"/>
-
             </Grid>
         </GroupBox>
+        
         <GroupBox Header="Экспертиза" Grid.Column="1" Margin="5" BorderBrush="Black" FontSize="{StaticResource HeaderFontSize}" FontStyle="Italic" FontWeight="DemiBold">
             <Grid Margin="2,5,2,5">
                 <Grid.ColumnDefinitions>
@@ -112,10 +116,13 @@
                 <TextBlock Style="{StaticResource UITextBlock }" Text="Тип"/>
                 <ComboBox Grid.Column="1" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=ExpertiseTypes}" 
                           SelectedItem="{Binding Path=Expertise.ExpertiseType}" IsEnabled="{Binding Path=DiscartChanges}"/>
+                <TextBlock Grid.Column="2" Style="{StaticResource UITextBlock}" Text="Предыдущая"/>
+                <TextBox Grid.Column="3" Style="{StaticResource UITextBox}" IsEnabled="{Binding Path=DiscartChanges}"/>
                 <TextBlock Grid.Row="1" Style="{StaticResource UITextBlock}" Text="Номер"/>
-                <TextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource UITextBox}" IsEnabled="{Binding Path=DiscartChanges}" Text="{Binding Path=Expertise.Number}"/>
+                <TextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource UITextBox}" IsEnabled="{Binding Path=DiscartChanges}" 
+                         Text="{Binding Path=Expertise.Number}" MinWidth="70"/>
                 <TextBlock Grid.Row="2" Style="{StaticResource UITextBlock}" Text="Статус"/>
-                <TextBox Grid.Column="1" Grid.Row="2" Style="{StaticResource UITextBox}" 
+                <TextBox Grid.Column="1" Grid.Row="2" Style="{StaticResource UITextBox}" MinWidth="180" 
                          Text="{Binding Path=Expertise.ExpertiseStatus}" IsEnabled="{Binding Path=DiscartChanges}"/>
                 <TextBlock Grid.Row="3" Style="{StaticResource UITextBlock}" Text="Начата"/>
                 <DatePicker Grid.Row="3" Grid.Column="1" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Expertise.StartDate}" IsEnabled ="{Binding Path=DiscartChanges}"/>
@@ -140,31 +147,131 @@
                             <Viewbox Margin="5,0">
                                 <Image Source="pack://application:,,,/Resources/finish.png"/>
                             </Viewbox>
-                            
                         </StackPanel>
                     </Expander.Header>
                 </Expander>
-                <Expander Grid.Row="8" Grid.ColumnSpan="3" Header="Bills" Margin="5"/>
-                <Expander Grid.Row="9" Grid.ColumnSpan="3" Header="Reports" Margin="5"/>
-                <Expander Grid.Row="10" Grid.ColumnSpan="3" Header="Request" Margin="5"/>
-                <Expander Grid.Row="11" Grid.ColumnSpan="3" Header="EqupmentUsage" Margin="5"/>
+                <Expander Grid.Row="8" Grid.ColumnSpan="4" Margin="5">
+                    <Expander.Header>
+                        <StackPanel Orientation="Horizontal" Height="30">
+                            <TextBlock Text="Счета"/>
+                            <Viewbox Margin="5,0">
+                                <Image Source="pack://application:,,,/Resources/dollar.png"/>
+                            </Viewbox>
+                        </StackPanel>
+                    </Expander.Header>
+                    <DataGrid Margin="2" AutoGenerateColumns="False" BorderThickness="0" CanUserAddRows="{Binding Path=DiscartChanges}" FontSize="{StaticResource UIFontSize}"
+                              CanUserDeleteRows="{Binding Path=DiscartChanges}" ItemsSource="{Binding Path=Expertise.Bills}">
+                        <DataGrid.CellStyle>
+                            <Style TargetType="{x:Type DataGridCell}">
+                                <Setter Property="Padding" Value="12"/>
+                            </Style>
+                        </DataGrid.CellStyle>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Номер" Binding="{Binding Path=Number}"/>
+                            <DataGridTemplateColumn Header="Дата счета">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding BillDate, StringFormat='dd.MM.yyyy'}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <DatePicker SelectedDate="{Binding BillDate}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Дата оплаты">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding PaidDate, StringFormat='dd.MM.yyyy'}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <DatePicker SelectedDate="{Binding PaidDate}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Плательщик" Binding="{Binding Path=Payer}"/>
+                            <DataGridTextColumn Header="Часы" Binding="{Binding Path=Hours}"/>
+                            <DataGridTextColumn Header="Стоимость часа" Binding="{Binding Path=HourPrice}"/>
+                            <DataGridTextColumn Header="Оплачено" Binding="{Binding Path=Paid}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Expander>
+                <Expander Grid.Row="9" Grid.ColumnSpan="3" Margin="5">
+                    <Expander.Header>
+                        <StackPanel Orientation="Horizontal" Height="30">
+                            <TextBlock Text="Уведомления"/>
+                            <Viewbox Margin="5,0">
+                                <Image Source="pack://application:,,,/Resources/delay.png"/>
+                            </Viewbox>
+                        </StackPanel>
+                    </Expander.Header>
+                </Expander>
+                <Expander Grid.Row="10" Grid.ColumnSpan="4" Margin="5">
+                    <Expander.Header>
+                        <StackPanel Orientation="Horizontal" Height="30">
+                            <TextBlock Text="Запросы"/>
+                            <Viewbox Margin="5,0">
+                                <Image Source="pack://application:,,,/Resources/request.png"/>
+                            </Viewbox>
+                        </StackPanel>
+                    </Expander.Header>
+                    <DataGrid Margin="2" AutoGenerateColumns="False" BorderThickness="0" CanUserAddRows="{Binding Path=DiscartChanges}" FontSize="{StaticResource UIFontSize}"
+                              CanUserDeleteRows="{Binding Path=DiscartChanges}" ItemsSource="{Binding Path=Expertise.Requests}" VerticalGridLinesBrush="Transparent" HorizontalGridLinesBrush="Transparent">
+                        <DataGrid.CellStyle>
+                            <Style TargetType="{x:Type DataGridCell}">
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="BorderBrush" Value="Red"/>
+                                <Setter Property="Margin" Value="2"/>
+                            </Style>
+                        </DataGrid.CellStyle>
+                        <DataGrid.Columns>
+                            <DataGridComboBoxColumn Header="Тип"  ItemsSource="{Binding Path=RequestTypes}" SelectedItemBinding="{Binding Path=RequestType}">
+                                
+                            </DataGridComboBoxColumn>
+                            <DataGridTemplateColumn Header="Дата">
+                                <DataGridTemplateColumn.CellStyle>
+                                    <Style TargetType="{x:Type DataGridCell}">
+                                        <Setter Property="Margin" Value="7"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
+                                        <Setter Property="BorderBrush" Value="DarkMagenta"/>
+                                    </Style>
+                                </DataGridTemplateColumn.CellStyle>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Path=RequestDate, StringFormat='dd.MM.yyyy'}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <DatePicker SelectedDate="{Binding Path=RequestDate}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Комментарий" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Path=Comment}" TextWrapping="Wrap"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid> 
+                </Expander>
+                <Expander Grid.Row="11" Grid.ColumnSpan="4" Margin="5">
+                    <Expander.Header>
+                        <StackPanel Orientation="Horizontal" Height="30">
+                            <TextBlock Text="Использованное оборудование"/>
+                            <Viewbox Margin="5,0">
+                                <Image Source="pack://application:,,,/Resources/microscope.png"/>
+                            </Viewbox>
+                        </StackPanel>
+                    </Expander.Header>
+                </Expander>
             </Grid>
         </GroupBox>
         
-        <!--<TextBlock Grid.Column="0" Grid.Row="4" Style="{StaticResource UITextBlock}" Text="ExpNumb"/>
-        <TextBox Grid.Column="1" Grid.Row="4" Style="{StaticResource UITextBox}" Text="{Binding Path=Expertise.Number}"/>
-        <TextBlock Grid.Row="4" Grid.Column="2" Style="{StaticResource UITextBlock}" Text="ExpStatus"/>
-        <ComboBox Grid.Row="4" Grid.Column="3" Style="{StaticResource UIComboBox}" SelectedItem="{Binding Path=Expertise.ExpertiseStatus}"/>
-        <TextBlock Grid.Row="5" Style="{StaticResource UITextBlock }" Text="ExpStartDate"/>
-        <DatePicker Grid.Row="5" Grid.Column="1" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Expertise.StartDate}"/>
-        <TextBlock Grid.Row="5" Grid.Column="2" Style="{StaticResource UITextBlock }" Text="ExpEndDate"/>
-        <DatePicker Grid.Row="5" Grid.Column="3" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Expertise.EndDate}"/>
-        <TextBlock Grid.Row="6" Style="{StaticResource UITextBlock}" Text="TimeLimit"/>
-        <TextBox Grid.Row="6" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Expertise.TimeLimit}" Width="50"/>
-        <TextBlock Grid.Row="6" Grid.Column="2" Style="{StaticResource UITextBlock}" Text="ExpType"/>
-        <ComboBox Grid.Row="6" Grid.Column="3" Style="{StaticResource UIComboBox}" SelectedItem="{Binding Path=Expertise.ExpertiseType}"/>
-        <TextBlock Grid.Row="7" Text="SpendHours" Style="{StaticResource UITextBlock}"/>
-        <TextBlock Grid.Row="7" Grid.Column="2" Style="{StaticResource UITextBlock}" Text="Expert"/>
-        <ComboBox Grid.Column="3" Grid.Row="7" SelectedItem="{Binding Path=Expertise.Expert}" Style="{StaticResource UIComboBox}"/>-->
     </Grid>
 </Window>

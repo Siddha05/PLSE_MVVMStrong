@@ -4,6 +4,7 @@ using System;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
+using System.Linq;
 
 
 namespace PLSE_MVVMStrong.ViewModel
@@ -44,9 +45,10 @@ namespace PLSE_MVVMStrong.ViewModel
 
         public SpecialityVM()
         {
-            Delete = new RelayCommand(RemoveSpec, n => app.Permissions.Actions["SpecialitiesDelete"]);
-            AddNew = new RelayCommand(AddSpeciality, n => app.Permissions.Actions["SpecialitiesAdd"]);
-            Edit = new RelayCommand(EditSpeciality, n => app.Permissions.Actions["SpecialitiesEdit"]);
+            
+            //Delete = new RelayCommand(RemoveSpec, n => app.Permissions.Actions["SpecialitiesDelete"]);
+            //AddNew = new RelayCommand(AddSpeciality, n => app.Permissions.Actions["SpecialitiesAdd"]);
+            //Edit = new RelayCommand(EditSpeciality, n => app.Permissions.Actions["SpecialitiesEdit"]);
         }
         private static void SearchTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {

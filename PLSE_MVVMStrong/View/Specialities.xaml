@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:PLSE_MVVMStrong.View"
         xmlns:vm ="clr-namespace:PLSE_MVVMStrong.ViewModel"
         mc:Ignorable="d"
-        Title="Specialities" Name="sw" Width="1400" Height="800" WindowState="Normal" WindowStyle="None" FontSize="16" WindowStartupLocation="CenterScreen">
+        Title="Экспертные специальности" Name="sw" Width="1400" Height="800" WindowState="Normal" FontSize="{StaticResource UIFontSize}" WindowStartupLocation="CenterScreen">
     <Window.DataContext>
         <vm:SpecialityVM />
     </Window.DataContext>
@@ -25,7 +25,8 @@
         </Grid.RowDefinitions>
         <DataGrid AutoGenerateColumns="False" Grid.RowSpan="3" Grid.Row="1" Margin="5,3,3,10" CanUserAddRows="False" CanUserDeleteRows="False"
                   FontSize="{StaticResource UIFontSize}" ItemsSource="{Binding Path=Specialities}" ColumnHeaderStyle="{StaticResource DGColumnsHeader}" 
-                  RowStyle="{StaticResource DGRowStyle}" CellStyle="{StaticResource DGCellStyle}" Background="White">
+                  RowStyle="{StaticResource DGRowStyle}" CellStyle="{StaticResource DGCellStyle}" Background="White" VerticalGridLinesBrush="Transparent"
+                  HorizontalGridLinesBrush="Transparent" HorizontalScrollBarVisibility="Disabled">
             <DataGrid.RowDetailsTemplate>
                 <DataTemplate>
                     <Grid HorizontalAlignment="Left" Margin="35,10,5,10">
@@ -33,25 +34,22 @@
                             <ColumnDefinition Width="auto"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
-                        <TextBlock Style="{x:Null}" Margin="5,5,5,0">
+                        <TextBlock Margin="5,5,5,0" HorizontalAlignment="Left" VerticalAlignment="Center">
                             <Run FontWeight="DemiBold">Вид: </Run>
                             <Run FontStyle="Italic" Text="{Binding Path=Species, Mode=OneWay}"/>
-                        </TextBlock>
-                        <TextBlock Grid.Row="1" Style="{x:Null}" Margin="5,1,5,0">
+                            <LineBreak/>
                             <Run FontWeight="DemiBold">Акроним: </Run>
                             <Run FontStyle="Italic" Text="{Binding Path=Acronym, Mode=OneWay}"/>
-                        </TextBlock>
-                        <TextBlock Grid.Row="2" Style="{x:Null}"  Margin="5,1,5,0">
+                            <LineBreak/>
                             <Run FontWeight="DemiBold">Статус: </Run>
                             <Run FontStyle="Italic" Text="{Binding Path=IsValid, Mode=OneWay, Converter={StaticResource BSConv}}"/>
-                        </TextBlock>
-                        <TextBlock Grid.Row="3" Style="{x:Null}" Margin="5,1,5,0">
-                           <Run FontWeight="DemiBold">Последние изменения: </Run>
+                            <LineBreak/>
+                            <Run FontWeight="DemiBold">Последние изменения: </Run>
                             <Run FontStyle="Italic" Text="{Binding Path=UpdateDate, StringFormat={}{0:d}, ConverterCulture='ru-RU', Mode=OneWay}"/>
                         </TextBlock>
                     </Grid>
@@ -61,8 +59,8 @@
                 <DataGridTemplateColumn Width="3*" Header="Специальность">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Style="{x:Null}" x:Name="tb" Text="{Binding Path=FullTitle, Mode=OneWay}" TextWrapping="WrapWithOverflow" 
-                                       FontStyle="Italic" TextAlignment="Center"/>
+                            <TextBlock FontSize="16" x:Name="tb" Text="{Binding Path=FullTitle, Mode=OneWay}" TextWrapping="WrapWithOverflow" 
+                                       FontStyle="Italic" TextAlignment="Center" FontFamily="Times New Roman"/>
                             <DataTemplate.Triggers>
                                 <DataTrigger Binding="{Binding Path=IsValid}" Value="false">
                                     <Setter TargetName="tb" Property="TextDecorations">
@@ -81,7 +79,7 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Width="150" Binding="{Binding Path=Categories, Mode=OneWay}" Header="Часы">
+                <DataGridTextColumn Width="150" Binding="{Binding Path=Categories, Mode=OneWay}" Header="Часы" FontFamily="Times New Roman" FontSize="16">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
                             <Setter Property="TextAlignment" Value="Center" />
@@ -91,17 +89,15 @@
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
             </DataGrid.Columns>
-           
         </DataGrid>
-        <Button Style="{StaticResource ButtonExit}" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding Path=Exit}"
-                CommandParameter="{Binding ElementName=sw}"  Margin="5,270,5,15" />
-        <StackPanel Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" Margin="10,10">
-            <Button Style="{StaticResource BaseUIButton}" Foreground="#FF70BAFB" Content="Новая" Margin="5" Command="{Binding Path=AddNew}" />
-            <Button Content="Удалить" Style="{StaticResource BaseUIButton}" Foreground="Red" Command="{Binding Path=Delete}" Margin="5"/>
-            <Button Content="Редакт." Command="{Binding Path=Edit}" Style="{StaticResource BaseUIButton}" Foreground="#FF9BBF1E" Margin="5"/>
+        <StackPanel Margin="0,5,15,5" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Style="{StaticResource AddItemButton}" Height="45" Width="45" Margin="2" Command="{Binding Path=AddNew}" />
+            <Button Style="{StaticResource DeleteButton}" Width="45" Height="45"  Command="{Binding Path=Delete}" Margin="2"/>
+            <Button Command="{Binding Path=Edit}" Style="{StaticResource EditButton}" Width="45" Height="45" Margin="2"/>
         </StackPanel>
         <TextBox Style="{StaticResource SearchTextBox}" MinWidth="50" Width="270" Text="{Binding Path=SearchText, UpdateSourceTrigger=PropertyChanged}"
                  Margin="20, 10,0,10" HorizontalAlignment="Left"/>
-        <TextBlock HorizontalAlignment="Right" Text="{Binding Path=Specialities.Count, StringFormat=Специальностей: {0}}" Margin="0,12,20,13" TextAlignment="Center" Height="Auto"/>
+        <TextBlock HorizontalAlignment="Center" Text="{Binding Path=Specialities.Count, StringFormat=Специальностей: {0}}" Margin="0,17,20,13" TextAlignment="Center" 
+                   Height="Auto" FontSize="{StaticResource UIFontSize}"/>
     </Grid>
 </Window>

@@ -223,6 +223,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -232,9 +233,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\17.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\минюст.jpg" />
@@ -295,6 +293,15 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\finish.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\delay.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\request.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\microscope.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

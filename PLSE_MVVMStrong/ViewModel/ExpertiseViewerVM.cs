@@ -12,6 +12,7 @@ namespace PLSE_MVVMStrong.ViewModel
     {
         #region Fields
         Expertise _expertise;
+
         #endregion
         #region Properties
         public Expertise Expertise => _expertise;
@@ -24,6 +25,7 @@ namespace PLSE_MVVMStrong.ViewModel
         public IEnumerable<Expert> Experts { get; } = CommonInfo.Experts.GroupBy(keySelector: n => n.Employee.EmployeeID)
                                                                         .First()                                                            
                                                                         .OrderBy(n => n.Employee.Sname);
+        //public IReadOnlyList<string> RequestTypes => CommonInfo.RequestTypes;
         public ListCollectionView Specialities { get; }
         #endregion
         #region Commands
@@ -54,7 +56,7 @@ namespace PLSE_MVVMStrong.ViewModel
             r.Case.Number = "2-457/2020";
             r.Case.Plaintiff = "Мишин Д.А.";
             r.Case.Respondent = "ОАО \"Арбеково - Мотор - Плюс\"";
-            r.Case.TypeCase = new KeyValuePair<string, string>("гражданское", "2");
+            //r.Case.TypeCase = new KeyValuePair<string, string>("гражданское","2");
             Expertise e = new Expertise
             {
                 SpendHours = 40,
@@ -67,6 +69,34 @@ namespace PLSE_MVVMStrong.ViewModel
                 Number = "3410",
                 Expert = CommonInfo.Experts.First(n => n.ExpertID ==1)
             };
+            Bill b = new Bill
+            {
+                Number = "233",
+                BillDate = new DateTime(2018,5,20),
+                PaidDate = new DateTime(2018, 5, 24),
+                Payer = "истца",
+                Hours = 24,
+                HourPrice = 600,
+                Paid = 24 * 600
+            };
+            Bill b1 = new Bill
+            {
+                Number = "234",
+                BillDate = new DateTime(2018, 5, 20),
+                PaidDate = new DateTime(2018, 5, 27),
+                Payer = "ответчика",
+                Hours = 32,
+                HourPrice = 600,
+                Paid = 32 * 600 + 23
+            };
+            e.Bills.Add(b); e.Bills.Add(b1);
+            Request rq = new Request
+            {
+                RequestDate = new DateTime(2018, 5, 20),
+                //RequestType = CommonInfo.RequestTypes[1],
+                Comment = "запрос на осмотр объекта исследования"
+            };
+            e.Requests.Add(rq);
             r.Expertisies.Add(e);
             _expertise = e;
         }
