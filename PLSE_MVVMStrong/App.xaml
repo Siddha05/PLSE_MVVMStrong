@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:PLSE_MVVMStrong"
              xmlns:system="clr-namespace:System;assembly=mscorlib"
-             StartupUri="MainWindow.xaml" ShutdownMode="OnLastWindowClose">
+             StartupUri="View/ResolutionAdd.xaml" ShutdownMode="OnLastWindowClose">
     <Application.Resources>
         <local:TextConverter x:Key="TextConverter" />
         <BooleanToVisibilityConverter x:Key="BVConv"/>
@@ -75,7 +75,7 @@
                 <Trigger Property="Validation.HasError" Value="True">
                     <Setter Property="ToolTip">
                         <Setter.Value>
-                            <Binding RelativeSource="{RelativeSource Self}" Path="(Validation.Errors).CurrentItem.ErrorContent" />
+                            <Binding RelativeSource="{RelativeSource Self}" Path="(Validation.Errors)[0].ErrorContent" />
                         </Setter.Value>
                     </Setter>
                 </Trigger>
@@ -86,8 +86,10 @@
             <Setter Property="Margin" Value="5" />
             <Setter Property="FontSize" Value="{StaticResource UIFontSize}" />
             <Setter Property="FontWeight" Value="DemiBold" />
-            <Setter Property="Height" Value="{StaticResource UIHeigth}" />
+            <Setter Property="Height" Value="auto" />
+            <Setter Property="VerticalAlignment" Value="Center"/>
             
+
         </Style>
         <Style TargetType="{x:Type DatePicker}" x:Key="UIDatePicker">
             <Setter Property="FontSize" Value="{StaticResource UIFontSize}" />
@@ -101,7 +103,7 @@
                 <Trigger Property="Validation.HasError" Value="true">
                     <Setter Property="ToolTip">
                         <Setter.Value>
-                            <Binding RelativeSource="{RelativeSource Self}" Path="(Validation.Errors).CurrentItem.ErrorContent" />
+                            <Binding RelativeSource="{RelativeSource Self}" Path="(Validation.Errors)[0].ErrorContent" />
                         </Setter.Value>
                     </Setter>
                 </Trigger>
@@ -461,15 +463,14 @@
         </Style>
         <Style TargetType="{x:Type TextBox}" x:Key="SearchTextBox">
             <Setter Property="FontSize" Value="{StaticResource UIFontSize}" />
-            <Setter Property="Width" Value="200" />
-            <Setter Property="Height" Value="30" />
+            <Setter Property="Height" Value="{StaticResource UIHeigth}" />
             <Setter Property="Tag" Value="Введите текст для поиска" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
                         <Grid Width="{TemplateBinding Width}" Height="{TemplateBinding Height}" Name="grid">
-                            <TextBlock Name="block" Text="{TemplateBinding Tag}" Padding="10,2,0,0" Focusable="False" TextAlignment="Left" Style="{x:Null}"
-                                   Width="{Binding ElementName=grid, Path=ActualWidth}" Height="{Binding ElementName=grid, Path=ActualHeight}" Foreground="Gray"
+                            <TextBlock Name="block" Text="{TemplateBinding Tag}" Padding="5,0,0,0" Focusable="False" TextAlignment="Left" Style="{x:Null}"
+                                   Width="{Binding ElementName=grid, Path=ActualWidth}" Height="auto" Foreground="Gray"
                                    FontStyle="Italic" FontWeight="Thin" FontSize="{TemplateBinding FontSize}" Background="{TemplateBinding Background}" VerticalAlignment="Center"/>
                             <TextBox Name="box" Background="{Binding RelativeSource={RelativeSource Self}, Path=Text, Converter={StaticResource TextConverter}}"
                                  FontSize="{TemplateBinding FontSize}" FontWeight="Normal" FontStyle="Normal" Style="{x:Null}" TextAlignment="Left" Panel.ZIndex="2"

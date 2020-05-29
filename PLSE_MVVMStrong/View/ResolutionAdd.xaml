@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PLSE_MVVMStrong.View"
+        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:viewmodel="clr-namespace:PLSE_MVVMStrong.ViewModel"
         mc:Ignorable="d"
         Title="ResolutionAdd" Height="1000" Width="1600" Name="wnd" WindowStartupLocation="CenterScreen">
@@ -14,6 +15,20 @@
         <local:LenghtToBoolConverter x:Key="LBConverter" />
         <local:ResTypeToEnableConverter x:Key="RTypeConverter" />
         <local:CaseTypeToVisibleConverter x:Key="CTypeConverter" />
+        <Style TargetType="{x:Type DataGridRow}" x:Key="DataGridSimpleRow">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type DataGridRow}">
+                        <Border BorderBrush="#FF0B4FE2" BorderThickness="1" CornerRadius="3" Margin="1" Height="auto">
+                            <DataGridCellsPresenter Margin="1" FontSize="{StaticResource RegularFontSize}" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="{x:Type DataGridColumnHeader}" x:Key="DataGridNoHeaders">
+            <Setter Property="Visibility" Value="Collapsed"/>
+        </Style>
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -24,7 +39,7 @@
             <RowDefinition Height="4*" />
             <RowDefinition />
         </Grid.RowDefinitions>
-        <ScrollViewer Grid.RowSpan="3" Margin="5" Name="scview" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer Grid.RowSpan="3" Margin="5" Name="scview" VerticalScrollBarVisibility="Visible">
             <Grid VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto" />
@@ -69,14 +84,77 @@
                 <TextBox Name="resPrescribeType" Grid.Row="5" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Resolution.PrescribeType}" Margin="5,5,0,5" Width="633" />
                 <TextBlock Grid.Row="6" Text="Заказчик*" Style="{StaticResource UITextBlock}"/>
                 <StackPanel Orientation="Horizontal" Grid.Row="6" Grid.Column="1">
+
+                    <TextBlock Text="{Binding Path=Resolution.Customer.Fio, TargetNullValue='не выбрано'}" ToolTip="{Binding Path=Resolution.Customer.Requisite}" 
+                               FontSize="{StaticResource UIFontSize}" FontWeight="DemiBold" VerticalAlignment="Center" Height="auto" Margin="5"/>
+                    <TextBox Style="{StaticResource SearchTextBox}" Name="tbCustomer" Width="180" Tag="Введите фамилию" 
+                             Text="{Binding Path=CustomerSearchText, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+                
+                <Popup AllowsTransparency="True" IsOpen="{Binding Path=CustomersListOpened}" PopupAnimation="Scroll" PlacementTarget="{Binding ElementName=tbCustomer}" Height="auto" Width="auto"
+                       Placement="Bottom" MaxHeight="300" VerticalOffset="3">
+                    <Border BorderBrush="Black" BorderThickness="1" CornerRadius="2" Background="White">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <DockPanel LastChildFill="True"  Background="#FFDDDFFF">
+                                <Button DockPanel.Dock="Right" Style="{StaticResource EditButton}" Width="35" Height="35" Command="{Binding Path=EditCustomer}" Margin="0,2,5,2"/>
+                                <Button DockPanel.Dock="Right" Style="{StaticResource AddItemButton}" Width="35" Height="35" Margin="100,2,0,2" Command="{Binding Path=AddNewCustomer}"/>
+                                <TextBlock Text="{Binding Path=CustomersList.Count, StringFormat='Найдено: {0}'}" VerticalAlignment="Center" 
+                                           FontWeight="DemiBold" FontSize="{StaticResource RegularFontSize}" Margin="5,0,0,0"/>
+                            </DockPanel>
+                            <ListBox Height="auto" ItemsSource="{Binding Path=CustomersList}" Grid.Row="1" FontSize="{StaticResource RegularFontSize}" 
+                                     DisplayMemberPath="Requisite" SelectedItem="{Binding Path=SelectedCustomer, Mode=OneWayToSource}" >
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="MouseDoubleClick">
+                                        <i:InvokeCommandAction Command="{Binding Path=SelectCustomer}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </ListBox>
+                        </Grid>
+                    </Border>
+                </Popup>
+                <!--<StackPanel Orientation="Horizontal" Grid.Row="6" Grid.Column="1">
                     <TextBlock  Style="{x:Null}" Text="{Binding Path=Resolution.Customer.Requisite, TargetNullValue='не выбрано'}" 
                            Margin="5,5,5,5" Width="auto" HorizontalAlignment="Left" FontSize="{StaticResource UIFontSize}" />
                     <Button Grid.Row="6" Grid.Column="2" Style="{StaticResource SearchButton}" Command="{Binding Path=AddCustomer}" Width="35" Height="35"/>
-                </StackPanel>
-                <Button Name="bObjects" Content ="Объекты" Grid.Row="7" Grid.Column="1" Style="{StaticResource BaseUIButton}" Foreground="#FF010ABB" 
-                        Command="{Binding Path=ObjectsClick}" CommandParameter="{Binding ElementName=popO}" Margin="5,4,340,4" Width="Auto"/>
-                <Button Name="bQuestions" Content="Вопросы" Grid.Row="8" Grid.Column="1" Style="{StaticResource BaseUIButton}" Foreground="#FF010ABB" 
-                        Command="{Binding Path=QuestionsClick}" CommandParameter="{Binding ElementName=popQ}" Margin="5,0,340,0" Width="Auto" />
+                </StackPanel>-->
+                <Expander Grid.Row="7" BorderBrush="Black" BorderThickness="0" Margin="30,5" Grid.ColumnSpan="2" MinHeight="30">
+                    <Expander.Header>
+                        <TextBlock Text="{Binding Path=Resolution.Objects.Objects.Count, StringFormat='Предоставленные объекты: {0}', Mode=OneWay}" FontSize="{StaticResource UIFontSize}"
+                                   FontWeight="DemiBold" />
+                    </Expander.Header>
+                    <DataGrid ItemsSource="{Binding Path=Resolution.Objects.Objects}" AutoGenerateColumns="False" Height="100" GridLinesVisibility="None" 
+                              HorizontalScrollBarVisibility="Disabled" FontSize="{StaticResource RegularFontSize}" BorderThickness="0" Margin="2" Background="White"
+                              RowStyle="{StaticResource DataGridSimpleRow}" ColumnHeaderStyle="{StaticResource DataGridNoHeaders}" >                     
+                        <DataGrid.Columns>
+                            <DataGridTextColumn FontSize="{StaticResource RegularFontSize}" Binding="{Binding Path=Content}" Width="*">
+                                
+                            </DataGridTextColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Expander>
+                <Expander Grid.Row="8" BorderBrush="Black" BorderThickness="0" Margin="30,5" Grid.ColumnSpan="2" IsExpanded="False" MinHeight="30">
+                    <Expander.Header>
+                        <TextBlock Text="{Binding Path=Resolution.Questions.Questions.Count, StringFormat='Поставленные вопросы: {0}'}" FontSize="{StaticResource UIFontSize}" FontWeight="DemiBold"/>
+                    </Expander.Header>
+                    <DataGrid ItemsSource="{Binding Path=Resolution.Questions.Questions}" AutoGenerateColumns="False" Height="100" GridLinesVisibility="None" 
+                              HorizontalScrollBarVisibility="Disabled" FontSize="{StaticResource RegularFontSize}" BorderThickness="0" Margin="2" Background="White"
+                              RowStyle="{StaticResource DataGridSimpleRow}" ColumnHeaderStyle="{StaticResource DataGridNoHeaders}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Binding="{Binding Path=Content}" Width="*"/>
+                            <!--<DataGridTemplateColumn Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox TextWrapping="Wrap" Text="{Binding Path=Content}" BorderThickness="0" AcceptsReturn="False"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>-->
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Expander>
                 <TextBlock Grid.Row="9" Grid.ColumnSpan="3" Text="Материалы дела" Style="{x:Null}" FontSize="{StaticResource HeaderFontSize}" FontWeight="Bold" FontStyle="Italic" HorizontalAlignment="Center"
                            Margin="5,10,5,10" />
                 <TextBlock Text="Тип*" Grid.Row="10" Style="{StaticResource UITextBlock}"/>
@@ -108,7 +186,13 @@
         <StackPanel Grid.Column="1" Orientation="Vertical">
             <TextBlock Style="{x:Null}" Text="{Binding Path=Resolution.Expertisies.Count, StringFormat=Экспертизы {0}}" FontSize="{StaticResource HeaderFontSize}" 
                        FontWeight="Bold" HorizontalAlignment="Center" Margin="0,15,0,5"/>
-            <ListBox Margin="15,10" BorderThickness="0" MaxHeight="600" MinWidth="630" ItemsSource="{Binding Path=Resolution.Expertisies}" HorizontalContentAlignment="Stretch">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,20,0">
+                <Button Style="{StaticResource AddItemButton}" Width="45" Height="45" Margin="1" Command="{Binding Path=AddExpertise}"
+                        CommandParameter="{Binding ElementName=wnd}"/>
+                <Button Style="{StaticResource DeleteButton}" Width="45" Height="45" Margin="1" Command="{Binding Path=DeleteExpertise}"/>
+            </StackPanel>
+            <ListBox Margin="15,10" BorderThickness="0" MaxHeight="600" MinWidth="630" ItemsSource="{Binding Path=Resolution.Expertisies}" HorizontalContentAlignment="Stretch"
+                     SelectedItem="{Binding Path=SelectedExpertise}">
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="Expertise">
                         <Grid>
@@ -122,17 +206,17 @@
                                 <ColumnDefinition Width="120"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Name="tbNumber" Text="{Binding Path=FullNumber, Mode=OneWay}" FontWeight="Bold" Foreground="#FF261ED3" VerticalAlignment="Center"
-                                           HorizontalAlignment="Center" FontSize="18" Grid.RowSpan="2" Margin="5,0,5,0"/>
-                            <TextBlock Grid.Column="1" Style="{x:Null}"  Margin="8,1,1,1" HorizontalAlignment="Left" FontSize="16" FontWeight="DemiBold" 
-                                        Text="{Binding Path=Expert.Employee, Mode=OneWay}" TextDecorations="Underline">
+                                           HorizontalAlignment="Center" Grid.RowSpan="2" Margin="5,0,5,0" FontSize="{StaticResource UIFontSize}"/>
+                            <TextBlock Grid.Column="1" Margin="8,1,1,1" HorizontalAlignment="Left" FontSize="{StaticResource RegularFontSize}" FontWeight="DemiBold" 
+                                         TextWrapping="Wrap" Text="{Binding Path=Expert.Employee, Mode=OneWay}" TextDecorations="Underline">
                             </TextBlock>
-                            <TextBlock Style="{x:Null}" Grid.Column="1" Grid.Row="1" Margin="8,1,1,1" HorizontalAlignment="Left" FontSize="14" FontWeight="DemiBold" 
-                                       TextWrapping="Wrap" MaxWidth="450" Text="{Binding Path=Expert.Speciality.Code, Mode=OneWay}" FontStyle="Italic"/>
-                            <TextBlock Grid.Column="2" Style="{x:Null}" Grid.RowSpan="2" FontSize="16" Margin="2,2,6,2" VerticalAlignment="Center"
+                            <TextBlock Style="{x:Null}" Grid.Column="1" Grid.Row="1" Margin="8,1,1,1" HorizontalAlignment="Left" FontSize="{StaticResource RegularFontSize}" FontWeight="DemiBold" 
+                                       TextWrapping="Wrap" MaxWidth="450" FontStyle="Italic" Text="{Binding Path=Expert.Speciality.Code, Mode=OneWay}"/>
+                            <TextBlock Grid.Column="2" Style="{x:Null}" Grid.RowSpan="2" FontSize="{StaticResource RegularFontSize}" Margin="2,2,6,2" VerticalAlignment="Center"
                                        TextAlignment="Center">
                                 <Run Text="{Binding Path=StartDate, Mode=OneWay,StringFormat='от {0:d}', ConverterCulture='ru-RU'}"/>
                                 <LineBreak/>
-                                <Run Text="{Binding Path=TimeLimit, Mode=OneWay, StringFormat='срок {0}д.'}" FontSize="18" Foreground="#FF261ED3" FontWeight="Bold"
+                                <Run Text="{Binding Path=TimeLimit, Mode=OneWay, StringFormat='срок {0}д.'}" FontSize="{StaticResource UIFontSize}" Foreground="#FF261ED3" FontWeight="Bold"
                                      />
                             </TextBlock>
                         </Grid>
@@ -158,31 +242,9 @@
                     </Style>
                 </ListBox.ItemContainerStyle>
             </ListBox>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,20,0">
-                <Button Style="{StaticResource AddItemButton}" Width="45" Height="45" Margin="1" Command="{Binding Path=AddExpertise}"
-                        CommandParameter="{Binding ElementName=wnd}"/>
-                <Button Style="{StaticResource DeleteButton}" Width="45" Height="45" Margin="1" Command="{Binding Path=DeleteExpertise}"/>
-            </StackPanel>
+            
         </StackPanel>
         <!--<TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="20,24,0,0" TextWrapping="Wrap"  VerticalAlignment="Top"
                    Text="{Binding Path=Info}" Name="info" Style="{x:Null}" />-->
-        <Popup Name="popQ" PopupAnimation="Slide" Width="600" MinHeight="100" MaxHeight="500" AllowsTransparency="True" StaysOpen="False"
-               PlacementTarget="{x:Reference bQuestions}" Placement="Right" HorizontalOffset="0" VerticalOffset = "0" IsOpen="False">
-            <DataGrid Background="#FFEAF5D1" ItemsSource="{Binding Path=Resolution.Questions.Questions}" AutoGenerateColumns="False"
-                               FontSize="16" MinRowHeight="40" BorderBrush="Black" BorderThickness="2">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Вопросы" Binding="{Binding Path=Content}" Width="*"/>
-                </DataGrid.Columns>
-            </DataGrid>
-        </Popup>
-        <Popup Name="popO" PopupAnimation="Slide" Width="600" MinHeight="100" IsOpen="False" StaysOpen="False"
-               PlacementTarget="{x:Reference bObjects}" Placement="Right" AllowsTransparency="True">
-            <DataGrid Background="#FFCFFFFF" ItemsSource="{Binding Path=Resolution.Objects.Objects}" AutoGenerateColumns="False"
-                               FontSize="16" MinRowHeight="40" BorderBrush="Black" BorderThickness="2">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Объекты" Binding="{Binding Path=Content}" Width="*"/>
-                </DataGrid.Columns>
-            </DataGrid>
-        </Popup>
     </Grid>
 </Window>

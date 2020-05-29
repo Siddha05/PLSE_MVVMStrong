@@ -2362,7 +2362,7 @@ namespace PLSE_MVVMStrong.Model
                 OnPropertyChanged();
             }
         }
-        public string Fio => ToString();
+        public string Fio => Sname + " " + Fname[0] + "." + Mname[0] + ".";
         #endregion
         
         public Person() : base()
@@ -4886,7 +4886,7 @@ namespace PLSE_MVVMStrong.Model
             {
                 if (value != _number)
                 {
-                    if (!IsValidNumber(value)) throw new ArgumentException("Не верный формат номера");
+                    if (!IsValidNumber(value)) throw new ArgumentException("Неверный формат номера");
                     _number = value;
                     OnPropertyChanged();
                 }

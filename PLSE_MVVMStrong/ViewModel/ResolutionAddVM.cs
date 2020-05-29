@@ -20,12 +20,29 @@ namespace PLSE_MVVMStrong.ViewModel
 
         public IReadOnlyList<string> ResolutionTypes => CommonInfo.ResolutionTypes;
         public IReadOnlyList<string> ResolutionStatus => CommonInfo.ResolutionStatus;
+        public ListCollectionView CustomersList { get; }
+        public object SelectedCustomer { get; set; }
         public Resolution Resolution { get; set; } = new Resolution()
         {
             RegistrationDate = DateTime.Now,
             ResolutionType = "постановление",
             ResolutionStatus = "рассмотрение"
         };
+        public bool CustomersListOpened
+        {
+            get { return (bool)GetValue(CustomersListOpenedProperty); }
+            set { SetValue(CustomersListOpenedProperty, value); }
+        }
+        public static readonly DependencyProperty CustomersListOpenedProperty =
+            DependencyProperty.Register("CustomersListOpened", typeof(bool), typeof(ResolutionAddVM), new PropertyMetadata(false));
+
+        public string CustomerSearchText
+        {
+            get { return (string)GetValue(CustomerSearchTextProperty); }
+            set { SetValue(CustomerSearchTextProperty, value); }
+        }
+        public static readonly DependencyProperty CustomerSearchTextProperty =
+            DependencyProperty.Register("CustomerSearchText", typeof(string), typeof(ResolutionAddVM), new PropertyMetadata(String.Empty, CustomerSearchTextChanged));
 
         [Obsolete]
         public string Info
@@ -67,61 +84,83 @@ namespace PLSE_MVVMStrong.ViewModel
         }
         public static readonly DependencyProperty RespondentVisiblProperty =
             DependencyProperty.Register("RespondentVisible", typeof(Visibility), typeof(ResolutionAddVM), new PropertyMetadata(Visibility.Visible));
-
+        public object SelectedExpertise { get; set; }
         #endregion Properties
 
         #region Commands
-
-        public RelayCommand Exit { get; } = new RelayCommand(o =>
-                                                                {
-                                                                    var w = o as View.ResolutionAdd;
-                                                                    if (w != null) w.Close();
-                                                                });
-        public RelayCommand AddCustomer { get; }
         public RelayCommand ObjectsClick { get; }
         public RelayCommand QuestionsClick { get; }
         public RelayCommand Save { get; }
         public RelayCommand AddExpertise { get; }
         public RelayCommand DeleteExpertise { get; }
+        public RelayCommand AddNewCustomer { get; }
+        public RelayCommand EditCustomer { get; }
+        public RelayCommand SelectCustomer { get; }
         #endregion Commands
-
+        
         public ResolutionAddVM()
         {
 //#if DEBUG
 //            Resolution.Case.TypeCase = new KeyValuePair<string, string>("гражданское", "2");
 //#endif
             Resolution.PropertyChanged += Resolution_PropertyChanged;
-            //Resolution.Expertisies.Add(new Expertise(id: 0,
-            //                                          number: "12",
-            //                                          expert: CommonInfo.Experts.Single(n => n.ExpertID == 6),
-            //                                          status: "в работе",
-            //                                          start: DateTime.Now,
-            //                                          end: null,
-            //                                          timelimit: (byte)20,
-            //                                          type: "первичная",
-            //                                          previous: null,
-            //                                          spendhours: null,
-            //                                          vr: Model.Version.New));
-            //Resolution.Expertisies.Add(new Expertise(id: 0,
-            //                                          number: "2056",
-            //                                          expert: CommonInfo.Experts.Single(n => n.ExpertID == 8),
-            //                                          status: "выполнена",
-            //                                          start: DateTime.Now.AddDays(-34),
-            //                                          end: DateTime.Now.AddDays(-11),
-            //                                          timelimit: (byte)30,
-            //                                          type: "первичная",
-            //                                          previous: null,
-            //                                          spendhours: 48,
-            //                                          vr: Model.Version.New));
-            AddCustomer = new RelayCommand(o =>
-                                            {
-                                                var wnd = new View.CustomerSelect() { Owner = o as View.ResolutionAdd };
-                                                wnd.ShowDialog();
-                                                if (wnd.DialogResult ?? false)
-                                                {
-                                                    Resolution.Customer = wnd.lbCustomers.SelectedItem as Customer;
-                                                }
-                                            });
+            CustomersList = new ListCollectionView(CommonInfo.Customers);
+            Resolution.Expertisies.Add(new Expertise(id: 0,
+                                                      number: "12",
+                                                      expert: CommonInfo.Experts.Single(n => n.ExpertID == 6),
+                                                      status: "в работе",
+                                                      start: DateTime.Now,
+                                                      end: null,
+                                                      timelimit: (byte)20,
+                                                      type: "первичная",
+                                                      previous: null,
+                                                      spendhours: null,
+                                                      vr: Model.Version.New));
+            Resolution.Expertisies.Add(new Expertise(id: 0,
+                                                      number: "2056",
+                                                      expert: CommonInfo.Experts.Single(n => n.ExpertID == 8),
+                                                      status: "выполнена",
+                                                      start: DateTime.Now.AddDays(-34),
+                                                      end: DateTime.Now.AddDays(-11),
+                                                      timelimit: (byte)30,
+                                                      type: "первичная",
+                                                      previous: null,
+                                                      spendhours: 48,
+                                                      vr: Model.Version.New));
+            AddNewCustomer = new RelayCommand(n =>
+            {
+                var wnd = new CustomerAdd();
+                wnd.ShowDialog();
+                if (wnd.DialogResult == true)
+                {
+                    MessageBox.Show("Save customer add set to resolution");
+                }
+            });
+            EditCustomer = new RelayCommand(n =>
+            {
+                var wnd = new CustomerAdd();
+                wnd.DataContext = new CustomerAddVM(SelectedCustomer as Customer);
+                wnd.ShowDialog();
+                if (wnd.DialogResult == true)
+                {
+                    MessageBox.Show("Save changes add set customer");
+                }
+            },
+                o =>
+                {
+                    if (SelectedCustomer != null) return true;
+                    return false;
+                });
+            SelectCustomer = new RelayCommand(n =>
+            {
+                Resolution.Customer = SelectedCustomer as Customer;
+                CustomerSearchText = "";
+            },
+                o => // Advisably ?? 
+            {
+                if (SelectedCustomer != null) return true;
+                return false;
+            });
             QuestionsClick = new RelayCommand(n =>
             {
                 var o = n as Popup;
@@ -139,6 +178,17 @@ namespace PLSE_MVVMStrong.ViewModel
                 try
                 {
                     Resolution.SaveChanges(CommonInfo.connection);
+                    if (MessageBox.Show("Сохранение успешно. Продолжить?", "Сохранение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    {
+                        Resolution = new Resolution()
+                        {
+                            RegistrationDate = DateTime.Now,
+                            ResolutionType = "постановление",
+                            ResolutionStatus = "рассмотрение"
+                        };
+                    }
+                    
+                    
                 }
                 catch (Exception ex)
                 {
@@ -153,11 +203,11 @@ namespace PLSE_MVVMStrong.ViewModel
              });
             DeleteExpertise = new RelayCommand(n =>
             {
-                Resolution.Expertisies.Clear();
+                Resolution.Expertisies.Remove(SelectedExpertise as Expertise);
             },
                 o =>
                 {
-                    if (Resolution.Expertisies.Count > 0) return true;
+                    if (SelectedExpertise != null) return true;
                     else return false;
                 });
             AddExpertise = new RelayCommand(n =>
@@ -232,5 +282,20 @@ namespace PLSE_MVVMStrong.ViewModel
                 }
             }
         }
+        private static void CustomerSearchTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var instance = d as ResolutionAddVM;
+            if (instance.CustomerSearchText.Length > 1)
+            {
+                instance.CustomersListOpened = true;
+                instance.CustomersList.Filter = n => (n as Customer).Sname.StartsWith(instance.CustomerSearchText, StringComparison.CurrentCultureIgnoreCase);
+            }
+            else
+            {
+                instance.CustomersList.Filter = null;
+                instance.CustomersListOpened = false;
+            }
+        }
+
     }
 }

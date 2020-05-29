@@ -25,29 +25,11 @@ namespace PLSE_MVVMStrong.ViewModel
         public RelayCommand ExpertChanged { get; }
         #endregion
         public ExpertiseAddVM()
-        {
-            var app = Application.Current as App;
-            switch (app.Permissions.Plurality)
-            {
-                case PermissionPlural.Self:
-                    Experts = Enumerable.Repeat(app.LogedEmployee, 1);
-                    break;
-                case PermissionPlural.Group:
-                    Experts = CommonInfo.Experts.Where(n => n.Employee.EmployeeStatus != "не работает" && 
-                                                            n.Employee.Departament.DepartamentID == app.LogedEmployee.Departament.DepartamentID)
+        {         
+            Experts = CommonInfo.Experts.Where(n => n.Employee.EmployeeStatus != "не работает")
                                                 .GroupBy(keySelector: n => n.Employee.EmployeeID)
                                                 .Select(n => n.First().Employee)
                                                 .OrderBy(n => n.Sname);
-                    break;
-                case PermissionPlural.All:
-                    Experts = CommonInfo.Experts.Where(n => n.Employee.EmployeeStatus != "не работает")
-                                                .GroupBy(keySelector: n => n.Employee.EmployeeID)
-                                                .Select(n => n.First().Employee)
-                                                .OrderBy(n => n.Sname);
-                    break;
-                default:
-                    break;
-            }
             Cancel = new RelayCommand(n =>
             {
                 var wnd = n as ExpertiseAdd;
