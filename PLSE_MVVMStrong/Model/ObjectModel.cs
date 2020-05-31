@@ -486,7 +486,6 @@ namespace PLSE_MVVMStrong.Model
             get => departaments;
             set => departaments = value;
         }
-
         static CommonInfo()
         {
             SqlConnectionStringBuilder sb = new SqlConnectionStringBuilder()
@@ -533,7 +532,6 @@ namespace PLSE_MVVMStrong.Model
                 throw;
             }
         }
-
         private static void LoadInitialInfo(SqlConnection connection)
         {
             SqlCommand cmd = connection.CreateCommand();
@@ -3448,7 +3446,7 @@ namespace PLSE_MVVMStrong.Model
             get => _organizationID;
             private set => _organizationID = value;
         }
-        public string Requisite => ShortName ?? Name + Environment.NewLine + Adress.ToString();
+        public string Requisite => (ShortName ?? Name) + Environment.NewLine + Adress.ToString();
         public bool InstanceValidState => !String.IsNullOrWhiteSpace(_name) && !String.IsNullOrWhiteSpace(_postcode) && _adress.InstanceValidState;
 
         #endregion Properties
@@ -3476,7 +3474,7 @@ namespace PLSE_MVVMStrong.Model
 
         public override string ToString()
         {
-            return ShortName ?? Name;
+            return Name;
         }
         private void AdressChanged(object sender, PropertyChangedEventArgs e)
         {
@@ -3767,7 +3765,6 @@ namespace PLSE_MVVMStrong.Model
             try
             {
                 cmd.Connection.Open();
-
                 cmd.ExecuteNonQuery();
                 _customerID = (int)cmd.Parameters["@InsertedID"].Value;
                 Version = Version.Original;

@@ -130,20 +130,22 @@ namespace PLSE_MVVMStrong.ViewModel
             AddNewCustomer = new RelayCommand(n =>
             {
                 var wnd = new CustomerAdd();
+                CustomersListOpened = false;
                 wnd.ShowDialog();
                 if (wnd.DialogResult == true)
                 {
-                    MessageBox.Show("Save customer add set to resolution");
+                    Resolution.Customer = (wnd.DataContext as CustomerAddVM)?.Customer;
                 }
             });
             EditCustomer = new RelayCommand(n =>
             {
                 var wnd = new CustomerAdd();
                 wnd.DataContext = new CustomerAddVM(SelectedCustomer as Customer);
+                CustomersListOpened = false;
                 wnd.ShowDialog();
                 if (wnd.DialogResult == true)
                 {
-                    MessageBox.Show("Save changes add set customer");
+                    Resolution.Customer = (wnd.DataContext as CustomerAddVM)?.Customer;
                 }
             },
                 o =>

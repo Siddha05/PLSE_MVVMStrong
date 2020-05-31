@@ -90,9 +90,9 @@
                     <TextBox Style="{StaticResource SearchTextBox}" Name="tbCustomer" Width="180" Tag="Введите фамилию" 
                              Text="{Binding Path=CustomerSearchText, UpdateSourceTrigger=PropertyChanged}"/>
                 </StackPanel>
-                
+
                 <Popup AllowsTransparency="True" IsOpen="{Binding Path=CustomersListOpened}" PopupAnimation="Scroll" PlacementTarget="{Binding ElementName=tbCustomer}" Height="auto" Width="auto"
-                       Placement="Bottom" MaxHeight="300" VerticalOffset="3">
+                       Placement="Bottom" MaxHeight="300" VerticalOffset="3" StaysOpen="False">
                     <Border BorderBrush="Black" BorderThickness="1" CornerRadius="2" Background="White">
                         <Grid>
                             <Grid.RowDefinitions>
@@ -116,11 +116,6 @@
                         </Grid>
                     </Border>
                 </Popup>
-                <!--<StackPanel Orientation="Horizontal" Grid.Row="6" Grid.Column="1">
-                    <TextBlock  Style="{x:Null}" Text="{Binding Path=Resolution.Customer.Requisite, TargetNullValue='не выбрано'}" 
-                           Margin="5,5,5,5" Width="auto" HorizontalAlignment="Left" FontSize="{StaticResource UIFontSize}" />
-                    <Button Grid.Row="6" Grid.Column="2" Style="{StaticResource SearchButton}" Command="{Binding Path=AddCustomer}" Width="35" Height="35"/>
-                </StackPanel>-->
                 <Expander Grid.Row="7" BorderBrush="Black" BorderThickness="0" Margin="30,5" Grid.ColumnSpan="2" MinHeight="30">
                     <Expander.Header>
                         <TextBlock Text="{Binding Path=Resolution.Objects.Objects.Count, StringFormat='Предоставленные объекты: {0}', Mode=OneWay}" FontSize="{StaticResource UIFontSize}"
@@ -242,9 +237,6 @@
                     </Style>
                 </ListBox.ItemContainerStyle>
             </ListBox>
-            
         </StackPanel>
-        <!--<TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="20,24,0,0" TextWrapping="Wrap"  VerticalAlignment="Top"
-                   Text="{Binding Path=Info}" Name="info" Style="{x:Null}" />-->
     </Grid>
 </Window>
