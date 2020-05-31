@@ -77,7 +77,7 @@ namespace PLSE_MVVMStrong.ViewModel
                 OrganizationListOpen = false;
                 if(wnd.ShowDialog() == true)
                 {
-                    MessageBox.Show("Save new organization and set  to this cusnomer");
+                    Customer.Organization = (wnd.DataContext as OrganizationAddVM)?.Organization;
                 }
             });
             SelectOrganization = new RelayCommand(n =>
@@ -92,7 +92,7 @@ namespace PLSE_MVVMStrong.ViewModel
                 OrganizationListOpen = false;
                 if (wnd.ShowDialog() == true)
                 {
-                    MessageBox.Show("Save new organization and set to this cusnomer");
+                    Customer.Organization = (wnd.DataContext as OrganizationAddVM)?.Organization;
                 }
             },
                 o =>
