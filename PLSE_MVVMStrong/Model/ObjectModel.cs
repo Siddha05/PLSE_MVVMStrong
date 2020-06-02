@@ -47,7 +47,7 @@ namespace PLSE_MVVMStrong.Model
         Plural,
         None
     }
-
+    
     internal sealed class Word
     {
         internal enum PartOfSpeech
@@ -2002,6 +2002,38 @@ namespace PLSE_MVVMStrong.Model
         {
             throw new NotSupportedException("Функция не может быть вызвана из данного класса");
         }
+        public SqlCommand Add(SqlConnection con)
+        {
+            SqlCommand cmd = con.CreateCommand();
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.CommandText = "prAddSettlement";
+            cmd.Parameters.Add("@Title", SqlDbType.NVarChar, 40).Value = Title;
+            cmd.Parameters.Add("@SettlementType", SqlDbType.NVarChar, 20).Value = Settlementtype;
+            cmd.Parameters.Add("@Significance", SqlDbType.NVarChar, 15).Value = Significance;
+            cmd.Parameters.Add("@FederalLocation", SqlDbType.VarChar, 50).Value = ConvertToDBNull(Federallocation);
+            cmd.Parameters.Add("@TerritorialLocation", SqlDbType.NVarChar, 50).Value = ConvertToDBNull(Territorylocation);
+            cmd.Parameters.Add("@TelephoneCode", SqlDbType.NVarChar, 8).Value = ConvertToDBNull(Telephonecode);
+            cmd.Parameters.Add("@PostCode", SqlDbType.NVarChar, 13).Value = ConvertToDBNull(Postcode);
+            var par = cmd.Parameters.Add("@InsertedID", SqlDbType.Int);
+            par.Direction = ParameterDirection.Output;
+            return cmd;
+        }
+        public SqlCommand Edit(SqlConnection con)
+        {
+            SqlCommand cmd = con.CreateCommand();
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.CommandText = "prEditSettlement";
+            cmd.Parameters.Add("@Title", SqlDbType.NVarChar, 40).Value = Title;
+            cmd.Parameters.Add("@SettlementType", SqlDbType.NVarChar, 20).Value = Settlementtype;
+            cmd.Parameters.Add("@Significance", SqlDbType.NVarChar, 15).Value = Significance;
+            cmd.Parameters.Add("@FederalLocation", SqlDbType.VarChar, 50).Value = ConvertToDBNull(Federallocation);
+            cmd.Parameters.Add("@TerritorialLocation", SqlDbType.NVarChar, 50).Value = ConvertToDBNull(Territorylocation);
+            cmd.Parameters.Add("@TelephoneCode", SqlDbType.NVarChar, 8).Value = ConvertToDBNull(Telephonecode);
+            cmd.Parameters.Add("@PostCode", SqlDbType.NVarChar, 13).Value = ConvertToDBNull(Postcode);
+            cmd.Parameters.Add("@StatusID", SqlDbType.NVarChar, 30).Value = _status;
+            cmd.Parameters.Add("@SettlementID", SqlDbType.Int).Value = SettlementID;
+            return cmd;
+        }
         public bool IsValidTitle()
         {
             return !String.IsNullOrWhiteSpace(_title);
@@ -2037,9 +2069,7 @@ namespace PLSE_MVVMStrong.Model
         public bool IsValidState()
         {
             return (IsValidTitle() && _settlementtype != null && _significance != null);
-        }
-
-        
+        }     
         #endregion
     }
     internal class AdressEventArgs : EventArgs
@@ -2285,7 +2315,7 @@ namespace PLSE_MVVMStrong.Model
             set
             {
                 if (_sname == value) return;
-                if (!isValidSecondName(value)) throw new ArgumentException("Неверный формат фамилии");
+                if (!isValidSecondName(value)) throw new ArgumentException("Неверный формат фамилии. Допускаются буквы русского алфавита и '-'");
                 _sname = value.ToUpperFirstLetter().SpaceFree();
                 OnPropertyChanged();
                 OnPropertyChanged("Fio");
@@ -3759,9 +3789,11 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@Rank", SqlDbType.NVarChar, 100).Value = ConvertToDBNull(Rank);
             cmd.Parameters.Add("@Departament", SqlDbType.NVarChar, 10).Value = ConvertToDBNull(Departament);
             cmd.Parameters.Add("@Office", SqlDbType.NVarChar, 100).Value = Office;
+            this.Organization?.SaveChanges(CommonInfo.connection);
             cmd.Parameters.Add("@OrgID", SqlDbType.Int).Value = ConvertToDBNull(Organization?.OrganizationID);
             var par = cmd.Parameters.Add("@InsertedID", SqlDbType.Int);
             par.Direction = ParameterDirection.Output;
+            var tran = con.BeginTransaction();
             try
             {
                 cmd.Connection.Open();
@@ -3794,6 +3826,7 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@Rank", SqlDbType.NVarChar, 100).Value = ConvertToDBNull(Rank);
             cmd.Parameters.Add("@Departament", SqlDbType.NVarChar, 10).Value = ConvertToDBNull(Departament);
             cmd.Parameters.Add("@Office", SqlDbType.NVarChar, 100).Value = Office;
+            this.Organization?.SaveChanges(CommonInfo.connection);
             cmd.Parameters.Add("@OrgID", SqlDbType.Int).Value = ConvertToDBNull(Organization?.OrganizationID);
             cmd.Parameters.Add("@StatusID", SqlDbType.NVarChar, 30).Value = _status;
             cmd.Parameters.Add("@CusIden", SqlDbType.Int).Value = CustomerID;
@@ -4299,8 +4332,7 @@ namespace PLSE_MVVMStrong.Model
                 throw;
             }
             finally
-            {
-                
+            {           
                 cmd.Connection.Close();
             }
         }
@@ -4763,7 +4795,7 @@ namespace PLSE_MVVMStrong.Model
         private string _type;
         private int? _prevexp;
         private short? _spendhours;
-        //ExpertiseDetail _detail;
+        ExpertiseDetail _detail;
         private ObservableCollection<Request> _requests = new ObservableCollection<Request>();
         private ObservableCollection<Report> _raports = new ObservableCollection<Report>();
         private ObservableCollection<Bill> _bills = new ObservableCollection<Bill>();
@@ -4889,15 +4921,15 @@ namespace PLSE_MVVMStrong.Model
                 }
             }
         }
-        //public ExpertiseDetail ExpertiseDetail
-        //{
-        //    get => _detail;
-        //    set
-        //    {
-        //        _detail = value;
-        //        OnPropertyChanged();
-        //    }
-        //}
+        public ExpertiseDetail ExpertiseDetail
+        {
+            get => _detail;
+            set
+            {
+                _detail = value;
+                OnPropertyChanged();
+            }
+        }
         public string FullNumber
         {
             get
@@ -5012,7 +5044,6 @@ namespace PLSE_MVVMStrong.Model
         public ObservableCollection<Bill> Bills => _bills;
         public ObservableCollection<EquipmentUsage> EquipmentUsage => _equipmentusage;
         #endregion
-       
 
         public static Expertise New => new Expertise()
         {

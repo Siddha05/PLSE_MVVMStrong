@@ -34,7 +34,7 @@
         <TextBlock Text="Краткое название" Grid.Row="1" Style="{StaticResource UITextBlock}"/>
         <TextBox Grid.Column="1" Grid.Row="1" Style="{StaticResource UITextBox}" Width="370" Text="{Binding Path=Organization.ShortName}" />
         <CheckBox Grid.Row="2" Grid.Column="1" Style="{StaticResource GreenCheck}" IsChecked="{Binding Path=Organization.IsValid}" FontWeight="DemiBold" 
-                  Margin="5,0,0,0" FontSize="{StaticResource UIFontSize}">
+                  Margin="5,0,0,0" FontSize="{StaticResource UIFontSize}" Width="auto">
             Действует
         </CheckBox>
         <TextBlock Text="Телефон" Grid.Row="3" Style="{StaticResource UITextBlock}"/>
@@ -72,7 +72,7 @@
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                 </TextBox>
-                <ComboBox Grid.Row="1" ItemsSource="{Binding Path=StreetTypeList}" Width="50" MinWidth="10" HorizontalAlignment="Right"
+                <ComboBox Grid.Row="1" ItemsSource="{Binding Path=StreetTypeList}" Width="65" MinWidth="10" HorizontalAlignment="Right"
                       Style="{StaticResource UIComboBox}" HorizontalContentAlignment="Right" Text="{Binding Path=Organization.Adress.Streetprefix}" />
                 <TextBox Grid.Column="1" Grid.Row="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Organization.Adress.Street}" />
                 <TextBlock Grid.Row="2" Text="Дом*" Style="{StaticResource UITextBlock}"/>

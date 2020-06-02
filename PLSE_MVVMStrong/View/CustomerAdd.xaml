@@ -33,7 +33,7 @@
                 <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
             <TextBlock Text="Фамилия*" Style="{StaticResource UITextBlock}"/>
-            <TextBox Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Customer.Sname, ValidatesOnExceptions=True}"/>
+            <TextBox Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Customer.Sname, ValidatesOnExceptions=True, NotifyOnValidationError=True}"/>
             <CheckBox HorizontalAlignment="Left" Height="40" Width="85" Style="{StaticResource GreenCheck}" IsThreeState="False" IsChecked="{Binding Path=Customer.Declinated}"
                       Grid.Column="2" >
                 Склонять
