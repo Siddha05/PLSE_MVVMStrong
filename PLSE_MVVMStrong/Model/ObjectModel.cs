@@ -2002,11 +2002,11 @@ namespace PLSE_MVVMStrong.Model
         {
             throw new NotSupportedException("Функция не может быть вызвана из данного класса");
         }
-        public SqlCommand Add(SqlConnection con)
+        public SqlCommand Add()
         {
-            SqlCommand cmd = con.CreateCommand();
+            SqlCommand cmd = new SqlCommand();
             cmd.CommandType = CommandType.StoredProcedure;
-            cmd.CommandText = "prAddSettlement";
+            cmd.CommandText = "OutResources.prAddSettlement";
             cmd.Parameters.Add("@Title", SqlDbType.NVarChar, 40).Value = Title;
             cmd.Parameters.Add("@SettlementType", SqlDbType.NVarChar, 20).Value = Settlementtype;
             cmd.Parameters.Add("@Significance", SqlDbType.NVarChar, 15).Value = Significance;
@@ -2018,11 +2018,11 @@ namespace PLSE_MVVMStrong.Model
             par.Direction = ParameterDirection.Output;
             return cmd;
         }
-        public SqlCommand Edit(SqlConnection con)
+        public SqlCommand Edit()
         {
-            SqlCommand cmd = con.CreateCommand();
+            SqlCommand cmd = new SqlCommand();
             cmd.CommandType = CommandType.StoredProcedure;
-            cmd.CommandText = "prEditSettlement";
+            cmd.CommandText = "OutResources.prEditSettlement";
             cmd.Parameters.Add("@Title", SqlDbType.NVarChar, 40).Value = Title;
             cmd.Parameters.Add("@SettlementType", SqlDbType.NVarChar, 20).Value = Settlementtype;
             cmd.Parameters.Add("@Significance", SqlDbType.NVarChar, 15).Value = Significance;
