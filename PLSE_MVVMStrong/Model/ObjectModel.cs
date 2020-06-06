@@ -1801,16 +1801,8 @@ namespace PLSE_MVVMStrong.Model
                                     vr: this.Version,
                                     updatedate: this.UpdateDate);
         }
-        object ICloneable.Clone()
-        {
-            return Clone();
-        }
-        public bool IsValidInstanceState()
-        {
-            if (String.IsNullOrWhiteSpace(_code)) return false;
-
-            return true;
-        }
+        object ICloneable.Clone() => Clone();
+        public bool IsValidInstanceState() => String.IsNullOrWhiteSpace(_code);
         #endregion
     }
     public class Settlement : NotifyBase, IEquatable<Settlement>, ICloneable
@@ -2253,12 +2245,10 @@ namespace PLSE_MVVMStrong.Model
             _status = dep.IsValid;
             _digitalcode = dep.DigitalCode;
         }
-
         public override string ToString()
         {
             return Acronym;
         }
-
         public bool Equals(Departament other)
         {
             if (other == null) return false;
@@ -2957,7 +2947,7 @@ namespace PLSE_MVVMStrong.Model
         }
         public double Age()
         {
-            if (this.Birthdate == null) throw new InvalidOperationException("BirthDate null exeption");
+            if (this.Birthdate == null) throw new InvalidOperationException("BirthDate is null");
             TimeSpan diff = DateTime.Today - Birthdate.Value.Date;
             return diff.Days / 365.25;
         }
@@ -2980,10 +2970,7 @@ namespace PLSE_MVVMStrong.Model
             sb.AppendLine(Version + "\t" + UpdateDate);
             return sb.ToString();
         }
-        public bool IsBirthDate()
-        {
-            return (DateTime.Today.Day == Birthdate?.Day && DateTime.Today.Month == Birthdate?.Month);
-        }
+        public bool IsBirthDate() => DateTime.Today.Day == Birthdate?.Day && DateTime.Today.Month == Birthdate?.Month;
         public bool IsOperate()
         {
             return EmployeeStatus != "не работает" && (Inneroffice == "начальник" || Inneroffice == "заместитель начальника" ||
@@ -2993,8 +2980,8 @@ namespace PLSE_MVVMStrong.Model
         protected override void AddToDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
+
             Adress.Settlement.SaveChanges(con);
-            
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.CommandText = "InnResources.prAddEmployee";
             cmd.Parameters.Add("@FN", SqlDbType.NVarChar, 25).Value = Fname;
@@ -3012,13 +2999,13 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@foto", SqlDbType.Image).Value = Foto;
             cmd.Parameters.Add("@Departament", SqlDbType.NVarChar, 10).Value = ConvertToDBNull(Departament?.DepartamentID);
             cmd.Parameters.Add("@InnerOffice", SqlDbType.NVarChar, 100).Value = Inneroffice;
-            cmd.Parameters.Add("@SettlementID", SqlDbType.Int).Value = ConvertToDBNull(Adress?.Settlement?.SettlementID);
-            cmd.Parameters.Add("@StreetPrefix", SqlDbType.NVarChar, 20).Value = ConvertToDBNull(Adress?.Streetprefix);
-            cmd.Parameters.Add("@Street", SqlDbType.NVarChar, 40).Value = ConvertToDBNull(Adress?.Street);
-            cmd.Parameters.Add("@Housing", SqlDbType.NVarChar, 8).Value = ConvertToDBNull(Adress?.Housing);
-            cmd.Parameters.Add("@Flat", SqlDbType.NVarChar, 8).Value = ConvertToDBNull(Adress?.Flat);
-            cmd.Parameters.Add("@Corpus", SqlDbType.NVarChar, 12).Value = ConvertToDBNull(Adress?.Corpus);
-            cmd.Parameters.Add("@Structure", SqlDbType.NVarChar, 12).Value = ConvertToDBNull(Adress?.Structure);
+            cmd.Parameters.Add("@SettlementID", SqlDbType.Int).Value = ConvertToDBNull(Adress.Settlement?.SettlementID);
+            cmd.Parameters.Add("@StreetPrefix", SqlDbType.NVarChar, 20).Value = ConvertToDBNull(Adress.Streetprefix);
+            cmd.Parameters.Add("@Street", SqlDbType.NVarChar, 40).Value = ConvertToDBNull(Adress.Street);
+            cmd.Parameters.Add("@Housing", SqlDbType.NVarChar, 8).Value = ConvertToDBNull(Adress.Housing);
+            cmd.Parameters.Add("@Flat", SqlDbType.NVarChar, 8).Value = ConvertToDBNull(Adress.Flat);
+            cmd.Parameters.Add("@Corpus", SqlDbType.NVarChar, 12).Value = ConvertToDBNull(Adress.Corpus);
+            cmd.Parameters.Add("@Structure", SqlDbType.NVarChar, 12).Value = ConvertToDBNull(Adress.Structure);
             cmd.Parameters.Add("@Gend", SqlDbType.NVarChar, 15).Value = Gender;
             cmd.Parameters.Add("@Mphone", SqlDbType.VarChar, 20).Value = ConvertToDBNull(Mobilephone);
             cmd.Parameters.Add("@Email", SqlDbType.NVarChar, 50).Value = ConvertToDBNull(Email);
