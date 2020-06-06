@@ -26,6 +26,12 @@ namespace PLSE_MVVMStrong.Model
         Edited = 0x0004,
         ContentEdited = 0x008
     }
+    public enum DBAction : byte
+    {
+        Add = 0x00,
+        Edit = 0x01,
+        Delete = 0x02
+    }
     public enum PermissionProfile
     {
         Admin,
@@ -1474,6 +1480,14 @@ namespace PLSE_MVVMStrong.Model
             set => _firstName = value;
         }
     }
+    public class DataBaseActionEventArgs : EventArgs
+    {
+        public DBAction Action { get; set; }
+        public DataBaseActionEventArgs(DBAction action) : base()
+        {
+            Action = action;
+        }
+    }
     public abstract class NotifyBase : INotifyPropertyChanged
     {
         private Version _version;
@@ -1491,16 +1505,27 @@ namespace PLSE_MVVMStrong.Model
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+        public event EventHandler DatabaseAction;
 
-        protected void OnPropertyChanged([CallerMemberName]string prop = null, bool content = false)
+        protected void OnPropertyChanged([CallerMemberName]string prop = null, bool contentAdd = false)
         {
-            if (_version == Version.Original)
+            switch (_version)
             {
-                if (prop != "Version")
-                {
-                    if (content) Version = Version.ContentEdited;
-                    else Version = Version.Edited;
-                }           
+                case Version.Original:
+                    if (prop != "Version")
+                    {
+                        if (contentAdd) Version = Version.ContentEdited;
+                        else Version = Version.Edited;
+                    }
+                    break;
+                case Version.ContentEdited:
+                    if (prop != "Version")
+                    {
+                        if (!contentAdd) Version = Version.Edited;
+                    }
+                    break;
+                default:
+                    break;
             }
             _updatedate = DateTime.Now;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
@@ -1508,6 +1533,13 @@ namespace PLSE_MVVMStrong.Model
             Debug.WriteLine($"Property changed {prop} ({Version})", "NotifyBase delegate");
 #endif
            
+        }
+        protected void OnDataBaseAction(DBAction action)
+        {
+            DatabaseAction?.Invoke(this, new DataBaseActionEventArgs(action));
+#if DEBUG
+            Debug.WriteLine($"DataBase {action}", "NotifyBase delegate");
+#endif
         }
         protected object ConvertToDBNull<T>(T obj)
         {
@@ -1518,19 +1550,20 @@ namespace PLSE_MVVMStrong.Model
         {
             switch (Version)
             {
-                case Version.Original:
-                    return;
                 case Version.New:
                     AddToDB(con);
+                    OnDataBaseAction(DBAction.Add);
                     break;
                 case Version.Edited:
                     EditToDB(con);
+                    OnDataBaseAction(DBAction.Edit);
                     break;
                 case Version.ContentEdited:
                     ContentToDB(con);
+                    OnDataBaseAction(DBAction.Delete);
                     break;
                 default:
-                    break;
+                   break;
             }
         }
         public void DBDelete (SqlConnection con)
@@ -1778,8 +1811,6 @@ namespace PLSE_MVVMStrong.Model
 
             return true;
         }
-
-        
         #endregion
     }
     public class Settlement : NotifyBase, IEquatable<Settlement>, ICloneable
@@ -1923,6 +1954,8 @@ namespace PLSE_MVVMStrong.Model
         protected override void AddToDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
+            SqlTransaction tran = con.BeginTransaction();
+            cmd.Transaction = tran;
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.CommandText = "prAddSettlement";
             cmd.Parameters.Add("@Title", SqlDbType.NVarChar, 40).Value = Title;
@@ -1953,6 +1986,8 @@ namespace PLSE_MVVMStrong.Model
         protected override void EditToDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
+            SqlTransaction tran = con.BeginTransaction();
+            cmd.Transaction = tran;
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.CommandText = "prEditSettlement";
             cmd.Parameters.Add("@Title", SqlDbType.NVarChar, 40).Value = Title;
@@ -1982,6 +2017,8 @@ namespace PLSE_MVVMStrong.Model
         protected override void DeleteFromDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
+            SqlTransaction tran = con.BeginTransaction();
+            cmd.Transaction = tran;
             cmd.CommandText = "delete OutResources.tblSettlements where SettlementID = @p;";
             cmd.Parameters.Add("@p", SqlDbType.Int).Value = SettlementID;
             try
@@ -2002,42 +2039,7 @@ namespace PLSE_MVVMStrong.Model
         {
             throw new NotSupportedException("Функция не может быть вызвана из данного класса");
         }
-        public SqlCommand Add(SqlConnection con)
-        {
-            SqlCommand cmd = con.CreateCommand();
-            cmd.CommandType = CommandType.StoredProcedure;
-            cmd.CommandText = "prAddSettlement";
-            cmd.Parameters.Add("@Title", SqlDbType.NVarChar, 40).Value = Title;
-            cmd.Parameters.Add("@SettlementType", SqlDbType.NVarChar, 20).Value = Settlementtype;
-            cmd.Parameters.Add("@Significance", SqlDbType.NVarChar, 15).Value = Significance;
-            cmd.Parameters.Add("@FederalLocation", SqlDbType.VarChar, 50).Value = ConvertToDBNull(Federallocation);
-            cmd.Parameters.Add("@TerritorialLocation", SqlDbType.NVarChar, 50).Value = ConvertToDBNull(Territorylocation);
-            cmd.Parameters.Add("@TelephoneCode", SqlDbType.NVarChar, 8).Value = ConvertToDBNull(Telephonecode);
-            cmd.Parameters.Add("@PostCode", SqlDbType.NVarChar, 13).Value = ConvertToDBNull(Postcode);
-            var par = cmd.Parameters.Add("@InsertedID", SqlDbType.Int);
-            par.Direction = ParameterDirection.Output;
-            return cmd;
-        }
-        public SqlCommand Edit(SqlConnection con)
-        {
-            SqlCommand cmd = con.CreateCommand();
-            cmd.CommandType = CommandType.StoredProcedure;
-            cmd.CommandText = "prEditSettlement";
-            cmd.Parameters.Add("@Title", SqlDbType.NVarChar, 40).Value = Title;
-            cmd.Parameters.Add("@SettlementType", SqlDbType.NVarChar, 20).Value = Settlementtype;
-            cmd.Parameters.Add("@Significance", SqlDbType.NVarChar, 15).Value = Significance;
-            cmd.Parameters.Add("@FederalLocation", SqlDbType.VarChar, 50).Value = ConvertToDBNull(Federallocation);
-            cmd.Parameters.Add("@TerritorialLocation", SqlDbType.NVarChar, 50).Value = ConvertToDBNull(Territorylocation);
-            cmd.Parameters.Add("@TelephoneCode", SqlDbType.NVarChar, 8).Value = ConvertToDBNull(Telephonecode);
-            cmd.Parameters.Add("@PostCode", SqlDbType.NVarChar, 13).Value = ConvertToDBNull(Postcode);
-            cmd.Parameters.Add("@StatusID", SqlDbType.NVarChar, 30).Value = _status;
-            cmd.Parameters.Add("@SettlementID", SqlDbType.Int).Value = SettlementID;
-            return cmd;
-        }
-        public bool IsValidTitle()
-        {
-            return !String.IsNullOrWhiteSpace(_title);
-        }
+        public bool IsValidTitle() => !String.IsNullOrWhiteSpace(_title);
         public bool Equals(Settlement other)
         {
             if (other == null) return false;
@@ -2045,10 +2047,7 @@ namespace PLSE_MVVMStrong.Model
             Settlementtype != null ? Settlementtype.Equals(other.Settlementtype, StringComparison.OrdinalIgnoreCase) : Settlementtype == other.Settlementtype &&
             Federallocation != null ? Federallocation.Equals(other.Federallocation, StringComparison.OrdinalIgnoreCase) : Federallocation == other.Federallocation;
         }
-        object ICloneable.Clone()
-        {
-            return Clone();
-        }
+        object ICloneable.Clone() => Clone();
         public Settlement Clone()
         {
             return new Settlement
@@ -2066,10 +2065,7 @@ namespace PLSE_MVVMStrong.Model
                 UpdateDate = this.UpdateDate
             };
         }
-        public bool IsValidState()
-        {
-            return (IsValidTitle() && _settlementtype != null && _significance != null);
-        }     
+        public bool IsValidState() => IsValidTitle() && _settlementtype != null && _significance != null;    
         #endregion
     }
     internal class AdressEventArgs : EventArgs
@@ -2997,6 +2993,8 @@ namespace PLSE_MVVMStrong.Model
         protected override void AddToDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
+            Adress.Settlement.SaveChanges(con);
+            
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.CommandText = "InnResources.prAddEmployee";
             cmd.Parameters.Add("@FN", SqlDbType.NVarChar, 25).Value = Fname;
