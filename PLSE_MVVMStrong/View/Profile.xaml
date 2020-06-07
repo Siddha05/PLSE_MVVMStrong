@@ -7,7 +7,7 @@
         xmlns:viewmodel="clr-namespace:PLSE_MVVMStrong.ViewModel"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         mc:Ignorable="d"
-        Title="Employees" Height="650" Width="1200" WindowStyle="None" WindowStartupLocation="CenterScreen" Name="wnd">
+        Title="Профиль" Height="650" Width="1200" WindowStartupLocation="CenterScreen" Name="wnd">
     <Window.DataContext>
         <viewmodel:ProfileVM/>
     </Window.DataContext>
@@ -49,7 +49,7 @@
             </TabControl.Resources>-->
             <TabItem>
                 <TabItem.Header>
-                    <TextBlock Style="{x:Null}" Text="Общее" FontSize="20" FontWeight="DemiBold" FontStyle="Oblique"/>
+                    <TextBlock Text="Общее" FontSize="{StaticResource HeaderFontSize}" FontWeight="DemiBold" FontStyle="Oblique"/>
                 </TabItem.Header>
                 <ScrollViewer>
                     <Grid>
@@ -72,47 +72,49 @@
                             <RowDefinition/>
                             <RowDefinition/>
                         </Grid.RowDefinitions>
-                        <TextBlock Text="Фамилия*"/>
+                        <TextBlock Text="Фамилия*" Style="{StaticResource UITextBlock}"/>
                         <StackPanel Orientation="Horizontal" Grid.Column="1">
                             <TextBox Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.Sname, ValidatesOnExceptions=True}" />
-                            <CheckBox IsChecked="{Binding Path=Employee.Declinated}" Content="Склонять"/>
+                            <CheckBox IsChecked="{Binding Path=Employee.Declinated}" Content="Склонять" Style="{StaticResource GreenCheck}" FontSize="{StaticResource UIFontSize}"
+                                      FontWeight="DemiBold"/>
                         </StackPanel>
-                        <TextBlock Text="Имя*" Grid.Row="1"/>
+                        <TextBlock Text="Имя*" Grid.Row="1" Style="{StaticResource UITextBlock}"/>
                         <TextBox Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.Fname, ValidatesOnExceptions=True}" Grid.Row="1" Grid.Column="1"/>
-                        <TextBlock Grid.Row="2" Text="Отчество*"/>
+                        <TextBlock Grid.Row="2" Text="Отчество*" Style="{StaticResource UITextBlock}"/>
                         <TextBox Grid.Row="2" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.Mname, ValidatesOnExceptions=True}"/>
-                        <TextBlock Grid.Row="3" Text="Пол*"/>
+                        <TextBlock Grid.Row="3" Text="Пол*" Style="{StaticResource UITextBlock}"/>
                         <ComboBox Grid.Row="3" Grid.Column="1" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=Genders}" 
                                   Text="{Binding Path=Employee.Gender}"/>
-                        <TextBlock Grid.Row="4" Text="Дата рождения"/>
+                        <TextBlock Grid.Row="4" Text="Дата рождения" Style="{StaticResource UITextBlock}"/>
                         <DatePicker Grid.Row="4" Grid.Column="1" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Employee.Birthdate, ValidatesOnExceptions=True}"/>
-                        <TextBlock Grid.Row="5" Text="Дата найма"/>
+                        <TextBlock Grid.Row="5" Text="Дата найма" Style="{StaticResource UITextBlock}"/>
                         <DatePicker Grid.Row="5" Grid.Column="1" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Employee.Hiredate, ValidatesOnExceptions=True}"/>
-                        <TextBlock Grid.Row="6" Text="Отдел*"/>
+                        <TextBlock Grid.Row="6" Text="Отдел*" Style="{StaticResource UITextBlock}"/>
                         <ComboBox Grid.Row="6" Grid.Column="1" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=Departaments}" 
                                   Text="{Binding Path=Employee.Departament.Acronym}"/>
-                        <TextBlock Grid.Row="7" Text="Должность*"/>
+                        <TextBlock Grid.Row="7" Text="Должность*" Style="{StaticResource UITextBlock}"/>
                         <ComboBox Grid.Row="7" Grid.Column="1" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=InnerOffice}"
-                                  Text="{Binding Path=Employee.Inneroffice}"/>
-                        <TextBlock Grid.Row="8" Text="Статус*"/>
+                                  Text="{Binding Path=Employee.Inneroffice}" MinWidth="300"/>
+                        <TextBlock Grid.Row="8" Text="Статус*" Style="{StaticResource UITextBlock}"/>
                         <ComboBox Grid.Row="8" Grid.Column="1" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=EmployeeStatus}"
                                   Text="{Binding Path=Employee.EmployeeStatus}"/>
-                        <TextBlock Grid.Row="9" Text="Образование 1"/>
-                        <TextBox Grid.Row="9" Grid.Column="1"  Text="{Binding Path=Employee.Education1}" Margin="5" MinLines="4" TextWrapping="Wrap" FontSize="16"/>
-                        <TextBlock Grid.Row="10" Text="Образование 2"/>
-                        <TextBox Grid.Row="10" Grid.Column="1" Margin="5" MinLines="4" TextWrapping="Wrap" FontSize="16" Text="{Binding Path=Employee.Education2}"/>
-                        <TextBlock Grid.Row="11" Text="Образование 3"/>
-                        <TextBox Grid.Row="11" Grid.Column="1" Margin="5" MinLines="4" TextWrapping="Wrap" FontSize="16" Text="{Binding Path=Employee.Education3}"/>
-                        <TextBlock Grid.Row="12" Text="Ученая степень"/>
-                        <TextBox Grid.Row="12" Grid.Column="1" Margin="5" MinLines="4" TextWrapping="Wrap" FontSize="16" Text="{Binding Path=Employee.Sciencedegree}"/>
+                        <TextBlock Grid.Row="9" Text="Образование 1" Style="{StaticResource UITextBlock}"/>
+                        <TextBox Grid.Row="9" Grid.Column="1"  Text="{Binding Path=Employee.Education1}" Margin="5" MinLines="4" TextWrapping="Wrap" FontSize="{StaticResource UIFontSize}"
+                                 />
+                        <TextBlock Grid.Row="10" Text="Образование 2" Style="{StaticResource UITextBlock}"/>
+                        <TextBox Grid.Row="10" Grid.Column="1" Margin="5" MinLines="4" TextWrapping="Wrap" FontSize="{StaticResource UIFontSize}" Text="{Binding Path=Employee.Education2}"/>
+                        <TextBlock Grid.Row="11" Text="Образование 3" Style="{StaticResource UITextBlock}"/>
+                        <TextBox Grid.Row="11" Grid.Column="1" Margin="5" MinLines="4" TextWrapping="Wrap" FontSize="{StaticResource UIFontSize}" Text="{Binding Path=Employee.Education3}"/>
+                        <TextBlock Grid.Row="12" Text="Ученая степень" Style="{StaticResource UITextBlock}"/>
+                        <TextBox Grid.Row="12" Grid.Column="1" Margin="5" MinLines="4" TextWrapping="Wrap" FontSize="{StaticResource UIFontSize}" Text="{Binding Path=Employee.Sciencedegree}"/>
                     </Grid>
                 </ScrollViewer>
             </TabItem>
             <TabItem>
                 <TabItem.Header>
-                    <TextBlock Style="{x:Null}" Text="Контакты" FontSize="20" FontWeight="DemiBold" FontStyle="Oblique"/>
+                    <TextBlock Text="Контакты" FontSize="{StaticResource HeaderFontSize}" FontWeight="DemiBold" FontStyle="Oblique"/>
                 </TabItem.Header>
-                <Grid VerticalAlignment="Center">
+                <Grid VerticalAlignment="Center" Margin="25,0,30,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="auto"/>
                         <ColumnDefinition/>
@@ -123,21 +125,22 @@
                         <RowDefinition/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
-                    <TextBlock Text="Мобильный телефон"/>
+                    <TextBlock Text="Мобильный телефон" Style="{StaticResource UITextBlock}"/>
                     <TextBox Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.Mobilephone}"/>
-                    <TextBlock Grid.Row="1" Text="Рабочий телефон"/>
+                    <TextBlock Grid.Row="1" Text="Рабочий телефон" Style="{StaticResource UITextBlock}"/>
                     <TextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.Workphone}"/>
-                    <TextBlock Grid.Row="2" Text="Email" />
+                    <TextBlock Grid.Row="2" Text="Email" Style="{StaticResource UITextBlock}"/>
                     <TextBox Grid.Row="2" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.Email}"/>
-                    <TextBlock Grid.Row="3" Text="Пароль"/>
-                    <PasswordBox Grid.Row="3" Grid.Column="1" Margin="5" Password="2254" PasswordChar="*" FontSize="16"/>
+                    <TextBlock Grid.Row="3" Text="Пароль" Style="{StaticResource UITextBlock}"/>
+                    <PasswordBox Grid.Row="3" Grid.Column="1" Margin="5" Password="2254" PasswordChar="*" FontSize="{StaticResource UIFontSize}"
+                                 HorizontalAlignment="Left" Height="auto" VerticalContentAlignment="Center" MinWidth="270"/>
                 </Grid>
             </TabItem>
             <TabItem>
                 <TabItem.Header>
-                    <TextBlock Style="{x:Null}" Text="Адрес" FontSize="20" FontWeight="DemiBold" FontStyle="Oblique"/>
+                    <TextBlock Text="Адрес" FontSize="{StaticResource HeaderFontSize}" FontWeight="DemiBold" FontStyle="Oblique"/>
                 </TabItem.Header>
-                <Grid VerticalAlignment="Center">
+                <Grid VerticalAlignment="Center" Margin="20,0,30,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="auto"/>
                         <ColumnDefinition/>
@@ -150,7 +153,7 @@
                         <RowDefinition/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
-                    <TextBlock Text="Населенный пункт"/>
+                    <TextBlock Text="Населенный пункт" Style="{StaticResource UITextBlock}"/>
                     <TextBox Grid.Column="1" Style="{StaticResource UITextBox}" Width="370" Text="{Binding Path=Employee.Adress.Settlement.Title, Mode=OneWay}"
                              Name="tbSettlement">
                         <i:Interaction.Triggers>
@@ -159,16 +162,16 @@
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </TextBox>
-                    <ComboBox Grid.Row="1" Width="90" HorizontalAlignment="Right" Margin="5" ItemsSource="{Binding Path=StreetTypeList}" Height="37"
-                      FontSize="16" FontWeight="DemiBold" HorizontalContentAlignment="Right" Text="{Binding Path=Employee.Adress.Streetprefix}"/>
+                    <ComboBox Grid.Row="1" Style="{StaticResource UIComboBox}" MinWidth="50" HorizontalAlignment="Right" ItemsSource="{Binding Path=StreetTypeList}"
+                              Text="{Binding Path=Employee.Adress.Streetprefix}"/>
                     <TextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.Adress.Street}"/>
-                    <TextBlock Grid.Row="2" Text="Дом"/>
+                    <TextBlock Grid.Row="2" Text="Дом" Style="{StaticResource UITextBlock}"/>
                     <TextBox Grid.Column="1" Grid.Row="2" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.Adress.Housing}"/>
-                    <TextBlock Grid.Row="3" Text="Квартира"/>
+                    <TextBlock Grid.Row="3" Text="Квартира" Style="{StaticResource UITextBlock}"/>
                     <TextBox Grid.Column="1" Grid.Row="3" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.Adress.Flat}"/>
-                    <TextBlock Grid.Row="4" Text="Корпус"/>
+                    <TextBlock Grid.Row="4" Text="Корпус" Style="{StaticResource UITextBlock}"/>
                     <TextBox Grid.Column="1" Grid.Row="4" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.Adress.Corpus}"/>
-                    <TextBlock Grid.Row="5" Text="Строение"/>
+                    <TextBlock Grid.Row="5" Text="Строение" Style="{StaticResource UITextBlock}"/>
                     <TextBox Grid.Column="1" Grid.Row="5" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.Adress.Structure}"/>
                     <Popup Grid.Column="1" PopupAnimation="Scroll" AllowsTransparency="True" Width="{Binding ElementName=tbSettlement, Path=Width}" Placement="Bottom"
                            PlacementTarget="{x:Reference tbSettlement}" MaxHeight="300" IsOpen="{Binding Path=PopupVisibility, Mode=OneWay}">
@@ -191,77 +194,79 @@
                             <ColumnDefinition/>
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Style="{x:Null}" Text="Специальности" FontSize="20" FontWeight="DemiBold" FontStyle="Oblique"/>
-                        <Ellipse Width="23" Height="23" Fill="DarkBlue" Margin="5,0,0,0" Grid.Column="1"/>
-                        <TextBlock Style="{x:Null}" Panel.ZIndex="2" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding Path=ExpertList.Count}" 
-                                   Foreground="White" FontSize="16" Margin="5,0,0,0" FontWeight="Bold"/>
+                        <TextBlock Text="Специальности" FontSize="{StaticResource HeaderFontSize}" FontWeight="DemiBold" FontStyle="Oblique"/>
+                        <Ellipse Width="24" Height="24" Fill="DarkBlue" Margin="5,0,0,0" Grid.Column="1"/>
+                        <TextBlock Panel.ZIndex="2" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding Path=ExpertList.Count}" 
+                                   Foreground="White" FontSize="18" Margin="5,0,0,1" FontWeight="Bold"/>
                     </Grid>
                 </TabItem.Header>
                 <StackPanel Orientation="Vertical" Margin="5">
                     <StackPanel Orientation="Horizontal" Margin="5" HorizontalAlignment="Left">
-                        <Button Style="{StaticResource BaseUIButton}" Name="bAddExpert" Foreground="GreenYellow" Content="Новая" Margin="5" Command="{Binding Path=AddSpeciality}"/>
-                        <Button Style="{StaticResource BaseUIButton}" Foreground="Red" Content="Удалить" Margin="5" Command="{Binding Path=DeleteSpeciality}"/>
+                        <Button Style="{StaticResource AddItemButton}" Width="40" Height="40" Name="bSpec" Margin="2" Command="{Binding Path=AddSpeciality}"/>
+                        <Button Style="{StaticResource EditButton}" Width="40" Height="40"  Margin="2" Command="{Binding Path=EditSpeciality}"/>
+                        <Button Style="{StaticResource DeleteButton}" Width="40" Height="40" Margin="2" Command="{Binding Path=DeleteSpeciality}"/>
                     </StackPanel>
-                    <ListBox ItemsSource="{Binding Path=ExpertList}" BorderThickness="0" Name="lbExperts">
+                    <ListBox ItemsSource="{Binding Path=ExpertList}" BorderThickness="0" Name="lbExperts" SelectedItem="{Binding Path=SelectedExpert, Mode=OneWayToSource}"
+                             ScrollViewer.VerticalScrollBarVisibility="Visible" MaxHeight="400">
                         <ListBox.ItemContainerStyle>
-                        <Style TargetType="{x:Type ListBoxItem}">
+                            <Style TargetType="{x:Type ListBoxItem}">
                                 <Setter Property="OverridesDefaultStyle" Value="True"/>
                                 <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
-                                        <Border BorderThickness="1" BorderBrush="#FF010ABB" CornerRadius="5" Name="brd" Margin="1,2,1,2">
-                                            <ContentPresenter/>
-                                        </Border>
-                                        <ControlTemplate.Triggers>
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                            <Border BorderThickness="1" BorderBrush="#FF010ABB" CornerRadius="5" Name="brd" Margin="1,2,1,2" MinHeight="70">
+                                                <ContentPresenter x:Name="prs" TextBlock.Foreground="#FF010ABB"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
                                                 <Trigger Property="IsSelected" Value="true">
-                                                    <Setter TargetName="brd" Property="Background" Value="#FF8BAEF9"/>
+                                                    <Setter TargetName="brd" Property="Background" Value="{StaticResource SelectedControl}"/>
+                                                    <Setter TargetName="prs" Property="TextBlock.Foreground" Value="White"/>
                                                 </Trigger>
                                             </ControlTemplate.Triggers>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
                         </ListBox.ItemContainerStyle>
                         <ListBox.ItemTemplate>
                             <DataTemplate DataType="Expert">
                                 <Grid Margin="5,2">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="4*"/>
+                                        <ColumnDefinition Width="3*"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition/>
-                                        <RowDefinition/>
-                                    </Grid.RowDefinitions>
-                                    <TextBlock Style="{x:Null}" FontSize="18" HorizontalAlignment="Center" Text="{Binding Path=Speciality.Code}"
-                                               Foreground="Blue" Grid.Column="1" Name="tbm" TextWrapping="Wrap" MaxWidth="400"/>
-                                    <TextBlock Style="{x:Null}" FontSize="16" HorizontalAlignment="Center" 
-                                               Text="{Binding Path=ReceiptDate, StringFormat={}{0:d}, ConverterCulture='ru-ru'}"/>
-                                    <TextBlock Style="{x:Null}" Grid.Column="2" HorizontalAlignment="Center" FontSize="16"
-                                               Text="{Binding Path=LastAttestationDate, StringFormat={}{0:d}, ConverterCulture='ru-ru'}"/>
+                                    <TextBlock Style="{x:Null}" FontSize="18" HorizontalAlignment="Left" Text="{Binding Path=Speciality.Code}"
+                                               Name="tbm" TextWrapping="Wrap" MaxWidth="400" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                                    <TextBlock Style="{x:Null}" FontSize="16" HorizontalAlignment="Center" Grid.Column="1" VerticalAlignment="Center" Margin="5,0,10,0">
+                                               
+                                        <Run Text="{Binding Path=ReceiptDate, StringFormat='Дата получения: {0:d}', ConverterCulture='ru-ru', Mode=OneWay}"/>
+                                        <Run Text="{Binding Path=Experience, StringFormat='({0})', Mode=OneWay}"/>
+                                        <LineBreak/>
+                                        <Run Name="ratt" Text="{Binding Path=LastAttestationDate, StringFormat='Посл. аттестация: {0:d}', ConverterCulture='ru-ru', Mode=OneWay}"/>
+                                    </TextBlock>
                                 </Grid>
                                 <DataTemplate.Triggers>
                                     <DataTrigger Binding="{Binding Path=IsValid}" Value="false">
                                         <Setter TargetName="tbm" Property="TextDecorations" Value="Strikethrough"/>
                                         <Setter TargetName="tbm" Property="Foreground" Value="Red"/>
                                     </DataTrigger>
+                                    <DataTrigger Binding="{Binding Path=ValidAttestation}" Value="false">
+                                        <Setter TargetName="ratt" Property="Foreground" Value="#FFFF0202"/>
+                                        <Setter TargetName="ratt" Property="ToolTip" Value="Период экспертной аттестации по специальности истек"/>
+                                    </DataTrigger>
                                 </DataTemplate.Triggers>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
                 </StackPanel>
-                </TabItem>
+            </TabItem>
         </TabControl>
-        <StackPanel Orientation="Horizontal" Grid.Column="2" Grid.Row="6" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5,15,25,15">
-            <Button Style="{StaticResource BaseUIButton}" Content="Сохранить" Foreground="GreenYellow" Margin="5" Command="{Binding Path=Save}"
+        <Button Style="{StaticResource BaseUIButton}" Grid.Column="2" Grid.Row="6" Content="Сохранить" Foreground="GreenYellow" Margin="15" Command="{Binding Path=Save}"
                     CommandParameter="{Binding ElementName=wnd}"/>
-            <Button Style="{StaticResource BaseUIButton}" Content="Выход" Foreground="SandyBrown" Margin="5" Command="{Binding Path=Exit}"
-                    CommandParameter="{Binding ElementName=wnd}"/>
-        </StackPanel>
-        <Popup Grid.Column="1" PopupAnimation="Scroll" Width="600" AllowsTransparency="True"
-                PlacementTarget="{x:Reference bAddExpert}" Placement="Bottom"  VerticalOffset = "5" MaxHeight="300" IsOpen="True">
-            <Grid Background="LightSteelBlue">
+        <Popup Grid.Column="1" PopupAnimation="Scroll" Width="580" AllowsTransparency="True" PlacementTarget="{x:Reference bSpec}" StaysOpen="False"
+                 Placement="Bottom" VerticalOffset="5" HorizontalOffset="10" MaxHeight="300" IsOpen="{Binding Path=PopupVisibility}">
+            <Border BorderThickness="1" BorderBrush="Black">
+                <Grid Background="White">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition/>
@@ -270,14 +275,20 @@
                     <RowDefinition/>
                     <RowDefinition/>
                     <RowDefinition/>
+                     <RowDefinition/>
                 </Grid.RowDefinitions>
-                <TextBlock Text="Специальность*"/>
-                <ComboBox Grid.Column="1" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=SpecialitiesList}" Width="430"/>
-                <TextBlock Grid.Row="1" Text="Дата получения*"/>
-                <DatePicker Grid.Row="1" Grid.Column="1" Style="{StaticResource UIDatePicker}"/>
-                <TextBlock Grid.Row="2" Text="Посл. аттестация"/>
-                <DatePicker Grid.Row="2" Grid.Column="1" Style="{StaticResource UIDatePicker}"/>
-            </Grid>
+                <TextBlock Text="Специальность*" Style="{StaticResource UITextBlock}"/>
+                <ComboBox Grid.Column="1" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=SpecialitiesList}" Width="430"
+                          SelectedItem="{Binding Path=SelectedExpert.Speciality}" DisplayMemberPath="Code"/>
+                <TextBlock Grid.Row="1" Text="Дата получения*" Style="{StaticResource UITextBlock}"/>
+                <DatePicker Grid.Row="1" Grid.Column="1" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=SelectedExpert.ReceiptDate}"/>
+                <TextBlock Grid.Row="2" Text="Посл. аттестация" Style="{StaticResource UITextBlock}"/>
+                <DatePicker Grid.Row="2" Grid.Column="1" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=SelectedExpert.LastAttestationDate}"/>
+                    <Button Style="{StaticResource BaseUIButton}" Grid.Row="3" Grid.ColumnSpan="2" Content="Сохранить" Foreground="GreenYellow" Margin="10" 
+                            Command="{Binding Path=SaveSpeciality}"/>
+                </Grid>
+            </Border>
+            
         </Popup>
     </Grid>
 </Window>

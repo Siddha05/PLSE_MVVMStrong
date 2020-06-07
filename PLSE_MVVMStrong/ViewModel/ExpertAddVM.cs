@@ -11,16 +11,17 @@ namespace PLSE_MVVMStrong.ViewModel
     {
         #region Properties
         public Expert Expert { get; }
-        private Employee Empl {get;}
-        public IEnumerable<Speciality> SpecialitiesList { get; }
+        public IEnumerable<Speciality> SpecialitiesList { get; } = CommonInfo.Specialities;
         #endregion
         #region Commands
-        public RelayCommand Save { get; }
-        public RelayCommand Cancel { get; }
+        public RelayCommand SaveExpert { get; }
         #endregion
         public ExpertAddVM()
         {
-            
+            SaveExpert = new RelayCommand(n =>
+            {
+                
+            });
         }
     }
 }

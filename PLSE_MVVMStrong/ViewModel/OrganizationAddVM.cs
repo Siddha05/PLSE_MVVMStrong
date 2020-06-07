@@ -60,7 +60,7 @@ namespace PLSE_MVVMStrong.ViewModel
 
                n =>
             {
-                if (Organization.InstanceValidState) return true;
+                if (Organization.IsInstanceValidState) return true;
                 else return false;
             });
             SettlementSelect = new RelayCommand(n =>

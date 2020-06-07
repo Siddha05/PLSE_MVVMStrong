@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:PLSE_MVVMStrong"
              xmlns:system="clr-namespace:System;assembly=mscorlib"
-             StartupUri="View/CustomerAdd.xaml" ShutdownMode="OnLastWindowClose">
+             StartupUri="View/Profile.xaml" ShutdownMode="OnLastWindowClose">
     <Application.Resources>
         <local:TextConverter x:Key="TextConverter" />
         <BooleanToVisibilityConverter x:Key="BVConv"/>

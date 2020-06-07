@@ -32,7 +32,7 @@ namespace PLSE_MVVMStrong.ViewModel
                                     },
                                     n =>
                                     {
-                                        if (Speciality.IsValidInstanceState()) return true;
+                                        if (Speciality.IsInstanceValidState) return true;
                                         else return false;
                                     });
             Cancel = new RelayCommand(o =>

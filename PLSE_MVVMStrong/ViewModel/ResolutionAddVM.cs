@@ -2,6 +2,7 @@
 using PLSE_MVVMStrong.View;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls.Primitives;
@@ -100,10 +101,11 @@ namespace PLSE_MVVMStrong.ViewModel
         
         public ResolutionAddVM()
         {
-//#if DEBUG
-//            Resolution.Case.TypeCase = new KeyValuePair<string, string>("гражданское", "2");
-//#endif
+            //#if DEBUG
+            //            Resolution.Case.TypeCase = new KeyValuePair<string, string>("гражданское", "2");
+            //#endif
             Resolution.PropertyChanged += Resolution_PropertyChanged;
+            
             CustomersList = new ListCollectionView(CommonInfo.Customers);
             Resolution.Expertisies.Add(new Expertise(id: 0,
                                                       number: "12",
@@ -200,7 +202,7 @@ namespace PLSE_MVVMStrong.ViewModel
             },
              o=>
              {
-                 if (Resolution.InstanceValidState) return true;
+                 if (Resolution.IsInstanceValidState) return true;
                  else return false;
              });
             DeleteExpertise = new RelayCommand(n =>
@@ -222,6 +224,29 @@ namespace PLSE_MVVMStrong.ViewModel
                 }
             });
             Info = Resolution.ToString();
+        }
+        
+        private void Customer_DatabaseAction(object sender, EventArgs e)
+        {
+            var arg = (e as DataBaseActionEventArgs);
+            if (arg != null)
+            {
+                switch (arg.Action)
+                {
+                    case DBAction.Add:
+                        MessageBox.Show($"New customer added: {sender.ToString()}");
+                        break;
+                    case DBAction.Edit:
+                        MessageBox.Show($"Customer edited: {sender.ToString()}");
+                        break;
+                    case DBAction.Delete:
+                        MessageBox.Show($"Customer delete {sender.ToString()}");
+                        break;
+                    default:
+                        MessageBox.Show($"No action for customer");
+                        break;
+                }
+            }
         }
 
         private static void CaseType_Changed(DependencyObject d, DependencyPropertyChangedEventArgs e)

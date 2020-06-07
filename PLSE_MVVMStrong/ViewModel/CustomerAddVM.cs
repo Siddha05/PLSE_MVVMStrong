@@ -70,7 +70,7 @@ namespace PLSE_MVVMStrong.ViewModel
                     w.DialogResult = true;
                     w.Close();
                 },
-                    x => Customer.InstanceValidState ? true : false);
+                    x => Customer.IsInstanceValidState ? true : false);
             AddNewOrganization = new RelayCommand(n =>
             {
                 var wnd = new OrganizationAdd();
