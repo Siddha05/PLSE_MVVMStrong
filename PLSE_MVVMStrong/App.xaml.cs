@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Media.TextFormatting;
 
 namespace PLSE_MVVMStrong
 {
@@ -114,19 +115,24 @@ namespace PLSE_MVVMStrong
             throw new NotImplementedException();
         }
     }
-    //[ValueConversion(typeof(DateTime?), typeof(string))]
-    //public class NullableDateToStringConverter : IValueConverter
-    //{
-    //    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-    //    {
-    //        var t = value as DateTime?;
-    //        if ( t != null && t.HasValue) return t.Value.ToString("D");
-    //        return null;
-    //    }
+    /// <summary>
+    /// Конвертер перевода числа в свойство Visibility.
+    /// <para>
+    /// 0 - Collapsed, else Visibility
+    /// </para>
+    /// </summary>
+    public class ZeroToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            int val = (int)value;
+            if (val == 0.0) return "Visible";
+            return "Collapsed";
+        }
 
-    //    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-    //    {
-    //        throw new NotImplementedException();
-    //    }
-    //}
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

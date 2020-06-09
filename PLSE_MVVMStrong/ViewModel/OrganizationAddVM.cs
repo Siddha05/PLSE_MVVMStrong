@@ -57,7 +57,6 @@ namespace PLSE_MVVMStrong.ViewModel
                     wnd.Close();
                 }
             },
-
                n =>
             {
                 if (Organization.IsInstanceValidState) return true;

@@ -5,12 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PLSE_MVVMStrong.View"
         xmlns:viewmodel="clr-namespace:PLSE_MVVMStrong.ViewModel"
+        xmlns:b="clr-namespace:PLSE_MVVMStrong"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         mc:Ignorable="d"
         Title="Профиль" Height="650" Width="1200" WindowStartupLocation="CenterScreen" Name="wnd">
     <Window.DataContext>
         <viewmodel:ProfileVM/>
     </Window.DataContext>
+    <Window.Resources>
+        <b:ZeroToVisibilityConverter x:Key="ZeroToVisibleConv"/>
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="280"/>
@@ -22,7 +26,6 @@
             <RowDefinition/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-
         <Viewbox Margin="5" Stretch="Uniform">
             <Image Source="{Binding Path=Employee.Image, Mode=OneWay}" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
             <i:Interaction.Triggers>
@@ -34,19 +37,6 @@
         <TextBlock Grid.Row="1" Style="{x:Null}" FontSize="16" FontWeight="Medium" HorizontalAlignment="Center" 
                    Text="{Binding Path=Employee.UpdateDate, StringFormat=Обновлено: {0:d}, ConverterCulture='ru-ru'}"/>
         <TabControl Grid.Column="1" Margin="5,20,25,20" Grid.RowSpan="2" Grid.ColumnSpan="2">
-            <!--<TabControl.Resources>
-                <Style TargetType="{x:Type TabItem}">
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="{x:Type TabItem}">
-                                <Grid Name="panel">
-                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" ContentSource="Header" Margin="2"/>
-                                </Grid>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-            </TabControl.Resources>-->
             <TabItem>
                 <TabItem.Header>
                     <TextBlock Text="Общее" FontSize="{StaticResource HeaderFontSize}" FontWeight="DemiBold" FontStyle="Oblique"/>
@@ -158,7 +148,7 @@
                              Name="tbSettlement">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="TextChanged">
-                                <i:InvokeCommandAction Command="{Binding Path=SettlementTextChanged}"/>
+                                <i:InvokeCommandAction Command="{Binding Path=SettlementTextChanged}" CommandParameter="{Binding ElementName=tbSettlement, Path=Text}"/>
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </TextBox>
@@ -174,15 +164,23 @@
                     <TextBlock Grid.Row="5" Text="Строение" Style="{StaticResource UITextBlock}"/>
                     <TextBox Grid.Column="1" Grid.Row="5" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.Adress.Structure}"/>
                     <Popup Grid.Column="1" PopupAnimation="Scroll" AllowsTransparency="True" Width="{Binding ElementName=tbSettlement, Path=Width}" Placement="Bottom"
-                           PlacementTarget="{x:Reference tbSettlement}" MaxHeight="300" IsOpen="{Binding Path=PopupVisibility, Mode=OneWay}">
-                        <Border Background="#FF00D1FF">
-                            <ListBox Name="lbSettlements" BorderThickness="0" Margin="2" ItemsSource="{Binding Path=SettlementsList}">
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="MouseDoubleClick">
-                                        <i:InvokeCommandAction Command="{Binding Path=SettlementSelect}" CommandParameter="{Binding ElementName=lbSettlements, Path=SelectedItem}" />
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
-                            </ListBox>
+                           PlacementTarget="{x:Reference tbSettlement}" MaxHeight="300" IsOpen="{Binding Path =SettlementPopupVisibility, Mode=OneWay}" VerticalOffset="2">
+                        <Border Background="White" BorderBrush="Black" BorderThickness="1">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="Не найдено" FontSize="{StaticResource UIFontSize}" FontStyle="Italic" HorizontalAlignment="Center"
+                                           Visibility="{Binding ElementName=lbSettlements, Path=Items.Count, Converter={StaticResource ZeroToVisibleConv}}"/>
+                                <ListBox Grid.Row="1" Name="lbSettlements" BorderThickness="0" Margin="2" ItemsSource="{Binding Path=SettlementsList}" FontSize="{StaticResource UIFontSize}">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="MouseDoubleClick">
+                                            <i:InvokeCommandAction Command="{Binding Path=SettlementSelect}" CommandParameter="{Binding ElementName=lbSettlements, Path=SelectedItem}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </ListBox>
+                            </Grid>
                         </Border>
                     </Popup>
                 </Grid>
@@ -207,7 +205,7 @@
                         <Button Style="{StaticResource DeleteButton}" Width="40" Height="40" Margin="2" Command="{Binding Path=DeleteSpeciality}"/>
                     </StackPanel>
                     <ListBox ItemsSource="{Binding Path=ExpertList}" BorderThickness="0" Name="lbExperts" SelectedItem="{Binding Path=SelectedExpert, Mode=OneWayToSource}"
-                             ScrollViewer.VerticalScrollBarVisibility="Visible" MaxHeight="400">
+                             ScrollViewer.VerticalScrollBarVisibility="Auto" MaxHeight="400">
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="{x:Type ListBoxItem}">
                                 <Setter Property="OverridesDefaultStyle" Value="True"/>
@@ -265,30 +263,29 @@
                     CommandParameter="{Binding ElementName=wnd}"/>
         <Popup Grid.Column="1" PopupAnimation="Scroll" Width="580" AllowsTransparency="True" PlacementTarget="{x:Reference bSpec}" StaysOpen="False"
                  Placement="Bottom" VerticalOffset="5" HorizontalOffset="10" MaxHeight="300" IsOpen="{Binding Path=PopupVisibility}">
-            <Border BorderThickness="1" BorderBrush="Black">
-                <Grid Background="White">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                     <RowDefinition/>
-                </Grid.RowDefinitions>
-                <TextBlock Text="Специальность*" Style="{StaticResource UITextBlock}"/>
-                <ComboBox Grid.Column="1" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=SpecialitiesList}" Width="430"
+            <Border BorderThickness="1" BorderBrush="Black" Background="White">
+                <Grid  Margin="5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Специальность*" Style="{StaticResource UITextBlock}"/>
+                    <ComboBox Grid.Column="1" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=SpecialitiesList}" Width="430"
                           SelectedItem="{Binding Path=SelectedExpert.Speciality}" DisplayMemberPath="Code"/>
-                <TextBlock Grid.Row="1" Text="Дата получения*" Style="{StaticResource UITextBlock}"/>
-                <DatePicker Grid.Row="1" Grid.Column="1" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=SelectedExpert.ReceiptDate}"/>
-                <TextBlock Grid.Row="2" Text="Посл. аттестация" Style="{StaticResource UITextBlock}"/>
-                <DatePicker Grid.Row="2" Grid.Column="1" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=SelectedExpert.LastAttestationDate}"/>
+                    <TextBlock Grid.Row="1" Text="Дата получения*" Style="{StaticResource UITextBlock}"/>
+                    <DatePicker Grid.Row="1" Grid.Column="1" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=SelectedExpert.ReceiptDate}"/>
+                    <TextBlock Grid.Row="2" Text="Посл. аттестация" Style="{StaticResource UITextBlock}"/>
+                    <DatePicker Grid.Row="2" Grid.Column="1" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=SelectedExpert.LastAttestationDate}"/>
                     <Button Style="{StaticResource BaseUIButton}" Grid.Row="3" Grid.ColumnSpan="2" Content="Сохранить" Foreground="GreenYellow" Margin="10" 
                             Command="{Binding Path=SaveSpeciality}"/>
                 </Grid>
             </Border>
-            
         </Popup>
     </Grid>
 </Window>
