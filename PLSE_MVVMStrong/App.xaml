@@ -12,7 +12,7 @@
         <system:Double x:Key="HeaderFontSize">20</system:Double>
         <system:Double x:Key="UIHeigth">28</system:Double>
         <system:Double x:Key="UIWidth">180</system:Double>
-
+<!--test changes here !!!-->
         <SolidColorBrush x:Key="UnselectedControl" Color="Gray"/>
         <SolidColorBrush x:Key="SelectedControl" Color="#FF0B0B9E"/> <!--#FF549EE8-->
         <SolidColorBrush x:Key="MouseOverControl" Color="#FFD6F8FD"/>
