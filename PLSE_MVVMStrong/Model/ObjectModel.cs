@@ -414,7 +414,7 @@ namespace PLSE_MVVMStrong.Model
         static IReadOnlyDictionary<string, string> _casetypes;
         static IReadOnlyList<string> _expertisetypes;
         static IReadOnlyList<string> _resolutiontypes;
-        static IReadOnlyList<string> _expertisestatus;
+        static IReadOnlyList<string> _expertiresult;
         static IReadOnlyList<string> _resolutionstatus;
         static IReadOnlyList<string> _ranks;
         static IReadOnlyList<string> _outeroffices;
@@ -435,10 +435,10 @@ namespace PLSE_MVVMStrong.Model
             get => _resolutionstatus;
             set => _resolutionstatus = value;
         }
-        public static IReadOnlyList<string> ExpertiseStatus
+        public static IReadOnlyList<string> ExpertiseResult
         {
-            get => _expertisestatus;
-            set => _expertisestatus = value;
+            get => _expertiresult;
+            set => _expertiresult = value;
         }
         public static IReadOnlyList<string> ResolutionTypes
         {
@@ -543,14 +543,8 @@ namespace PLSE_MVVMStrong.Model
             SqlCommand cmd = connection.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.CommandText = "InnResources.prCommonInfo";
-            CommandBehavior behavior;
-            if (connection.State == ConnectionState.Closed)
-            {
-                connection.Open();
-                behavior = CommandBehavior.CloseConnection;
-            }
-            else behavior = CommandBehavior.Default;
-            SqlDataReader rd = cmd.ExecuteReader(behavior);
+            connection.Open();
+            SqlDataReader rd = cmd.ExecuteReader();
             //Genders
             if (rd.HasRows)
             {
@@ -601,7 +595,7 @@ namespace PLSE_MVVMStrong.Model
                 int colCode = rd.GetOrdinal("DigitalCode");
                 while (rd.Read())
                 {
-                    Departament newDep = new Departament(status: rd.GetBoolean(colStatus),
+                    Departament newDep = new Departament(isvalid: rd.GetBoolean(colStatus),
                                                             title: rd.GetString(colTitle),
                                                             acronym: rd.GetString(colAcronym),
                                                             id: rd.GetByte(colID),
@@ -669,6 +663,7 @@ namespace PLSE_MVVMStrong.Model
                 int colTerritorialLocationID = rd.GetOrdinal("TerritorialLocation");
                 int colTelephoneCode = rd.GetOrdinal("TelephoneCode");
                 int colPostCode = rd.GetOrdinal("PostCode");
+                int colStatus = rd.GetOrdinal("StatusID");
                 int colUpdateDate = rd.GetOrdinal("UpdateDate");
                 while (rd.Read())
                 {
@@ -680,6 +675,7 @@ namespace PLSE_MVVMStrong.Model
                                                         postcode: rd[colPostCode] == DBNull.Value ? null : rd.GetString(colPostCode),
                                                         federallocation: rd[colFederalLocationID] == DBNull.Value ? null : rd.GetString(colFederalLocationID),
                                                         territoriallocation: rd[colTerritorialLocationID] == DBNull.Value ? null : rd.GetString(colTerritorialLocationID),
+                                                        isvalid: rd.GetBoolean(colStatus),
                                                         vr: Version.Original,
                                                         updatedate: rd.GetDateTime(colUpdateDate)
                                                         );
@@ -718,6 +714,7 @@ namespace PLSE_MVVMStrong.Model
                 int colUpdateDate = rd.GetOrdinal("UpdateDate");
                 int colStructure = rd.GetOrdinal("Structure");
                 int colProfile = rd.GetOrdinal("PermissionProfile");
+                int colPrevID = rd.GetOrdinal("PreviousID");
                 while (rd.Read())
                 {
                     Adress adr = new Adress(settlement: rd[colSettlementID] == DBNull.Value ? null : Settlements.Single(x => x.SettlementID == rd.GetInt32(colSettlementID)),
@@ -728,7 +725,8 @@ namespace PLSE_MVVMStrong.Model
                                                 corpus: rd[colCorpus] == DBNull.Value ? null : rd.GetString(colCorpus),
                                                 structure: rd[colStructure] == DBNull.Value ? null : rd.GetString(colStructure)
                                                 );
-                    Employee emp = new Employee(id: rd.GetInt16(colEmployeeID),
+                    Employee emp = new Employee(id: rd.GetInt32(colEmployeeID),
+                                                previd: rd[colPrevID] == DBNull.Value ? null : rd.GetInt32(colPrevID),
                                                 firstname: rd.GetString(colFirstName),
                                                 middlename: rd.GetString(colMiddleName),
                                                 secondname: rd.GetString(colSecondName),
@@ -763,7 +761,7 @@ namespace PLSE_MVVMStrong.Model
                 int colSpecialityID = rd.GetOrdinal("SpecialityID");
                 int colExperience = rd.GetOrdinal("Experience");
                 int colLastAtt = rd.GetOrdinal("LastAttestation");
-                int colStatus = rd.GetOrdinal("StatusID");
+                int colClosed = rd.GetOrdinal("Closed");
                 int colUpdateDate = rd.GetOrdinal("UpdateDate");
                 while (rd.Read())
                 {
@@ -774,7 +772,7 @@ namespace PLSE_MVVMStrong.Model
                                                 speciality: Specialities.Single(x => x.SpecialityID == rd.GetInt16(colSpecialityID)),
                                                 receiptdate: rd.GetDateTime(colExperience),
                                                 lastattestationdate: lastatt,
-                                                closed: rd.GetBoolean(colStatus),
+                                                closed: rd.GetBoolean(colClosed),
                                                 updatedate: rd.GetDateTime(colUpdateDate),
                                                 vr: Version.Original
                                                 );
@@ -801,15 +799,15 @@ namespace PLSE_MVVMStrong.Model
                 }
                 _expertisetypes = lTypeExpertise;
             }
-            //ExpertiseStatus
+            //ExpertiseResult
             if (rd.NextResult())
             {
-                List<string> lExpertiseStatus = new List<string>();
+                List<string> lExpertiseResult = new List<string>();
                 while (rd.Read())
                 {
-                    lExpertiseStatus.Add(rd.GetString(0));
+                    lExpertiseResult.Add(rd.GetString(0));
                 }
-                _expertisestatus = lExpertiseStatus;
+                _expertiresult = lExpertiseResult;
             }
             //ResolutionType
             if (rd.NextResult())
@@ -897,9 +895,11 @@ namespace PLSE_MVVMStrong.Model
                 int colEmail = rd.GetOrdinal("Email");
                 int colStatus = rd.GetOrdinal("StatusID");
                 int colUpdateDate = rd.GetOrdinal("UpdateDate");
+                int colPrevId = rd.GetOrdinal("PreviousID");
                 while (rd.Read())
                 {
                     Customer cus = new Customer(id: rd.GetInt32(colId),
+                                            previd: rd.GetInt32(colPrevId),
                                             firstname: rd.GetString(colFirstName),
                                             secondname: rd.GetString(colSecondName),
                                             middlename: rd.GetString(colMiddleName),
@@ -930,6 +930,7 @@ namespace PLSE_MVVMStrong.Model
                 _ranks = ranks;
             }
             rd.Close();
+            connection.Close();
         }
         public static List<Resolution> LoadResolution(string query)
         {
@@ -2004,7 +2005,7 @@ namespace PLSE_MVVMStrong.Model
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.CommandText = "OutResources.prDeleteSettlement";
-            cmd.Parameters.Add("@SettlementID", SqlDbType.Int).Value = SettlementID;
+            cmd.Parameters.Add("@id", SqlDbType.Int).Value = SettlementID;
             try
             {
                 cmd.Connection.Open();
@@ -2743,12 +2744,12 @@ namespace PLSE_MVVMStrong.Model
         private PermissionProfile _profile;
         private string _password;
         private byte[] _foto;
-        private int _previd;
+        private int? _previd;
 
         #endregion
         #region Properties
         public int EmployeeID => ID;
-        public int PreviousID => _previd;
+        public int? PreviousID => _previd;
         public string Education1
         {
             get => _education1;
@@ -2911,7 +2912,7 @@ namespace PLSE_MVVMStrong.Model
         public Employee() : base() { }
         public Employee(string firstname, string middlename, string secondname, string mobilephone, string workphone, string gender, string email, Adress adress, bool declinated, Version vr, DateTime updatedate,
                         int id, string education1, string education2, string education3, string sciencedegree, string inneroffice, Departament departament, string condition,
-                        DateTime? birthdate, DateTime? hiredate, PermissionProfile profile, string password, byte[] foto, int previd)
+                        DateTime? birthdate, DateTime? hiredate, PermissionProfile profile, string password, byte[] foto, int? previd)
             : base(id, firstname, middlename, secondname, mobilephone, workphone, gender, email, adress, declinated, vr, updatedate)
         {
             _education1 = education1;
@@ -3069,7 +3070,7 @@ namespace PLSE_MVVMStrong.Model
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.CommandText = "InnResources.prDeleteEmployee";
-            cmd.Parameters.Add("@EmployeeID", SqlDbType.SmallInt).Value = EmployeeID;
+            cmd.Parameters.Add("@id", SqlDbType.SmallInt).Value = EmployeeID;
             try
             {
                 cmd.Connection.Open();
@@ -3240,7 +3241,7 @@ namespace PLSE_MVVMStrong.Model
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.CommandText = "InnResources.prDeleteExpert";
-            cmd.Parameters.Add("@ExpertID", SqlDbType.Int).Value = ExpertID;
+            cmd.Parameters.Add("@id", SqlDbType.Int).Value = ExpertID;
             try
             {
                 cmd.Connection.Open();
@@ -3551,7 +3552,7 @@ namespace PLSE_MVVMStrong.Model
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.CommandText = "OutResources.prDeleteOrganization";
-            cmd.Parameters.Add("@OrganizationID", SqlDbType.Int).Value = OrganizationID;
+            cmd.Parameters.Add("@id", SqlDbType.Int).Value = OrganizationID;
             try
             {
                 cmd.Connection.Open();
@@ -3615,7 +3616,9 @@ namespace PLSE_MVVMStrong.Model
         private Organization _organization;
         private bool _status;
         private string _departament;
+        private int? _previd;
 
+        public int? PreviousID => _previd;
         public string Departament
         {
             get => _departament;
@@ -3671,7 +3674,7 @@ namespace PLSE_MVVMStrong.Model
 
         public Customer() : base() {}
         public Customer(string firstname, string middlename, string secondname, string mobilephone, string workphone, string gender, string email, bool declinated, Version vr, DateTime updatedate,
-                        int id, string rank, string office, Organization organization, string departament, bool status)
+                        int id, int? previd, string rank, string office, Organization organization, string departament, bool status)
             : base(id, firstname, middlename, secondname, mobilephone, workphone, gender, email, null, declinated, vr, updatedate)
         {
             _rank = rank;
@@ -3679,6 +3682,7 @@ namespace PLSE_MVVMStrong.Model
             _organization = organization;
             _departament = departament;
             _status = status;
+            _previd = previd;
         }
 
         public override string ToString()
@@ -3755,7 +3759,7 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@Rank", SqlDbType.NVarChar, 100).Value = ConvertToDBNull(Rank);
             cmd.Parameters.Add("@Departament", SqlDbType.NVarChar, 10).Value = ConvertToDBNull(Departament);
             cmd.Parameters.Add("@Office", SqlDbType.NVarChar, 100).Value = Office;
-            cmd.Parameters.Add("@StatusID", SqlDbType.NVarChar, 30).Value = _status;
+            cmd.Parameters.Add("@Status", SqlDbType.NVarChar, 30).Value = _status;
             cmd.Parameters.Add("@CusIden", SqlDbType.Int).Value = CustomerID;
             try
             {
@@ -3777,8 +3781,9 @@ namespace PLSE_MVVMStrong.Model
         protected override void DeleteFromDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
-            cmd.CommandText = "delete OutResources.tblCustomers where CustomerID = @p;";
-            cmd.Parameters.Add("@p", SqlDbType.Int).Value = CustomerID;
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.CommandText = "OurResources.prDeleteCustomer";
+            cmd.Parameters.Add("@id", SqlDbType.Int).Value = CustomerID;
             try
             {
                 cmd.Connection.Open();
@@ -3810,7 +3815,8 @@ namespace PLSE_MVVMStrong.Model
                                   office: _office,
                                   organization: _organization.Clone(),
                                   departament: _departament,
-                                  status: _status);
+                                  status: _status,
+                                  previd: _previd);
         }
         object ICloneable.Clone() => Clone();
     }

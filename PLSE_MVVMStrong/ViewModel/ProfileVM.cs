@@ -134,7 +134,7 @@ namespace PLSE_MVVMStrong.ViewModel
                     SelectedExpert = new Expert()
                     {
                         Employee = this.Employee,
-                        IsValid = true,
+                        Closed = false,
                         ReceiptDate = DateTime.Now
                     };
                 });

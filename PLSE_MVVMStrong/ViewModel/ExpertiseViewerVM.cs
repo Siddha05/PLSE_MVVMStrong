@@ -20,7 +20,7 @@ namespace PLSE_MVVMStrong.ViewModel
         public IReadOnlyList<string> ResolutionTypes => CommonInfo.ResolutionTypes;
         public IReadOnlyList<string> ResolutionStatus => CommonInfo.ResolutionStatus;
         public IReadOnlyList<string> ExpertiseTypes => CommonInfo.ExpertiseTypes;
-        public IReadOnlyList<string> ExpertiseStatus => CommonInfo.ExpertiseStatus;
+        public IReadOnlyList<string> ExpertiseStatus => CommonInfo.ExpertiseResult;
         public IEnumerable<KeyValuePair<string, string>> CaseTypes = CommonInfo.CaseTypes;
         public IEnumerable<Expert> Experts { get; } = CommonInfo.Experts.GroupBy(keySelector: n => n.Employee.EmployeeID)
                                                                         .First()                                                            

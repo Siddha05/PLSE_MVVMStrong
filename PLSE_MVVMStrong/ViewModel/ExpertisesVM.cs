@@ -73,7 +73,7 @@ namespace PLSE_MVVMStrong.ViewModel
         public ExpertisesVM()
         {
             ExpertiseTypes = CommonInfo.ExpertiseTypes.Concat(all);
-            ExpertiseStatus = CommonInfo.ExpertiseStatus.Concat(all);
+            ExpertiseStatus = CommonInfo.ExpertiseResult.Concat(all);
             var app = Application.Current as App;
             //switch (app.LogedEmployee.Profile)
             //{
