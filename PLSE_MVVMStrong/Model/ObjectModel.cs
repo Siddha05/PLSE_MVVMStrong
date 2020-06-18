@@ -524,8 +524,7 @@ namespace PLSE_MVVMStrong.Model
                         Significance = "областной",
                         Title = "Пенза",
                         Telephonecode = "+7 8412",
-                        Settlementtype = "г.",
-                        IsValid = true
+                        Settlementtype = "г."
                     }
                 }
             };
@@ -670,7 +669,6 @@ namespace PLSE_MVVMStrong.Model
                 int colTerritorialLocationID = rd.GetOrdinal("TerritorialLocation");
                 int colTelephoneCode = rd.GetOrdinal("TelephoneCode");
                 int colPostCode = rd.GetOrdinal("PostCode");
-                int colStatus = rd.GetOrdinal("StatusID");
                 int colUpdateDate = rd.GetOrdinal("UpdateDate");
                 while (rd.Read())
                 {
@@ -682,7 +680,6 @@ namespace PLSE_MVVMStrong.Model
                                                         postcode: rd[colPostCode] == DBNull.Value ? null : rd.GetString(colPostCode),
                                                         federallocation: rd[colFederalLocationID] == DBNull.Value ? null : rd.GetString(colFederalLocationID),
                                                         territoriallocation: rd[colTerritorialLocationID] == DBNull.Value ? null : rd.GetString(colTerritorialLocationID),
-                                                        status: rd.GetBoolean(colStatus),
                                                         vr: Version.Original,
                                                         updatedate: rd.GetDateTime(colUpdateDate)
                                                         );
@@ -777,7 +774,7 @@ namespace PLSE_MVVMStrong.Model
                                                 speciality: Specialities.Single(x => x.SpecialityID == rd.GetInt16(colSpecialityID)),
                                                 receiptdate: rd.GetDateTime(colExperience),
                                                 lastattestationdate: lastatt,
-                                                status: rd.GetBoolean(colStatus),
+                                                closed: rd.GetBoolean(colStatus),
                                                 updatedate: rd.GetDateTime(colUpdateDate),
                                                 vr: Version.Original
                                                 );
@@ -1592,7 +1589,7 @@ namespace PLSE_MVVMStrong.Model
             _id = id;  _version = vr; _updatedate = updatedate;
         }
     }
-    public class Speciality : NotifyBase, ICloneable
+    public sealed class Speciality : NotifyBase, ICloneable
     {
         #region Fields
         private string _code;
@@ -1760,7 +1757,8 @@ namespace PLSE_MVVMStrong.Model
         protected override void DeleteFromDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
-            cmd.CommandText = "DELETE FROM InnResources.tblSpeciality where SpecialityID = @SpecialityID";
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.CommandText = "InnResources.prDeleteSpeciality";
             cmd.Parameters.Add("@SpecialityID", SqlDbType.Int).Value = SpecialityID;
             try
             {
@@ -1800,7 +1798,7 @@ namespace PLSE_MVVMStrong.Model
         object ICloneable.Clone() => Clone();
         #endregion
     }
-    public class Settlement : NotifyBase, IEquatable<Settlement>, ICloneable
+    public sealed class Settlement : NotifyBase, IEquatable<Settlement>, ICloneable
     {
         #region Fields
         private string _title;
@@ -1808,12 +1806,26 @@ namespace PLSE_MVVMStrong.Model
         private string _significance;
         private string _telephonecode;
         private string _postcode;
-        private bool _status;
         private string _federallocation;
         private string _territorylocation;
+        private bool _isvalid;
+
+        
+
         #endregion Fields
         #region Properties
         public int SettlementID => ID;
+        public bool IsValid
+        {
+            get { return _isvalid; }
+            set { 
+                    if (value != _isvalid)
+                    {
+                        _isvalid = value;
+                        OnPropertyChanged();
+                    }
+                 }
+        }
         public string Title
         {
             get => _title;
@@ -1854,11 +1866,6 @@ namespace PLSE_MVVMStrong.Model
             get => _postcode;
             set { _postcode = value; OnPropertyChanged(); }
         }
-        public bool IsValid
-        {
-            get => _status;
-            set { _status = value; OnPropertyChanged(); }
-        }
         public string Federallocation
         {
             get => _federallocation;
@@ -1874,7 +1881,7 @@ namespace PLSE_MVVMStrong.Model
 
         public Settlement() : base() {}
         public Settlement(int id, string title, string type, string significance, string telephonecode, string postcode, string federallocation,
-                            string territoriallocation, bool status, Version vr, DateTime updatedate) : base(id, vr, updatedate)
+                            string territoriallocation, bool isvalid, Version vr, DateTime updatedate) : base(id, vr, updatedate)
         {
             _title = title;
             _settlementtype = type;
@@ -1883,7 +1890,7 @@ namespace PLSE_MVVMStrong.Model
             _postcode = postcode;
             _federallocation = federallocation;
             _territorylocation = territoriallocation;
-            _status = status;
+            _isvalid = isvalid;
         }
 
 
@@ -1937,7 +1944,7 @@ namespace PLSE_MVVMStrong.Model
         {
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
-            cmd.CommandText = "prAddSettlement";
+            cmd.CommandText = "OutResources.prAddSettlement";
             cmd.Parameters.Add("@Title", SqlDbType.NVarChar, 40).Value = Title;
             cmd.Parameters.Add("@SettlementType", SqlDbType.NVarChar, 20).Value = Settlementtype;
             cmd.Parameters.Add("@Significance", SqlDbType.NVarChar, 15).Value = Significance;
@@ -1967,7 +1974,7 @@ namespace PLSE_MVVMStrong.Model
         {
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
-            cmd.CommandText = "prEditSettlement";
+            cmd.CommandText = "OutResources.prEditSettlement";
             cmd.Parameters.Add("@Title", SqlDbType.NVarChar, 40).Value = Title;
             cmd.Parameters.Add("@SettlementType", SqlDbType.NVarChar, 20).Value = Settlementtype;
             cmd.Parameters.Add("@Significance", SqlDbType.NVarChar, 15).Value = Significance;
@@ -1975,7 +1982,7 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@TerritorialLocation", SqlDbType.NVarChar, 50).Value = ConvertToDBNull(Territorylocation);
             cmd.Parameters.Add("@TelephoneCode", SqlDbType.NVarChar, 8).Value = ConvertToDBNull(Telephonecode);
             cmd.Parameters.Add("@PostCode", SqlDbType.NVarChar, 13).Value = ConvertToDBNull(Postcode);
-            cmd.Parameters.Add("@StatusID", SqlDbType.NVarChar, 30).Value = _status;
+            cmd.Parameters.Add("@Status", SqlDbType.Bit).Value = IsValid;
             cmd.Parameters.Add("@SettlementID", SqlDbType.Int).Value = SettlementID;
             try
             {
@@ -1995,8 +2002,9 @@ namespace PLSE_MVVMStrong.Model
         protected override void DeleteFromDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
-            cmd.CommandText = "delete OutResources.tblSettlements where SettlementID = @p;";
-            cmd.Parameters.Add("@p", SqlDbType.Int).Value = SettlementID;
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.CommandText = "OutResources.prDeleteSettlement";
+            cmd.Parameters.Add("@SettlementID", SqlDbType.Int).Value = SettlementID;
             try
             {
                 cmd.Connection.Open();
@@ -2025,7 +2033,7 @@ namespace PLSE_MVVMStrong.Model
         object ICloneable.Clone() => Clone();
         public Settlement Clone()
         {
-            return new Settlement(SettlementID, _title, _settlementtype, _significance, _telephonecode, _postcode, _federallocation, _territorylocation, _status, 
+            return new Settlement(SettlementID, _title, _settlementtype, _significance, _telephonecode, _postcode, _federallocation, _territorylocation, _isvalid, 
                                     this.Version, this.UpdateDate);
 
         }
@@ -2183,8 +2191,18 @@ namespace PLSE_MVVMStrong.Model
         private string _digitalcode;
         private string _acronym;
         private byte _departamentID;
-        private bool _status;
+        private bool _isvalid;
 
+        public bool IsValid
+        {
+            get { return _isvalid; }
+            set { 
+                    if (value != _isvalid)
+                    {
+                        _isvalid = value;
+                    }
+                }
+        }
         public string DigitalCode
         {
             get => _digitalcode;
@@ -2198,11 +2216,6 @@ namespace PLSE_MVVMStrong.Model
             get => _departamentID;
             private set => _departamentID = value;
         }
-        public bool IsValid
-        {
-            get => _status;
-            set => _status = value;
-        }
         public string Title
         {
             get => _title;
@@ -2214,24 +2227,22 @@ namespace PLSE_MVVMStrong.Model
             set => _acronym = value.ToUpper();
         }
 
-        public Departament(byte id, string title, string acronym, string code, bool status)
+        public Departament(byte id, string title, string acronym, string code, bool isvalid)
         {
             _departamentID = id;
             _title = title;
             _acronym = acronym;
-            _status = status;
             _digitalcode = code;
+            _isvalid = isvalid;
         }
-        public Departament()
-        {
-        }
+        public Departament() { }
         public Departament(Departament dep)
         {
             _departamentID = dep.DepartamentID;
             _title = dep.Title;
             _acronym = dep.Acronym;
-            _status = dep.IsValid;
             _digitalcode = dep.DigitalCode;
+            _isvalid = dep.IsValid;
         }
         public override string ToString()
         {
@@ -2732,9 +2743,12 @@ namespace PLSE_MVVMStrong.Model
         private PermissionProfile _profile;
         private string _password;
         private byte[] _foto;
+        private int _previd;
+
         #endregion
         #region Properties
         public int EmployeeID => ID;
+        public int PreviousID => _previd;
         public string Education1
         {
             get => _education1;
@@ -2897,7 +2911,7 @@ namespace PLSE_MVVMStrong.Model
         public Employee() : base() { }
         public Employee(string firstname, string middlename, string secondname, string mobilephone, string workphone, string gender, string email, Adress adress, bool declinated, Version vr, DateTime updatedate,
                         int id, string education1, string education2, string education3, string sciencedegree, string inneroffice, Departament departament, string condition,
-                        DateTime? birthdate, DateTime? hiredate, PermissionProfile profile, string password, byte[] foto)
+                        DateTime? birthdate, DateTime? hiredate, PermissionProfile profile, string password, byte[] foto, int previd)
             : base(id, firstname, middlename, secondname, mobilephone, workphone, gender, email, adress, declinated, vr, updatedate)
         {
             _education1 = education1;
@@ -2912,6 +2926,7 @@ namespace PLSE_MVVMStrong.Model
             _profile = profile;
             _password = password;
             _foto = foto;
+            _previd = previd;
         }
 
         #region Methods
@@ -3052,8 +3067,9 @@ namespace PLSE_MVVMStrong.Model
         protected override void DeleteFromDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
-            cmd.CommandText = "delete InnResources.tblEmployees where EmployeeID = @p;";
-            cmd.Parameters.Add("@p", SqlDbType.Int).Value = EmployeeID;
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.CommandText = "InnResources.prDeleteEmployee";
+            cmd.Parameters.Add("@EmployeeID", SqlDbType.SmallInt).Value = EmployeeID;
             try
             {
                 cmd.Connection.Open();
@@ -3076,7 +3092,7 @@ namespace PLSE_MVVMStrong.Model
         {
             return new Employee(Fname, Mname, Sname, Mobilephone, Workphone, Gender, Email, Adress.Clone(), Declinated, this.Version, this.UpdateDate, EmployeeID,
                                 Education1, Education2, Education3, Sciencedegree, Inneroffice, new Departament(Departament), EmployeeStatus, Birthdate,
-                                Hiredate, _profile, Password, (byte[])Foto?.Clone());
+                                Hiredate, _profile, Password, (byte[])Foto?.Clone(), PreviousID);
         }
         object ICloneable.Clone() => Clone();
         #endregion
@@ -3086,10 +3102,10 @@ namespace PLSE_MVVMStrong.Model
     {
         #region Fields
         private Employee _employee;
-        private bool _status;
         private Speciality _speciality;
         private DateTime _receiptdate;
         private DateTime? _lastattestationdate;
+        private bool _closed;
         #endregion
         #region Properties
         public Employee Employee
@@ -3133,14 +3149,16 @@ namespace PLSE_MVVMStrong.Model
                 OnPropertyChanged("LastAttestation");
             }
         }
-        public bool IsValid
+        public bool Closed
         {
-            get => _status;
-            set
-            {
-                if (_status == value) return;
-                _status = value;
-                OnPropertyChanged();
+            get { return _closed; }
+            set 
+            { 
+                if (value != _closed)
+                {
+                    _closed = value;
+                    OnPropertyChanged();
+                }
             }
         }
         public bool IsInstanceValidState => _employee != null && _speciality != null;
@@ -3148,11 +3166,11 @@ namespace PLSE_MVVMStrong.Model
         public bool ValidAttestation => (DateTime.Now - (LastAttestationDate ?? ReceiptDate)).Days /365.25 <= 5.0;
         #endregion
         public Expert() : base() { }
-        public Expert(int id, Employee employee, Speciality speciality, DateTime receiptdate, DateTime? lastattestationdate, Version vr, DateTime updatedate, bool status = true)
+        public Expert(int id, Employee employee, Speciality speciality, DateTime receiptdate, DateTime? lastattestationdate, Version vr, DateTime updatedate, bool closed = false)
             : base(id, vr, updatedate)
         {
             _employee = employee;
-            _status = status;
+            _closed = closed;
             _speciality = speciality;
             _receiptdate = receiptdate;
             _lastattestationdate = lastattestationdate;
@@ -3167,11 +3185,12 @@ namespace PLSE_MVVMStrong.Model
         {
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
-            cmd.CommandText = "Innresources.prAddExpert";
+            cmd.CommandText = "InnResources.prAddExpert";
             cmd.Parameters.Add("@EmployeeID", SqlDbType.Int).Value = Employee.EmployeeID;
             cmd.Parameters.Add("@SpecialityID", SqlDbType.Int).Value = Speciality.SpecialityID;
             cmd.Parameters.Add("@Experience", SqlDbType.Date).Value = ReceiptDate;
             cmd.Parameters.Add("@LastAtt", SqlDbType.Date).Value = ConvertToDBNull(LastAttestationDate);
+            cmd.Parameters.Add("@Closed", SqlDbType.Bit).Value = Closed;
             var par = cmd.Parameters.Add("@InsertedID", SqlDbType.Int);
             par.Direction = ParameterDirection.Output;
             try
@@ -3199,7 +3218,7 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@SpecialityID", SqlDbType.Int).Value = Speciality.SpecialityID;
             cmd.Parameters.Add("@Experience", SqlDbType.Date).Value = ReceiptDate;
             cmd.Parameters.Add("@LastAtt", SqlDbType.Date).Value = ConvertToDBNull(LastAttestationDate);
-            cmd.Parameters.Add("@statusID", SqlDbType.NVarChar, 30).Value = _status;
+            cmd.Parameters.Add("@Closed", SqlDbType.Bit).Value = Closed;
             cmd.Parameters.Add("@ExpertID", SqlDbType.Int).Value = ExpertID;
             try
             {
@@ -3219,7 +3238,8 @@ namespace PLSE_MVVMStrong.Model
         protected override void DeleteFromDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
-            cmd.CommandText = "delete from InnResources.tblExperts where ExpertID = @ExpertID;";
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.CommandText = "InnResources.prDeleteExpert";
             cmd.Parameters.Add("@ExpertID", SqlDbType.Int).Value = ExpertID;
             try
             {
@@ -3252,7 +3272,7 @@ namespace PLSE_MVVMStrong.Model
                                 lastattestationdate: LastAttestationDate,
                                 vr: this.Version,
                                 updatedate: this.UpdateDate,
-                                status: IsValid);
+                                closed: Closed);
         }
         object ICloneable.Clone() => Clone();
     }
@@ -3529,8 +3549,9 @@ namespace PLSE_MVVMStrong.Model
         protected override void DeleteFromDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
-            cmd.CommandText = "delete OutResources.tblOrganizations where OrganizationID = @p;";
-            cmd.Parameters.Add("@p", SqlDbType.Int).Value = OrganizationID;
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.CommandText = "OutResources.prDeleteOrganization";
+            cmd.Parameters.Add("@OrganizationID", SqlDbType.Int).Value = OrganizationID;
             try
             {
                 cmd.Connection.Open();
