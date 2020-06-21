@@ -23,5 +23,10 @@ namespace PLSE_MVVMStrong.View
         {
             InitializeComponent();
         }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            Xceed.Wpf.Toolkit.MessageBox.Show(mask.Text, "Caption", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
     }
 }

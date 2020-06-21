@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 
+
 namespace PLSE_MVVMStrong.ViewModel
 {
     class ProfileVM : DependencyObject

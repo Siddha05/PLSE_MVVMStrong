@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PLSE_MVVMStrong.View"
         xmlns:viewmodel="clr-namespace:PLSE_MVVMStrong.ViewModel"
+        xmlns:toolkit="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
         xmlns:b="clr-namespace:PLSE_MVVMStrong"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         mc:Ignorable="d"
@@ -116,9 +117,13 @@
                         <RowDefinition/>
                     </Grid.RowDefinitions>
                     <TextBlock Text="Мобильный телефон" Style="{StaticResource UITextBlock}"/>
-                    <TextBox Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.Mobilephone}"/>
+                    <!--<TextBox Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.Mobilephone}"/>-->
+                    <toolkit:MaskedTextBox Grid.Column="1" Margin="5" Width="270" HorizontalAlignment="Left" Mask="+7 (000) 000-0000" FontSize="{StaticResource UIFontSize}"
+                                           VerticalContentAlignment="Center" Text="{Binding Path=Employee.Mobilephone}"/>
                     <TextBlock Grid.Row="1" Text="Рабочий телефон" Style="{StaticResource UITextBlock}"/>
-                    <TextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.Workphone}"/>
+                    <toolkit:MaskedTextBox Grid.Row="1" Grid.Column="1" Margin="5" Width="270" HorizontalAlignment="Left" Mask="##0-00-00" FontSize="{StaticResource UIFontSize}"
+                                           VerticalContentAlignment="Center" Name="mask" Text="{Binding Path=Employee.Workphone}"/>
+                    <!--<TextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.Workphone}"/>-->
                     <TextBlock Grid.Row="2" Text="Email" Style="{StaticResource UITextBlock}"/>
                     <TextBox Grid.Row="2" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.Email}"/>
                     <TextBlock Grid.Row="3" Text="Пароль" Style="{StaticResource UITextBlock}"/>
@@ -287,5 +292,7 @@
                 </Grid>
             </Border>
         </Popup>
+        <Button Content="Button" HorizontalAlignment="Left" Margin="104,36,0,0" Grid.Row="2" VerticalAlignment="Top" Width="75"
+                Click="Button_Click"/>
     </Grid>
 </Window>

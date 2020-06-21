@@ -445,7 +445,6 @@ namespace PLSE_MVVMStrong.Model
             get => _resolutiontypes;
             set => _resolutiontypes = value;
         }
-
         public static IReadOnlyList<string> ExpertiseTypes => _expertisetypes;
         public static IReadOnlyDictionary<string, string> CaseTypes => _casetypes;
         public static IReadOnlyList<string> EmployeeStatus => _employeestatus;
@@ -726,7 +725,7 @@ namespace PLSE_MVVMStrong.Model
                                                 structure: rd[colStructure] == DBNull.Value ? null : rd.GetString(colStructure)
                                                 );
                     Employee emp = new Employee(id: rd.GetInt32(colEmployeeID),
-                                                previd: rd[colPrevID] == DBNull.Value ? null : rd.GetInt32(colPrevID),
+                                                previd: rd[colPrevID] == DBNull.Value ? null : new int?(rd.GetInt32(colPrevID)),
                                                 firstname: rd.GetString(colFirstName),
                                                 middlename: rd.GetString(colMiddleName),
                                                 secondname: rd.GetString(colSecondName),
@@ -768,7 +767,7 @@ namespace PLSE_MVVMStrong.Model
                     DateTime? lastatt = null;
                     if (!rd.IsDBNull(colLastAtt)) lastatt = rd.GetDateTime(colLastAtt);
                     Expert expert = new Expert(id: rd.GetInt32(colExpertID),
-                                                employee: Employees.Single(x => x.EmployeeID == rd.GetInt16(colEmployeeID)),
+                                                employee: Employees.Single(x => x.EmployeeID == rd.GetInt32(colEmployeeID)),
                                                 speciality: Specialities.Single(x => x.SpecialityID == rd.GetInt16(colSpecialityID)),
                                                 receiptdate: rd.GetDateTime(colExperience),
                                                 lastattestationdate: lastatt,
@@ -899,7 +898,7 @@ namespace PLSE_MVVMStrong.Model
                 while (rd.Read())
                 {
                     Customer cus = new Customer(id: rd.GetInt32(colId),
-                                            previd: rd.GetInt32(colPrevId),
+                                            previd: rd[colPrevId] == DBNull.Value ? null : new int?(rd.GetInt32(colPrevId)),
                                             firstname: rd.GetString(colFirstName),
                                             secondname: rd.GetString(colSecondName),
                                             middlename: rd.GetString(colMiddleName),
@@ -1560,7 +1559,8 @@ namespace PLSE_MVVMStrong.Model
                     OnDataBaseAction(DBAction.Add);
                     break;
                 case Version.Edited:
-                    EditToDB(con);
+                    var i = EditToDB(con);
+                    if (i != 0) _id = i;
                     OnDataBaseAction(DBAction.Edit);
                     break;
                 case Version.ContentEdited:
@@ -1579,7 +1579,7 @@ namespace PLSE_MVVMStrong.Model
             }
         }
         protected abstract int AddToDB(SqlConnection con);
-        protected abstract void EditToDB(SqlConnection con);
+        protected abstract int EditToDB(SqlConnection con);
         protected abstract void DeleteFromDB(SqlConnection con);
         protected abstract void ContentToDB(SqlConnection con);
         public NotifyBase() : this(0, Version.New, DateTime.Now) { }
@@ -1727,7 +1727,7 @@ namespace PLSE_MVVMStrong.Model
             }
             return (int)cmd.Parameters["@InsertedID"].Value;
         }
-        protected override void EditToDB(SqlConnection con)
+        protected override int EditToDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
@@ -1754,6 +1754,7 @@ namespace PLSE_MVVMStrong.Model
             {
                 cmd.Connection.Close();
             }
+            return 0;
         }
         protected override void DeleteFromDB(SqlConnection con)
         {
@@ -1971,7 +1972,7 @@ namespace PLSE_MVVMStrong.Model
             }
             return (int)cmd.Parameters["@InsertedID"].Value;
         }
-        protected override void EditToDB(SqlConnection con)
+        protected override int EditToDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
@@ -1999,6 +2000,7 @@ namespace PLSE_MVVMStrong.Model
             {
                 cmd.Connection.Close();
             }
+            return 0;
         }
         protected override void DeleteFromDB(SqlConnection con)
         {
@@ -2262,10 +2264,10 @@ namespace PLSE_MVVMStrong.Model
         private bool _declinated;
         private string _mname;
         private string _sname;
-        private string _mobilephone;
-        private string _workphone;
-        private string _gender;
-        private string _email;
+        protected string _mobilephone;
+        protected string _workphone;
+        protected string _gender;
+        protected string _email;
         protected Adress _adress = new Adress();
         #endregion
 
@@ -2312,8 +2314,13 @@ namespace PLSE_MVVMStrong.Model
             set
             {
                 if (_mobilephone == value) return;
-                _mobilephone = value;
-                OnPropertyChanged("MobilePhone");
+                var x = Regex.Replace(value, @"[-() ]", "");
+                if (Regex.IsMatch(x, @"\+7|8[1-9]{1}\d{9}"))
+                {
+                    _mobilephone = x;
+                }
+                else throw new ArgumentException("Неверный формат мобильного номера");
+                OnPropertyChanged();
             }
         }
         public string Gender
@@ -2406,7 +2413,7 @@ namespace PLSE_MVVMStrong.Model
         }
         public bool isValidName(string name)
         {
-            Regex regex = new Regex(@"^\p{IsCyrillic}{2,30}$", RegexOptions.IgnoreCase);
+            Regex regex = new Regex(@"^\p{IsCyrillic}{2,25}$", RegexOptions.IgnoreCase);
             return regex.IsMatch(name);
         }
         public bool isValidMiddleName(string mname)
@@ -2428,7 +2435,11 @@ namespace PLSE_MVVMStrong.Model
         public bool isValidMobilePhone(string phone)
         {
             Regex regex = new Regex(@"^\+??[1-9]{2}[0-9]{9}$");
-            return regex.IsMatch(phone.OnlyDigits());
+            return regex.IsMatch(phone);
+        }
+        public bool IsValidMobile
+        {
+            get => 
         }
         protected string SurnameToGenitive()
         {
@@ -2715,7 +2726,7 @@ namespace PLSE_MVVMStrong.Model
         {
             throw new NotImplementedException();
         }
-        protected override void EditToDB(SqlConnection con)
+        protected override int EditToDB(SqlConnection con)
         {
             throw new NotImplementedException();
         }
@@ -2976,7 +2987,7 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@SN", SqlDbType.NVarChar, 25).Value = Sname;
             cmd.Parameters.Add("@MN", SqlDbType.NVarChar, 25).Value = Mname;
             cmd.Parameters.Add("@Declinated", SqlDbType.Bit).Value = Declinated;
-            cmd.Parameters.Add("@WPhone", SqlDbType.VarChar, 20).Value = ConvertToDBNull(Workphone);
+            cmd.Parameters.Add("@WPhone", SqlDbType.VarChar, 20).Value = ConvertToDBNull(_workphone);
             cmd.Parameters.Add("@Birth", SqlDbType.Date).Value = ConvertToDBNull(Birthdate);
             cmd.Parameters.Add("@Hire", SqlDbType.Date).Value = ConvertToDBNull(Hiredate);
             cmd.Parameters.Add("@Educ_1", SqlDbType.NVarChar, 150).Value = ConvertToDBNull(Education1);
@@ -2994,8 +3005,8 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@Corpus", SqlDbType.NVarChar, 12).Value = ConvertToDBNull(Adress.Corpus);
             cmd.Parameters.Add("@Structure", SqlDbType.NVarChar, 12).Value = ConvertToDBNull(Adress.Structure);
             cmd.Parameters.Add("@Gend", SqlDbType.NVarChar, 15).Value = Gender;
-            cmd.Parameters.Add("@Mphone", SqlDbType.VarChar, 20).Value = ConvertToDBNull(Mobilephone);
-            cmd.Parameters.Add("@Email", SqlDbType.NVarChar, 50).Value = ConvertToDBNull(Email);
+            cmd.Parameters.Add("@Mphone", SqlDbType.VarChar, 20).Value = ConvertToDBNull(_mobilephone);
+            cmd.Parameters.Add("@Email", SqlDbType.NVarChar, 50).Value = ConvertToDBNull(_email);
             cmd.Parameters.Add("@Profile", SqlDbType.TinyInt).Value = (byte)Profile;
             var par = cmd.Parameters.Add("@InsertedID", SqlDbType.Int);
             par.Direction = ParameterDirection.Output;
@@ -3017,7 +3028,7 @@ namespace PLSE_MVVMStrong.Model
             }
             return (int)cmd.Parameters["@InsertedID"].Value;
         }
-        protected override void EditToDB(SqlConnection con)
+        protected override int EditToDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
@@ -3026,7 +3037,7 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@SN", SqlDbType.NVarChar, 25).Value = Sname;
             cmd.Parameters.Add("@MN", SqlDbType.NVarChar, 25).Value = Mname;
             cmd.Parameters.Add("@Declinated", SqlDbType.Bit).Value = Declinated;
-            cmd.Parameters.Add("@WPhone", SqlDbType.VarChar, 20).Value = ConvertToDBNull(Workphone);
+            cmd.Parameters.Add("@WPhone", SqlDbType.VarChar, 20).Value = ConvertToDBNull(_workphone);
             cmd.Parameters.Add("@Birth", SqlDbType.Date).Value = ConvertToDBNull(Birthdate);
             cmd.Parameters.Add("@Hire", SqlDbType.Date).Value = ConvertToDBNull(Hiredate);
             cmd.Parameters.Add("@Educ_1", SqlDbType.NVarChar, 150).Value = ConvertToDBNull(Education1);
@@ -3044,10 +3055,12 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@Corpus", SqlDbType.NVarChar, 12).Value = ConvertToDBNull(Adress.Corpus);
             cmd.Parameters.Add("@Structure", SqlDbType.NVarChar, 12).Value = ConvertToDBNull(Adress.Structure);
             cmd.Parameters.Add("@Gend", SqlDbType.NVarChar, 15).Value = Gender;
-            cmd.Parameters.Add("@Mphone", SqlDbType.VarChar, 20).Value = ConvertToDBNull(Mobilephone);
-            cmd.Parameters.Add("@Email", SqlDbType.NVarChar, 50).Value = ConvertToDBNull(Email);
+            cmd.Parameters.Add("@Mphone", SqlDbType.VarChar, 20).Value = ConvertToDBNull(_mobilephone);
+            cmd.Parameters.Add("@Email", SqlDbType.NVarChar, 50).Value = ConvertToDBNull(_email);
             cmd.Parameters.Add("@Profile", SqlDbType.TinyInt).Value = (byte)Profile;
             cmd.Parameters.Add("@EmployeeID", SqlDbType.Int).Value = EmployeeID;
+            var par = cmd.Parameters.Add("@NewID", SqlDbType.Int);
+            par.Direction = ParameterDirection.Output;
             try
             {
                 Adress.Settlement?.SaveChanges(con);
@@ -3064,6 +3077,8 @@ namespace PLSE_MVVMStrong.Model
             {
                 cmd.Connection.Close();
             }
+            if (cmd.Parameters["@NewID"].Value == DBNull.Value) return 0;
+            else return (int)cmd.Parameters["@NewID"].Value;
         }
         protected override void DeleteFromDB(SqlConnection con)
         {
@@ -3098,7 +3113,6 @@ namespace PLSE_MVVMStrong.Model
         object ICloneable.Clone() => Clone();
         #endregion
     }
-
     public class Expert : NotifyBase, ICloneable
     {
         #region Fields
@@ -3210,7 +3224,7 @@ namespace PLSE_MVVMStrong.Model
             }
             return (int)cmd.Parameters["@InsertedID"].Value;
         }
-        protected override void EditToDB(SqlConnection con)
+        protected override int EditToDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
@@ -3235,6 +3249,7 @@ namespace PLSE_MVVMStrong.Model
             {
                 cmd.Connection.Close();
             }
+            return 0;
         }
         protected override void DeleteFromDB(SqlConnection con)
         {
@@ -3277,7 +3292,6 @@ namespace PLSE_MVVMStrong.Model
         }
         object ICloneable.Clone() => Clone();
     }
-
     public class Organization : NotifyBase, IFormattable, ICloneable
     {
         private class OrganizationEventArg
@@ -3509,7 +3523,7 @@ namespace PLSE_MVVMStrong.Model
             }
             return (int)cmd.Parameters["@InsertedID"].Value;
         }
-        protected override void EditToDB(SqlConnection con)
+        protected override int EditToDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
@@ -3546,6 +3560,7 @@ namespace PLSE_MVVMStrong.Model
             {
                 cmd.Connection.Close();
             }
+            return 0;
         }
         protected override void DeleteFromDB(SqlConnection con)
         {
@@ -3724,7 +3739,6 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@Office", SqlDbType.NVarChar, 100).Value = Office; 
             var par = cmd.Parameters.Add("@InsertedID", SqlDbType.Int);
             par.Direction = ParameterDirection.Output;
-            var tran = con.BeginTransaction();
             try
             {
                 Organization?.SaveChanges(con);
@@ -3743,7 +3757,7 @@ namespace PLSE_MVVMStrong.Model
             }
             return (int)cmd.Parameters["@InsertedID"].Value;
         }
-        protected override void EditToDB(SqlConnection con)
+        protected override int EditToDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
@@ -3761,6 +3775,8 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@Office", SqlDbType.NVarChar, 100).Value = Office;
             cmd.Parameters.Add("@Status", SqlDbType.NVarChar, 30).Value = _status;
             cmd.Parameters.Add("@CusIden", SqlDbType.Int).Value = CustomerID;
+            var par = cmd.Parameters.Add("@NewID", SqlDbType.Int);
+            par.Direction = ParameterDirection.Output;
             try
             {
                 Organization?.SaveChanges(con);
@@ -3777,6 +3793,8 @@ namespace PLSE_MVVMStrong.Model
             {
                 cmd.Connection.Close();
             }
+            if (cmd.Parameters["@NewID"].Value == DBNull.Value) return 0;
+            else return (int)cmd.Parameters["@NewID"].Value;
         }
         protected override void DeleteFromDB(SqlConnection con)
         {
@@ -3820,7 +3838,6 @@ namespace PLSE_MVVMStrong.Model
         }
         object ICloneable.Clone() => Clone();
     }
-
     public sealed class Case : INotifyPropertyChanged
     {
         private string _number;
@@ -4272,7 +4289,7 @@ namespace PLSE_MVVMStrong.Model
             }
             return (int)cmd.Parameters["@InsertedID"].Value;
         }
-        protected override void EditToDB(SqlConnection con)
+        protected override int EditToDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
@@ -4316,6 +4333,7 @@ namespace PLSE_MVVMStrong.Model
             {
                 cmd.Connection.Close();
             }
+            return 0;
         }
         protected override void DeleteFromDB(SqlConnection con)
         {
@@ -4432,7 +4450,7 @@ namespace PLSE_MVVMStrong.Model
             }
             return (int)cmd.Parameters["@InsertedID"].Value;
         }
-        protected override void EditToDB(SqlConnection con)
+        protected override int EditToDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
@@ -4456,6 +4474,7 @@ namespace PLSE_MVVMStrong.Model
             {
                 cmd.Connection.Close();
             }
+            return 0;
         }
         protected override void DeleteFromDB(SqlConnection con)
         {
@@ -4508,7 +4527,7 @@ namespace PLSE_MVVMStrong.Model
         {
             throw new NotImplementedException();
         }
-        protected override void EditToDB(SqlConnection con)
+        protected override int EditToDB(SqlConnection con)
         {
             throw new NotImplementedException();
         }
@@ -4665,7 +4684,7 @@ namespace PLSE_MVVMStrong.Model
             _comment = comment; _eval = eval;
         }
 
-        protected override void EditToDB(SqlConnection con)
+        protected override int EditToDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
@@ -4695,6 +4714,7 @@ namespace PLSE_MVVMStrong.Model
             {
                 cmd.Connection.Close();
             }
+            return 0;
         }
         protected override int AddToDB(SqlConnection con)
         {
@@ -5226,7 +5246,7 @@ namespace PLSE_MVVMStrong.Model
             }
             return (int)cmd.Parameters["@InsertedID"].Value;
         }
-        protected override void EditToDB(SqlConnection con)
+        protected override int EditToDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
@@ -5271,6 +5291,7 @@ namespace PLSE_MVVMStrong.Model
             {
                 cmd.Connection.Close();
             }
+            return 0;
         }
         protected override void DeleteFromDB(SqlConnection con)
         {
@@ -5506,7 +5527,7 @@ namespace PLSE_MVVMStrong.Model
             }
             return (int)cmd.Parameters["@InsertedID"].Value;
         }
-        protected override void EditToDB(SqlConnection con)
+        protected override int EditToDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
@@ -5534,6 +5555,7 @@ namespace PLSE_MVVMStrong.Model
             {
                 cmd.Connection.Close();
             }
+            return 0;
         }
         protected override void DeleteFromDB(SqlConnection con)
         {
@@ -5648,7 +5670,7 @@ namespace PLSE_MVVMStrong.Model
             }
             return (int)cmd.Parameters["@InsertedID"].Value;
         }
-        protected override void EditToDB(SqlConnection con)
+        protected override int EditToDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
@@ -5672,6 +5694,7 @@ namespace PLSE_MVVMStrong.Model
             {
                 cmd.Connection.Close();
             }
+            return 0;
         }
         protected override void DeleteFromDB(SqlConnection con)
         {
@@ -5788,7 +5811,7 @@ namespace PLSE_MVVMStrong.Model
             }
             return (int)cmd.Parameters["InsertedID"].Value;
         }
-        protected override void EditToDB(SqlConnection con)
+        protected override int EditToDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
@@ -5812,6 +5835,7 @@ namespace PLSE_MVVMStrong.Model
             {
                 cmd.Connection.Close();
             }
+            return 0;
         }
         protected override void DeleteFromDB(SqlConnection con)
         {
