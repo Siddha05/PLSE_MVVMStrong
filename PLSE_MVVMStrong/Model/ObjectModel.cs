@@ -2260,10 +2260,10 @@ namespace PLSE_MVVMStrong.Model
     public class Person : NotifyBase, IFormattable, ICloneable
     {
         #region Fields
-        private string _fname;
-        private bool _declinated;
-        private string _mname;
-        private string _sname;
+        protected string _fname;
+        protected bool _declinated;
+        protected string _mname;
+        protected string _sname;
         protected string _mobilephone;
         protected string _workphone;
         protected string _gender;
@@ -2310,14 +2310,16 @@ namespace PLSE_MVVMStrong.Model
         }
         public string Mobilephone
         {
-            get => _mobilephone;
+            get => MobilePnoneStandartNumber(_mobilephone);
             set
             {
                 if (_mobilephone == value) return;
-                var x = Regex.Replace(value, @"[-() ]", "");
-                if (Regex.IsMatch(x, @"\+7|8[1-9]{1}\d{9}"))
+                var trim = Regex.Replace(value, "[-() ]", "");
+                if (Regex.IsMatch(trim, @"^\+7|8[1-9]\d{9}$")) 
                 {
-                    _mobilephone = x;
+                    StringBuilder sb = new StringBuilder(trim);
+                    if (trim.Length == 11) sb.Replace("8", "+7", 0, 1);
+                    _mobilephone = sb.ToString();
                 }
                 else throw new ArgumentException("Неверный формат мобильного номера");
                 OnPropertyChanged();
@@ -2359,19 +2361,20 @@ namespace PLSE_MVVMStrong.Model
         }
         public string Workphone
         {
-            get
-            {
-                if (Adress.Settlement?.Telephonecode != null)
-                    return $"({Adress.Settlement.Telephonecode}) {_workphone}";
-                else return _workphone;
-            }
+            get => WorkPnoneStandartNumber(_workphone);
             set
             {
                 if (_workphone == value) return;
-                _workphone = value;
+                var trim = Regex.Replace(value, "[-() ]", "");
+                if (Regex.IsMatch(trim, @"^[1-9]\d{3,6}$"))
+                {
+                    _workphone = trim;
+                }
+                else throw new ArgumentException("Неверный формат номера");
                 OnPropertyChanged();
             }
         }
+
         public bool Declinated
         {
             get => _declinated;
@@ -2407,6 +2410,25 @@ namespace PLSE_MVVMStrong.Model
         }
 
         #region Methods
+        private string MobilePnoneStandartNumber(string mobilephone)
+        {
+            if (mobilephone == null) return null;
+            StringBuilder sb = new StringBuilder(mobilephone);
+            sb.Insert(10, "-");
+            sb.Insert(8, "-");
+            sb.Insert(5, " ");
+            sb.Insert(2, " ");
+            return sb.ToString();
+        }
+        private string WorkPnoneStandartNumber(string workphone)
+        {
+            if (workphone == null) return null;
+            StringBuilder sb = new StringBuilder(workphone);
+            var x = workphone.Length;
+            sb.Insert(x - 2, "-");
+            if (x > 4) sb.Insert(x - 4, "-");
+            return sb.ToString();
+        }
         private void AdressChanged(object sender, PropertyChangedEventArgs e)
         {
             OnPropertyChanged(e.PropertyName);
@@ -2431,15 +2453,6 @@ namespace PLSE_MVVMStrong.Model
             Regex regex = new Regex(@"\A[^@]+@([^@\.]+\.)+[^@\.]+\z", RegexOptions.Compiled);
             if (regex.IsMatch(mail)) return true;
             else return false;
-        }
-        public bool isValidMobilePhone(string phone)
-        {
-            Regex regex = new Regex(@"^\+??[1-9]{2}[0-9]{9}$");
-            return regex.IsMatch(phone);
-        }
-        public bool IsValidMobile
-        {
-            get => 
         }
         protected string SurnameToGenitive()
         {
@@ -3106,9 +3119,9 @@ namespace PLSE_MVVMStrong.Model
         }
         public new Employee Clone()
         {
-            return new Employee(Fname, Mname, Sname, Mobilephone, Workphone, Gender, Email, Adress.Clone(), Declinated, this.Version, this.UpdateDate, EmployeeID,
-                                Education1, Education2, Education3, Sciencedegree, Inneroffice, new Departament(Departament), EmployeeStatus, Birthdate,
-                                Hiredate, _profile, Password, (byte[])Foto?.Clone(), PreviousID);
+            return new Employee(_fname, _mname, _sname, _mobilephone, _workphone, Gender, _email, Adress.Clone(), _declinated, this.Version, this.UpdateDate, EmployeeID,
+                                _education1, _education2, _education3, _sciencedegree, _inneroffice, new Departament(_departament), _employeeStaus, _birthdate,
+                                _hiredate, _profile, _password, (byte[])Foto?.Clone(), _previd);
         }
         object ICloneable.Clone() => Clone();
         #endregion
