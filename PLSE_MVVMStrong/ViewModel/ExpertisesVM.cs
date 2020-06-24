@@ -73,33 +73,8 @@ namespace PLSE_MVVMStrong.ViewModel
         public ExpertisesVM()
         {
             ExpertiseTypes = CommonInfo.ExpertiseTypes.Concat(all);
-            ExpertiseStatus = CommonInfo.ExpertiseResult.Concat(all);
+            ExpertiseStatus = CommonInfo.ExpertiseResult.Concat(all).Concat(new string[] { "в работе"});
             var app = Application.Current as App;
-            //switch (app.LogedEmployee.Profile)
-            //{
-            //    case PermissionProfile.Admin:
-            //        break;
-            //    case PermissionProfile.Boss:
-            //        break;
-            //    case PermissionProfile.Subboss:
-            //        break;
-            //    case PermissionProfile.Accountant:
-            //        break;
-            //    case PermissionProfile.Expert:
-            //        break;
-            //    case PermissionProfile.Laboratorian:
-            //        break;
-            //    case PermissionProfile.Clerk:
-            //        break;
-            //    case PermissionProfile.Staffinspector:
-            //        break;
-            //    case PermissionProfile.Provisionboss:
-            //        break;
-            //    case PermissionProfile.Rightless:
-            //        break;
-            //    default:
-            //        break;
-            //}
             //switch (app.Permissions.Plurality)
             //{
             //    case PermissionPlural.Self:
@@ -215,7 +190,7 @@ namespace PLSE_MVVMStrong.ViewModel
             string and = "and", where = "where";
             StringBuilder query = new StringBuilder(500);
             query.AppendLine(@"select
-		                e.ExpertiseID, e.Number,e.ExpertiseStatusID,e.StartDate,e.ExecutionDate,e.TypeExpertise, e.PreviousExpertise, e.SpendHours, e.Timelimit,e.ExpertID,
+		                e.ExpertiseID, e.Number,e.ExpertiseResult,e.StartDate,e.ExecutionDate,e.TypeExpertise, e.PreviousExpertise, e.SpendHours, e.Timelimit,e.ExpertID,
 		                b.BillDate, b.BillID, b.BillNumber, b.HourPrice, b.NHours, b.Paid, b.PaidDate, b.PayerID,
 		                r.DelayDate, r.Reason, r.ReportDate, r.ReportID,
 		                rq.Comment as RequestComment, rq.DateRequest, rq.RequestID, rq.TypeRequest,

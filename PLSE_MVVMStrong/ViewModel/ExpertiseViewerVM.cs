@@ -65,7 +65,7 @@ namespace PLSE_MVVMStrong.ViewModel
                 TimeLimit = 30,
                 EndDate = new DateTime(2018, 7, 10),
                 StartDate = new DateTime(2018, 5, 19),
-                ExpertiseStatus = "сдана",
+                ExpertiseResult = "сдана",
                 Number = "3410",
                 Expert = CommonInfo.Experts.First(n => n.ExpertID ==1)
             };

@@ -82,7 +82,7 @@
                             <ColumnDefinition Width="50"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Style="{x:Null}" Grid.Column="6" Margin="0,13,0,0" FontSize="{StaticResource RegularFontSize}"
+                        <TextBlock Style="{x:Null}" Grid.Column="6" Margin="0,13,0,0" FontSize="14"
                                    FontStyle="Italic" TextWrapping="Wrap">
                             <Run Text="{Binding Path=FromResolution.Case.Essense, Mode=OneWay}"/>
                             <LineBreak/>
@@ -90,7 +90,7 @@
                             <Run Text="{Binding Path=FromResolution.Case.Comment, Mode=OneWay, StringFormat='Комментарий: {0}'}"/>
                         </TextBlock>
                         <TextBlock Style="{x:Null}" FontSize="14" FontWeight="Normal" Margin="0,13,0,0">
-                            <Run Text="{Binding Path=ExpertiseStatus, StringFormat='Статус: {0}', Mode=OneWay}"/>
+                            <Run Text="{Binding Path =ExpertiseResult, StringFormat='Статус: {0}', Mode=OneWay, TargetNullValue='в работе'}"/>
                             <LineBreak/>
                             <Run Text="{Binding Inwork, StringFormat='Дней в работе: {0}', Mode=OneWay}"/>
                             <LineBreak/>
@@ -125,7 +125,7 @@
                                 <RowDefinition/>
                             </Grid.RowDefinitions>
                             <Image Source="pack://application:,,,/Resources/link.png" ToolTip="Связанные экспертизы"/>
-                            <TextBlock Name="tbLink" Grid.Column="1" Text="{Binding Path=LinkedExpertise, Mode=OneWay}"/>
+                            <TextBlock Name="tbLink" Grid.Column="1" Text="{Binding Path=LinkedExpertiseCount, Mode=OneWay}"/>
                             <Image Grid.Row="1" Source="pack://application:,,,/Resources/dollar.png" RenderTransformOrigin=".5,.5" ToolTip="Выписанные за экспертизу счета">
                                 <Image.RenderTransform>
                                     <ScaleTransform ScaleX=".8" ScaleY=".8"/>
@@ -173,7 +173,7 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Width="130" Binding="{Binding Path=Remain2, Mode=OneWay, TargetNullValue='сдана'}" Header="Осталось">
+                <DataGridTextColumn Width="120" Binding="{Binding Path=Remain2, Mode=OneWay, TargetNullValue='сдана'}" Header="Осталось">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
                             <Setter Property="FontSize" Value="18"/>
@@ -182,10 +182,11 @@
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
-                <DataGridTemplateColumn Width="*" Header="Заказчик">
+                <DataGridTemplateColumn Width="600" Header="Заказчик">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate DataType="Expertise">
-                            <TextBlock Style="{x:Null}" Text="{Binding Path=FromResolution.Customer.Requisite}" FontSize="18" VerticalAlignment="Center" TextAlignment="Center"/>
+                            <TextBlock Style="{x:Null}" Text="{Binding Path=FromResolution.Customer.Requisite}" FontSize="18" VerticalAlignment="Center" TextAlignment="Center"
+                                       TextWrapping="Wrap"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
@@ -250,7 +251,6 @@
                         </GroupStyle.ContainerStyle>
                     </GroupStyle>
                 </ListBox.GroupStyle>
-               
             </ListBox>
             <TextBlock Style="{x:Null}" FontSize="18" FontWeight="DemiBold" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Center" 
                        Text="Статус экспертизы"/>

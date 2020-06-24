@@ -44,7 +44,6 @@ namespace PLSE_MVVMStrong.ViewModel
         public static readonly DependencyProperty EmployeeProperty =
             DependencyProperty.Register("Employee", typeof(Employee), typeof(MainVM), new PropertyMetadata((Application.Current as App).LogedEmployee));
 
-
         #endregion Properties
 
         #region Commands

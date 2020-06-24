@@ -945,7 +945,7 @@ namespace PLSE_MVVMStrong.Model
                 {
                     int colExpertiseID = rd.GetOrdinal("ExpertiseID");
                     int colNumber = rd.GetOrdinal("Number");
-                    int colExpertiseStatus = rd.GetOrdinal("ExpertiseStatusID");
+                    int colExpertiseResult = rd.GetOrdinal("ExpertiseResult");
                     int colStartDate = rd.GetOrdinal("StartDate");
                     int colExecutionDate = rd.GetOrdinal("ExecutionDate");
                     int colExpertiseType = rd.GetOrdinal("TypeExpertise");
@@ -1018,7 +1018,7 @@ namespace PLSE_MVVMStrong.Model
                             _expertise = new Expertise(id: rd.GetInt32(colExpertiseID),
                                                         number: rd.GetString(colNumber),
                                                         expert: Experts.Single(n => n.ExpertID == rd.GetInt32(colExpertID)),
-                                                        status: rd.GetString(colExpertiseStatus),
+                                                        status: rd[colExpertiseResult] == DBNull.Value ? null : rd.GetString(colExpertiseResult),
                                                         start: rd.GetDateTime(colStartDate),
                                                         end: rd[colExecutionDate] == DBNull.Value ? null : new DateTime?(rd.GetDateTime(colExecutionDate)),
                                                         timelimit: rd.GetByte(colTimelimit),                                                       
@@ -3953,10 +3953,8 @@ namespace PLSE_MVVMStrong.Model
                 }
             }
         }
-        public string Essense
-        {
-            get => $"по материалам {_typecase.Key} дела № {_number} {_annotate}";
-        }
+        public string Essense => AnnotateBuilder();
+
         public bool IsInstanceValidState => !String.IsNullOrWhiteSpace(_typecase.Key) && !String.IsNullOrWhiteSpace(_typecase.Value);
 
         public Case() : base() { }
@@ -3996,6 +3994,48 @@ namespace PLSE_MVVMStrong.Model
             sb.Append("Plaintiff: ");
             sb.AppendLine(Plaintiff);
             return sb.ToString();
+        }
+        private string CaseTypeDeclination()
+        {
+            switch (_typecase.Value)
+            {
+                case "1":
+                    return "уголовного";
+                case "2":
+                    return "гражданского";
+                case "3":
+                    return "арбитражного";
+                case "4":
+                    return "административного правонарушения";
+                case "5":
+                    return "проверки КУСП";
+                case "6":
+                    return "исследования";
+                case "7":
+                    return "административного судопроизводства";
+                default:
+                    return _typecase.Value;
+            }
+        }
+        public string AnnotateBuilder()
+        {
+            switch (_typecase.Value)
+            {
+                case "1":
+                case "2":
+                case "3":
+                    return $"по материалам {CaseTypeDeclination()} дела № {Number} {Annotate}";
+                case "4":
+                    return $"по материалам {CaseTypeDeclination()} {Annotate}";
+                case "5":
+                    return $"по материалам {CaseTypeDeclination()} № {Number} {Annotate}";
+                case "6":
+                    return $"{CaseTypeDeclination()} {Annotate}";
+                case "7":
+                    return $"по материалам {CaseTypeDeclination()} № {Number} {Annotate}";
+                default:
+                    return null;
+            }
         }
     }
 
@@ -4171,7 +4211,7 @@ namespace PLSE_MVVMStrong.Model
             {
                 foreach (var item in _expertisies)
                 {
-                    if (item.ExpertiseStatus == "в работе") ResolutionStatus = "в работе";
+                    if (item.ExpertiseResult == "в работе") ResolutionStatus = "в работе";
                     return;
                 }
                 ResolutionStatus = "выполнено";
@@ -4211,7 +4251,7 @@ namespace PLSE_MVVMStrong.Model
             {
                 foreach (var item in _expertisies)
                 {
-                    if (item.ExpertiseStatus == "в работе") ResolutionStatus = "в работе";
+                    if (item.ExpertiseResult == "в работе") ResolutionStatus = "в работе";
                     return;
                 }
                 ResolutionStatus = "выполнено";
@@ -4749,7 +4789,7 @@ namespace PLSE_MVVMStrong.Model
         private string _number;
         private Expert _expert;
         private Resolution _resolution;
-        private string _status;
+        private string _result;
         private DateTime _startdate;
         private DateTime? _enddate;
         private byte _timelimit;
@@ -4845,14 +4885,14 @@ namespace PLSE_MVVMStrong.Model
                 }
             }
         }
-        public string ExpertiseStatus
+        public string ExpertiseResult
         {
-            get => _status;
+            get => _result;
             set
             {
-                if (value != _status)
+                if (value != _result)
                 {
-                    _status = value;
+                    _result = value;
                     OnPropertyChanged();
                 }
             }
@@ -4903,7 +4943,7 @@ namespace PLSE_MVVMStrong.Model
         {
             get
             {
-                if (_status == "в работе")
+                if (_result == "в работе")
                 {
                     if (_raports.Count > 0)
                     {
@@ -4949,7 +4989,7 @@ namespace PLSE_MVVMStrong.Model
         {
             get
             {
-                if (_status == "в работе")
+                if (_result == null)
                 {
                     if (_raports.Count > 0)
                     {
@@ -5002,7 +5042,7 @@ namespace PLSE_MVVMStrong.Model
         public static Expertise New => new Expertise()
         {
             Version = Version.New,
-            _status = "в работе",
+            _result = "в работе",
             _startdate = DateTime.Now,
             _timelimit = 30
         };
@@ -5183,7 +5223,7 @@ namespace PLSE_MVVMStrong.Model
         {
             _number = number;
             _expert = expert;
-            _status = status;
+            _result = status;
             _startdate = start;
             _enddate = end;
             _timelimit = timelimit;
@@ -5218,7 +5258,7 @@ namespace PLSE_MVVMStrong.Model
             cmd.CommandText = "Activity.prAddExpertise";
             cmd.Parameters.Add("@Num", SqlDbType.VarChar, 5).Value = _number;
             cmd.Parameters.Add("@Expert", SqlDbType.Int).Value = Expert.ExpertID;
-            cmd.Parameters.Add("@Status", SqlDbType.NVarChar, 50).Value = _status;
+            cmd.Parameters.Add("@Result", SqlDbType.NVarChar, 50).Value = _result;
             cmd.Parameters.Add("@StartDate", SqlDbType.Date).Value = _startdate;
             cmd.Parameters.Add("@ExDate", SqlDbType.Date).Value = ConvertToDBNull(_enddate);
             cmd.Parameters.Add("@Limit", SqlDbType.TinyInt).Value = _timelimit;
@@ -5266,7 +5306,7 @@ namespace PLSE_MVVMStrong.Model
             cmd.CommandText = "Activity.prEditExpertise";
             cmd.Parameters.Add("@Num", SqlDbType.Char, 5).Value = _number;
             cmd.Parameters.Add("@Expert", SqlDbType.Int).Value = Expert.ExpertID;
-            cmd.Parameters.Add("@Status", SqlDbType.NVarChar, 50).Value = _status;
+            cmd.Parameters.Add("@Result", SqlDbType.NVarChar, 50).Value = _result;
             cmd.Parameters.Add("@StartDate", SqlDbType.Date).Value = _startdate;
             cmd.Parameters.Add("@ExDate", SqlDbType.Date).Value = ConvertToDBNull(_enddate);
             cmd.Parameters.Add("@Limit", SqlDbType.TinyInt).Value = _timelimit;
@@ -5350,7 +5390,7 @@ namespace PLSE_MVVMStrong.Model
             Regex regex = new Regex(@"^[1-9]\d{0,3}$");
             return num != null && regex.IsMatch(num);
         }
-        public bool InstanceValidState() => _expert != null && IsValidNumber(_number) && !String.IsNullOrWhiteSpace(_status) && !String.IsNullOrWhiteSpace(_type);
+        public bool InstanceValidState() => _expert != null && IsValidNumber(_number) && !String.IsNullOrWhiteSpace(_result) && !String.IsNullOrWhiteSpace(_type);
     }
 
     /// <summary>
