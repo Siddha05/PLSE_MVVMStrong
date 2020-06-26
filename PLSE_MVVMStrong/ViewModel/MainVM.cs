@@ -62,6 +62,7 @@ namespace PLSE_MVVMStrong.ViewModel
         {
             empIndex = CommonInfo.Employees.IndexOf(Employee);
             informer = new Progress<Message>(n => messages.Add(n));
+            app.PropertyChanged += App_PropertyChanged;
             Exit = new RelayCommand(o =>
                                         {
                                             var w = o as MainWindow;
@@ -112,7 +113,6 @@ namespace PLSE_MVVMStrong.ViewModel
                             if (vm == null) return;
                             vm.Employee.SaveChanges(CommonInfo.connection);
                             app.LogedEmployee = vm.Employee;
-                            Employee = vm.Employee;
                             CommonInfo.Employees[empIndex] = vm.Employee;
                         }
                         catch (Exception ex)
@@ -154,7 +154,19 @@ namespace PLSE_MVVMStrong.ViewModel
             else if (curhour >= 17 && curhour <= 21) Messages.Add(new Message($"Добрый вечер, {Employee.Fname} {Employee.Mname}", MsgType.Temporary, TimeSpan.FromSeconds(5)));
             else Messages.Add(new Message($"Доброй ночи, {Employee.Fname} {Employee.Mname}", MsgType.Normal, TimeSpan.FromSeconds(5)));
         }
-        
+
+        private void App_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case "LogedEmployee":
+                    Employee = app.LogedEmployee;
+                    break;
+                default:
+                    break;
+            }
+        }
+
         private void Timer_Tick(object sender, EventArgs e)
         {
             Date = DateTime.Now.ToString("F");

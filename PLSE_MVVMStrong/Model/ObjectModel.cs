@@ -492,6 +492,7 @@ namespace PLSE_MVVMStrong.Model
             get => departaments;
             set => departaments = value;
         }
+        
         static CommonInfo()
         {
             SqlConnectionStringBuilder sb = new SqlConnectionStringBuilder()
@@ -535,6 +536,89 @@ namespace PLSE_MVVMStrong.Model
             catch (Exception)
             {
                 throw;
+            }
+            _settlements.CollectionChanged += _settlements_CollectionChanged;
+            _employees.CollectionChanged += _employees_CollectionChanged;
+            _specialities.CollectionChanged += _specialities_CollectionChanged;
+            _organizations.CollectionChanged += _organizations_CollectionChanged;
+        }
+
+        private static void _organizations_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Remove:
+                    break;
+                case NotifyCollectionChangedAction.Replace:
+                    foreach (var c in _customers.Where(n => n.Organization == e.OldItems[0]))
+                    {
+                        c.Organization = (Organization)e.NewItems[0];
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Reset:
+                    break;
+                default:
+                    break;
+            }
+        }
+        private static void _specialities_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Remove:
+                    break;
+                case NotifyCollectionChangedAction.Replace:
+                    foreach (var exp in _experts.Where(n => n.Speciality == e.OldItems[0]))
+                    {
+                        exp.Speciality = (Speciality)e.NewItems[0];
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Reset:
+                    break;
+                default:
+                    break;
+            }
+        }
+        private static void _employees_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                
+                case NotifyCollectionChangedAction.Remove:
+                    break;
+                case NotifyCollectionChangedAction.Replace:
+                    foreach (var exp in _experts.Where(n => n.Employee == e.OldItems[0]))
+                    {
+                        exp.Employee = (Employee)e.NewItems[0];
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Reset:
+                    break;
+                default:
+                    break;
+            }
+        }
+        private static void _settlements_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Remove:
+                    break;
+                case NotifyCollectionChangedAction.Replace:
+
+                    foreach (var empl in _employees.Where(n => n.Adress.Settlement == e.OldItems[0]))
+                    {
+                        empl.Adress.Settlement = (Settlement)e.NewItems[0];
+                    }
+                    foreach (var org in _organizations.Where(n => n.Adress.Settlement == e.OldItems[0]))
+                    {
+                        org.Adress.Settlement = (Settlement)e.NewItems[0];
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Reset:
+                    break;
+                default:
+                    break;
             }
         }
         private static void LoadInitialInfo(SqlConnection connection)
@@ -931,6 +1015,7 @@ namespace PLSE_MVVMStrong.Model
             rd.Close();
             connection.Close();
         }
+        
         public static List<Resolution> LoadResolution(string query)
         {
             SqlCommand cmd = connection.CreateCommand();
