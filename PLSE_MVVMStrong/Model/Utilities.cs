@@ -1,8 +1,11 @@
-﻿using System;
+﻿using LingvoNET;
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Media.Imaging;
 
 namespace PLSE_MVVMStrong.Model
@@ -95,6 +98,58 @@ namespace PLSE_MVVMStrong.Model
             int posdot = s.IndexOf('.');
             if (posdot < 0) return s;
             else return s.Substring(0, posdot + 2);
+        }
+        public static string Joining(string str, LingvoNET.Case @case)
+        {
+            StringBuilder sb = new StringBuilder();
+            var mch = Regex.Matches(str, "[\"0-9.а-я№]+", RegexOptions.IgnoreCase);
+            var col = mch.Cast<Match>();
+            foreach (var item in col.Take(1))
+            {
+                var f = Adjectives.FindOne(item.ToString());
+                if (f != null)
+                {
+                    sb.Append(f[@case, Gender.M]);
+                    sb.Append(" ");
+                    continue;
+                }
+                var s = Nouns.FindOne(item.ToString());
+                if (s != null)
+                {
+                    sb.Append(s[@case]);
+                    sb.Append(" ");
+                    continue;
+                }
+                var ss = Nouns.FindSimilar(sourceForm: item.ToString(), animacy: Animacy.Animate);
+                if (ss != null)
+                {
+                    sb.Append(ss[@case]);
+                    sb.Append(" ");
+                    continue;
+                }
+                sb.Append(item.ToString());
+                sb.Append(" ");
+            }
+                foreach (var item in col.Skip(1))
+            {
+                var f = Adjectives.FindOne(item.ToString());
+                if (f != null)
+                {
+                    sb.Append(f[@case, Gender.M]);
+                    sb.Append(" ");
+                    continue;
+                }
+                var s = Nouns.FindOne(item.ToString());
+                if (s != null)
+                {
+                    sb.Append(s[@case]);
+                    sb.Append(" ");
+                    continue;
+                }
+                sb.Append(item.ToString());
+                sb.Append(" ");
+            }
+            return sb.ToString();
         }
     }
 

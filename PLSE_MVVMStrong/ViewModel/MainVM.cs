@@ -112,7 +112,6 @@ namespace PLSE_MVVMStrong.ViewModel
                             var vm = wnd.DataContext as ProfileVM;
                             if (vm == null) return;
                             vm.Employee.SaveChanges(CommonInfo.connection);
-                            app.LogedEmployee = vm.Employee;
                             CommonInfo.Employees[empIndex] = vm.Employee;
                         }
                         catch (Exception ex)
@@ -153,6 +152,11 @@ namespace PLSE_MVVMStrong.ViewModel
             else if (curhour >= 11 && curhour <= 16) Messages.Add(new Message($"День добрый, {Employee.Fname} {Employee.Mname}", MsgType.Temporary, TimeSpan.FromSeconds(5)));
             else if (curhour >= 17 && curhour <= 21) Messages.Add(new Message($"Добрый вечер, {Employee.Fname} {Employee.Mname}", MsgType.Temporary, TimeSpan.FromSeconds(5)));
             else Messages.Add(new Message($"Доброй ночи, {Employee.Fname} {Employee.Mname}", MsgType.Normal, TimeSpan.FromSeconds(5)));
+            app.PropertyChanged += (o, e) => Employee = app.LogedEmployee;
+            //foreach (var item in CommonInfo.Organizations)
+            //{
+            //    Messages.Add(new Message(StringUtil.Joining(item.Name, LingvoNET.Case.Genitive), MsgType.Warning));
+            //}
         }
 
         private void App_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)

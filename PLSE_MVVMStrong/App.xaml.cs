@@ -94,7 +94,27 @@ namespace PLSE_MVVMStrong
             int i = rnd.Next(1, 50);
             System.Diagnostics.Debug.Print("Random: " + i.ToString());
             (Application.Current as App).LogedEmployee = CommonInfo.Employees.First(n => n.EmployeeID == i);
+            CommonInfo.Employees.CollectionChanged += Employees_CollectionChanged;
 #endif
+        }
+
+        private void Employees_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
+                    break;
+                case System.Collections.Specialized.NotifyCollectionChangedAction.Replace:
+                    if (_logempl == e.OldItems[0])
+                    {
+                        LogedEmployee = (Employee)e.NewItems[0];
+                    }
+                    break;
+                case System.Collections.Specialized.NotifyCollectionChangedAction.Reset:
+                    break;
+                default:
+                    break;
+            }
         }
     }
 

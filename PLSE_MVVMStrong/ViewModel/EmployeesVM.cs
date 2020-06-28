@@ -62,6 +62,7 @@ namespace PLSE_MVVMStrong.ViewModel
                         break;
                 }
             });
+            
 
         }
         private static void SearchTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
