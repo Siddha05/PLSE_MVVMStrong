@@ -1575,12 +1575,11 @@ namespace PLSE_MVVMStrong.Model
     {
         private Version _version;
         private DateTime _updatedate;
-        private int _id;
+        protected int _id;
 
         protected int ID
         {
             get { return _id; }
-            private set { _id = value; }
         }
         public DateTime UpdateDate
         {
@@ -3209,6 +3208,33 @@ namespace PLSE_MVVMStrong.Model
                                 _hiredate, _profile, _password, (byte[])Foto?.Clone(), _previd);
         }
         object ICloneable.Clone() => Clone();
+        public void Copy (Employee em)
+        {
+            _fname = em._fname;
+            _declinated = em._declinated;
+            _mname = em._mname;
+            _sname = em._sname;
+            _mobilephone = em._mobilephone;
+            _workphone = em._workphone;
+            _gender = em._gender;
+            _email = em._email;
+            _adress = em._adress;
+            _education1 = em._education1;
+            _education2 = em._education2;
+            _education3 = em._education3;
+            _sciencedegree = em._sciencedegree;
+            _inneroffice = em._inneroffice;
+            _departament = em._departament;
+            _employeeStaus = em._employeeStaus;
+            _birthdate = em._birthdate;
+            _hiredate = em._hiredate;
+            _profile = em._profile;
+            _password = em._password;
+            _foto = em._foto;
+            _previd = em._previd;
+            _id = em._id;
+            
+        }
         #endregion
     }
     public class Expert : NotifyBase, ICloneable
