@@ -1095,7 +1095,7 @@ namespace PLSE_MVVMStrong.Model
                             if (rd[colNumberCase] != DBNull.Value) _resolution.Case.Number = rd.GetString(colNumberCase);
                             if (rd[colPlaintiff] != DBNull.Value) _resolution.Case.Plaintiff = rd.GetString(colPlaintiff);
                             if (rd[colRespondent] != DBNull.Value) _resolution.Case.Respondent = rd.GetString(colRespondent);
-                            if (rd[colCaseType] != DBNull.Value) _resolution.Case.TypeCase = CaseTypes.Single(n => n.Value == rd.GetString(colCaseType));
+                            if (rd[colCaseType] != DBNull.Value) _resolution.Case.TypeCase = CaseTypes[rd.GetString(colCaseType)];
                             resolutions.Add(_resolution);
                         }
                         if (!_resolution.Expertisies.Any(n => n.ExpertiseID == rd.GetInt32(colExpertiseID)))
@@ -3967,7 +3967,7 @@ namespace PLSE_MVVMStrong.Model
         private string _number;
         private string _respondent;
         private string _plaintiff;
-        private KeyValuePair<string,string> _typecase;
+        private string _typecase;
         private string _annotate;
         private string _comment;
         private DateTime? _dispatchdate;
@@ -4008,12 +4008,12 @@ namespace PLSE_MVVMStrong.Model
                 }
             }
         }
-        public KeyValuePair<string, string> TypeCase
+        public string TypeCase
         {
             get => _typecase;
             set
             {
-                if (!_typecase.Equals(value))
+                if (value != _typecase)
                 {
                     _typecase = value;
                     OnPropertyChanged();
@@ -4024,7 +4024,7 @@ namespace PLSE_MVVMStrong.Model
         {
             get
             {
-                if (TypeCase.Key == "проверка КУCП" && TypeCase.Key == "уголовное" && TypeCase.Key == "административное правонарушение") return null;
+                if (TypeCase == "проверка КУCП" && TypeCase == "уголовное" && TypeCase == "административное правонарушение") return null;
                 else return _plaintiff;
             }
             set
@@ -4040,7 +4040,7 @@ namespace PLSE_MVVMStrong.Model
         {
             get
             {
-                if (TypeCase.Key == "проверка КУCП" && TypeCase.Key == "уголовное" && TypeCase.Key == "административное правонарушение") return null;
+                if (TypeCase == "проверка КУCП" && TypeCase == "уголовное" && TypeCase == "административное правонарушение") return null;
                 else return _respondent;
             }
             set
@@ -4069,7 +4069,7 @@ namespace PLSE_MVVMStrong.Model
         public bool IsInstanceValidState => true;
 
         public Case() : base() { }
-        public Case(int id, string number, KeyValuePair<string, string> type, string respondent, string plaintiff, string annotate, string comment = null, DateTime? dispatchdate = null)
+        public Case(int id, string number, string type, string respondent, string plaintiff, string annotate, string comment = null, DateTime? dispatchdate = null)
                     : base()
         {
             _number = number;
@@ -4085,7 +4085,6 @@ namespace PLSE_MVVMStrong.Model
         private void OnPropertyChanged([CallerMemberName]string prop = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
-            Debug.WriteLine("Property changed " + prop, "Case delegate");
         }
         public override string ToString()
         {
@@ -4093,7 +4092,7 @@ namespace PLSE_MVVMStrong.Model
             sb.Append("Number: ");
             sb.AppendLine(Number);
             sb.Append("Type: ");
-            sb.AppendLine(TypeCase.Key + " " + TypeCase.Value);
+            sb.AppendLine(TypeCase);
             sb.Append("DispatchDate: ");
             sb.AppendLine(this.DispatchDate.ToString());
             sb.Append("Annotate: ");
@@ -4108,41 +4107,41 @@ namespace PLSE_MVVMStrong.Model
         }
         private string CaseTypeDeclination()
         {
-            switch (_typecase.Value)
+            switch (_typecase)
             {
-                case "1":
+                case "уголовное":
                     return "уголовного";
-                case "2":
+                case "гражданское":
                     return "гражданского";
-                case "3":
+                case "арбитражное":
                     return "арбитражного";
-                case "4":
+                case "административное правонарушение":
                     return "административного правонарушения";
-                case "5":
+                case "проверка КУСП":
                     return "проверки КУСП";
-                case "6":
+                case "исследование":
                     return "исследования";
-                case "7":
+                case "административное судопроизводство":
                     return "административного судопроизводства";
                 default:
-                    return _typecase.Value;
+                    return _typecase;
             }
         }
         public string AnnotateBuilder()
         {
-            switch (_typecase.Value)
+            switch (_typecase)
             {
-                case "1":
-                case "2":
-                case "3":
+                case "уголовное":
+                case "гражданское":
+                case "арбитражное":
                     return $"по материалам {CaseTypeDeclination()} дела № {Number} {Annotate}";
-                case "4":
+                case "административное правонарушение":
                     return $"по материалам {CaseTypeDeclination()} {Annotate}";
-                case "5":
+                case "проверка КУСП":
                     return $"по материалам {CaseTypeDeclination()} № {Number} {Annotate}";
-                case "6":
+                case "исследование":
                     return $"{CaseTypeDeclination()} {Annotate}";
-                case "7":
+                case "административное судопроизводство":
                     return $"по материалам {CaseTypeDeclination()} № {Number} {Annotate}";
                 default:
                     return null;
@@ -4243,6 +4242,7 @@ namespace PLSE_MVVMStrong.Model
                 {
                     if (String.IsNullOrWhiteSpace(value)) throw new ArgumentException("Поле не может быть пустым");
                     _restype = value;
+                    if (value == "договор") this.Case.TypeCase = "исследование";
                     OnPropertyChanged();
                 }
             }
@@ -4414,7 +4414,7 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@ResolDate", SqlDbType.Date).Value = ConvertToDBNull(ResolutionDate);
             cmd.Parameters.Add("@TypeResol", SqlDbType.NVarChar, 30).Value = ResolutionType;
             cmd.Parameters.Add("@Status", SqlDbType.NVarChar, 30).Value = _status;           
-            cmd.Parameters.Add("@TypeCase", SqlDbType.Char, 1).Value = ConvertToDBNull(Case.TypeCase.Value);
+            cmd.Parameters.Add("@TypeCase", SqlDbType.Char, 1).Value = CommonInfo.CaseTypes[Case.TypeCase];
             cmd.Parameters.Add("@Annotate", SqlDbType.NVarChar, 500).Value = ConvertToDBNull(Case.Annotate);
             cmd.Parameters.Add("@Comment", SqlDbType.NVarChar, 500).Value = ConvertToDBNull(Case.Comment);
             cmd.Parameters.Add("@NumberCase", SqlDbType.NVarChar, 50).Value = ConvertToDBNull(Case.Number);
@@ -4467,7 +4467,7 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@Respondent", SqlDbType.NVarChar, 150).Value = ConvertToDBNull(Case.Respondent);
             cmd.Parameters.Add("@Plaintiff", SqlDbType.NVarChar, 150).Value = ConvertToDBNull(Case.Plaintiff);
             cmd.Parameters.Add("@DispatchDate", SqlDbType.Date).Value = ConvertToDBNull(Case.DispatchDate);
-            cmd.Parameters.Add("@TypeCase", SqlDbType.Char, 1).Value = ConvertToDBNull(Case.TypeCase.Value);
+            cmd.Parameters.Add("@TypeCase", SqlDbType.Char, 1).Value = CommonInfo.CaseTypes[Case.TypeCase];
             cmd.Parameters.Add("@Comment", SqlDbType.NVarChar, 500).Value = ConvertToDBNull(Case.Comment);
             cmd.Parameters.Add("@PrescribeType", SqlDbType.NVarChar, 200).Value = ConvertToDBNull(PrescribeType);
             cmd.Parameters.Add("@ResolIden", SqlDbType.Int).Value = ResolutionID;
@@ -5046,7 +5046,9 @@ namespace PLSE_MVVMStrong.Model
         {
             get
             {
-                return $"{_number}/{Expert.Employee?.Departament.DigitalCode}-{_resolution?.Case.TypeCase.Value}";
+                string s;
+                CommonInfo.CaseTypes.TryGetValue(_type, out s);
+                return $"{_number}/{Expert.Employee?.Departament.DigitalCode}-{s ?? ""}";
             }
         }
         public int ExpertiseID => ID;

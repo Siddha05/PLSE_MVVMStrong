@@ -14,8 +14,8 @@ namespace PLSE_MVVMStrong.ViewModel
     internal class ResolutionAddVM : DependencyObject
     {
         #region Fields
-        static private KeyValuePair<string, string>[] CaseTypeContract = new KeyValuePair<string, string>[] { new KeyValuePair<string, string>("исследование", "6") };
-        static private IEnumerable<KeyValuePair<string, string>> CaseTypesFull = CommonInfo.CaseTypes.Except(CaseTypeContract);
+        static private string[] CaseTypeContract = new string[] { "исследование"};
+        static private IEnumerable<string> CaseTypesFull = CommonInfo.CaseTypes.Keys.Except(CaseTypeContract);
         #endregion Fields
 
         #region Properties
@@ -49,22 +49,13 @@ namespace PLSE_MVVMStrong.ViewModel
         }
         public static readonly DependencyProperty InfoProperty =
             DependencyProperty.Register("Info", typeof(string), typeof(ResolutionAddVM), new PropertyMetadata(string.Empty));
-
-        public KeyValuePair<string,string> CaseType
+        public IEnumerable<string> CaseTypesList
         {
-            get => (KeyValuePair<string, string>)GetValue(CaseTypeProperty);
-            set => SetValue(CaseTypeProperty, value);
-        }
-        public static readonly DependencyProperty CaseTypeProperty =
-            DependencyProperty.Register("CaseType", typeof(KeyValuePair<string, string>), typeof(ResolutionAddVM), new PropertyMetadata(new KeyValuePair<string,string>(), CaseType_Changed));
-
-        public IEnumerable<KeyValuePair<string, string>> CaseTypesList
-        {
-            get => (IEnumerable<KeyValuePair<string, string>>)GetValue(CaseTypesListProperty);
+            get => (IEnumerable<string>)GetValue(CaseTypesListProperty);
             set => SetValue(CaseTypesListProperty, value);
         }
         public static readonly DependencyProperty CaseTypesListProperty =
-            DependencyProperty.Register("CaseTypesList", typeof(IEnumerable<KeyValuePair<string, string>>), typeof(ResolutionAddVM), new PropertyMetadata(CommonInfo.CaseTypes.Except(CaseTypeContract)));
+            DependencyProperty.Register("CaseTypesList", typeof(IEnumerable<string>), typeof(ResolutionAddVM), new PropertyMetadata(CommonInfo.CaseTypes.Keys));
 
         public Visibility NumberVisible
         {
@@ -235,49 +226,25 @@ namespace PLSE_MVVMStrong.ViewModel
                 }
             }
         }
-
-        private static void CaseType_Changed(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var o = d as ResolutionAddVM;
-            if (d == null) return;
-            o.Resolution.Case.TypeCase = (KeyValuePair<string,string>)e.NewValue;
-            //switch (o.Resolution.Case.TypeCase.Key)
-            //{
-            //    case "исследование":
-            //        o.NumberVisible = Visibility.Collapsed;
-            //        o.RespondentVisible = Visibility.Collapsed;
-            //        break;
-            //    case "административное правонарушение":
-            //    case "проверка КУСП":
-            //    case "уголовное":
-            //        o.NumberVisible = Visibility.Visible;
-            //        o.RespondentVisible = Visibility.Collapsed;
-            //        break;
-            //    default:
-            //        o.NumberVisible = Visibility.Visible;
-            //        o.RespondentVisible = Visibility.Visible;
-            //        break;
-            //}
-        }
         private void Resolution_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            Info = Resolution.ToString();
             if (e.PropertyName == "ResolutionType")
             {
                 if (Resolution.ResolutionType == "договор")
                 {
                     CaseTypesList = CaseTypeContract;
-                    CaseType = CaseTypeContract.Single();
+                    
                 }
                 else
                 {
                     CaseTypesList = CaseTypesFull;
-                    CaseType = CaseTypesFull.First();
+                    Resolution.Case.TypeCase = "уголовное";
                 }
+                return;
             }
             if (e.PropertyName == "TypeCase")
             {
-                switch (Resolution.Case.TypeCase.Key)
+                switch (Resolution.Case.TypeCase)
                 {
                     case "исследование":
                         NumberVisible = Visibility.Collapsed;
@@ -318,7 +285,7 @@ namespace PLSE_MVVMStrong.ViewModel
                 ResolutionType = "постановление",
                 ResolutionStatus = "рассмотрение",
             };
-            r.Case.TypeCase = CommonInfo.CaseTypes.First(n => n.Value == "1");
+            r.Case.TypeCase = "уголовное";
             return r;
         }
 

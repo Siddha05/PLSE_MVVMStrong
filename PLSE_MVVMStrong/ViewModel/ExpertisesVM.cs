@@ -113,7 +113,7 @@ namespace PLSE_MVVMStrong.ViewModel
             res.Case.Number = "1220522142222000";
             res.Case.Plaintiff = "Карпухин А.В.";
             res.Case.Respondent = "ОАО \"Фирма всяческих производственных направленностей\"";
-            res.Case.TypeCase = new KeyValuePair<string, string>("2", "гражданское");
+            res.Case.TypeCase =  "гражданское";
             res.Case.Annotate = "по факту мошенничества и незаконных действий в отношении Карпухина А.В., а также возмещения причиненного ущерба";
             res.Case.Comment = "Длинный комментарий, написанный по поводу визуального тестирования расположения и восприятия на форме отображения состояния экспертизы по требованию и нет";
             questions.Questions.Add(new ContentWrapper("Question 2"));

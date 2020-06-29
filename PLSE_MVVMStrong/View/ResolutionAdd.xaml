@@ -92,16 +92,16 @@
 
                 <Popup AllowsTransparency="True" IsOpen="{Binding Path=CustomersListOpened}" PopupAnimation="Scroll" PlacementTarget="{Binding ElementName=tbCustomer}" Height="auto" Width="auto"
                        Placement="Bottom" MaxHeight="300" VerticalOffset="3" StaysOpen="False">
-                    <Border BorderBrush="Black" BorderThickness="1" CornerRadius="2" Background="White">
+                    <Border BorderBrush="#FF101CD4" BorderThickness="1" CornerRadius="2" Background="White">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="auto"/>
                                 <RowDefinition/>
                             </Grid.RowDefinitions>
-                            <DockPanel LastChildFill="True"  Background="#FFDDDFFF">
-                                <Button DockPanel.Dock="Right" Style="{StaticResource EditButton}" Width="35" Height="35" Command="{Binding Path=EditCustomer}" Margin="0,2,5,2"/>
-                                <Button DockPanel.Dock="Right" Style="{StaticResource AddItemButton}" Width="35" Height="35" Margin="100,2,0,2" Command="{Binding Path=AddNewCustomer}"/>
-                                <TextBlock Text="{Binding Path=CustomersList.Count, StringFormat='Найдено: {0}'}" VerticalAlignment="Center" 
+                            <DockPanel LastChildFill="True"  Background="#FF101CD4">
+                                <Button DockPanel.Dock="Right" Style="{StaticResource EditButton}" Width="30" Height="30" Command="{Binding Path=EditCustomer}" Margin="3,4,5,4"/>
+                                <Button DockPanel.Dock="Right" Style="{StaticResource AddItemButton}" Width="30" Height="30" Margin="100,4,0,4" Command="{Binding Path=AddNewCustomer}"/>
+                                <TextBlock Text="{Binding Path=CustomersList.Count, StringFormat='Найдено: {0}'}" VerticalAlignment="Center" Foreground="White" 
                                            FontWeight="DemiBold" FontSize="{StaticResource RegularFontSize}" Margin="5,0,0,0"/>
                             </DockPanel>
                             <ListBox Height="auto" ItemsSource="{Binding Path=CustomersList}" Grid.Row="1" FontSize="{StaticResource RegularFontSize}" 
@@ -152,9 +152,9 @@
                 <TextBlock Grid.Row="9" Grid.ColumnSpan="3" Text="Материалы дела" Style="{x:Null}" FontSize="{StaticResource HeaderFontSize}" FontWeight="Bold" FontStyle="Italic" HorizontalAlignment="Center"
                            Margin="5,10,5,10" />
                 <TextBlock Text="Тип*" Grid.Row="10" Style="{StaticResource UITextBlock}"/>
-                <ComboBox Name="cbTypeCase" Grid.Column="1" Grid.Row="10" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=CaseTypesList}" DisplayMemberPath="Key"
+                <ComboBox Name="cbTypeCase" Grid.Column="1" Grid.Row="10" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=CaseTypesList}"
                            IsEnabled="{Binding Path=Resolution.ResolutionType, Converter={StaticResource RTypeConverter}}" 
-                          SelectedItem="{Binding Path=CaseType}" Margin="5,5,0,5" Width="430"/>
+                          SelectedItem="{Binding Path =Resolution.Case.TypeCase}" Margin="5,5,0,5" Width="430"/>
                 <TextBlock Grid.Row="11" Text="Номер" Visibility="{Binding ElementName=tbNumber, Path=Visibility}" Style="{StaticResource UITextBlock}"/>
                 <TextBox Name="tbNumber" Grid.Column="1" Grid.Row="11" Style="{StaticResource UITextBox}" Text="{Binding Path=Resolution.Case.Number}"
                                  Visibility ="{Binding Path=NumberVisible, Mode=OneWay}" Margin="5,5,0,5" Width="430" />
