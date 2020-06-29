@@ -79,12 +79,11 @@
                                 Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Resolution.RegistrationDate, ValidatesOnExceptions=True}" />
                 <TextBlock Grid.Row="4" Text="Дата вынесения" Style="{StaticResource UITextBlock}"/>
                 <DatePicker Grid.Row="4" Grid.Column="1"  Name="resDate" Style="{StaticResource UIDatePicker}"
-                                    SelectedDate="{Binding Path=Resolution.ResolutionDate}" />
+                                    SelectedDate="{Binding Path=Resolution.ResolutionDate, ValidatesOnExceptions=True}" />
                 <TextBlock Text="Нативный вид" Grid.Row="5" Style="{StaticResource UITextBlock}"/>
                 <TextBox Name="resPrescribeType" Grid.Row="5" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Resolution.PrescribeType}" Margin="5,5,0,5" Width="633" />
                 <TextBlock Grid.Row="6" Text="Заказчик*" Style="{StaticResource UITextBlock}"/>
                 <StackPanel Orientation="Horizontal" Grid.Row="6" Grid.Column="1">
-
                     <TextBlock Text="{Binding Path=Resolution.Customer.Fio, TargetNullValue='не выбрано'}" ToolTip="{Binding Path=Resolution.Customer.Requisite}" 
                                FontSize="{StaticResource UIFontSize}" FontWeight="DemiBold" VerticalAlignment="Center" Height="auto" Margin="5"/>
                     <TextBox Style="{StaticResource SearchTextBox}" Name="tbCustomer" Width="180" Tag="Введите фамилию" 
@@ -176,7 +175,7 @@
                                     TextWrapping="Wrap" Name="caseComment" Height="100" Text="{Binding Path=Resolution.Case.Comment}" />
             </Grid>
         </ScrollViewer>
-        <Button Style="{StaticResource BaseUIButton}" Grid.Column="1" Grid.Row="1" Content="Сохранить" Foreground="GreenYellow" Command="{Binding Path=Save}"
+        <Button Style="{StaticResource BaseUIButton}" Grid.Column="1" Grid.Row="1" Content="ДОБАВИТЬ" Foreground="GreenYellow" Command="{Binding Path=Save}"
                 HorizontalAlignment="Right" Margin="5,85, 40,10"/>
         <StackPanel Grid.Column="1" Orientation="Vertical">
             <TextBlock Style="{x:Null}" Text="{Binding Path=Resolution.Expertisies.Count, StringFormat=Экспертизы {0}}" FontSize="{StaticResource HeaderFontSize}" 

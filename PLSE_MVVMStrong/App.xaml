@@ -12,7 +12,6 @@
         <system:Double x:Key="HeaderFontSize">20</system:Double>
         <system:Double x:Key="UIHeigth">28</system:Double>
         <system:Double x:Key="UIWidth">180</system:Double>
-<!--test changes here !!!-->
         <SolidColorBrush x:Key="UnselectedControl" Color="Gray"/>
         <SolidColorBrush x:Key="SelectedControl" Color="#FF0B0B9E"/> <!--#FF549EE8-->
         <SolidColorBrush x:Key="MouseOverControl" Color="#FFD6F8FD"/>
@@ -465,7 +464,6 @@
         <Style TargetType="{x:Type TextBox}" x:Key="SearchTextBox">
             <Setter Property="FontSize" Value="{StaticResource UIFontSize}" />
             <Setter Property="Height" Value="{StaticResource UIHeigth}"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Tag" Value="Введите текст для поиска" />
             <Setter Property="Template">
                 <Setter.Value>
@@ -474,7 +472,7 @@
                             <TextBlock Name="block" Text="{TemplateBinding Tag}" Padding="5,0,0,0" Focusable="False" TextAlignment="Left" Style="{x:Null}"
                                    Width="{Binding ElementName=grid, Path=ActualWidth}" Height="auto" Foreground="Gray"
                                    FontStyle="Italic" FontWeight="Thin" FontSize="{TemplateBinding FontSize}" Background="{TemplateBinding Background}" VerticalAlignment="Center"/>
-                            <TextBox Name="box" Background="{Binding RelativeSource={RelativeSource Self}, Path=Text, Converter={StaticResource TextConverter}}"
+                            <TextBox Name="box" Background="{Binding RelativeSource={RelativeSource Self}, Path=Text, Converter={StaticResource TextConverter}}" VerticalContentAlignment="Center"
                                  FontSize="{TemplateBinding FontSize}" FontWeight="Normal" FontStyle="Normal" Style="{x:Null}" TextAlignment="Left" Panel.ZIndex="2"
                                  Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type TextBox}}, Path=Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                             </TextBox>

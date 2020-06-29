@@ -2519,12 +2519,12 @@ namespace PLSE_MVVMStrong.Model
         }
         public bool isValidName(string name)
         {
-            Regex regex = new Regex(@"^\p{IsCyrillic}{2,25}$", RegexOptions.IgnoreCase);
+            Regex regex = new Regex(@"^\p{IsCyrillic}{2,25}$ | ^\p{IsCyrillic}{1}\.?$", RegexOptions.IgnoreCase);
             return regex.IsMatch(name);
         }
         public bool isValidMiddleName(string mname)
         {
-            Regex regex = new Regex(@"^\p{IsCyrillic}{2,30}$", RegexOptions.IgnoreCase);
+            Regex regex = new Regex(@"^\p{IsCyrillic}{2,30}$ | ^\p{IsCyrillic}{1}\.?$", RegexOptions.IgnoreCase);
             return regex.IsMatch(mname);
         }
         public bool isValidSecondName(string sname)
@@ -4066,7 +4066,7 @@ namespace PLSE_MVVMStrong.Model
         }
         public string Essense => AnnotateBuilder();
 
-        public bool IsInstanceValidState => !String.IsNullOrWhiteSpace(_typecase.Key) && !String.IsNullOrWhiteSpace(_typecase.Value);
+        public bool IsInstanceValidState => true;
 
         public Case() : base() { }
         public Case(int id, string number, KeyValuePair<string, string> type, string respondent, string plaintiff, string annotate, string comment = null, DateTime? dispatchdate = null)
@@ -4278,7 +4278,7 @@ namespace PLSE_MVVMStrong.Model
         public int ResolutionID => ID;
         public ObservableCollection<Expertise> Expertisies => _expertisies;
         public bool IsInstanceValidState => Customer?.IsInstanceValidState ?? false && !String.IsNullOrWhiteSpace(ResolutionType)
-            && !String.IsNullOrWhiteSpace(ResolutionStatus) && Case.IsInstanceValidState; 
+                                            && !String.IsNullOrWhiteSpace(ResolutionStatus) && Case.IsInstanceValidState; 
         public string QeustionsString
         {
             get

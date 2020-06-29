@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
@@ -23,12 +24,7 @@ namespace PLSE_MVVMStrong.ViewModel
         public IReadOnlyList<string> ResolutionStatus => CommonInfo.ResolutionStatus;
         public ListCollectionView CustomersList { get; }
         public object SelectedCustomer { get; set; }
-        public Resolution Resolution { get; set; } = new Resolution()
-        {
-            RegistrationDate = DateTime.Now,
-            ResolutionType = "постановление",
-            ResolutionStatus = "рассмотрение"
-        };
+        public Resolution Resolution { get; set; }
         public bool CustomersListOpened
         {
             get { return (bool)GetValue(CustomersListOpenedProperty); }
@@ -101,34 +97,32 @@ namespace PLSE_MVVMStrong.ViewModel
         
         public ResolutionAddVM()
         {
-            //#if DEBUG
-            //            Resolution.Case.TypeCase = new KeyValuePair<string, string>("гражданское", "2");
-            //#endif
-            Resolution.PropertyChanged += Resolution_PropertyChanged;
             
+            Resolution = InicialState();
+            Resolution.PropertyChanged += Resolution_PropertyChanged;
             CustomersList = new ListCollectionView(CommonInfo.Customers);
-            Resolution.Expertisies.Add(new Expertise(id: 0,
-                                                      number: "12",
-                                                      expert: CommonInfo.Experts.Single(n => n.ExpertID == 6),
-                                                      status: "в работе",
-                                                      start: DateTime.Now,
-                                                      end: null,
-                                                      timelimit: (byte)20,
-                                                      type: "первичная",
-                                                      previous: null,
-                                                      spendhours: null,
-                                                      vr: Model.Version.New));
-            Resolution.Expertisies.Add(new Expertise(id: 0,
-                                                      number: "2056",
-                                                      expert: CommonInfo.Experts.Single(n => n.ExpertID == 8),
-                                                      status: "выполнена",
-                                                      start: DateTime.Now.AddDays(-34),
-                                                      end: DateTime.Now.AddDays(-11),
-                                                      timelimit: (byte)30,
-                                                      type: "первичная",
-                                                      previous: null,
-                                                      spendhours: 48,
-                                                      vr: Model.Version.New));
+            //Resolution.Expertisies.Add(new Expertise(id: 0,
+            //                                          number: "12",
+            //                                          expert: CommonInfo.Experts.Single(n => n.ExpertID == 6),
+            //                                          status: "в работе",
+            //                                          start: DateTime.Now,
+            //                                          end: null,
+            //                                          timelimit: (byte)20,
+            //                                          type: "первичная",
+            //                                          previous: null,
+            //                                          spendhours: null,
+            //                                          vr: Model.Version.New));
+            //Resolution.Expertisies.Add(new Expertise(id: 0,
+            //                                          number: "2056",
+            //                                          expert: CommonInfo.Experts.Single(n => n.ExpertID == 8),
+            //                                          status: "выполнена",
+            //                                          start: DateTime.Now.AddDays(-34),
+            //                                          end: DateTime.Now.AddDays(-11),
+            //                                          timelimit: (byte)30,
+            //                                          type: "первичная",
+            //                                          previous: null,
+            //                                          spendhours: 48,
+            //                                          vr: Model.Version.New));
             AddNewCustomer = new RelayCommand(n =>
             {
                 var wnd = new CustomerAdd();
@@ -184,21 +178,14 @@ namespace PLSE_MVVMStrong.ViewModel
                     Resolution.SaveChanges(CommonInfo.connection);
                     if (MessageBox.Show("Сохранение успешно. Продолжить?", "Сохранение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                     {
-                        Resolution = new Resolution()
-                        {
-                            RegistrationDate = DateTime.Now,
-                            ResolutionType = "постановление",
-                            ResolutionStatus = "рассмотрение"
-                        };
+                        Resolution = InicialState();
                     }
-                    
-                    
+                    else (n as Window).Close();
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show(ex.Message);
                 }
-                
             },
              o=>
              {
@@ -322,6 +309,17 @@ namespace PLSE_MVVMStrong.ViewModel
                 instance.CustomersList.Filter = null;
                 instance.CustomersListOpened = false;
             }
+        }
+        private Resolution InicialState()
+        {
+            var r = new Resolution()
+            {
+                RegistrationDate = DateTime.Now,
+                ResolutionType = "постановление",
+                ResolutionStatus = "рассмотрение",
+            };
+            r.Case.TypeCase = CommonInfo.CaseTypes.First(n => n.Value == "1");
+            return r;
         }
 
     }
