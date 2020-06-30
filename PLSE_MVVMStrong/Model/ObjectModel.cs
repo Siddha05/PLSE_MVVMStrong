@@ -1882,6 +1882,17 @@ namespace PLSE_MVVMStrong.Model
                                     updatedate: this.UpdateDate);
         }
         object ICloneable.Clone() => Clone();
+        public void Copy(Speciality sp)
+        {
+            _code = sp._code;
+            _species = sp._species;
+            _category_1 = sp._category_1;
+            _category_2 = sp._category_2;
+            _category_3 = sp._category_3;
+            _acronym = sp._acronym;
+            _status = sp._status;
+            _id = sp._id;
+        }
         #endregion
     }
     public sealed class Settlement : NotifyBase, IEquatable<Settlement>, ICloneable
@@ -3742,7 +3753,21 @@ namespace PLSE_MVVMStrong.Model
             return new Organization(OrganizationID, _name, _shortname, _postcode, _adress, _telephone, _telephone2, _fax, _email, _website, _status,
                                         this.Version, this.UpdateDate);
         }
-        object ICloneable.Clone() => Clone();     
+        object ICloneable.Clone() => Clone();
+        public void Copy(Organization o)
+        {
+            _name = o._name;
+            _shortname = o._shortname;
+            _postcode = o._postcode;
+            _adress = o._adress;
+            _telephone = o._telephone;
+            _telephone2 = o._telephone2;
+            _fax = o._fax;
+            _email = o._email;
+            _website = o._website;
+            _status = o._status;
+            _id = o._id;
+        }
     }
     public class Laboratory : Organization
     {

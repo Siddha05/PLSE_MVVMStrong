@@ -176,7 +176,7 @@
             </Grid>
         </ScrollViewer>
         <Button Style="{StaticResource BaseUIButton}" Grid.Column="1" Grid.Row="1" Content="ДОБАВИТЬ" Foreground="GreenYellow" Command="{Binding Path=Save}"
-                HorizontalAlignment="Right" Margin="5,85, 40,10"/>
+                CommandParameter="{Binding ElementName=wnd}" HorizontalAlignment="Right" Margin="5,85, 40,10"/>
         <StackPanel Grid.Column="1" Orientation="Vertical">
             <TextBlock Style="{x:Null}" Text="{Binding Path=Resolution.Expertisies.Count, StringFormat=Экспертизы {0}}" FontSize="{StaticResource HeaderFontSize}" 
                        FontWeight="Bold" HorizontalAlignment="Center" Margin="0,15,0,5"/>

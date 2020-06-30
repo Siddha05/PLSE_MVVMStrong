@@ -16,10 +16,13 @@ namespace PLSE_MVVMStrong.ViewModel
         #region Fields
         static private string[] CaseTypeContract = new string[] { "исследование"};
         static private IEnumerable<string> CaseTypesFull = CommonInfo.CaseTypes.Keys.Except(CaseTypeContract);
+        private RelayCommand _delexpertise;
+        private RelayCommand _addnewcustomer;
+        private RelayCommand _editcustomer;
+        private RelayCommand _addexpertise;
         #endregion Fields
 
         #region Properties
-
         public IReadOnlyList<string> ResolutionTypes => CommonInfo.ResolutionTypes;
         public IReadOnlyList<string> ResolutionStatus => CommonInfo.ResolutionStatus;
         public ListCollectionView CustomersList { get; }
@@ -79,10 +82,74 @@ namespace PLSE_MVVMStrong.ViewModel
         public RelayCommand ObjectsClick { get; }
         public RelayCommand QuestionsClick { get; }
         public RelayCommand Save { get; }
-        public RelayCommand AddExpertise { get; }
-        public RelayCommand DeleteExpertise { get; }
-        public RelayCommand AddNewCustomer { get; }
-        public RelayCommand EditCustomer { get; }
+        public RelayCommand AddExpertise
+        {
+            get
+            {
+                return _addexpertise != null ? _addexpertise : new RelayCommand(n =>
+                                                                {
+                                                                    var wnd = new ExpertiseAdd { Owner = n as ResolutionAdd };
+                                                                    wnd.ShowDialog();
+                                                                    if (wnd.DialogResult ?? false)
+                                                                    {
+                                                                        Resolution.Expertisies.Add((wnd.DataContext as ExpertiseAddVM).Expertise);
+                                                                    }
+                                                                });
+            }
+        }
+        public RelayCommand DeleteExpertise
+        {
+            get
+            {
+                return _delexpertise != null ? _delexpertise : new RelayCommand(n =>
+                                                    {
+                                                        Resolution.Expertisies.Remove(SelectedExpertise as Expertise);
+                                                    },
+                                                        o =>
+                                                    {
+                                                        if (SelectedExpertise != null) return true;
+                                                        else return false;
+                                                    });
+            }
+        }
+        public RelayCommand AddNewCustomer
+        {
+            get
+            {
+                return _addnewcustomer != null ? _addnewcustomer : new RelayCommand(n =>
+                                                    {
+                                                        var wnd = new CustomerAdd();
+                                                        CustomersListOpened = false;
+                                                        wnd.ShowDialog();
+                                                        if (wnd.DialogResult == true)
+                                                        {
+                                                            Resolution.Customer = (wnd.DataContext as CustomerAddVM)?.Customer;
+                                                        }
+                                                    });
+            }
+        }
+        public RelayCommand EditCustomer
+        {
+            get
+            {
+                return _editcustomer != null ? _editcustomer : new RelayCommand(n =>
+                                                        {
+                                                            var wnd = new CustomerAdd();
+                                                            wnd.DataContext = new CustomerAddVM(SelectedCustomer as Customer);
+                                                            CustomersListOpened = false;
+                                                            wnd.ShowDialog();
+                                                            if (wnd.DialogResult == true)
+                                                            {
+                                                                Resolution.Customer = (wnd.DataContext as CustomerAddVM)?.Customer;
+                                                            }
+                                                        },
+                                                            o =>
+                                                        {
+                                                            if (SelectedCustomer != null) return true;
+                                                            return false;
+                                                        });
+            }
+        }
         public RelayCommand SelectCustomer { get; }
         #endregion Commands
         
@@ -114,32 +181,7 @@ namespace PLSE_MVVMStrong.ViewModel
             //                                          previous: null,
             //                                          spendhours: 48,
             //                                          vr: Model.Version.New));
-            AddNewCustomer = new RelayCommand(n =>
-            {
-                var wnd = new CustomerAdd();
-                CustomersListOpened = false;
-                wnd.ShowDialog();
-                if (wnd.DialogResult == true)
-                {
-                    Resolution.Customer = (wnd.DataContext as CustomerAddVM)?.Customer;
-                }
-            });
-            EditCustomer = new RelayCommand(n =>
-            {
-                var wnd = new CustomerAdd();
-                wnd.DataContext = new CustomerAddVM(SelectedCustomer as Customer);
-                CustomersListOpened = false;
-                wnd.ShowDialog();
-                if (wnd.DialogResult == true)
-                {
-                    Resolution.Customer = (wnd.DataContext as CustomerAddVM)?.Customer;
-                }
-            },
-                o =>
-                {
-                    if (SelectedCustomer != null) return true;
-                    return false;
-                });
+
             SelectCustomer = new RelayCommand(n =>
             {
                 Resolution.Customer = SelectedCustomer as Customer;
@@ -183,25 +225,6 @@ namespace PLSE_MVVMStrong.ViewModel
                  if (Resolution.IsInstanceValidState) return true;
                  else return false;
              });
-            DeleteExpertise = new RelayCommand(n =>
-            {
-                Resolution.Expertisies.Remove(SelectedExpertise as Expertise);
-            },
-                o =>
-                {
-                    if (SelectedExpertise != null) return true;
-                    else return false;
-                });
-            AddExpertise = new RelayCommand(n =>
-            {
-                var wnd = new ExpertiseAdd { Owner = n as ResolutionAdd};
-                wnd.ShowDialog();
-                if (wnd.DialogResult ?? false)
-                {
-                    Resolution.Expertisies.Add((wnd.DataContext as ExpertiseAddVM).Expertise);
-                }
-            });
-            Info = Resolution.ToString();
         }
         
         private void Customer_DatabaseAction(object sender, EventArgs e)
