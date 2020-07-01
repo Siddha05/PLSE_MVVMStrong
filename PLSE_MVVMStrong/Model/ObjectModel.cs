@@ -393,7 +393,6 @@ namespace PLSE_MVVMStrong.Model
         /// <summary>
         /// Общая информация о ПЛСЭ
         /// </summary>
-
         public static readonly Laboratory PLSE;
         private static ObservableCollection<Speciality> _specialities = new ObservableCollection<Speciality>();
         private static ObservableCollection<Organization> _organizations = new ObservableCollection<Organization>();
@@ -536,89 +535,6 @@ namespace PLSE_MVVMStrong.Model
             catch (Exception)
             {
                 throw;
-            }
-            _settlements.CollectionChanged += _settlements_CollectionChanged;
-            _employees.CollectionChanged += _employees_CollectionChanged;
-            _specialities.CollectionChanged += _specialities_CollectionChanged;
-            _organizations.CollectionChanged += _organizations_CollectionChanged;
-        }
-
-        private static void _organizations_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            switch (e.Action)
-            {
-                case NotifyCollectionChangedAction.Remove:
-                    break;
-                case NotifyCollectionChangedAction.Replace:
-                    foreach (var c in _customers.Where(n => n.Organization == e.OldItems[0]))
-                    {
-                        c.Organization = (Organization)e.NewItems[0];
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Reset:
-                    break;
-                default:
-                    break;
-            }
-        }
-        private static void _specialities_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            switch (e.Action)
-            {
-                case NotifyCollectionChangedAction.Remove:
-                    break;
-                case NotifyCollectionChangedAction.Replace:
-                    foreach (var exp in _experts.Where(n => n.Speciality == e.OldItems[0]))
-                    {
-                        exp.Speciality = (Speciality)e.NewItems[0];
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Reset:
-                    break;
-                default:
-                    break;
-            }
-        }
-        private static void _employees_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            switch (e.Action)
-            {
-                
-                case NotifyCollectionChangedAction.Remove:
-                    break;
-                case NotifyCollectionChangedAction.Replace:
-                    foreach (var exp in _experts.Where(n => n.Employee == e.OldItems[0]))
-                    {
-                        exp.Employee = (Employee)e.NewItems[0];
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Reset:
-                    break;
-                default:
-                    break;
-            }
-        }
-        private static void _settlements_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            switch (e.Action)
-            {
-                case NotifyCollectionChangedAction.Remove:
-                    break;
-                case NotifyCollectionChangedAction.Replace:
-
-                    foreach (var empl in _employees.Where(n => n.Adress.Settlement == e.OldItems[0]))
-                    {
-                        empl.Adress.Settlement = (Settlement)e.NewItems[0];
-                    }
-                    foreach (var org in _organizations.Where(n => n.Adress.Settlement == e.OldItems[0]))
-                    {
-                        org.Adress.Settlement = (Settlement)e.NewItems[0];
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Reset:
-                    break;
-                default:
-                    break;
             }
         }
         private static void LoadInitialInfo(SqlConnection connection)
@@ -2469,7 +2385,6 @@ namespace PLSE_MVVMStrong.Model
                 OnPropertyChanged();
             }
         }
-
         public bool Declinated
         {
             get => _declinated;
@@ -2530,12 +2445,12 @@ namespace PLSE_MVVMStrong.Model
         }
         public bool isValidName(string name)
         {
-            Regex regex = new Regex(@"^\p{IsCyrillic}{2,25}$ | ^\p{IsCyrillic}{1}\.?$", RegexOptions.IgnoreCase);
+            Regex regex = new Regex(@"^\p{IsCyrillic}{2,25}$", RegexOptions.IgnoreCase);
             return regex.IsMatch(name);
         }
         public bool isValidMiddleName(string mname)
         {
-            Regex regex = new Regex(@"^\p{IsCyrillic}{2,30}$ | ^\p{IsCyrillic}{1}\.?$", RegexOptions.IgnoreCase);
+            Regex regex = new Regex(@"^\p{IsCyrillic}{2,25}$", RegexOptions.IgnoreCase);
             return regex.IsMatch(mname);
         }
         public bool isValidSecondName(string sname)
@@ -3049,7 +2964,7 @@ namespace PLSE_MVVMStrong.Model
             _previd = previd;
         }
 
-        #region Methods
+#region Methods
         public override string ToString()
         {
             return base.ToString("n");
@@ -3221,32 +3136,56 @@ namespace PLSE_MVVMStrong.Model
         object ICloneable.Clone() => Clone();
         public void Copy (Employee em)
         {
-            _fname = em._fname;
-            _declinated = em._declinated;
-            _mname = em._mname;
-            _sname = em._sname;
-            _mobilephone = em._mobilephone;
-            _workphone = em._workphone;
-            _gender = em._gender;
-            _email = em._email;
-            _adress = em._adress;
-            _education1 = em._education1;
-            _education2 = em._education2;
-            _education3 = em._education3;
-            _sciencedegree = em._sciencedegree;
-            _inneroffice = em._inneroffice;
-            _departament = em._departament;
-            _employeeStaus = em._employeeStaus;
-            _birthdate = em._birthdate;
-            _hiredate = em._hiredate;
-            _profile = em._profile;
-            _password = em._password;
-            _foto = em._foto;
+            //_fname = em._fname;
+            //_declinated = em._declinated;
+            //_mname = em._mname;
+            //_sname = em._sname;
+            //_mobilephone = em._mobilephone;
+            //_workphone = em._workphone;
+            //_gender = em._gender;
+            //_email = em._email;
+            //_adress = em._adress;
+            //_education1 = em._education1;
+            //_education2 = em._education2;
+            //_education3 = em._education3;
+            //_sciencedegree = em._sciencedegree;
+            //_inneroffice = em._inneroffice;
+            //_departament = em._departament;
+            //_employeeStaus = em._employeeStaus;
+            //_birthdate = em._birthdate;
+            //_hiredate = em._hiredate;
+            //_profile = em._profile;
+            //_password = em._password;
+            //_foto = em._foto;
+            //_previd = em._previd;
+            //_id = em._id;
+            Fname = em._fname;
+            Declinated = em._declinated;
+            Mname = em._mname;
+            Sname = em._sname;
+            Mobilephone = em._mobilephone;
+            Workphone = em._workphone;
+            Gender = em._gender;
+            Email = em._email;
+            Adress = em._adress;
+            Education1 = em._education1;
+            Education2 = em._education2;
+            Education3 = em._education3;
+            Sciencedegree = em._sciencedegree;
+            Inneroffice = em._inneroffice;
+            Departament = em._departament;
+            EmployeeStatus = em._employeeStaus;
+            Birthdate = em._birthdate;
+            Hiredate = em._hiredate;
+            Profile = em._profile;
+            Password = em._password;
+            Foto = em._foto;
             _previd = em._previd;
             _id = em._id;
-            
+            //OnPropertyChanged("Fio");
+            //OnPropertyChanged("Image");
         }
-        #endregion
+#endregion
     }
     public class Expert : NotifyBase, ICloneable
     {
@@ -3834,7 +3773,7 @@ namespace PLSE_MVVMStrong.Model
         }
         public int CustomerID => ID;
         public string Requisite => ToString();
-        public new bool IsInstanceValidState => base.IsInstanceValidState && !String.IsNullOrEmpty(Office);
+        public new bool IsInstanceValidState => !String.IsNullOrEmpty(Office); // check base valid state
 
         public Customer() : base() {}
         public Customer(string firstname, string middlename, string secondname, string mobilephone, string workphone, string gender, string email, bool declinated, Version vr, DateTime updatedate,
@@ -4091,7 +4030,7 @@ namespace PLSE_MVVMStrong.Model
         }
         public string Essense => AnnotateBuilder();
 
-        public bool IsInstanceValidState => true;
+        public bool IsInstanceValidState => !String.IsNullOrWhiteSpace(_typecase);
 
         public Case() : base() { }
         public Case(int id, string number, string type, string respondent, string plaintiff, string annotate, string comment = null, DateTime? dispatchdate = null)
@@ -4179,7 +4118,7 @@ namespace PLSE_MVVMStrong.Model
     /// </summary>
     public sealed class Resolution : NotifyBase
     {
-        #region Fields
+#region Fields
         private DateTime _regdate;
         private DateTime? _resdate;
         private string _restype;
@@ -4192,7 +4131,7 @@ namespace PLSE_MVVMStrong.Model
         private readonly ObservableCollection<Expertise> _expertisies = new ObservableCollection<Expertise>();
         #endregion
        
-        #region Property
+#region Property
         public string ResolutionStatus
         {
             get => _status;
@@ -4302,7 +4241,7 @@ namespace PLSE_MVVMStrong.Model
         }
         public int ResolutionID => ID;
         public ObservableCollection<Expertise> Expertisies => _expertisies;
-        public bool IsInstanceValidState => Customer?.IsInstanceValidState ?? false && !String.IsNullOrWhiteSpace(ResolutionType)
+        public bool IsInstanceValidState => (Customer?.IsInstanceValidState ?? false) && !String.IsNullOrWhiteSpace(ResolutionType)
                                             && !String.IsNullOrWhiteSpace(ResolutionStatus) && Case.IsInstanceValidState; 
         public string QeustionsString
         {
@@ -4438,7 +4377,7 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@RegDate", SqlDbType.Date).Value = RegistrationDate;
             cmd.Parameters.Add("@ResolDate", SqlDbType.Date).Value = ConvertToDBNull(ResolutionDate);
             cmd.Parameters.Add("@TypeResol", SqlDbType.NVarChar, 30).Value = ResolutionType;
-            cmd.Parameters.Add("@Status", SqlDbType.NVarChar, 30).Value = _status;           
+            cmd.Parameters.Add("@Status", SqlDbType.NVarChar, 30).Value = _status;       
             cmd.Parameters.Add("@TypeCase", SqlDbType.Char, 1).Value = CommonInfo.CaseTypes[Case.TypeCase];
             cmd.Parameters.Add("@Annotate", SqlDbType.NVarChar, 500).Value = ConvertToDBNull(Case.Annotate);
             cmd.Parameters.Add("@Comment", SqlDbType.NVarChar, 500).Value = ConvertToDBNull(Case.Comment);
@@ -4461,6 +4400,7 @@ namespace PLSE_MVVMStrong.Model
                 Customer.SaveChanges(con);
                 cmd.Parameters.Add("@CustID", SqlDbType.Int).Value = Customer.CustomerID;
                 cmd.ExecuteNonQuery();
+                cmd.Connection.Close();
                 foreach (var item in _expertisies)
                 {
                     item.SaveChanges(con);
@@ -4550,6 +4490,10 @@ namespace PLSE_MVVMStrong.Model
                 item.SaveChanges(con);
             }
             Version = Version.Original;
+        }
+        public void Save(SqlConnection con)
+        {
+
         }
     }
 
@@ -5180,7 +5124,6 @@ namespace PLSE_MVVMStrong.Model
         public static Expertise New => new Expertise()
         {
             Version = Version.New,
-            _result = "в работе",
             _startdate = DateTime.Now,
             _timelimit = 30
         };
@@ -5528,7 +5471,7 @@ namespace PLSE_MVVMStrong.Model
             Regex regex = new Regex(@"^[1-9]\d{0,3}$");
             return num != null && regex.IsMatch(num);
         }
-        public bool InstanceValidState() => _expert != null && IsValidNumber(_number) && !String.IsNullOrWhiteSpace(_result) && !String.IsNullOrWhiteSpace(_type);
+        public bool InstanceValidState() => _expert != null && IsValidNumber(_number) && !String.IsNullOrWhiteSpace(_type);
     }
 
     /// <summary>

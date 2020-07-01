@@ -83,9 +83,9 @@
                 <TextBlock Text="Нативный вид" Grid.Row="5" Style="{StaticResource UITextBlock}"/>
                 <TextBox Name="resPrescribeType" Grid.Row="5" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Resolution.PrescribeType}" Margin="5,5,0,5" Width="633" />
                 <TextBlock Grid.Row="6" Text="Заказчик*" Style="{StaticResource UITextBlock}"/>
-                <StackPanel Orientation="Horizontal" Grid.Row="6" Grid.Column="1">
+                <StackPanel Orientation="Horizontal" Grid.Row="6" Grid.Column="1" Margin="5">
                     <TextBlock Text="{Binding Path=Resolution.Customer.Fio, TargetNullValue='не выбрано'}" ToolTip="{Binding Path=Resolution.Customer.Requisite}" 
-                               FontSize="{StaticResource UIFontSize}" FontWeight="DemiBold" VerticalAlignment="Center" Height="auto" Margin="5"/>
+                               FontSize="{StaticResource UIFontSize}" FontWeight="DemiBold" VerticalAlignment="Center" Height="auto" Margin="0,0,2,0"/>
                     <TextBox Style="{StaticResource SearchTextBox}" Name="tbCustomer" Width="180" Tag="Введите фамилию" 
                              Text="{Binding Path=CustomerSearchText, UpdateSourceTrigger=PropertyChanged}"/>
                 </StackPanel>

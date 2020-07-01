@@ -2,6 +2,7 @@
 using PLSE_MVVMStrong.View;
 using System;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,8 +18,12 @@ namespace PLSE_MVVMStrong.ViewModel
         private Progress<Message> informer;
         private App app = Application.Current as App;
         private MessageQuery messages = new MessageQuery();
-        private int empIndex;
-
+        private RelayCommand _openprofile;
+        private RelayCommand _openspeciality;
+        private RelayCommand _openemployees;
+        private RelayCommand _openabout;
+        private RelayCommand _openaddresol;
+        private RelayCommand _openexpertise;
 #region Properties
         public string Date
         {
@@ -44,23 +49,116 @@ namespace PLSE_MVVMStrong.ViewModel
         public static readonly DependencyProperty EmployeeProperty =
             DependencyProperty.Register("Employee", typeof(Employee), typeof(MainVM), new PropertyMetadata((Application.Current as App).LogedEmployee));
 
-        #endregion Properties
+#endregion Properties
 
-        #region Commands
+#region Commands
         public RelayCommand Exit { get; }
-        public RelayCommand OpenSpeciality { get; }
-        public RelayCommand OpenResolutionAdd { get; }
-        public RelayCommand OpenEmployees { get; }
-        public RelayCommand OpenProfile { get; }
-        public RelayCommand OpenExpertises { get; }
+        public RelayCommand OpenSpeciality
+        {
+            get
+            {
+                return _openspeciality != null ? _openspeciality : _openspeciality = new RelayCommand(exec: o =>
+                {
+                                                                Specialities sw = new Specialities()
+                                                                {
+                                                                    Left = 0,
+                                                                    Top = 0,
+                                                                    Width = SystemParameters.WorkArea.Width,
+                                                                    Height = SystemParameters.WorkArea.Height,
+                                                                    Owner = o as MainWindow
+                                                                };
+                                                                sw.Show();
+                                                                },
+                                                                canexec: o => app.Permissions.Actions["SpecialitiesView"]
+                                                                );
+            }
+        }
+        public RelayCommand OpenResolutionAdd
+        {
+            get
+            {
+                return _openaddresol != null ? _openaddresol : _openaddresol = new RelayCommand(o =>
+                {
+                                                                ResolutionAdd rw = new ResolutionAdd()
+                                                                {
+                                                                    Owner = o as MainWindow
+                                                                };
+                                                                rw.Show();
+                                                            },
+                                                                o => app.Permissions.Actions["ResolutionAdd"]
+                                                            );
+            }
+        }
+        public RelayCommand OpenEmployees
+        {
+            get
+            {
+                return _openemployees != null ? _openemployees : _openemployees = new RelayCommand(n =>
+                                                                {
+                                                                    Employees ew = new Employees
+                                                                    {
+                                                                        Owner = n as MainWindow
+                                                                    };
+                                                                    ew.Show();
+                                                                },
+                                                                    o => app.Permissions.Actions["EmployeesView"]
+                                                                );
+            }
+        }
+        public RelayCommand OpenProfile
+        {
+            get
+            {
+                return _openprofile != null ? _openprofile : _openprofile = new RelayCommand(n =>
+                                            {
+                                                var wnd = new Profile() { Owner = n as MainWindow, WindowStartupLocation = WindowStartupLocation.CenterScreen };
+                                                if (wnd.ShowDialog() ?? false)
+                                                {
+                                                    try
+                                                    {
+                                                        var vm = wnd.DataContext as ProfileVM;
+                                                        if (vm == null) return;
+                                                        vm.Employee.SaveChanges(CommonInfo.connection);
+                                                        CommonInfo.Employees[app.LogedEmployeeIndex].Copy(vm.Employee);
+                                                    }
+                                                    catch (Exception ex)
+                                                    {
+                                                        MessageBox.Show(ex.Message);
+                                                    }
+                                                }
+                                            });
+            }
+        }
+        public RelayCommand OpenExpertises
+        {
+            get
+            {
+                return _openexpertise != null ? _openexpertise : _openexpertise = new RelayCommand(n =>
+                                                                            {
+                                                                                var wnd = new Expertises { Owner = n as MainWindow };
+                                                                                wnd.Show();
+                                                                            },
+                                                                                o => app.Permissions.Actions["ExpertiseView"]
+                                                                            );
+            }
+        }
         public RelayCommand WindowLoaded { get; }
         public RelayCommand MessageListDoubleClick { get; }
-        public RelayCommand OpenAbout { get; }
+        public RelayCommand OpenAbout
+        {
+            get
+            {
+                return _openabout != null ? _openabout : _openabout = new RelayCommand(n =>
+                                                        {
+                                                            About wnd = new About();
+                                                            wnd.Show();
+                                                        });
+            }
+        }
 #endregion Commands
 
         public MainVM()
         {
-            empIndex = CommonInfo.Employees.IndexOf(Employee);
             informer = new Progress<Message>(n => messages.Add(n));
             app.PropertyChanged += App_PropertyChanged;
             Exit = new RelayCommand(o =>
@@ -68,65 +166,6 @@ namespace PLSE_MVVMStrong.ViewModel
                                             var w = o as MainWindow;
                                             if (w != null) w.Close();
                                         });
-            OpenSpeciality = new RelayCommand(exec: o =>
-                                     {
-                                         Specialities sw = new Specialities()
-                                         {
-                                             Left = 0,
-                                             Top = 0,
-                                             Width = SystemParameters.WorkArea.Width,
-                                             Height = SystemParameters.WorkArea.Height,
-                                             Owner = o as MainWindow
-                                         };
-                                         sw.Show();
-                                     },
-                                     canexec: o => app.Permissions.Actions["SpecialitiesView"]
-                                     );
-            OpenResolutionAdd = new RelayCommand(o =>
-                                        {
-                                            ResolutionAdd rw = new ResolutionAdd()
-                                            {
-                                                Owner = o as MainWindow
-                                            };
-                                            rw.Show();
-                                        },
-                                        o => app.Permissions.Actions["ResolutionAdd"]
-                                        );
-            OpenEmployees = new RelayCommand(n =>
-            {
-                Employees ew = new Employees
-                {
-                    Owner = n as MainWindow
-                };
-                ew.Show();
-            },
-                o => app.Permissions.Actions["EmployeesView"]    
-            );
-            OpenProfile = new RelayCommand(n =>
-                {
-                    var wnd = new Profile() { Owner = n as MainWindow, WindowStartupLocation = WindowStartupLocation.CenterScreen };
-                    if (wnd.ShowDialog() ?? false)
-                    {
-                        try
-                        {
-                            var vm = wnd.DataContext as ProfileVM;
-                            if (vm == null) return;
-                            vm.Employee.SaveChanges(CommonInfo.connection);
-                            CommonInfo.Employees[empIndex] = vm.Employee;
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show(ex.Message);
-                        }
-                    }
-                });
-            OpenExpertises = new RelayCommand(n =>
-            {
-                var wnd = new Expertises { Owner = n as MainWindow };
-                wnd.Show();
-            },
-                o => app.Permissions.Actions["ExpertiseView"]
-                );
             timer = new DispatcherTimer()
             {
                 Interval = TimeSpan.FromSeconds(1)
@@ -136,11 +175,6 @@ namespace PLSE_MVVMStrong.ViewModel
                 ScanAnnualDate(informer);
                 ScanExpertises(informer);
             });
-            OpenAbout = new RelayCommand(n =>
-           {
-               About wnd = new About();
-               wnd.Show();
-           });
             MessageListDoubleClick = new RelayCommand(n =>
             {
                 Messages.Remove(n as Message);
@@ -152,7 +186,7 @@ namespace PLSE_MVVMStrong.ViewModel
             else if (curhour >= 11 && curhour <= 16) Messages.Add(new Message($"День добрый, {Employee.Fname} {Employee.Mname}", MsgType.Temporary, TimeSpan.FromSeconds(5)));
             else if (curhour >= 17 && curhour <= 21) Messages.Add(new Message($"Добрый вечер, {Employee.Fname} {Employee.Mname}", MsgType.Temporary, TimeSpan.FromSeconds(5)));
             else Messages.Add(new Message($"Доброй ночи, {Employee.Fname} {Employee.Mname}", MsgType.Normal, TimeSpan.FromSeconds(5)));
-            app.PropertyChanged += (o, e) => Employee = app.LogedEmployee;
+            //app.PropertyChanged += (o, e) => Employee = app.LogedEmployee;
             //foreach (var item in CommonInfo.Organizations)
             //{
             //    Messages.Add(new Message(StringUtil.Joining(item.Name, LingvoNET.Case.Genitive), MsgType.Warning));
@@ -161,16 +195,8 @@ namespace PLSE_MVVMStrong.ViewModel
 
         private void App_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            switch (e.PropertyName)
-            {
-                case "LogedEmployee":
-                    Employee = app.LogedEmployee;
-                    break;
-                default:
-                    break;
-            }
+            Employee = app.LogedEmployee;
         }
-
         private void Timer_Tick(object sender, EventArgs e)
         {
             Date = DateTime.Now.ToString("F");

@@ -53,6 +53,7 @@ namespace PLSE_MVVMStrong
             "Теория — это когда все известно, но ничего не работает. Практика — это когда все работает, но никто не знает почему. Мы же объединяем теорию и практику: ничего не работает... и никто не знает почему!"
         };
         private Employee _logempl;
+        private int _empindex;
         public event PropertyChangedEventHandler PropertyChanged;
         #endregion
         #region Properties
@@ -61,14 +62,14 @@ namespace PLSE_MVVMStrong
             get => _logempl;
             set
             {
-                if(value != _logempl)
-                {
-                    _logempl = value;
-                    OnPropertyChanged();
-                    SetPermission();
-                }
+                _logempl = value;
+                _empindex = CommonInfo.Employees.IndexOf(_logempl);
+                value.PropertyChanged += E_PropertyChanged;
+                OnPropertyChanged();
+                SetPermission();
             }
         }
+        public int LogedEmployeeIndex => _empindex;
         public string Aphorism
         {
             get
@@ -92,29 +93,14 @@ namespace PLSE_MVVMStrong
 #if DEBUG
             Random rnd = new Random();
             int i = rnd.Next(1, 50);
-            System.Diagnostics.Debug.Print("Random: " + i.ToString());
-            (Application.Current as App).LogedEmployee = CommonInfo.Employees.First(n => n.EmployeeID == i);
-            CommonInfo.Employees.CollectionChanged += Employees_CollectionChanged;
+            Debug.Print("Random: " + i.ToString());
+            var e = CommonInfo.Employees.First(n => n.EmployeeID == i);
+            LogedEmployee = e;       
 #endif
         }
-
-        private void Employees_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void E_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            switch (e.Action)
-            {
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
-                    break;
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Replace:
-                    if (_logempl == e.OldItems[0])
-                    {
-                        LogedEmployee = (Employee)e.NewItems[0];
-                    }
-                    break;
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Reset:
-                    break;
-                default:
-                    break;
-            }
+            OnPropertyChanged(nameof(LogedEmployee));
         }
     }
 

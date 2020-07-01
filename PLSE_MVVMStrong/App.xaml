@@ -367,7 +367,7 @@
                     <ControlTemplate TargetType="Button">
                         <Ellipse Name="el" Width="{TemplateBinding Width}" Height="{TemplateBinding Height}" RenderTransformOrigin=".5,.5" Stroke="White" StrokeThickness="2">
                             <Ellipse.Fill>
-                                <ImageBrush ImageSource="Resources\additem.png" Stretch="Fill" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.ClearTypeHint="Enabled"/>
+                                <ImageBrush ImageSource="Resources\additem2.png" Stretch="Fill" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.ClearTypeHint="Enabled"/>
                             </Ellipse.Fill>
                             <Ellipse.RenderTransform>
                                 <ScaleTransform x:Name="trs"/>
