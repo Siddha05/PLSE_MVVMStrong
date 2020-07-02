@@ -89,7 +89,7 @@ namespace PLSE_MVVMStrong.ViewModel
             {
                 try
                 {
-                    sp.DBDelete(CommonInfo.connection);
+                    sp.DeleteFromDB(CommonInfo.connection);
                     Specialities.Remove(Specialities.CurrentItem);
                 }
                 catch (Exception e)

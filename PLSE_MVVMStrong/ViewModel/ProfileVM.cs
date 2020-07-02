@@ -154,7 +154,7 @@ namespace PLSE_MVVMStrong.ViewModel
                         if (exp == null) return;
                         try
                         {
-                            exp.DBDelete(CommonInfo.connection);
+                            exp.DeleteFromDB(CommonInfo.connection);
                             CommonInfo.Experts.Remove(exp);
                         }
                         catch (SqlException)

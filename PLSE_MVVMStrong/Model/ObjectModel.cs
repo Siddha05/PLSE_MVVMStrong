@@ -4698,8 +4698,9 @@ namespace PLSE_MVVMStrong.Model
         private short? _nnother;
         private string _comment;
         private short? _eval;
+        private int _id;
 
-        public int ExpertiseID => ID;
+        public int ExpertiseID => _id;
         public short? ObjectsCount
         {
             get => _nobj;
@@ -4833,12 +4834,12 @@ namespace PLSE_MVVMStrong.Model
         public ExpertiseDetail(int id, short? nobj, short? ncat, short? nver, short? nalt, short? nnmet, short? nnmat, short? nncom, short? nnother, string comment, short? eval, Version vr)
             : base(vr)
         {
-            _nobj = nobj; _ncat = ncat; _nver = nver; _nalt = nalt;
+            _id = id; _nobj = nobj; _ncat = ncat; _nver = nver; _nalt = nalt;
             _nnmet = nnmet; _nnmat = nnmat; _nncom = nncom; _nnother = nnother;
             _comment = comment; _eval = eval;
         }
 
-        protected override int EditToDB(SqlConnection con)
+        private void EditToDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
@@ -4868,30 +4869,16 @@ namespace PLSE_MVVMStrong.Model
             {
                 cmd.Connection.Close();
             }
-            return 0;
         }
-        protected override int AddToDB(SqlConnection con)
-        {
-            throw new NotSupportedException("Невозможно вызвать функцию из класса ExpertiseDetail");
-        }
-        protected override void DeleteFromDB(SqlConnection con)
-        {
-            throw new NotSupportedException("Невозможно вызвать функцию из класса ExpertiseDetail");
-        }
-        protected override void ContentToDB(SqlConnection con)
-        {
-            throw new NotSupportedException("Невозможно вызвать функцию из класса ExpertiseDetail");
-        }
-
         public override void SaveChanges(SqlConnection con)
         {
-            throw new NotImplementedException();
+            EditToDB(con);
         }
     }
 
     public sealed class Expertise : NotifyBase
     {
-        #region Fields
+ #region Fields
         private string _number;
         private Expert _expert;
         private Resolution _resolution;
@@ -4903,13 +4890,14 @@ namespace PLSE_MVVMStrong.Model
         private int? _prevexp;
         private short? _spendhours;
         ExpertiseDetail _detail;
+        private int _id;
         private ObservableCollection<Request> _requests = new ObservableCollection<Request>();
         private ObservableCollection<Report> _raports = new ObservableCollection<Report>();
         private ObservableCollection<Bill> _bills = new ObservableCollection<Bill>();
         private ObservableCollection<EquipmentUsage> _equipmentusage = new ObservableCollection<EquipmentUsage>();
         #endregion
 
-        #region Properties
+ #region Properties
         public short? SpendHours
         {
             get => _spendhours;
@@ -5046,7 +5034,7 @@ namespace PLSE_MVVMStrong.Model
                 return $"{_number}/{Expert.Employee?.Departament.DigitalCode}-{s ?? ""}";
             }
         }
-        public int ExpertiseID => ID;
+        public int ExpertiseID => _id;
         public string Remain
         {
             get
@@ -5199,24 +5187,6 @@ namespace PLSE_MVVMStrong.Model
                     }
                     OnPropertyChanged("Bills", true);
                     break;
-
-                case NotifyCollectionChangedAction.Reset:
-                case NotifyCollectionChangedAction.Remove:
-                    try
-                    {
-                        foreach (Bill item in e.OldItems)
-                        {
-                            item.DBDelete(CommonInfo.connection);
-                        }
-                        OnPropertyChanged("Bills", true);
-                    }
-                    catch (Exception)
-                    {
-                        throw;
-                    }
-                    break;
-                default:
-                    break;
             }
         }
         private void OnRequestListChanged(object o, NotifyCollectionChangedEventArgs e)
@@ -5229,24 +5199,6 @@ namespace PLSE_MVVMStrong.Model
                         item.FromExpertise = this;
                     }
                     OnPropertyChanged("Requests", true);
-                    break;
-
-                case NotifyCollectionChangedAction.Reset:
-                case NotifyCollectionChangedAction.Remove:
-                    try
-                    {
-                        foreach (Request item in e.OldItems)
-                        {
-                            item.DBDelete(CommonInfo.connection);
-                        }
-                        OnPropertyChanged("Requests", true);
-                    }
-                    catch (Exception)
-                    {
-                        throw;
-                    }
-                    break;
-                default:
                     break;
             }
         }
@@ -5261,24 +5213,6 @@ namespace PLSE_MVVMStrong.Model
                     }
                     OnPropertyChanged("Reports", true);
                     break;
-
-                case NotifyCollectionChangedAction.Reset:
-                case NotifyCollectionChangedAction.Remove:
-                    try
-                    {
-                        foreach (Report item in e.OldItems)
-                        {
-                            item.DBDelete(CommonInfo.connection);
-                        }
-                        OnPropertyChanged("Reports",true);
-                    }
-                    catch (Exception)
-                    {
-                        throw;
-                    }
-                    break;
-                default:
-                    break;
             }
         }
         private void OnEquipmenUsageListChanged(object o, NotifyCollectionChangedEventArgs e)
@@ -5291,24 +5225,6 @@ namespace PLSE_MVVMStrong.Model
                         item.FromExpertise = this;
                     }
                     OnPropertyChanged("Equipments", true);
-                    break;
-
-                case NotifyCollectionChangedAction.Reset:
-                case NotifyCollectionChangedAction.Remove:
-                    try
-                    {
-                        foreach (Equipment item in e.OldItems)
-                        {
-                            item.DBDelete(CommonInfo.connection);
-                        }
-                        OnPropertyChanged("Equipments", true);
-                    }
-                    catch (Exception)
-                    {
-                        throw;
-                    }
-                    break;
-                default:
                     break;
             }
         }
@@ -5326,8 +5242,9 @@ namespace PLSE_MVVMStrong.Model
         }
         public Expertise(int id, string number, Expert expert, string status, DateTime start, DateTime? end, byte timelimit, string type, int? previous,
                         short? spendhours, Version vr)
-            : base(id, vr)
+            : base(vr)
         {
+            _id = id;
             _number = number;
             _expert = expert;
             _result = status;
@@ -5358,7 +5275,7 @@ namespace PLSE_MVVMStrong.Model
         /// <returns>Int32. Новое значение ключа идентификации в базе данных</returns>
         /// <exception cref="System.NullReferenceException">Поля <c>Resolution</c>, <c>Expert</c> или аргумент <c>con</c> равны null</exception>
         /// <exception cref="System.Data.SqlClient.SqlException"></exception>
-        protected override int AddToDB(SqlConnection con)
+        private void AddToDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
@@ -5378,22 +5295,7 @@ namespace PLSE_MVVMStrong.Model
             {
                 cmd.Connection.Open();
                 cmd.ExecuteNonQuery();
-                foreach (var item in _bills)
-                {
-                    item.SaveChanges(con);
-                }
-                foreach (var item in _requests)
-                {
-                    item.SaveChanges(con);
-                }
-                foreach (var item in _raports)
-                {
-                    item.SaveChanges(con);
-                }
-                foreach (var item in _equipmentusage)
-                {
-                    item.SaveChanges(con);
-                }
+                _id = (int)cmd.Parameters["@InsertedID"].Value;
                 Version = Version.Original;
             }
             catch (Exception)
@@ -5404,9 +5306,8 @@ namespace PLSE_MVVMStrong.Model
             {
                 cmd.Connection.Close();
             }
-            return (int)cmd.Parameters["@InsertedID"].Value;
         }
-        protected override int EditToDB(SqlConnection con)
+        private void EditToDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
@@ -5425,22 +5326,6 @@ namespace PLSE_MVVMStrong.Model
             {
                 cmd.Connection.Open();
                 cmd.ExecuteNonQuery();
-                foreach (var item in _bills)
-                {
-                    item.SaveChanges(con);
-                }
-                foreach (var item in _requests)
-                {
-                    item.SaveChanges(con);
-                }
-                foreach (var item in _raports)
-                {
-                    item.SaveChanges(con);
-                }
-                foreach (var item in _equipmentusage)
-                {
-                    item.SaveChanges(con);
-                }
                 Version = Version.Original;
             }
             catch (Exception)
@@ -5451,13 +5336,13 @@ namespace PLSE_MVVMStrong.Model
             {
                 cmd.Connection.Close();
             }
-            return 0;
         }
-        protected override void DeleteFromDB(SqlConnection con)
+        public void DeleteFromDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
-            cmd.CommandText = "delete from Activity.tblExpertises where ExpertiseID = @ExpID;";
-            cmd.Parameters.Add("@ExpID", SqlDbType.Int).Value = ExpertiseID;
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.CommandText = "Activity.prDeleteExpertise";
+            cmd.Parameters.Add("@id", SqlDbType.Int).Value = ExpertiseID;
             try
             {
                 cmd.Connection.Open();
@@ -5472,7 +5357,7 @@ namespace PLSE_MVVMStrong.Model
                 cmd.Connection.Close();
             }
         }
-        protected override void ContentToDB(SqlConnection con)
+        private void ContentToDB(SqlConnection con)
         {
             foreach (var item in _bills)
             {
@@ -5498,6 +5383,26 @@ namespace PLSE_MVVMStrong.Model
             return num != null && regex.IsMatch(num);
         }
         public bool InstanceValidState() => _expert != null && IsValidNumber(_number) && !String.IsNullOrWhiteSpace(_type);
+        public override void SaveChanges(SqlConnection con)
+        {
+            Expert.SaveChanges(con);
+            switch (Version)
+            {
+                case Version.New:
+                    AddToDB(con);
+                    ContentToDB(con);
+                    break;
+                case Version.Edited:
+                    EditToDB(con);
+                    ContentToDB(con);
+                    break;
+                case Version.ContentEdited:
+                    ContentToDB(con);
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 
     /// <summary>
@@ -5518,9 +5423,10 @@ namespace PLSE_MVVMStrong.Model
         private byte _hours;
         private decimal _hourprice;
         private decimal _paid;
+        private int _id;
         #endregion
         #region Properties
-        public int BillID => ID;
+        public int BillID => _id;
         public Expertise FromExpertise
         {
             get => _expertise;
@@ -5636,9 +5542,9 @@ namespace PLSE_MVVMStrong.Model
         
         public Bill() : base() { }
         public Bill(int id, string number, DateTime billdate, DateTime? paiddate, string payer, byte hours, decimal hourprice, decimal paid, Version vr)
-                        : base (id, vr)
+                        : base (vr)
         {
-           _number = number;
+           _number = number; _id = id;
             _billdate = billdate; _paiddate = paiddate; _payer = payer;
             _hours = hours; _hourprice = hourprice; _paid = paid;
             Version = vr;
@@ -5658,12 +5564,12 @@ namespace PLSE_MVVMStrong.Model
         /// <returns></returns>
         /// <exception cref="System.NullReferenceException">Полe <c>Expertise</c> или аргумент <c>con</c> равны null</exception>
         /// <exception cref="System.Data.SqlClient.SqlException"></exception>
-        protected override int AddToDB(SqlConnection con)
+        private void AddToDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.CommandText = "Activity.prAddBill";
-            cmd.Parameters.Add("@Num", SqlDbType.Char, 5).Value = _number;
+            cmd.Parameters.Add("@Num", SqlDbType.VarChar, 5).Value = _number;
             cmd.Parameters.Add("@ExpertiseID", SqlDbType.Int).Value = _expertise.ExpertiseID;
             cmd.Parameters.Add("@BillDate", SqlDbType.Date).Value = _billdate;
             cmd.Parameters.Add("@PayerID", SqlDbType.NVarChar, 18).Value = _payer;
@@ -5675,6 +5581,7 @@ namespace PLSE_MVVMStrong.Model
             {
                 cmd.Connection.Open();
                 cmd.ExecuteNonQuery();
+                _id = (int)cmd.Parameters["@InsertedID"].Value;
                 Version = Version.Original;
             }
             catch (Exception)
@@ -5685,14 +5592,13 @@ namespace PLSE_MVVMStrong.Model
             {
                 cmd.Connection.Close();
             }
-            return (int)cmd.Parameters["@InsertedID"].Value;
         }
-        protected override int EditToDB(SqlConnection con)
+        private void EditToDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.CommandText = "Activity.prAddBill";
-            cmd.Parameters.Add("@Num", SqlDbType.Char, 5).Value = _number;
+            cmd.Parameters.Add("@Num", SqlDbType.VarChar, 5).Value = _number;
             cmd.Parameters.Add("@ExpertiseID", SqlDbType.Int).Value = _expertise.ExpertiseID;
             cmd.Parameters.Add("@BillDate", SqlDbType.Date).Value = _billdate;
             cmd.Parameters.Add("@PayerID", SqlDbType.NVarChar, 18).Value = _payer;
@@ -5700,7 +5606,7 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@HourPrice", SqlDbType.Money).Value = _hourprice;
             cmd.Parameters.Add("@Paid", SqlDbType.Money).Value = _paid;
             cmd.Parameters.Add("@PaidDate", SqlDbType.Date).Value = ConvertToDBNull(_paiddate);
-            cmd.Parameters.Add("@BillId", SqlDbType.Int).Value = ID;
+            cmd.Parameters.Add("@BillId", SqlDbType.Int).Value = _id;
             try
             {
                 cmd.Connection.Open();
@@ -5715,14 +5621,14 @@ namespace PLSE_MVVMStrong.Model
             {
                 cmd.Connection.Close();
             }
-            return 0;
         }
-        protected override void DeleteFromDB(SqlConnection con)
+        public void DeleteFromDB(SqlConnection con)
         {
             if (Version == Version.New) return;
             SqlCommand cmd = con.CreateCommand();
-            cmd.CommandText = "Delete from dbo.tblBills where BillID = @BillID;";
-            cmd.Parameters.Add("@BillID", SqlDbType.Int).Value = ID;
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.CommandText = "Activity.prDeleteBill";
+            cmd.Parameters.Add("@BillID", SqlDbType.Int).Value = _id;
             try
             {
                 cmd.Connection.Open();
@@ -5737,9 +5643,17 @@ namespace PLSE_MVVMStrong.Model
                 cmd.Connection.Close();
             }
         }
-        protected override void ContentToDB(SqlConnection con)
+        public override void SaveChanges(SqlConnection con)
         {
-            throw new NotSupportedException("Невозможно вызвать функцию из класса Bill");
+            switch (Version)
+            {
+                case Version.New:
+                    AddToDB(con);
+                    break;
+                case Version.Edited:
+                    EditToDB(con);
+                    break;
+            }
         }
     }
     public sealed class Request : NotifyBase
@@ -5749,10 +5663,11 @@ namespace PLSE_MVVMStrong.Model
         private DateTime _date;
         private string _type;
         private string _comment;
+        private int _id;
         #endregion
         
 
-        public int RequestID => ID;
+        public int RequestID => _id;
         public Expertise FromExpertise
         {
             get => _expertise;
@@ -5794,16 +5709,16 @@ namespace PLSE_MVVMStrong.Model
 
         public Request() : base() { }
         public Request(int id, DateTime requestdate, string type, string comment, Version vr)
-            : base (id, vr)
+            : base (vr)
         {
-            _date = requestdate; _type = type; _comment = comment; Version = vr;
+            _id = id; _date = requestdate; _type = type; _comment = comment; Version = vr;
         }
 
         public override string ToString()
         {
             return _type + " (" + _date.ToString("d") + ")";
         }
-        protected override int AddToDB(SqlConnection con)
+        private void AddToDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
@@ -5818,6 +5733,7 @@ namespace PLSE_MVVMStrong.Model
             {
                 cmd.Connection.Open();
                 cmd.ExecuteNonQuery();
+                _id = (int)cmd.Parameters["@InsertedID"].Value;
                 Version = Version.Original;
             }
             catch (Exception)
@@ -5828,9 +5744,8 @@ namespace PLSE_MVVMStrong.Model
             {
                 cmd.Connection.Close();
             }
-            return (int)cmd.Parameters["@InsertedID"].Value;
         }
-        protected override int EditToDB(SqlConnection con)
+        private void EditToDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
@@ -5839,7 +5754,7 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@Date", SqlDbType.Date).Value = _date;
             cmd.Parameters.Add("@Type", SqlDbType.NVarChar, 30).Value = _type;
             cmd.Parameters.Add("@Comment", SqlDbType.NVarChar, 500).Value = ConvertToDBNull(_comment);
-            cmd.Parameters.Add("@RequestID", SqlDbType.Int).Value = ID;
+            cmd.Parameters.Add("@RequestID", SqlDbType.Int).Value = _id;
             try
             {
                 cmd.Connection.Open();
@@ -5854,14 +5769,14 @@ namespace PLSE_MVVMStrong.Model
             {
                 cmd.Connection.Close();
             }
-            return 0;
         }
-        protected override void DeleteFromDB(SqlConnection con)
+        public void DeleteFromDB(SqlConnection con)
         {
             if (Version == Version.New) return;
             SqlCommand cmd = con.CreateCommand();
-            cmd.CommandText = "delete dbo.tblRequest where RequestID = @p;";
-            cmd.Parameters.Add("@p", SqlDbType.Int).Value = ID;
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.CommandText = "Activity.prDeleteRequest";
+            cmd.Parameters.Add("@id", SqlDbType.Int).Value = _id;
             try
             {
                 cmd.Connection.Open();
@@ -5876,9 +5791,17 @@ namespace PLSE_MVVMStrong.Model
                 cmd.Connection.Close();
             }
         }
-        protected override void ContentToDB(SqlConnection con)
+        public override void SaveChanges(SqlConnection con)
         {
-            throw new NotSupportedException("Невозможно вызвать функцию из класса Request");
+            switch (Version)
+            {
+                case Version.New:
+                    AddToDB(con);
+                    break;
+                case Version.Edited:
+                    EditToDB(con);
+                    break;
+            }
         }
     }
     public sealed class Report : NotifyBase
@@ -5888,10 +5811,11 @@ namespace PLSE_MVVMStrong.Model
         private DateTime _repdate;
         private DateTime _delay;
         private string _reason;
+        private int _id;
         #endregion
 
         #region Properties
-        public int ReportID => ID;
+        public int ReportID => _id;
         public Expertise FromExpertise
         {
             get => _expertise;
@@ -5935,16 +5859,16 @@ namespace PLSE_MVVMStrong.Model
 
         public Report() : base() { }
         public Report(int id, DateTime repdate, DateTime delay, string reason, Version vr)
-            : base (id, vr)
+            : base (vr)
         {
-            _repdate = repdate; _delay = delay; _reason = reason; Version = vr;
+            _id = id; _repdate = repdate; _delay = delay; _reason = reason; Version = vr;
         }
 
         public override string ToString()
         {
             return _reason;
         }
-        protected override int AddToDB(SqlConnection con)
+        private void AddToDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
@@ -5959,6 +5883,7 @@ namespace PLSE_MVVMStrong.Model
             {
                 cmd.Connection.Open();
                 cmd.ExecuteNonQuery();
+                _id = (int)cmd.Parameters["InsertedID"].Value;
                 Version = Version.Original;
             }
             catch
@@ -5969,9 +5894,8 @@ namespace PLSE_MVVMStrong.Model
             {
                 cmd.Connection.Close();
             }
-            return (int)cmd.Parameters["InsertedID"].Value;
         }
-        protected override int EditToDB(SqlConnection con)
+        private void EditToDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
@@ -5980,7 +5904,7 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@RepDate", SqlDbType.Date).Value = _repdate;
             cmd.Parameters.Add("@DelayDate", SqlDbType.Date).Value = _delay;
             cmd.Parameters.Add("@Reason", SqlDbType.NVarChar, 500).Value = ConvertToDBNull(_reason);
-            cmd.Parameters.Add("@ReportID", SqlDbType.Int).Value = ID;
+            cmd.Parameters.Add("@ReportID", SqlDbType.Int).Value = _id;
             try
             {
                 cmd.Connection.Open();
@@ -5995,14 +5919,14 @@ namespace PLSE_MVVMStrong.Model
             {
                 cmd.Connection.Close();
             }
-            return 0;
         }
-        protected override void DeleteFromDB(SqlConnection con)
+        public void DeleteFromDB(SqlConnection con)
         {
             if (Version == Version.New) return;
             SqlCommand cmd = con.CreateCommand();
-            cmd.CommandText = "delete dbo.tblReports where ReportID = @p;";
-            cmd.Parameters.Add("@p", SqlDbType.Int).Value = ID;
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.CommandText = "Activity.prDeleteReport";
+            cmd.Parameters.Add("@id", SqlDbType.Int).Value = _id;
             try
             {
                 cmd.Connection.Open();
@@ -6017,9 +5941,17 @@ namespace PLSE_MVVMStrong.Model
                 cmd.Connection.Close();
             }
         }
-        protected override void ContentToDB(SqlConnection con)
+        public override void SaveChanges(SqlConnection con)
         {
-            throw new NotSupportedException("Невозможно вызвать функцию из класса Report");
+            switch (Version)
+            {
+                case Version.New:
+                    AddToDB(con);
+                    break;
+                case Version.Edited:
+                    EditToDB(con);
+                    break;
+            }
         }
     }
 }
