@@ -14,6 +14,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
@@ -1645,7 +1646,7 @@ namespace PLSE_MVVMStrong.Model
             get => _status;
             set { if (_status == value) return; _status = value; OnPropertyChanged("SpecialityStatus"); }
         }
-        public bool IsInstanceValidState => String.IsNullOrWhiteSpace(_code);
+        public bool IsInstanceValidState => !String.IsNullOrWhiteSpace(_code);
         #endregion
 
         public Speciality() : base() {}
@@ -4272,20 +4273,20 @@ namespace PLSE_MVVMStrong.Model
             _case.PropertyChanged += (o, e) => OnPropertyChanged(e.PropertyName);
         }
 
-        private void ExpertiseStatusChanged(object o, PropertyChangedEventArgs e)
+        private void ExpertiseStatusChanged(object o, PropertyChangedEventArgs e)//CHECK!!!!
         {
             OnPropertyChanged("Expertisies", true);
             if (e.PropertyName == "ExpertiseStatus")
             {
                 foreach (var item in _expertisies)
                 {
-                    if (item.ExpertiseResult == "в работе") ResolutionStatus = "в работе";
+                    if (item.EndDate == null) ResolutionStatus = "в работе";
                     return;
                 }
                 ResolutionStatus = "выполнено";
             }
         }
-        private void ExpertiseListChanged(object o, NotifyCollectionChangedEventArgs e)
+        private void ExpertiseListChanged(object o, NotifyCollectionChangedEventArgs e)  
         {
             switch (e.Action)
             {
@@ -4293,11 +4294,10 @@ namespace PLSE_MVVMStrong.Model
                     foreach (Expertise item in e.NewItems)
                     {
                         item.FromResolution = this;
+                        if (item.EndDate == null) ResolutionStatus = "в работе";
                     }
                     OnPropertyChanged("Expertisies", true);
                     break;
-
-                case NotifyCollectionChangedAction.Reset:
                 case NotifyCollectionChangedAction.Remove:
                     try
                     {
@@ -4305,25 +4305,37 @@ namespace PLSE_MVVMStrong.Model
                         {
                             item.DeleteFromDB(CommonInfo.connection);
                         }
-                        OnPropertyChanged("Expertises", true);
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-                        throw;
+                        MessageBox.Show(ex.Message);
                     }
+                    if (_expertisies.Count > 0)
+                    {
+                        foreach (var item in _expertisies)
+                        {
+                            if (item.EndDate == null) ResolutionStatus = "в работе";
+                            return;
+                        }
+                    }
+                    else ResolutionStatus = "рассмотрение";
                     break;
-                default:
+                case NotifyCollectionChangedAction.Reset:   
+                    try
+                    {
+                        foreach (Expertise item in e.OldItems)
+                        {
+                            item.DeleteFromDB(CommonInfo.connection);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message);
+                    }
+                    ResolutionStatus = "рассмотрение";
                     break;
             }
-            if (_expertisies.Count > 0)
-            {
-                foreach (var item in _expertisies)
-                {
-                    if (item.ExpertiseResult == "в работе") ResolutionStatus = "в работе";
-                    return;
-                }
-                ResolutionStatus = "выполнено";
-            }
+            
         }
 
         public override string ToString()
@@ -4447,6 +4459,7 @@ namespace PLSE_MVVMStrong.Model
         }
         public void DeleteFromDB(SqlConnection con)
         {
+            if (Version == Version.New) return;
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.CommandText = "Activity.prDeleteResolution";
@@ -5030,8 +5043,8 @@ namespace PLSE_MVVMStrong.Model
             get
             {
                 string s;
-                CommonInfo.CaseTypes.TryGetValue(_type, out s);
-                return $"{_number}/{Expert.Employee?.Departament.DigitalCode}-{s ?? ""}";
+                CommonInfo.CaseTypes.TryGetValue(_resolution.Case.TypeCase, out s);
+                return $"{_number}/{Expert.Employee?.Departament.DigitalCode}-{s}";
             }
         }
         public int ExpertiseID => _id;
@@ -5339,6 +5352,7 @@ namespace PLSE_MVVMStrong.Model
         }
         public void DeleteFromDB(SqlConnection con)
         {
+            if (Version == Version.New) return;
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.CommandText = "Activity.prDeleteExpertise";

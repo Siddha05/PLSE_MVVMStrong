@@ -159,28 +159,28 @@ namespace PLSE_MVVMStrong.ViewModel
             Resolution = InicialState();
             Resolution.PropertyChanged += Resolution_PropertyChanged;
             CustomersList = new ListCollectionView(CommonInfo.Customers);
-            //Resolution.Expertisies.Add(new Expertise(id: 0,
-            //                                          number: "12",
-            //                                          expert: CommonInfo.Experts.Single(n => n.ExpertID == 6),
-            //                                          status: "в работе",
-            //                                          start: DateTime.Now,
-            //                                          end: null,
-            //                                          timelimit: (byte)20,
-            //                                          type: "первичная",
-            //                                          previous: null,
-            //                                          spendhours: null,
-            //                                          vr: Model.Version.New));
-            //Resolution.Expertisies.Add(new Expertise(id: 0,
-            //                                          number: "2056",
-            //                                          expert: CommonInfo.Experts.Single(n => n.ExpertID == 8),
-            //                                          status: "выполнена",
-            //                                          start: DateTime.Now.AddDays(-34),
-            //                                          end: DateTime.Now.AddDays(-11),
-            //                                          timelimit: (byte)30,
-            //                                          type: "первичная",
-            //                                          previous: null,
-            //                                          spendhours: 48,
-            //                                          vr: Model.Version.New));
+            Resolution.Expertisies.Add(new Expertise(id: 0,
+                                                      number: "12",
+                                                      expert: CommonInfo.Experts.Single(n => n.ExpertID == 6),
+                                                      status: "в работе",
+                                                      start: DateTime.Now,
+                                                      end: null,
+                                                      timelimit: (byte)20,
+                                                      type: "первичная",
+                                                      previous: null,
+                                                      spendhours: null,
+                                                      vr: Model.Version.New));
+            Resolution.Expertisies.Add(new Expertise(id: 0,
+                                                      number: "2056",
+                                                      expert: CommonInfo.Experts.Single(n => n.ExpertID == 8),
+                                                      status: "выполнена",
+                                                      start: DateTime.Now.AddDays(-34),
+                                                      end: DateTime.Now.AddDays(-11),
+                                                      timelimit: (byte)30,
+                                                      type: "первичная",
+                                                      previous: null,
+                                                      spendhours: 48,
+                                                      vr: Model.Version.New));
 
             SelectCustomer = new RelayCommand(n =>
             {
@@ -225,29 +225,6 @@ namespace PLSE_MVVMStrong.ViewModel
                  if (Resolution.IsInstanceValidState) return true;
                  else return false;
              });
-        }
-        
-        private void Customer_DatabaseAction(object sender, EventArgs e)
-        {
-            var arg = (e as DataBaseActionEventArgs);
-            if (arg != null)
-            {
-                switch (arg.Action)
-                {
-                    case DBAction.Add:
-                        MessageBox.Show($"New customer added: {sender.ToString()}");
-                        break;
-                    case DBAction.Edit:
-                        MessageBox.Show($"Customer edited: {sender.ToString()}");
-                        break;
-                    case DBAction.Delete:
-                        MessageBox.Show($"Customer delete {sender.ToString()}");
-                        break;
-                    default:
-                        MessageBox.Show($"No action for customer");
-                        break;
-                }
-            }
         }
         private void Resolution_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {

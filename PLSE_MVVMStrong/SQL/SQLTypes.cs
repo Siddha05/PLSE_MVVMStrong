@@ -10,23 +10,17 @@ namespace PLSE_MVVMStrong.SQL
 {
     public class ContentWrapper
     {
-        private string _content;
+        
+        public string Content { get; set; }
 
-        public string Content
-        {
-            get => _content;
-            set => _content = value;
-        }
-
-        public ContentWrapper() { }
         public ContentWrapper(string q)
         {
-            _content = q;
+            Content = q;
         }
 
         public override string ToString()
         {
-            return _content;
+            return Content;
         }
     }
 
