@@ -1668,12 +1668,13 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@Cat3", SqlDbType.TinyInt).Value = ConvertToDBNull(Category_3);
             cmd.Parameters.Add("@Species", SqlDbType.NVarChar, 75).Value = ConvertToDBNull(Species);
             cmd.Parameters.Add("@Acronym", SqlDbType.NVarChar, 10).Value = ConvertToDBNull(Acronym);
-            cmd.Parameters.Add("@InsertedID", SqlDbType.SmallInt).Direction = ParameterDirection.Output;
+            var p = cmd.Parameters.Add("@InsertedID", SqlDbType.SmallInt);
+            p.Direction = ParameterDirection.Output;
             try
             {
                 cmd.Connection.Open();
                 cmd.ExecuteNonQuery();
-                _id = (int)cmd.Parameters["@InsertedID"].Value;
+                _id = (Int16)cmd.Parameters["@InsertedID"].Value;
                 Version = Version.Original;
             }
             catch (Exception)
@@ -1696,7 +1697,7 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@Cat3", SqlDbType.TinyInt).Value = ConvertToDBNull(Category_3);
             cmd.Parameters.Add("@Species", SqlDbType.NVarChar, 75).Value = ConvertToDBNull(Species);
             cmd.Parameters.Add("@Acronym", SqlDbType.NVarChar, 10).Value = ConvertToDBNull(Acronym);
-            cmd.Parameters.Add("@Status", SqlDbType.NVarChar, 30).Value = _status;
+            cmd.Parameters.Add("@Status", SqlDbType.Bit).Value = _status;
             cmd.Parameters.Add("@SpecialityID", SqlDbType.Int).Value = SpecialityID;
             try
             {

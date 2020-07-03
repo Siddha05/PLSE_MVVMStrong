@@ -49,10 +49,15 @@ namespace PLSE_MVVMStrong.ViewModel
                                                                                         }
                                                                                         catch (Exception e)
                                                                                         {
-                                                                                            MessageBox.Show(e.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                                                                            MessageBox.Show(e.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                                                                                         }
                                                                                     }
-                                                                                });
+                                                                                },
+                                                                                    o =>
+                                                                                    {
+                                                                                        return app.Permissions.Actions["AddSpeciality"];
+                                                                                    }
+                                                                                    );
             }
         }
         public RelayCommand Delete
@@ -63,7 +68,7 @@ namespace PLSE_MVVMStrong.ViewModel
                                 {
                                     var sp = Specialities.CurrentItem as Speciality;
                                     if (sp == null) return;
-                                    if (MessageBox.Show("Вы уверены, что хотите удалить выбранную специальность?", "", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.OK)
+                                    if (MessageBox.Show("Вы уверены, что хотите удалить выбранную специальность?", "", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                                     {
                                         try
                                         {
@@ -72,10 +77,15 @@ namespace PLSE_MVVMStrong.ViewModel
                                         }
                                         catch (Exception e)
                                         {
-                                            MessageBox.Show(e.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                            MessageBox.Show(e.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                                         }
                                     }
-                                });
+                                },
+                                    o =>
+                                    {
+                                        return app.Permissions.Actions["DeleteSpeciality"];
+                                    }
+                                    );
             }
         }
         public RelayCommand Edit
@@ -93,12 +103,11 @@ namespace PLSE_MVVMStrong.ViewModel
                                                                         var vm = w.DataContext as SpecialityAddVM;
                                                                         if (vm == null) return;
                                                                         vm.Speciality.SaveChanges(CommonInfo.connection);
-                                                                        CommonInfo.Specialities[vm.Index] = vm.Speciality;
-                                                                        Specialities.Refresh();
+                                                                        sp.Copy(vm.Speciality);
                                                                     }
                                                                     catch (Exception e)
                                                                     {
-                                                                        MessageBox.Show(e.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                                                        MessageBox.Show(e.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                                                                     }
                                                                 }
                                                             },
@@ -110,7 +119,6 @@ namespace PLSE_MVVMStrong.ViewModel
         }
 
         #endregion Commands
-
 
         public SpecialityVM() { }
         private static void SearchTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)

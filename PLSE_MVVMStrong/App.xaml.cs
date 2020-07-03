@@ -94,9 +94,10 @@ namespace PLSE_MVVMStrong
             Random rnd = new Random();
             int i = rnd.Next(1, 50);
             Debug.Print("Random: " + i.ToString());
+            Debug.Print(CommonInfo.IsInitializated.ToString());
             var e = CommonInfo.Employees.First(n => n.EmployeeID == i);
-            LogedEmployee = e;       
-#endif
+            LogedEmployee = e; 
+#endif      
         }
         private void E_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {

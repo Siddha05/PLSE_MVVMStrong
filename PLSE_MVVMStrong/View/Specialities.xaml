@@ -59,7 +59,7 @@
                 <DataGridTemplateColumn Width="3*" Header="Специальность">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock FontSize="16" x:Name="tb" Text="{Binding Path=FullTitle, Mode=OneWay}" TextWrapping="WrapWithOverflow" 
+                            <TextBlock FontSize="18" x:Name="tb" Text="{Binding Path=FullTitle, Mode=OneWay}" TextWrapping="WrapWithOverflow" FontWeight="DemiBold"
                                        FontStyle="Italic" TextAlignment="Center" FontFamily="Times New Roman"/>
                             <DataTemplate.Triggers>
                                 <DataTrigger Binding="{Binding Path=IsValid}" Value="false">
@@ -79,7 +79,7 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Width="150" Binding="{Binding Path=Categories, Mode=OneWay}" Header="Часы" FontFamily="Times New Roman" FontSize="16">
+                <DataGridTextColumn Width="150" Binding="{Binding Path=Categories, Mode=OneWay}" Header="Часы" FontFamily="Times New Roman" FontSize="18" FontWeight="DemiBold">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
                             <Setter Property="TextAlignment" Value="Center" />
@@ -90,14 +90,14 @@
                 </DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>
-        <StackPanel Margin="0,5,15,5" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Style="{StaticResource AddItemButton}" Height="45" Width="45" Margin="2" Command="{Binding Path=AddNew}" />
-            <Button Style="{StaticResource DeleteButton}" Width="45" Height="45"  Command="{Binding Path=Delete}" Margin="2"/>
-            <Button Command="{Binding Path=Edit}" Style="{StaticResource EditButton}" Width="45" Height="45" Margin="2"/>
-        </StackPanel>
-        <TextBox Style="{StaticResource SearchTextBox}" MinWidth="50" Width="270" Text="{Binding Path=SearchText, UpdateSourceTrigger=PropertyChanged}"
-                 Margin="20, 10,0,10" HorizontalAlignment="Left"/>
-        <TextBlock HorizontalAlignment="Center" Text="{Binding Path=Specialities.Count, StringFormat=Специальностей: {0}}" Margin="0,17,20,13" TextAlignment="Center" 
-                   Height="Auto" FontSize="{StaticResource UIFontSize}"/>
+        <DockPanel LastChildFill="False">
+            <TextBox Style="{StaticResource SearchTextBox}" MinWidth="50" Width="270" Text="{Binding Path=SearchText, UpdateSourceTrigger=PropertyChanged}"
+                 Margin="20, 10,0,10" HorizontalAlignment="Left" DockPanel.Dock="Left"/>
+            <TextBlock HorizontalAlignment="Center" Text="{Binding Path=Specialities.Count, StringFormat=Специальностей: {0}}" Margin="10,15,20,13" TextAlignment="Center" 
+                   Height="Auto" FontSize="{StaticResource UIFontSize}" FontWeight="DemiBold"/>
+            <Button Style="{StaticResource DeleteButton}" Width="40" Height="40"  Command="{Binding Path=Delete}" Margin="1,2,22,2" DockPanel.Dock="Right"/>
+            <Button Command="{Binding Path=Edit}" Style="{StaticResource EditButton}" Width="40" Height="40" Margin="1,2" DockPanel.Dock="Right"/>
+            <Button Style="{StaticResource AddItemButton}" Height="40" Width="40" Margin="1,2" Command="{Binding Path=AddNew}" DockPanel.Dock="Right"/>
+        </DockPanel>
     </Grid>
 </Window>
