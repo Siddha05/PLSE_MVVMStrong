@@ -403,7 +403,6 @@ namespace PLSE_MVVMStrong.Model
         private static ObservableCollection<Settlement> _settlements = new ObservableCollection<Settlement>();
         private static ObservableCollection<Departament> departaments = new ObservableCollection<Departament>();
         private static string[] _status = { "действует", "не действует" };
-        static string[] _requesttypes = { "запрос", "осмотр", "ответ" };
         static string[] _payers = { "истца", "ответчика", "истца и ответчика", "иное" };
         static IReadOnlyList<string> _genders;
         static IReadOnlyList<string> _streettypes;
@@ -418,6 +417,7 @@ namespace PLSE_MVVMStrong.Model
         static IReadOnlyList<string> _resolutionstatus;
         static IReadOnlyList<string> _ranks;
         static IReadOnlyList<string> _outeroffices;
+        static IReadOnlyList<string> _typerequest;
 
         public static bool IsInitializated { get; private set; }
         public static IReadOnlyList<string> OuterOffices
@@ -454,8 +454,7 @@ namespace PLSE_MVVMStrong.Model
         public static IReadOnlyList<string> StreetTypes => _streettypes;
         public static IReadOnlyList<string> Genders => _genders;
         public static IReadOnlyList<string> Status => _status;
-
-        //public static IReadOnlyList<string> RequestTypes => _requesttypes; // skip downloding from DB
+        public static IReadOnlyList<string> RequestTypes => _typerequest;
 
         public static ObservableCollection<Settlement> Settlements
         {
@@ -928,6 +927,16 @@ namespace PLSE_MVVMStrong.Model
                     ranks.Add(rd.GetString(0));
                 }
                 _ranks = ranks;
+            }
+            //TypeRequest
+            if (rd.NextResult())
+            {
+                var rtype = new List<string>(5);
+                while (rd.Read())
+                {
+                    rtype.Add(rd.GetString(0));
+                }
+                _typerequest = rtype;
             }
             rd.Close();
             connection.Close();

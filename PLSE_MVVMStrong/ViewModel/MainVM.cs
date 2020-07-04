@@ -69,7 +69,7 @@ namespace PLSE_MVVMStrong.ViewModel
                                                                 };
                                                                 sw.Show();
                                                                 },
-                                                                canexec: o => app.Permissions.Actions["SpecialitiesView"]
+                                                                canexec: o => app.Permissions.Actions[PermissionAction.SpecialitiesView]
                                                                 );
             }
         }
@@ -85,7 +85,7 @@ namespace PLSE_MVVMStrong.ViewModel
                                                                 };
                                                                 rw.Show();
                                                             },
-                                                                o => app.Permissions.Actions["ResolutionAdd"]
+                                                                o => app.Permissions.Actions[PermissionAction.ResolutionAdd]
                                                             );
             }
         }
@@ -100,9 +100,7 @@ namespace PLSE_MVVMStrong.ViewModel
                                                                         Owner = n as MainWindow
                                                                     };
                                                                     ew.Show();
-                                                                },
-                                                                    o => app.Permissions.Actions["EmployeesView"]
-                                                                );
+                                                                });
             }
         }
         public RelayCommand OpenProfile
@@ -138,7 +136,7 @@ namespace PLSE_MVVMStrong.ViewModel
                                                                                 var wnd = new Expertises { Owner = n as MainWindow };
                                                                                 wnd.Show();
                                                                             },
-                                                                                o => app.Permissions.Actions["ExpertiseView"]
+                                                                                o => app.Permissions.Actions[PermissionAction.ExpertiseView]
                                                                             );
             }
         }

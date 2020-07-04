@@ -13,7 +13,7 @@ namespace PLSE_MVVMStrong.ViewModel
 {
     internal class ResolutionAddVM : DependencyObject
     {
-        #region Fields
+#region Fields
         static private string[] CaseTypeContract = new string[] { "исследование"};
         static private IEnumerable<string> CaseTypesFull = CommonInfo.CaseTypes.Keys.Except(CaseTypeContract);
         private RelayCommand _delexpertise;
@@ -74,11 +74,11 @@ namespace PLSE_MVVMStrong.ViewModel
             set => SetValue(RespondentVisiblProperty, value);
         }
         public static readonly DependencyProperty RespondentVisiblProperty =
-            DependencyProperty.Register("RespondentVisible", typeof(Visibility), typeof(ResolutionAddVM), new PropertyMetadata(Visibility.Visible));
+            DependencyProperty.Register("RespondentVisible", typeof(Visibility), typeof(ResolutionAddVM), new PropertyMetadata(Visibility.Collapsed));
         public object SelectedExpertise { get; set; }
         #endregion Properties
 
-        #region Commands
+#region Commands
         public RelayCommand ObjectsClick { get; }
         public RelayCommand QuestionsClick { get; }
         public RelayCommand Save { get; }
@@ -155,7 +155,6 @@ namespace PLSE_MVVMStrong.ViewModel
         
         public ResolutionAddVM()
         {
-            
             Resolution = InicialState();
             Resolution.PropertyChanged += Resolution_PropertyChanged;
             CustomersList = new ListCollectionView(CommonInfo.Customers);

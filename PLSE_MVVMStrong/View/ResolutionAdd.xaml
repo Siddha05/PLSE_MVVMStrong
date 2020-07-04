@@ -98,14 +98,14 @@
                                 <RowDefinition Height="auto"/>
                                 <RowDefinition/>
                             </Grid.RowDefinitions>
-                            <DockPanel LastChildFill="True"  Background="#FF101CD4">
+                            <DockPanel LastChildFill="True"  >
                                 <Button DockPanel.Dock="Right" Style="{StaticResource EditButton}" Width="30" Height="30" Command="{Binding Path=EditCustomer}" Margin="3,4,5,4"/>
                                 <Button DockPanel.Dock="Right" Style="{StaticResource AddItemButton}" Width="30" Height="30" Margin="100,4,0,4" Command="{Binding Path=AddNewCustomer}"/>
-                                <TextBlock Text="{Binding Path=CustomersList.Count, StringFormat='Найдено: {0}'}" VerticalAlignment="Center" Foreground="White" 
+                                <TextBlock Text="{Binding Path=CustomersList.Count, StringFormat='Найдено: {0}'}" VerticalAlignment="Center" 
                                            FontWeight="DemiBold" FontSize="{StaticResource RegularFontSize}" Margin="5,0,0,0"/>
                             </DockPanel>
                             <ListBox Height="auto" ItemsSource="{Binding Path=CustomersList}" Grid.Row="1" FontSize="{StaticResource RegularFontSize}" 
-                                     DisplayMemberPath="Requisite" SelectedItem="{Binding Path=SelectedCustomer, Mode=OneWayToSource}" >
+                                     DisplayMemberPath="Requisite" SelectedItem="{Binding Path=SelectedCustomer, Mode=OneWayToSource}" BorderThickness="0">
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="MouseDoubleClick">
                                         <i:InvokeCommandAction Command="{Binding Path=SelectCustomer}"/>
@@ -115,7 +115,7 @@
                         </Grid>
                     </Border>
                 </Popup>
-                <Expander Grid.Row="7" BorderBrush="Black" BorderThickness="1" Margin="30,5" Grid.ColumnSpan="2" MinHeight="30">
+                <Expander Grid.Row="7" BorderBrush="Black" BorderThickness="0" Margin="30,5" Grid.ColumnSpan="2" MinHeight="30">
                     <Expander.Header>
                         <TextBlock Text="{Binding Path=Resolution.Objects.Objects.Count, StringFormat='Предоставленные объекты: {0}', Mode=OneWay}" FontSize="{StaticResource UIFontSize}"
                                    FontWeight="DemiBold" />

@@ -7,7 +7,7 @@
         xmlns:view ="clr-namespace:PLSE_MVVMStrong.ViewModel"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         mc:Ignorable="d"
-        Title="Организация" Height="800" Width="600" Name="wnd" SizeToContent="Height">
+        Title="Организация"  Width="600" Name="wnd" SizeToContent="WidthAndHeight">
     <Window.DataContext>
         <view:OrganizationAddVM />
     </Window.DataContext>
@@ -49,7 +49,7 @@
         <TextBox Grid.Column="1" Grid.Row="7" Style="{StaticResource UITextBox}" Text="{Binding Path=Organization.WebSite}" />
         <TextBlock Grid.Row="8" Text="Почтовый индекс*" Style="{StaticResource UITextBlock}"/>
         <TextBox Grid.Row="8" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Organization.PostCode, ValidatesOnExceptions=True}" />
-        <GroupBox Header="Адрес" Grid.Row="9" Grid.ColumnSpan="2" Margin="15,5" BorderBrush="#FF240EB0" FontSize="{StaticResource UIFontSize}" FontWeight="DemiBold">
+        <GroupBox Header="Адрес" Grid.Row="9" Grid.ColumnSpan="2" Margin="15,5" BorderBrush="Black" FontSize="{StaticResource UIFontSize}" FontWeight="DemiBold">
             <Grid Margin="0,15,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"/>
@@ -97,7 +97,7 @@
                 </Popup>
             </Grid>
         </GroupBox>
-        <Button Grid.Row="10" Grid.ColumnSpan="2" Style="{StaticResource BaseUIButton}" Content="Сохранить" Foreground="GreenYellow" Margin="0,15,0,10" 
-                 Command="{Binding Path=Add}" CommandParameter="{Binding ElementName=wnd}" />
+        <Button Grid.Row="10" Grid.ColumnSpan="2" Style="{StaticResource BaseUIButton}" Content="СОХРАНИТЬ" Foreground="GreenYellow" Margin="0,15,0,10" 
+                 Command="{Binding Path=Save}" CommandParameter="{Binding ElementName=wnd}" />
     </Grid>
 </Window>

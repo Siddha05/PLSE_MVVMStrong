@@ -120,7 +120,7 @@
             <Setter Property="HorizontalAlignment" Value="Left" />
         </Style>
         <Style TargetType="Button" x:Key="BaseUIButton">
-            <Setter Property="Width" Value="85" />
+            <!--<Setter Property="Width" Value="85" />-->
             <Setter Property="Height" Value="35" />
             <Setter Property="Background" Value="White" />
             <Setter Property="BorderThickness" Value="1"/>
@@ -146,7 +146,7 @@
                                     </Path.Data>
                                 </Path>
                                 <TextBlock Name="tb" Style="{x:Null}" Text="{TemplateBinding Content}" TextAlignment="Center" Foreground="{TemplateBinding Foreground}" 
-                                       VerticalAlignment="Center" FontSize="{StaticResource UIFontSize}" FontWeight="Bold" RenderTransformOrigin="0.5, 0.5">
+                                       VerticalAlignment="Center" FontSize="16" FontWeight="Bold" RenderTransformOrigin="0.5, 0.5">
                                     <TextBlock.RenderTransform>
                                         <ScaleTransform x:Name="trs"/>
                                     </TextBlock.RenderTransform>
@@ -399,7 +399,7 @@
                                     <Setter.Value>
                                         <ImageBrush Stretch="Fill">
                                             <ImageBrush.ImageSource>
-                                                <FormatConvertedBitmap Source="Resources\additem.png" DestinationFormat="Gray32Float"/>
+                                                <FormatConvertedBitmap Source="Resources\additem2.png" DestinationFormat="Gray32Float"/>
                                             </ImageBrush.ImageSource>
                                         </ImageBrush>
                                     </Setter.Value>

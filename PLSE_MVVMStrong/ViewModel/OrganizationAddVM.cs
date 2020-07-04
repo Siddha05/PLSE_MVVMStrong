@@ -21,68 +21,71 @@ namespace PLSE_MVVMStrong.ViewModel
             get => (bool)GetValue(PopupVisibilityProperty);
             set => SetValue(PopupVisibilityProperty, value);
         }
-
         public static readonly DependencyProperty PopupVisibilityProperty =
             DependencyProperty.Register("PopupVisibility", typeof(bool), typeof(OrganizationAddVM), new PropertyMetadata(false));
-
         #endregion Properties
 
         #region Commands
-
-        public RelayCommand Cancel { get; }
-        public RelayCommand Add { get; }
-        public RelayCommand SettlementSelect { get; }
-        public RelayCommand SettlementSearch { get; }
+        private RelayCommand _save;
+        private RelayCommand _settlementselect;
+        private RelayCommand _settlementsearch;
+        public RelayCommand Save
+        {
+            get
+            {
+                return _save != null ? _save : _save = new RelayCommand(
+                                                    n =>
+                                                    {
+                                                        var wnd = n as OrganizationAdd;
+                                                        if (wnd != null)
+                                                        {
+                                                            wnd.DialogResult = true;
+                                                            wnd.Close();
+                                                        }
+                                                    },
+                                                   n =>
+                                                   {
+                                                       if (Organization.IsInstanceValidState) return true;
+                                                       else return false;
+                                                   });
+            }
+        }
+        public RelayCommand SettlementSelect
+        {
+            get
+            {
+                return _settlementselect != null ? _settlementselect : _settlementselect = new RelayCommand(n =>
+                                                                    {
+                                                                        var obj = n as Settlement;
+                                                                        if (obj != null)
+                                                                        {
+                                                                            Organization.Adress.Settlement = obj;
+                                                                            PopupVisibility = false;
+                                                                        }
+                                                                    });
+            }
+        }
+        public RelayCommand SettlementSearch
+        {
+            get
+            {
+                return _settlementsearch != null ? _settlementsearch : _settlementsearch = new RelayCommand(n =>
+                                                                        {
+                                                                            var tb = n as TextBox;
+                                                                            if (tb == null) return;
+                                                                            if (tb.Text.Length > 1)
+                                                                            {
+                                                                                SettlementsList.Filter = k => (k as Settlement).Title.StartsWith(tb.Text, StringComparison.CurrentCultureIgnoreCase);
+                                                                                PopupVisibility = true;
+                                                                            }
+                                                                            else PopupVisibility = false;
+                                                                        });
+            }
+        }
 
         #endregion Commands
 
-        public OrganizationAddVM()
-        {
-            Cancel = new RelayCommand(n =>
-            {
-                var wnd = n as OrganizationAdd;
-                if (wnd != null)
-                {
-                    wnd.DialogResult = false;
-                    wnd.Close();
-                }
-            });
-            Add = new RelayCommand(
-                n =>
-            {
-                var wnd = n as OrganizationAdd;
-                if (wnd != null)
-                {
-                    wnd.DialogResult = true;
-                    wnd.Close();
-                }
-            },
-               n =>
-            {
-                if (Organization.IsInstanceValidState) return true;
-                else return false;
-            });
-            SettlementSelect = new RelayCommand(n =>
-            {
-                var obj = n as Settlement;
-                if (obj != null)
-                {
-                    Organization.Adress.Settlement = obj;
-                    PopupVisibility = false;
-                }
-            });
-            SettlementSearch = new RelayCommand(n =>
-            {
-                var tb = n as TextBox;
-                if (tb == null) return;
-                if (tb.Text.Length > 1)
-                {
-                    SettlementsList.Filter = k => (k as Settlement).Title.StartsWith(tb.Text, StringComparison.CurrentCultureIgnoreCase);
-                    PopupVisibility = true;
-                }
-                else PopupVisibility = false;
-            });
-        }
+        public OrganizationAddVM() { }
         public OrganizationAddVM(Organization obj) : this()
         {
             this.Organization = obj;

@@ -7,7 +7,7 @@
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:local="clr-namespace:PLSE_MVVMStrong.View"
         mc:Ignorable="d"
-        Title="Новый заказчик"  Width="620" Name="wnd" SizeToContent="Height" WindowStartupLocation="CenterScreen">
+        Title="Новый заказчик"  Width="620" Name="wnd" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterScreen">
     <Window.DataContext>
         <viewmodel:CustomerAddVM />
     </Window.DataContext>
@@ -54,15 +54,15 @@
             <TextBox Grid.Column="1" Grid.Row="8" Style="{StaticResource UITextBox}" Text="{Binding Path=Customer.Workphone}"/>
         <TextBlock Text="Звание" Grid.Row="7" Style="{StaticResource UITextBlock}"/>
             <ComboBox Grid.Column="1" Grid.Row="7" Grid.ColumnSpan="2" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=Ranks}" 
-                      Text="{Binding Path=Customer.Rank}" Width="426" Margin="5,5,0,5" IsTextSearchEnabled="True" IsEditable="True"/>
+                      Text="{Binding Path=Customer.Rank}" Width="426" Margin="5,5,0,5"/>
         <TextBlock Text="Должность*" Grid.Row="6" Style="{StaticResource UITextBlock}"/>
             <TextBox Grid.Column="1" Grid.Row="6" Grid.ColumnSpan="2" Style="{StaticResource UITextBox}" Text="{Binding Path=Customer.Office}" Margin="5,5,0,5" Width="426"/>
         <TextBlock Text="Организация" Grid.Row="5" Style="{StaticResource UITextBlock}"/>
         <StackPanel Orientation="Horizontal" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,0,-41,0">
-            <TextBlock Text="{Binding Path=Customer.Organization, TargetNullValue='не выбрано'}" FontSize="{StaticResource RegularFontSize}"
-                       FontWeight="DemiBold" MaxWidth="300" TextWrapping="Wrap" Margin="5" Foreground="Gray" 
+            <TextBlock Text="{Binding Path=Customer.Organization}" FontSize="{StaticResource RegularFontSize}"
+                       FontWeight="DemiBold" MaxWidth="300" TextWrapping="Wrap" Margin="5" Foreground="Gray" VerticalAlignment="Center" Height="auto"
                        ToolTip="{Binding Path=Customer.Organization.Requisite, TargetNullValue='выберите организацию'}"/>
-            <TextBox Style="{StaticResource SearchTextBox}" Tag="Введите название" VerticalAlignment="Center" Width="180" Name="tbOrganizationSearch" Margin="5"
+            <TextBox Style="{StaticResource SearchTextBox}" Tag="Введите название" VerticalAlignment="Center" Width="180" Name="tbOrganizationSearch" Margin="0,5"
                      Text="{Binding Path=OrganizationSearchText, UpdateSourceTrigger=PropertyChanged}"/>
         </StackPanel>
         <Popup AllowsTransparency="True" IsOpen="{Binding Path=OrganizationListOpen}" PopupAnimation="Scroll" PlacementTarget="{Binding ElementName=tbOrganizationSearch}" 
@@ -73,14 +73,14 @@
                         <RowDefinition Height="auto"/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
-                    <DockPanel LastChildFill="True"  Background="#FFDDDFFF">
-                        <Button DockPanel.Dock="Right" Style="{StaticResource EditButton}" Width="35" Height="35" Command="{Binding Path=EditOrganization}" Margin="0,2,5,2"/>
-                        <Button DockPanel.Dock="Right" Style="{StaticResource AddItemButton}" Width="35" Height="35" Margin="100,2,0,2" Command="{Binding Path=AddNewOrganization}"/>
+                    <DockPanel LastChildFill="True">
+                        <Button DockPanel.Dock="Right" Style="{StaticResource EditButton}" Width="30" Height="30" Command="{Binding Path=EditOrganization}" Margin="0,2,5,2"/>
+                        <Button DockPanel.Dock="Right" Style="{StaticResource AddItemButton}" Width="30" Height="30" Margin="100,2,0,2" Command="{Binding Path=AddNewOrganization}"/>
                         <TextBlock Text="{Binding Path=OrganizationsList.Count, StringFormat='Найдено: {0}'}" VerticalAlignment="Center" 
                                            FontWeight="DemiBold" FontSize="{StaticResource RegularFontSize}" Margin="5,0,0,0"/>
                     </DockPanel>
                     <ListBox Height="auto" ItemsSource="{Binding Path=OrganizationsList}" Grid.Row="1" FontSize="{StaticResource RegularFontSize}" 
-                                     DisplayMemberPath="Requisite" SelectedItem="{Binding Path=SelectedOrganization, Mode=OneWayToSource}" >
+                                     DisplayMemberPath="Requisite" SelectedItem="{Binding Path=SelectedOrganization, Mode=OneWayToSource}" BorderThickness="0">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="MouseDoubleClick">
                                 <i:InvokeCommandAction Command="{Binding Path = SelectOrganization}"/>
@@ -94,8 +94,8 @@
         <TextBox Grid.Column="1" Grid.Row="10" Style="{StaticResource UITextBox}" Text="{Binding Path=Customer.Departament}"/>
         <TextBlock Text="Email" Grid.Row="11" Style="{StaticResource UITextBlock}"/>
         <TextBox Grid.Column="1" Grid.Row="11" Style="{StaticResource UITextBox}" Text="{Binding Path=Customer.Email}"/>
-        <Button Grid.Row="12" Grid.ColumnSpan="3" Style="{StaticResource BaseUIButton}" Content="Сохранить" Foreground="GreenYellow" Margin="0,25,0,5" 
-                Command="{Binding Path=AddCustomer}" CommandParameter="{Binding ElementName=wnd}" HorizontalAlignment="Center"/>
+        <Button Grid.Row="12" Grid.ColumnSpan="3" Style="{StaticResource BaseUIButton}" Content="СОХРАНИТЬ" Foreground="GreenYellow" Margin="0,25,0,5" 
+                Command="{Binding Path=Save}" CommandParameter="{Binding ElementName=wnd}" HorizontalAlignment="Center"/>
        
         </Grid>
         

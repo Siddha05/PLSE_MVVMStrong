@@ -55,7 +55,7 @@ namespace PLSE_MVVMStrong.ViewModel
                                                                                 },
                                                                                     o =>
                                                                                     {
-                                                                                        return app.Permissions.Actions["AddSpeciality"];
+                                                                                        return app.Permissions.Actions[PermissionAction.SpecialitiesAdd];
                                                                                     }
                                                                                     );
             }
@@ -83,7 +83,7 @@ namespace PLSE_MVVMStrong.ViewModel
                                 },
                                     o =>
                                     {
-                                        return app.Permissions.Actions["DeleteSpeciality"];
+                                        return app.Permissions.Actions[PermissionAction.SpecialitiesDelete];
                                     }
                                     );
             }
@@ -113,7 +113,7 @@ namespace PLSE_MVVMStrong.ViewModel
                                                             },
                                                                 o =>
                                                                 {
-                                                                    return app.Permissions.Actions["EditSpeciality"];
+                                                                    return app.Permissions.Actions[PermissionAction.SpecialitiesEdit];
                                                                 });
             }
         }
