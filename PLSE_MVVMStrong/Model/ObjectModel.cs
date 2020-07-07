@@ -18,6 +18,8 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using Microsoft.Office.Interop.Word;
+using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 
 namespace PLSE_MVVMStrong.Model
 {
@@ -2264,7 +2266,7 @@ namespace PLSE_MVVMStrong.Model
     }
     public class Person : NotifyBase, IFormattable, ICloneable
     {
-        #region Fields
+ #region Fields
         protected string _fname;
         protected bool _declinated;
         protected string _mname;
@@ -2277,7 +2279,7 @@ namespace PLSE_MVVMStrong.Model
         protected int _id;
         #endregion
 
-        #region Properties
+#region Properties
         public int PersonID => _id;
         public string Fname
         {
@@ -2742,7 +2744,6 @@ namespace PLSE_MVVMStrong.Model
         {
             return Clone();
         }
-
         public override void SaveChanges(SqlConnection con)
         {
             throw new NotImplementedException();
@@ -4113,6 +4114,42 @@ namespace PLSE_MVVMStrong.Model
                     return null;
             }
         }
+        public string Codex()
+        {
+            switch (_typecase)
+            {
+                case "уголовное":
+                    return "57 УПК РФ";
+                case "гражданское":
+                    return "85 ГПК РФ";
+                case "арбитражное":
+                    return "55 АПК РФ";
+                case "административное правонарушение":
+                    return "25.9 КоАП РФ";
+                case "проверка КУСП":
+                    return "57 УПК РФ";
+                case "административное судопроизводство":
+                    return "49 КАС РФ";
+                default:
+                    return null;
+            }
+        }
+        public string SubcribeArticle()
+        {
+            switch (_typecase)
+            {
+                case "уголовное":  
+                case "гражданское":
+                case "арбитражное":
+                case "проверка КУСП":
+                case "административное судопроизводство":
+                    return "307 УК РФ";
+                case "административное правонарушение":
+                    return "17.9 КоАП РФ";
+                default:
+                    return null;
+            }
+        }
     }
 
     /// <summary>
@@ -4258,7 +4295,31 @@ namespace PLSE_MVVMStrong.Model
                 return sb.ToString();
             }
         }
-        #endregion
+        public string OverallNumber
+        {     
+            get
+            {
+                StringBuilder sb = new StringBuilder(21);
+                foreach (var item in _expertisies)
+                {
+                    sb.Append($", {item.Number}");
+                }
+                return sb.Length > 2 ? sb.Remove(0, 2).ToString() : null;
+            }
+        }
+        public string FullOverallNumber
+        {
+            get
+            {
+                StringBuilder sb = new StringBuilder(40);
+                foreach (var item in _expertisies)
+                {
+                    sb.Append($", {item.FullNumber}");
+                }
+                return sb.Length > 2 ? sb.Remove(0, 2).ToString() : null;
+            }
+        }
+#endregion
         
         public Resolution() : base()
         {
@@ -4514,6 +4575,7 @@ namespace PLSE_MVVMStrong.Model
                     break;
             }
         }
+        
     }
 
     public class Equipment : NotifyBase // todo load from db
@@ -5976,6 +6038,124 @@ namespace PLSE_MVVMStrong.Model
                     EditToDB(con);
                     break;
             }
+        }
+    }
+    public class DocsCreater
+    {
+#region Fields
+        private readonly string _inicailpath;
+        private readonly string _subscribetemp;
+        private readonly string _notifytemp;
+        private readonly string _accompantemp;
+        private readonly string _conclusiontemp;
+        private readonly string _acttemp;
+        private readonly string _calculationtemp;
+        private readonly string _claimtemp;
+        private readonly string _reporttemp;
+#endregion
+#region Properties
+        public string InitialSavePath => _inicailpath;
+        public Resolution Resolution { get; }
+#endregion
+        public DocsCreater(Resolution resolution)
+        {
+            Resolution = resolution;
+            _inicailpath = @"\\ASASSIN-ПК\SIRSERVER\DocFiles\DOCS";
+            _subscribetemp = @"c:\Users\Asassin\Documents\Настраиваемые шаблоны Office\подписка эксперта.dotx";
+            _notifytemp = @"c:\Users\Asassin\Documents\Настраиваемые шаблоны Office\Уведомление следователю.dotx";
+        }
+        private string DestinationPath()
+        {
+            string path = Path.Combine(_inicailpath, Resolution.RegistrationDate.Year.ToString());
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+            path = Path.Combine(path, Resolution.OverallNumber);
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+            return path;
+        }
+        public void CreateSubscribe(Microsoft.Office.Interop.Word.Application word, Expertise exp)
+        {
+            var doc = word.Documents.Add(_subscribetemp);
+            doc.Activate();
+            var bmarks = doc.Bookmarks;
+            bmarks["number"].Range.Text = exp.FullNumber;
+            bmarks["annotate"].Range.Text = exp.FromResolution.Case.Annotate;
+            bmarks["expert"].Range.Text = exp.Expert.Requisite();
+            bmarks["fio"].Range.Text = exp.Expert.Employee.ToString();
+            bmarks["date"].Range.Text = exp.FromResolution.RegistrationDate.ToString("dd MMMM yyyy");
+            bmarks["codex"].Range.Text = exp.FromResolution.Case.Codex();
+            bmarks["respon"].Range.Text = exp.FromResolution.Case.SubcribeArticle();
+            string to = Path.Combine(DestinationPath(), "подписка " + exp.Expert.Employee.ToString());
+            if (File.Exists(to))
+            {
+                File.Delete(to);
+            }
+            try
+            {
+                doc.SaveAs2(to);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            finally
+            {
+                doc.Close();
+            }
+        }
+        public void CreateNotify(Microsoft.Office.Interop.Word.Application word, IGrouping<DateTime, Expertise> group)
+        {
+            var doc = word.Documents.Add(_notifytemp);
+            doc.Activate();
+            var bmarks = doc.Bookmarks;
+            if (Resolution.ResolutionDate != null)
+            {
+                bmarks["casedate"].Range.Text = bmarks["casedate2"].Range.Text = Resolution.ResolutionDate.Value.ToString("dd.MM.yyyy");
+            }
+            else
+            {
+                Range r = bmarks["casedate"].Range;
+                r.Text = "[не указано]";
+                r.Font.Color = WdColor.wdColorRed;
+                r = bmarks["casedate2"].Range;
+                r.Text = "[не указано]";
+                r.Font.Color = WdColor.wdColorRed;
+            }
+            bmarks["casenumber"].Range.Text = bmarks["casenumber2"].Range.Text = Resolution.Case.Number;
+            bmarks["date"].Range.Text = bmarks["date2"].Range.Text = group.Key.ToString("dd.MM.yyyy");
+            bmarks["departament"].Range.Text = bmarks["departament2"].Range.Text = group.Select(n => n.Expert.Employee.Departament.Acronym)
+                                                                                        .Distinct()
+                                                                                        .Aggregate((c, n) => c + ", " + n);
+            bmarks["fio"].Range.Text = bmarks["fio2"].Range.Text = group.Select(n => n.Expert.Employee.ToString())
+                                                                        .Distinct()
+                                                                        .Aggregate((c, n) => c + ", " + n);
+            bmarks["number"].Range.Text = bmarks["number"].Range.Text = Resolution.FullOverallNumber;
+            bmarks["plurality"].Range.Text = bmarks["plurality2"].Range.Text = bmarks["plurality3"].Range.Text =
+                bmarks["plurality4"].Range.Text = group.Select(n => n.Expert.Employee.ToString())
+                                                       .Distinct()
+                                                       .Count() > 1 ? "экспертам" : "эксперту";
+            bmarks["recipient"].Range.Text = bmarks["recipient"].Range.Text = Resolution.Customer.Requisite
+        }
+        public void StartDoc()
+        {
+            Microsoft.Office.Interop.Word.Application word = new Microsoft.Office.Interop.Word.Application();
+            foreach (var item in Resolution.Expertisies)
+            {
+                CreateSubscribe(word, item);
+            }
+            if (Resolution.Case.TypeCase == "уголовное")
+            {
+                foreach (var item in Resolution.Expertisies.GroupBy(n => n.StartDate))
+                {
+
+                }
+            }  
+            word.Quit();
         }
     }
 }
