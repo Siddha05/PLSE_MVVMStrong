@@ -146,53 +146,24 @@ namespace PLSE_MVVMStrong.Model
         }
         public static string Decline(string str, LingvoNET.Case @case)
         {
-            StringBuilder sb = new StringBuilder();
-            var mch = Regex.Matches(str, "[а-я]+", RegexOptions.IgnoreCase);
-            
-            var col = mch.Cast<Match>();
-            foreach (var item in col)
+            return Regex.Replace(str,
+                            @"«.+?»|[а-я]+", declinated, RegexOptions.IgnoreCase);
+            string declinated(Match match)
             {
-                var f = Adjectives.FindOne(item.ToString());
+
+                var f = Adjectives.FindOne(match.Value);
                 if (f != null)
                 {
-                    sb.Append(f[@case, Gender.M]);
-                    sb.Append(" ");
-                    continue;
+                    return f[@case, Gender.M];
                 }
-                var s = Nouns.FindOne(item.ToString());
+                var s = Nouns.FindOne(match.Value);
                 if (s != null)
                 {
-                    sb.Append(s[@case]);
-                    sb.Append(" ");
-                    continue;
+                    return s[@case];
                 }
-                sb.Append(item.ToString());
-                sb.Append(" ");
+                return match.Value;
             }
-            return sb.ToString();
-            name = Regex.Replace("старший государственный судебный эксперт",
-                            @"«.+?»|[а-я]+", declinated, RegexOptions.IgnoreCase);
-            //Console.WriteLine(Regex.Replace("12 not equal 11", @"1", eval));
-            Console.WriteLine(name);
-            Console.ReadLine();
         }
-
-        private static string declinated(Match match)
-        {
-
-            var f = Adjectives.FindOne(match.Value);
-            if (f != null)
-            {
-                return f[Case.Dative, Gender.M];
-            }
-            var s = Nouns.FindOne(match.Value);
-            if (s != null)
-            {
-                return s[Case.Dative];
-            }
-            return match.Value;
-        }
-    }
     }
 
     public static class DateUtil

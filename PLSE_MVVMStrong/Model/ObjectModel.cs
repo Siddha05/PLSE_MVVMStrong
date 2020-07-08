@@ -3244,7 +3244,7 @@ namespace PLSE_MVVMStrong.Model
         public string SpecialityExperience() => ReceiptDate.Year.ToString();
         public string Requisite()
         {
-            return $"квалификацию судебного эксперта по специальности {Speciality.Code}, стаж экспертной работы по специальности с {ReceiptDate.Year} года";
+            return $"квалификацию судебного эксперта по специальности {Speciality.Code}, стаж экспертной работы по которой с {ReceiptDate.Year} года";
         }
         private void AddToDB(SqlConnection con)
         {
@@ -6092,12 +6092,41 @@ namespace PLSE_MVVMStrong.Model
             var bmarks = doc.Bookmarks;
             bmarks["number"].Range.Text = group.Select(n => n.FullNumber).Aggregate((c, n) => c + ", " + n);
             bmarks["annotate"].Range.Text = Resolution.Case.Annotate;
-            bmarks["expert"].Range.Text = group.First().Expert.Employee. exp.Expert.Requisite();
-            bmarks["fio"].Range.Text = group.First().Expert.Employee.ToString();
+            StringBuilder sb = new StringBuilder(400);
+            Employee e = group.First().Expert.Employee;
+            sb.Append(StringUtil.Decline(e.Inneroffice, LingvoNET.Case.Dative));
+            sb.Append(", ");
+            sb.Append(e.ToString("D"));
+            if (e.Gender == "женский") sb.Append(", имеющей ");
+            else sb.Append(", имеющему ");
+            sb.Append(e.Education1);
+            if(e.Education2 != null)
+            {
+                sb.Append(", ");
+                sb.Append(e.Education2);
+            }
+            if (e.Education3 != null)
+            {
+                sb.Append(", ");
+                sb.Append(e.Education3);
+            }
+            if (e.Sciencedegree != null)
+            {
+                sb.Append(", ");
+                sb.Append(e.Sciencedegree);
+            }
+            sb.Append(", ");
+            foreach (var item in group)
+            {
+                sb.Append(item.Expert.Requisite());
+                sb.Append(", ");
+            }
+            bmarks["expert"].Range.Text = sb.ToString();
+            bmarks["fio"].Range.Text = e.ToString();
             bmarks["date"].Range.Text = group.First().StartDate.ToString("dd MMMM yyyy");
             bmarks["codex"].Range.Text = Resolution.Case.Codex();
             bmarks["respon"].Range.Text = Resolution.Case.SubcribeArticle();
-            string to = Path.Combine(DestinationPath(), "подписка " + group.First().Expert.Employee.ToString());
+            string to = Path.Combine(DestinationPath(), "подписка " + e.ToString());
             if (File.Exists(to))
             {
                 File.Delete(to);
@@ -6106,9 +6135,9 @@ namespace PLSE_MVVMStrong.Model
             {
                 doc.SaveAs2(to);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine(ex.Message);
             }
             finally
             {
@@ -6146,7 +6175,16 @@ namespace PLSE_MVVMStrong.Model
                 bmarks["plurality4"].Range.Text = group.Select(n => n.Expert.Employee.ToString())
                                                        .Distinct()
                                                        .Count() > 1 ? "экспертам" : "эксперту";
-            bmarks["recipient"].Range.Text = bmarks["recipient"].Range.Text = Resolution.Customer.Requisite
+            StringBuilder sb = new StringBuilder(300);
+            sb.Append(StringUtil.Decline(Resolution.Customer.Office, LingvoNET.Case.Dative));
+            sb.Append(" ");
+            if (Resolution.Customer.Rank != null)
+            {
+                sb.Append(StringUtil.Decline(Resolution.Customer.Rank, LingvoNET.Case.Dative));
+                sb.Append(" ");
+            }
+            sb.Append(Resolution.Customer.ToString("D"));
+            bmarks["recipient"].Range.Text = bmarks["recipient"].Range.Text = sb.ToString();
         }
         public void StartDoc()
         {
