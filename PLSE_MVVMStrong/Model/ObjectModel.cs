@@ -236,7 +236,6 @@ namespace PLSE_MVVMStrong.Model
             }
             else throw new NotImplementedException("(прил.) невозможно склонить в родительном падеже");
         }
-
         public static string AdjectiveToDative(string str)
         {
             if (str.LastRight(2) == "ый")
@@ -289,7 +288,6 @@ namespace PLSE_MVVMStrong.Model
             }//добавить - ов -ев и т.д.
             else throw new NotImplementedException("(прил.) невозможно склонить в родительном падеже");
         }
-
         public static string NounToGenetive(string str)
         {
             var word = Word.Determine(str);
@@ -334,7 +332,6 @@ namespace PLSE_MVVMStrong.Model
                 return str;
             }
         }
-
         public static string NounToDative(string str)
         {
             var word = Word.Determine(str);
@@ -2463,6 +2460,11 @@ namespace PLSE_MVVMStrong.Model
             if (regex.IsMatch(mail)) return true;
             else return false;
         }
+        /// <summary>
+        /// Склоняет фамилию в дательном падеже
+        /// </summary>
+        /// <returns>Фамилия в дательном падеже</returns>
+        /// <exception cref="NotImplementedException"Пол не мужской или женский</exception>
         protected string SurnameToGenitive()
         {
             var devide = Sname.Split(separator: new char[] { '-' }, options: StringSplitOptions.RemoveEmptyEntries, count: 2);//двойная или одинарная фамилия, более двойной запрещено законом
@@ -2699,26 +2701,33 @@ namespace PLSE_MVVMStrong.Model
         {
             if (String.IsNullOrEmpty(format)) format = "n";
             if (formatProvider == null) formatProvider = new CultureInfo("ru-RU");
+            StringBuilder sb = new StringBuilder(35);
             switch (format)
             {
                 case "n":
-                    return Sname + " " + Fname[0] + "." + Mname[0] + ".";
-
-                case "G"://genetive case
-                    return SurnameToGenitive() + " " + NameToGenitive() + " " + MiddleNameToGenitive();
-
-                case "g":
-                    return SurnameToGenitive() + " " + Fname[0] + "." + Mname[0] + ".";
-
-                case "N": //nominative case
-                    return Sname + " " + Fname + " " + Mname;
-
+                    sb.Append(Sname); sb.Append(" "); sb.Append(Fname[0]);
+                    sb.Append(".");sb.Append(Mname[0]);sb.Append(".");
+                    return sb.ToString();
+                case "N":
+                    sb.Append(Sname); sb.Append(" "); sb.Append(Fname);
+                    sb.Append(" "); sb.Append(Mname);
+                    return sb.ToString();
+                case "G"://genetive case, full
+                    sb.Append(SurnameToGenitive()); sb.Append(" "); sb.Append(NameToGenitive());
+                    sb.Append(" "); sb.Append(MiddleNameToGenitive());
+                    return sb.ToString();
+                case "g"://genetive case, short
+                    sb.Append(SurnameToGenitive()); sb.Append(" "); sb.Append(Fname[0]);
+                    sb.Append("."); sb.Append(Mname[0]); sb.Append(".");
+                    return sb.ToString();
                 case "D":// dative case
-                    return SurnameToDative() + " " + NameToDative() + " " + MiddleNameToDative();
-
+                    sb.Append(SurnameToDative()); sb.Append(" "); sb.Append(NameToDative());
+                    sb.Append(" "); sb.Append(MiddleNameToDative());
+                    return sb.ToString();
                 case "d":
-                    return SurnameToDative() + " " + Fname[0] + "." + Mname[0] + ".";
-
+                    sb.Append(SurnameToDative()); sb.Append(" "); sb.Append(Fname[0]);
+                    sb.Append("."); sb.Append(Mname[0]); sb.Append(".");
+                    return sb.ToString();
                 default:
                     throw new FormatException("Неизвестный формат");
             }
@@ -2740,10 +2749,7 @@ namespace PLSE_MVVMStrong.Model
                 UpdateDate = this.UpdateDate
             };
         }
-        object ICloneable.Clone()
-        {
-            return Clone();
-        }
+        object ICloneable.Clone() => Clone();
         public override void SaveChanges(SqlConnection con)
         {
             throw new NotImplementedException();
@@ -3238,7 +3244,7 @@ namespace PLSE_MVVMStrong.Model
         public string SpecialityExperience() => ReceiptDate.Year.ToString();
         public string Requisite()
         {
-            throw new NotImplementedException("");
+            return $"квалификацию судебного эксперта по специальности {Speciality.Code}, стаж экспертной работы по специальности с {ReceiptDate.Year} года";
         }
         private void AddToDB(SqlConnection con)
         {
@@ -6078,19 +6084,20 @@ namespace PLSE_MVVMStrong.Model
             }
             return path;
         }
-        public void CreateSubscribe(Microsoft.Office.Interop.Word.Application word, Expertise exp)
+        public void CreateSubscribe(Microsoft.Office.Interop.Word.Application word, IGrouping<int,Expertise> group)
         {
             var doc = word.Documents.Add(_subscribetemp);
-            doc.Activate();
+            doc.Activate(); //needed?
+            
             var bmarks = doc.Bookmarks;
-            bmarks["number"].Range.Text = exp.FullNumber;
-            bmarks["annotate"].Range.Text = exp.FromResolution.Case.Annotate;
-            bmarks["expert"].Range.Text = exp.Expert.Requisite();
-            bmarks["fio"].Range.Text = exp.Expert.Employee.ToString();
-            bmarks["date"].Range.Text = exp.FromResolution.RegistrationDate.ToString("dd MMMM yyyy");
-            bmarks["codex"].Range.Text = exp.FromResolution.Case.Codex();
-            bmarks["respon"].Range.Text = exp.FromResolution.Case.SubcribeArticle();
-            string to = Path.Combine(DestinationPath(), "подписка " + exp.Expert.Employee.ToString());
+            bmarks["number"].Range.Text = group.Select(n => n.FullNumber).Aggregate((c, n) => c + ", " + n);
+            bmarks["annotate"].Range.Text = Resolution.Case.Annotate;
+            bmarks["expert"].Range.Text = group.First().Expert.Employee. exp.Expert.Requisite();
+            bmarks["fio"].Range.Text = group.First().Expert.Employee.ToString();
+            bmarks["date"].Range.Text = group.First().StartDate.ToString("dd MMMM yyyy");
+            bmarks["codex"].Range.Text = Resolution.Case.Codex();
+            bmarks["respon"].Range.Text = Resolution.Case.SubcribeArticle();
+            string to = Path.Combine(DestinationPath(), "подписка " + group.First().Expert.Employee.ToString());
             if (File.Exists(to))
             {
                 File.Delete(to);
@@ -6144,7 +6151,7 @@ namespace PLSE_MVVMStrong.Model
         public void StartDoc()
         {
             Microsoft.Office.Interop.Word.Application word = new Microsoft.Office.Interop.Word.Application();
-            foreach (var item in Resolution.Expertisies)
+            foreach (var item in Resolution.Expertisies.GroupBy(n => n.Expert.Employee.EmployeeID))
             {
                 CreateSubscribe(word, item);
             }

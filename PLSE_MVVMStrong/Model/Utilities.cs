@@ -21,7 +21,6 @@ namespace PLSE_MVVMStrong.Model
         {
             return new string(str?.Reverse().ToArray());
         }
-
         /// <summary>
         /// Ищет первую букву в исходной строке и переводит ее в верхний регистр
         /// </summary>
@@ -37,21 +36,18 @@ namespace PLSE_MVVMStrong.Model
             }
             throw new ArgumentException("Строка не содержит букв");
         }
-
         static public string LastRight(this string str, int cnt)
         {
             if (str.Length < cnt) cnt = str.Length;
             if (cnt <= 0) throw new ArgumentOutOfRangeException();
             return str.Substring(str.Length - cnt);
         }//возвращает cnt последних символов
-
         static public string PositionReplace(this string sourse, string str, int pos)
         {
             if (pos < 0 || pos >= sourse.Length) throw new ArgumentOutOfRangeException();
             if (str == null) throw new ArgumentNullException();
             return sourse.Substring(0, pos) + str;
         }//заменяет sourse с позиции pos строкой str
-
         static public bool ContainWithComparison(this string source, string str, StringComparison comparison)
         {
             if (str == null) throw new ArgumentException("Искомая строка не может быть null");
@@ -59,7 +55,6 @@ namespace PLSE_MVVMStrong.Model
             if (source == null) return false;
             return source.IndexOf(str, comparison) >= 0;
         }
-
         static public BitmapImage Bitmap2BitmapImage(Bitmap bitmap)
         {
             using (MemoryStream ms = new MemoryStream())
@@ -73,7 +68,6 @@ namespace PLSE_MVVMStrong.Model
                 return bi;
             }
         }
-
         /// <summary>
         /// Возвращает только цифровые символы из исходной строки
         /// </summary>
@@ -83,7 +77,6 @@ namespace PLSE_MVVMStrong.Model
         {
             return new string(s.Where(n => Char.IsDigit(n)).ToArray());
         }
-
         /// <summary>
         /// Убирает все пробелы из исходной строки
         /// </summary>
@@ -151,6 +144,55 @@ namespace PLSE_MVVMStrong.Model
             }
             return sb.ToString();
         }
+        public static string Decline(string str, LingvoNET.Case @case)
+        {
+            StringBuilder sb = new StringBuilder();
+            var mch = Regex.Matches(str, "[а-я]+", RegexOptions.IgnoreCase);
+            
+            var col = mch.Cast<Match>();
+            foreach (var item in col)
+            {
+                var f = Adjectives.FindOne(item.ToString());
+                if (f != null)
+                {
+                    sb.Append(f[@case, Gender.M]);
+                    sb.Append(" ");
+                    continue;
+                }
+                var s = Nouns.FindOne(item.ToString());
+                if (s != null)
+                {
+                    sb.Append(s[@case]);
+                    sb.Append(" ");
+                    continue;
+                }
+                sb.Append(item.ToString());
+                sb.Append(" ");
+            }
+            return sb.ToString();
+            name = Regex.Replace("старший государственный судебный эксперт",
+                            @"«.+?»|[а-я]+", declinated, RegexOptions.IgnoreCase);
+            //Console.WriteLine(Regex.Replace("12 not equal 11", @"1", eval));
+            Console.WriteLine(name);
+            Console.ReadLine();
+        }
+
+        private static string declinated(Match match)
+        {
+
+            var f = Adjectives.FindOne(match.Value);
+            if (f != null)
+            {
+                return f[Case.Dative, Gender.M];
+            }
+            var s = Nouns.FindOne(match.Value);
+            if (s != null)
+            {
+                return s[Case.Dative];
+            }
+            return match.Value;
+        }
+    }
     }
 
     public static class DateUtil
