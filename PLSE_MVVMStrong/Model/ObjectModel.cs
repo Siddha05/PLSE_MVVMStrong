@@ -12,12 +12,14 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using LingvoNET;
 using Microsoft.Office.Interop.Word;
 using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 
@@ -49,29 +51,29 @@ namespace PLSE_MVVMStrong.Model
         Provisionboss,
         Rightless
     }
-    internal enum WordKind
-    {
-        Neuter,
-        Male,
-        Female,
-        Plural,
-        None
-    }
     
     internal sealed class Word
     {
-        internal enum PartOfSpeech
+        public enum PartOfSpeech
         {
+            None,
             Noun,
             Pronoun,
             Verb,
             Adjective,
             Numeral,
             Adverb,
-            Preposition,
-            None
+            Preposition
         }
-
+        internal enum WordKind
+        {
+            None,
+            Neuter,
+            Male,
+            Female,
+            Plural
+        }
+    
         public readonly string _word;
         public readonly bool? _HasDeclination;
         public readonly WordKind _kind;
@@ -2308,8 +2310,8 @@ namespace PLSE_MVVMStrong.Model
             set
             {
                 if (_sname == value) return;
-                if (!isValidSecondName(value)) throw new ArgumentException("Неверный формат фамилии. Допускаются буквы русского алфавита и '-'");
-                _sname = value.ToUpperFirstLetter().SpaceFree();
+                if (!isValidSecondName(value)) throw new ArgumentException("Неверный формат фамилии. Допускаются буквы русского алфавита и одиночный '-'");
+                _sname = value.ToLower().ToUpperFirstLetter();
                 OnPropertyChanged();
                 OnPropertyChanged("Fio");
             }
@@ -2451,7 +2453,7 @@ namespace PLSE_MVVMStrong.Model
         }
         public bool isValidSecondName(string sname)
         {
-            Regex regex = new Regex(@"^\p{IsCyrillic}{2,15}(?:\s?-\s?\p{IsCyrillic}{2,15})?$", RegexOptions.IgnoreCase);
+            Regex regex = new Regex(@"^\p{IsCyrillic}{2,15}(?:-\p{IsCyrillic}{2,15})?$", RegexOptions.IgnoreCase);
             return regex.IsMatch(sname);
         }
         public bool isValidEmail(string mail)
@@ -2461,70 +2463,113 @@ namespace PLSE_MVVMStrong.Model
             else return false;
         }
         /// <summary>
-        /// Склоняет фамилию в дательном падеже
+        /// Склоняет фамилию в родительном падеже
         /// </summary>
         /// <returns>Фамилия в дательном падеже</returns>
         /// <exception cref="NotImplementedException"Пол не мужской или женский</exception>
         protected string SurnameToGenitive()
         {
+            if (_declinated == false) return Sname;
             var devide = Sname.Split(separator: new char[] { '-' }, options: StringSplitOptions.RemoveEmptyEntries, count: 2);//двойная или одинарная фамилия, более двойной запрещено законом
             if (Gender == "мужской")
             {
                 string[] parts = new string[devide.Length];
+                string l2; string l1;
                 for (int i = 0; i < devide.Length; i++)
                 {
-                    if (devide[i].LastRight(2) == "ий" || devide[i].LastRight(2) == "ый")
+                    l2 = devide[i].LastRight(2); l1 = devide[i].LastRight(1);
+                    if (l2 == "ин" || l2 == "ын" || l2 == "ов" || l2 == "ев")
                     {
-                        parts[i] = Word.AdjectiveToGenetive(devide[i]);
+                        parts[i] = devide[i] + "а";
                         continue;
                     }
-                    if (devide[i].LastRight(1) == "о" || devide[i].LastRight(1) == "и" || devide[i].LastRight(1) == "ю" || devide[i].LastRight(1) == "у" || devide[i].LastRight(1) == "е")
+                    if (l1 == "й")
+                    {
+                        var a = Adjectives.FindOne(devide[i]);
+                        if (a != null)
+                        {
+                            parts[i] = a[LingvoNET.Case.Genitive, LingvoNET.Gender.MA];
+                            continue;
+                        }
+                        if (devide[i].LastRight(4) == "ский" || devide[i].LastRight(4) == "цкий" || devide[i].LastRight(4) == "ской" || devide[i].LastRight(4) == "цкой")
+                        {
+                            parts[i] = devide[i].PositionReplace("ого", devide[i].Length - 2);
+                            continue;
+                        }
+                    }
+                    if (devide[i].LastRight(1) == "о" || devide[i].LastRight(1) == "и" || devide[i].LastRight(1) == "ю" 
+                                                        || devide[i].LastRight(1) == "у" || devide[i].LastRight(1) == "е")
                     {
                         parts[i] = devide[i];
                         continue;
                     }
                     if (devide[i].LastRight(2) == "ых" || devide[i].LastRight(2) == "их")
                     {
-                        parts[i] = devide[i];
+                        var s = Nouns.FindOne(devide[i]);
+                        if (s != null) parts[i] = s[LingvoNET.Case.Genitive];
+                        else parts[i] = devide[i];
                         continue;
                     }
-                    parts[i] = Word.NounToGenetive(devide[i]);
+                    var n = Nouns.FindOne(devide[i]);
+                    if (n != null)
+                    {
+                        parts[i] = n[LingvoNET.Case.Genitive];
+                        continue;
+                    }
+                    throw new NotImplementedException("Способ склонения неизвестен");
                 }
                 return String.Join("-", parts);
             }
             if (Gender == "женский")
             {
                 string[] parts = new string[devide.Length];
+                string l3, l1;
                 for (int i = 0; i < devide.Length; i++)
                 {
-                    if (devide[i].LastRight(2) == "ая" || devide[i].LastRight(2) == "яя")
+                    l3 = devide[i].LastRight(3); l1 = devide[i].LastRight(1);
+                    if (l3 == "ина" || l3 == "ова" || l3 == "ева" || l3 == "ына")
                     {
-                        parts[i] = Word.AdjectiveToGenetive(devide[i]);
+                        parts[i] = devide[i].PositionReplace("ой", devide[i].Length -1);
                         continue;
                     }
-                    if (devide[i].LastRight(1) == "о" || devide[i].LastRight(1) == "и" || devide[i].LastRight(1) == "ю" || devide[i].LastRight(1) == "у" || devide[i].LastRight(1) == "е")
+                    if (l1 == "я")
+                    {
+                        if (devide[i].LastRight(4) == "ская" || devide[i].LastRight(4) == "цкая")
+                        {
+                            parts[i] = devide[i].PositionReplace("ой", devide[i].Length - 2);
+                            continue;
+                        }
+                        var a = Adjectives.FindOne(devide[i]);
+                        if (a != null)
+                        {
+                            parts[i] = a[LingvoNET.Case.Genitive, LingvoNET.Gender.FA];
+                            continue;
+                        }
+                    }
+                    if (devide[i].LastRight(1) == "о" || devide[i].LastRight(1) == "и" || devide[i].LastRight(1) == "ю"
+                                                        || devide[i].LastRight(1) == "у" || devide[i].LastRight(1) == "е")
                     {
                         parts[i] = devide[i];
                         continue;
                     }
                     if (devide[i].LastRight(2) == "ых" || devide[i].LastRight(2) == "их")
                     {
-                        parts[i] = devide[i];
+                        var s = Nouns.FindOne(devide[i]);
+                        if (s != null) parts[i] = s[LingvoNET.Case.Genitive];
+                        else parts[i] = devide[i];
                         continue;
                     }
-                    if (Word.DetermineKind(devide[i]) == WordKind.Female)
+                    var n = Nouns.FindOne(devide[i]);
+                    if (n != null)
                     {
-                        if (devide[i].LastRight(3) == "ова" || devide[i].LastRight(3) == "ева" || devide[i].LastRight(3) == "ёва" || devide[i].LastRight(3) == "ына" || devide[i].LastRight(3) == "ина")
-                        {
-                            parts[i] = devide[i].PositionReplace("ой", devide[i].Length - 1);
-                        }
-                        else parts[i] = Word.NounToGenetive(devide[i]);
+                        parts[i] = n[LingvoNET.Case.Genitive];
+                        continue;
                     }
-                    else parts[i] = devide[i];
+                    throw new NotImplementedException("Способ склонения неизвестен");
                 }
                 return String.Join("-", parts);
             }
-            else throw new NotImplementedException("Пол неизвестен.Склонение невозможно");
+            else throw new NotImplementedException("Пол неизвестен. Склонение невозможно");
         }
         protected string SurnameToDative()
         {
