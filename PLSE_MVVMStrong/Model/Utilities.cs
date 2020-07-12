@@ -1,5 +1,6 @@
 ﻿using LingvoNET;
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -144,26 +145,74 @@ namespace PLSE_MVVMStrong.Model
             }
             return sb.ToString();
         }
-        public static string Decline(string str, LingvoNET.Case @case)
+        public static string Decline(this string str, LingvoNET.Case @case)
         {
+            if (str == null) return null;
             return Regex.Replace(str,
                             @"«.+?»|[а-я]+", declinated, RegexOptions.IgnoreCase);
+            
             string declinated(Match match)
             {
-
-                var f = Adjectives.FindOne(match.Value);
-                if (f != null)
+                string c;
+                string l2 = match.Value.LastRight(2);
+                switch (l2)
                 {
-                    return f[@case, Gender.M];
+                    case "ая":
+                    case "яя":
+                        c = match.Value.PositionReplace("ий", match.Value.Length - 2);
+                        break;
+                    default:
+                        c = match.Value;
+                        break;
                 }
-                var s = Nouns.FindOne(match.Value);
-                if (s != null)
+                if (c.LastRight(2) == "ий" || c.LastRight(2) == "ый" || c.LastRight(2) == "ой")
                 {
-                    return s[@case];
+                    var noun = Nouns.FindOne(c);
+                    if (noun == null)
+                    {
+                        var plural_noun = Nouns.FindOne(match.Value.PositionReplace("е", match.Value.Length - 1));
+                        if (plural_noun != null) return match.Value;
+                    }
+                    else return noun[@case];
+                    var adj = Adjectives.FindSimilar(c);
+                    if (adj != null)
+                    {
+                        if (l2 == "яя" || l2 == "ая")
+                        {
+                            return adj[@case, Gender.F];
+                        }
+                        else return adj[@case, Gender.M];
+                    }
+                    else return match.Value;
                 }
-                return match.Value;
+                else
+                {
+                    var s = Nouns.FindOne(match.Value);
+                    if (s != null)
+                    {
+                        return s[@case];
+                    }
+                    return match.Value;
+                }
+               
             }
         }
+        public static string DeclineSpeciality(this Speciality sp, LingvoNET.Case @case)
+        {
+            int pos1 = sp.Species?.IndexOf("экспертиза") ?? -1;
+            if (pos1 < 0)
+            {
+                return null;
+            }
+            int pos2 = pos1 + 10;
+            string part1, part2, part3;
+            part1 = sp.Species.Substring(0, pos1);
+            part2 = "экспертиза";
+            part3 = sp.Species.Substring(pos2);
+            var noun = Nouns.FindOne(part2);
+            return part1.Decline(@case) + noun[@case] + part3;
+        }
+        
     }
 
     public static class DateUtil
@@ -187,6 +236,51 @@ namespace PLSE_MVVMStrong.Model
                 }
             }
             return false;
+        }
+    }
+    public static class Declination
+    {
+        public static string DeclineSpeciality(this Speciality sp, LingvoNET.Case @case)
+        {
+            int pos1 = sp.Species?.IndexOf("экспертиза") ?? -1;
+            if (pos1 < 0)
+            {
+                return null;
+            }
+            int pos2 = pos1 + 10;
+            string part1, part2, part3;
+            part1 = sp.Species.Substring(0, pos1);
+            part2 = "экспертиза";
+            part3 = sp.Species.Substring(pos2);
+            var noun = Nouns.FindOne(part2);
+            return part1.Decline(@case) + noun[@case] + part3;
+        }
+        public static Tuple<string, string, string> DevideByNoun(this string str, string noun)
+        {
+            int pos1 = str?.IndexOf(noun) ?? -1;
+            if (pos1 < 0)
+            {
+                return new Tuple<string, string, string>(null, null, null);
+            }
+            int pos2 = pos1 + noun.Length;
+            return new Tuple<string, string, string>(str.Substring(0, pos1), noun, str.Substring(pos2));
+        }
+        public static string DeclineBeforeNoun(this string str, LingvoNET.Case @case)
+        {
+            if (str == null) return null;
+            Noun n = null;
+            var words = Regex.Split(str, @"[,.:; ]", RegexOptions.IgnoreCase);
+            foreach (var item in words)
+            {
+                n = Nouns.FindOne(item);
+                if (n != null) break;
+            }
+            if (n != null)
+            {
+                var parts = str.DevideByNoun(n.Word);
+                return parts.Item1.Decline(@case) + n[@case] + parts.Item3;
+            }
+            else throw new NotSupportedException("Предложение не содержит существительного");
         }
     }
 }

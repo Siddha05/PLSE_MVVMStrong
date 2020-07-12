@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
@@ -172,6 +173,7 @@ namespace PLSE_MVVMStrong.ViewModel
             {
                 ScanAnnualDate(informer);
                 ScanExpertises(informer);
+                //TestInfo(informer);
             });
             MessageListDoubleClick = new RelayCommand(n =>
             {
@@ -231,6 +233,18 @@ namespace PLSE_MVVMStrong.ViewModel
             Task.Run(() =>
             {
                 progress.Report(new Message($"Expertises not scanned!", MsgType.Warning));
+            });
+        }
+        public void TestInfo (IProgress<Message> progress)
+        {
+            Task.Run(() =>
+            {
+                foreach (var item in CommonInfo.Specialities)
+                {
+                    
+                Thread.Sleep(500);
+                }
+                
             });
         }
     }

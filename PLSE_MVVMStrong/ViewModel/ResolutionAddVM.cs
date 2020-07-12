@@ -158,28 +158,28 @@ namespace PLSE_MVVMStrong.ViewModel
             Resolution = InicialState();
             Resolution.PropertyChanged += Resolution_PropertyChanged;
             CustomersList = new ListCollectionView(CommonInfo.Customers);
-            Resolution.Expertisies.Add(new Expertise(id: 0,
-                                                      number: "12",
-                                                      expert: CommonInfo.Experts.Single(n => n.ExpertID == 6),
-                                                      status: "в работе",
-                                                      start: DateTime.Now,
-                                                      end: null,
-                                                      timelimit: (byte)20,
-                                                      type: "первичная",
-                                                      previous: null,
-                                                      spendhours: null,
-                                                      vr: Model.Version.New));
-            Resolution.Expertisies.Add(new Expertise(id: 0,
-                                                      number: "2056",
-                                                      expert: CommonInfo.Experts.Single(n => n.ExpertID == 8),
-                                                      status: "выполнена",
-                                                      start: DateTime.Now.AddDays(-34),
-                                                      end: DateTime.Now.AddDays(-11),
-                                                      timelimit: (byte)30,
-                                                      type: "первичная",
-                                                      previous: null,
-                                                      spendhours: 48,
-                                                      vr: Model.Version.New));
+            //Resolution.Expertisies.Add(new Expertise(id: 0,
+            //                                          number: "12",
+            //                                          expert: CommonInfo.Experts.Single(n => n.ExpertID == 6),
+            //                                          status: "в работе",
+            //                                          start: DateTime.Now,
+            //                                          end: null,
+            //                                          timelimit: (byte)20,
+            //                                          type: "первичная",
+            //                                          previous: null,
+            //                                          spendhours: null,
+            //                                          vr: Model.Version.New));
+            //Resolution.Expertisies.Add(new Expertise(id: 0,
+            //                                          number: "2056",
+            //                                          expert: CommonInfo.Experts.Single(n => n.ExpertID == 8),
+            //                                          status: "выполнена",
+            //                                          start: DateTime.Now.AddDays(-34),
+            //                                          end: DateTime.Now.AddDays(-11),
+            //                                          timelimit: (byte)30,
+            //                                          type: "первичная",
+            //                                          previous: null,
+            //                                          spendhours: 48,
+            //                                          vr: Model.Version.New));
 
             SelectCustomer = new RelayCommand(n =>
             {
@@ -205,19 +205,23 @@ namespace PLSE_MVVMStrong.ViewModel
             });
             Save = new RelayCommand(n =>
             {
-                try
-                {
-                    Resolution.SaveChanges(CommonInfo.connection);
-                    if (MessageBox.Show("Сохранение успешно. Продолжить?", "Сохранение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
-                    {
-                        Resolution = InicialState();
-                    }
-                    else (n as Window).Close();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message);
-                }
+                var pr = new DocsCreater(Resolution);
+                pr.StartDoc();
+                //try
+                //{
+                //    Resolution.SaveChanges(CommonInfo.connection);
+                //    var pr = new DocsCreater(Resolution);
+                //    pr.StartDoc();
+                //    if (MessageBox.Show("Сохранение успешно. Продолжить?", "Сохранение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                //    {
+                //        Resolution = InicialState();
+                //    }
+                //    else (n as Window).Close();
+                //}
+                //catch (Exception ex)
+                //{
+                //    MessageBox.Show(ex.Message);
+                //}
             },
              o=>
              {
