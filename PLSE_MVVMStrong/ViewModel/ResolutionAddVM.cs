@@ -206,7 +206,7 @@ namespace PLSE_MVVMStrong.ViewModel
             Save = new RelayCommand(n =>
             {
                 var pr = new DocsCreater(Resolution);
-                pr.StartDoc();
+                pr.Crtr();
                 //try
                 //{
                 //    Resolution.SaveChanges(CommonInfo.connection);

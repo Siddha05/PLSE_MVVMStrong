@@ -93,6 +93,14 @@ namespace PLSE_MVVMStrong.Model
             if (posdot < 0) return s;
             else return s.Substring(0, posdot + 2);
         }
+        static public int PositionRunawayVowel(this string str)
+        {
+            //var p = str.StrReverse().IndexOfAny(new char[] { 'о', 'е', 'ё' });
+            //if (p > 0) return str.Length - p - 1;
+            //else return -1;
+            if (str[str.Length - 2] == 'о' || str[str.Length - 2] == 'е' || str[str.Length - 2] == 'ё') return str.Length - 2;
+            else return str.Length - 3;
+        }
         public static string Joining(string str, LingvoNET.Case @case)
         {
             StringBuilder sb = new StringBuilder();

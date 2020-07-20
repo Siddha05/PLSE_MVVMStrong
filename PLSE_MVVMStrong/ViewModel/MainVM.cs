@@ -187,10 +187,21 @@ namespace PLSE_MVVMStrong.ViewModel
             else if (curhour >= 17 && curhour <= 21) Messages.Add(new Message($"Добрый вечер, {Employee.Fname} {Employee.Mname}", MsgType.Temporary, TimeSpan.FromSeconds(5)));
             else Messages.Add(new Message($"Доброй ночи, {Employee.Fname} {Employee.Mname}", MsgType.Normal, TimeSpan.FromSeconds(5)));
             //app.PropertyChanged += (o, e) => Employee = app.LogedEmployee;
-            //foreach (var item in CommonInfo.Organizations)
-            //{
-            //    Messages.Add(new Message(StringUtil.Joining(item.Name, LingvoNET.Case.Genitive), MsgType.Warning));
-            //}
+            foreach (var item in CommonInfo.Employees)
+            {
+                string text = null;
+                try
+                {
+                    text += item.ToString("D") + "\t";
+                    text += item.ToString("G");
+                }
+                catch (Exception e)
+                {
+
+                    text += e.Message;
+                }
+                Messages.Add(new Message(text, MsgType.Warning));
+            }
         }
 
         private void App_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -232,6 +243,7 @@ namespace PLSE_MVVMStrong.ViewModel
         {
             Task.Run(() =>
             {
+                Thread.Sleep(2003);
                 progress.Report(new Message($"Expertises not scanned!", MsgType.Warning));
             });
         }
