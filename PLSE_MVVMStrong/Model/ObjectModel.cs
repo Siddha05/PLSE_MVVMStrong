@@ -72,39 +72,39 @@ namespace PLSE_MVVMStrong.Model
         }
     internal sealed class Word
     {
-        public string _text;
+        public readonly string _text;
         public readonly bool _IsDeclinated;
         public readonly WordGender _WordGender;
         public readonly PartOfSpeech _PartofSpeech;
         public readonly bool _HasRunawayVowel;
         public static readonly HashSet<Word> _exeptions;
-        public static Word Determine(string str)
+        public static Word Determine(string str, PartOfSpeech expect = PartOfSpeech.None)
         {
-            var x = _exeptions.FirstOrDefault(n => n._text == str);
+            var x = _exeptions.FirstOrDefault(n => n._text == str.ToLower());
             if (x != null) return x;
             if (str.LastRight(2) == "ёк")
             {
-                if ("лнр".Contains(str[str.PositionRunawayVowel() - 1])) return new Word(str, true, WordGender.Male, PartOfSpeech.None, true);
-                else return new Word(str, true, WordGender.Male, PartOfSpeech.None, false);
+                if ("лнр".Contains(str[str.PositionRunawayVowel() - 1])) return new Word(str, true, WordGender.Male, expect, true);
+                else return new Word(str, true, WordGender.Male, expect, false);
             }
             if (str.LastRight(2) == "ок" || str.LastRight(2) == "ец" || str.LastRight(2) == "ек")
             {
-                if (str.EndsWith("век")) return new Word(str, true, WordGender.Male, PartOfSpeech.None, false);
+                if (str.EndsWith("век")) return new Word(str, true, WordGender.Male, expect, false);
                 int _pos = str.Length - 3, __pos = _pos - 1;
                 if (_pos <= 0)
                 {
-                    return new Word(str, true, WordGender.Male, PartOfSpeech.None, false);
+                    return new Word(str, true, WordGender.Male, expect, false);
                 }
                 else
                 {
                     if (!"ёйуеъыаоэяиью".Contains(str[_pos]) && !"ёйуеъыаоэяиью".Contains(str[__pos]))
                     {
-                        return new Word(str, true, WordGender.Male, PartOfSpeech.None, false);
+                        return new Word(str, true, WordGender.Male, expect, false);
                     }
-                    else return new Word(str, true, WordGender.Male, PartOfSpeech.None, true);
+                    else return new Word(str, true, WordGender.Male, expect, true);
                 }
             }
-            return new Word(str, true, DetermineGender(str), PartOfSpeech.None, false);
+            return new Word(str, true, DetermineGender(str), expect, false);
         }
         public static WordGender DetermineGender(string str)
         {
@@ -327,7 +327,244 @@ namespace PLSE_MVVMStrong.Model
                 return str;
             }
         }
-
+        public string ToGenetive()
+        {
+            string str = _text;
+            switch (_PartofSpeech)
+            {
+                case PartOfSpeech.Noun:
+                    if (_IsDeclinated)
+                    {
+                        if (_HasRunawayVowel)
+                        {
+                           str = Word.ReplaceRunawayVowel(_text);
+                        }
+                        string L1 = str.LastRight(1);
+                        if (_WordGender == WordGender.Male)
+                        {
+                            if (str == "путь") return "пути";
+                            if (L1 == "ь" || L1 == "й") return str.PositionReplace("я", str.Length - 1);
+                            if (L1 == "а")
+                            {
+                                if ("хгкжщчщ".Contains(str[str.Length - 2])) return str.PositionReplace("и", str.Length - 1);
+                                else return str.PositionReplace("ы", str.Length - 1);
+                            }
+                            if (L1 == "я") return str.PositionReplace("и", str.Length - 1);
+                            return str + "а";
+                        }
+                        if (_WordGender == WordGender.Female)
+                        {
+                            if (str == "мать" || str == "дочь") return str.PositionReplace("ери", str.Length - 1);
+                            if (L1 == "я" || L1 == "ь")
+                            {
+                                return str.PositionReplace("и", str.Length - 1);
+                            }
+                            if (L1 == "а")
+                            {
+                                if ("хгкжщчщ".Contains(str[str.Length - 2])) return str.PositionReplace("и", str.Length - 1);
+                                else return str.PositionReplace("ы", str.Length - 1);
+                            }
+                        }
+                        if (_WordGender == WordGender.Neuter)
+                        {
+                            if (str.LastRight(2) == "мя") return str.PositionReplace("ени", str.Length - 1);
+                            if (str == "дитя") return "дитяти";
+                            if ((L1 == "е" || L1 == "ё") && !"жщчщь".Contains(str[str.Length - 2])) return str.PositionReplace("я", str.Length - 1);
+                            else return str.PositionReplace("а", str.Length - 1);
+                        }
+                        throw new NotSupportedException("Склонение сущес. в родительном падеже невозможно");
+                    }
+                    else return str;
+                case PartOfSpeech.Adjective:
+                    string l2 = str.LastRight(2);
+                    if (l2 == "ый")
+                    {
+                        if ("жшчщц".Contains(str[str.Length - 3]))
+                        {
+                            return str.PositionReplace("его", str.Length - 2);
+                        }
+                        else
+                        {
+                            return str.PositionReplace("ого", str.Length - 2);
+                        }
+                    }
+                    if (l2 == "ий")
+                    {
+                        if ("хгк".Contains(str[str.Length - 3]))
+                        {
+                            return str.PositionReplace("ого", str.Length - 2);
+                        }
+                        else
+                        {
+                            return str.PositionReplace("его", str.Length - 2);
+                        }
+                    }
+                    if (l2 == "ой")
+                    {
+                        return str.PositionReplace("ого", str.Length - 2);
+                    }
+                    if (l2 == "ая")
+                    {
+                        if ("жшчщц".Contains(str[str.Length - 3]))
+                        {
+                            return str.PositionReplace("ей", str.Length - 2);
+                        }
+                        else
+                        {
+                            return str.PositionReplace("ой", str.Length - 2);
+                        }
+                    }
+                    if (l2 == "яя")
+                    {
+                        if ("хгк".Contains(str[str.Length - 3]))
+                        {
+                            return str.PositionReplace("ой", str.Length - 2);
+                        }
+                        else
+                        {
+                            return str.PositionReplace("ей", str.Length - 2);
+                        }
+                    }
+                    if (l2 == "ее")
+                    {
+                        if ("жшчщц".Contains(str[str.Length - 3]))
+                        {
+                            return str.PositionReplace("его", str.Length - 2);
+                        }
+                        else
+                        {
+                            return str.PositionReplace("ого", str.Length - 2);
+                        }
+                    }
+                    if (l2 == "ое")
+                    {
+                        if ("жшчщц".Contains(str[str.Length - 3]))
+                        {
+                            return str.PositionReplace("его", str.Length - 2);
+                        }
+                        else
+                        {
+                            return str.PositionReplace("ого", str.Length - 2);
+                        }
+                    }
+                    else throw new NotImplementedException("Склонение прилаг. в родительном падеже невозможно");
+                default:
+                    throw new NotSupportedException("Склонение не поддерживается для применяемой части речи");
+            }
+        }
+        public string ToDative()
+        {
+            string str = _text;
+            switch (_PartofSpeech)
+            {
+                case PartOfSpeech.Noun:
+                    if (_IsDeclinated)
+                    {
+                        if (_HasRunawayVowel)
+                        {
+                            str = Word.ReplaceRunawayVowel(_text);
+                        }
+                        string L1 = str.LastRight(1);
+                        if (_WordGender == WordGender.Female)
+                        {
+                            if (str == "мать" || str == "дочь") return str.PositionReplace("ери", str.Length - 1);
+                            if (L1 == "ь" || str.LastRight(2) == "ия") return str.PositionReplace("и", str.Length - 1);
+                            else return str.PositionReplace("е", str.Length - 1);
+                        }
+                        if (_WordGender == WordGender.Male)
+                        {
+                            if (str == "путь") return "пути";
+                            if (L1 == "ь" || L1 == "й") return str.PositionReplace("ю", str.Length - 1);
+                            if (L1 == "а" || L1 == "я") return str.PositionReplace("е", str.Length - 1);
+                            else return str + "у";
+                        }
+                        if (_WordGender == WordGender.Neuter)
+                        {
+                            if (str.LastRight(2) == "мя") return str.PositionReplace("ени", str.Length - 1);
+                            if (str == "дитя") return "дитяти";
+                            if ((L1 == "е" || L1 == "ё") && !"жщчщ".Contains(str[str.Length - 2])) return str.PositionReplace("ю", str.Length - 1);
+                            else return str.PositionReplace("у", str.Length - 1);
+                        }
+                        throw new NotImplementedException("Склонение сущ. в дательном падеже невозможно");
+                    }
+                    else return str;
+                case PartOfSpeech.Adjective:
+                    string l2 = str.LastRight(2);
+                    if (l2 == "ый")
+                    {
+                        if ("жшчщц".Contains(str[str.Length - 3]))
+                        {
+                            return str.PositionReplace("ему", str.Length - 2);
+                        }
+                        else
+                        {
+                            return str.PositionReplace("ому", str.Length - 2);
+                        }
+                    }
+                    if (l2 == "ий")
+                    {
+                        if ("хгк".Contains(str[str.Length - 3]))
+                        {
+                            return str.PositionReplace("ому", str.Length - 2);
+                        }
+                        else
+                        {
+                            return str.PositionReplace("ему", str.Length - 2);
+                        }
+                    }
+                    if (l2 == "ой")
+                    {
+                        return str.PositionReplace("ого", str.Length - 2);
+                    }
+                    if (l2 == "ая")
+                    {
+                        if ("жшчщц".Contains(str[str.Length - 3]))
+                        {
+                            return str.PositionReplace("ей", str.Length - 2);
+                        }
+                        else
+                        {
+                            return str.PositionReplace("ой", str.Length - 2);
+                        }
+                    }
+                    if (l2 == "яя")
+                    {
+                        if ("хгк".Contains(str[str.Length - 3]))
+                        {
+                            return str.PositionReplace("ой", str.Length - 2);
+                        }
+                        else
+                        {
+                            return str.PositionReplace("ей", str.Length - 2);
+                        }
+                    }
+                    if (l2 == "ее")
+                    {
+                        if ("жшчщц".Contains(str[str.Length - 3]))
+                        {
+                            return str.PositionReplace("его", str.Length - 2);
+                        }
+                        else
+                        {
+                            return str.PositionReplace("ого", str.Length - 2);
+                        }
+                    }
+                    if (l2 == "ое")
+                    {
+                        if ("жшчщц".Contains(str[str.Length - 3]))
+                        {
+                            return str.PositionReplace("ему", str.Length - 2);
+                        }
+                        else
+                        {
+                            return str.PositionReplace("ому", str.Length - 2);
+                        }
+                    }//добавить - ов -ев и т.д.
+                    else throw new NotImplementedException("Склонение прилаг. в дательном падеже невозможно");
+                default:
+                    throw new NotSupportedException("Склонение не поддерживается для применяемой части речи");
+            }
+        }
         public Word(string word, bool decl, WordGender kind, PartOfSpeech part, bool runaway)
         {
             _text = word;
@@ -2654,7 +2891,7 @@ namespace PLSE_MVVMStrong.Model
                                 case LingvoNET.Case.Accusative:
                                 case LingvoNET.Case.Instrumental:
                                 case LingvoNET.Case.Locative:
-                                    throw new NotSupportedException("Нереализованный классом Word тип склонения");
+                                    throw new NotSupportedException("Нереализованный тип склонения");
                                 default:
                                     break;
                             }
@@ -2699,7 +2936,8 @@ namespace PLSE_MVVMStrong.Model
                         parts[i] = devide[i];
                         continue;
                     }
-                    switch (Word.Determine(devide[i])._WordGender)
+                    var w = Word.Determine(devide[i], PartOfSpeech.Noun);
+                    switch (w._WordGender)
                     {
                         case WordGender.Male:
                             parts[i] = devide[i];
@@ -2712,23 +2950,27 @@ namespace PLSE_MVVMStrong.Model
                             }
                             else
                             {
-                                switch (@case)
+                                bool st = (devide[i].LastRight(3) == "ова" || devide[i].LastRight(3) == "ева" || devide[i].LastRight(3) == "ина"
+                                                            || devide[i].LastRight(3) == "ына" || devide[i].LastRight(3) == "ёва");
                                 {
-                                    case LingvoNET.Case.Nominative:
-                                        parts[i] = devide[i];
-                                        break;
-                                    case LingvoNET.Case.Genitive:
-                                        parts[i] = devide[i].PositionReplace();
-                                        break;
-                                    case LingvoNET.Case.Dative:
-                                        parts[i] = ;
-                                        break;
-                                    case LingvoNET.Case.Accusative:
-                                    case LingvoNET.Case.Instrumental:
-                                    case LingvoNET.Case.Locative:
-                                        throw new NotSupportedException("Нереализованный классом Word тип склонения");
-                                    default:
-                                        break;
+                                    switch (@case)
+                                    {
+                                        case LingvoNET.Case.Nominative:
+                                            parts[i] = devide[i];
+                                            break;
+                                        case LingvoNET.Case.Genitive:
+                                            parts[i] = st ? devide[i].PositionReplace("ой", devide[i].Length - 1) : w.ToGenetive();
+                                            break;
+                                        case LingvoNET.Case.Dative:
+                                            parts[i] = st ? devide[i].PositionReplace("ой", devide[i].Length - 1) : w.ToDative();
+                                            break;
+                                        case LingvoNET.Case.Accusative:
+                                        case LingvoNET.Case.Instrumental:
+                                        case LingvoNET.Case.Locative:
+                                            throw new NotSupportedException("Нереализованный тип склонения");
+                                        default:
+                                            throw new NotSupportedException("Нереализованный тип склонения");
+                                    }
                                 }
                             }
                             break;

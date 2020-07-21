@@ -205,22 +205,7 @@ namespace PLSE_MVVMStrong.Model
                
             }
         }
-        public static string DeclineSpeciality(this Speciality sp, LingvoNET.Case @case)
-        {
-            int pos1 = sp.Species?.IndexOf("экспертиза") ?? -1;
-            if (pos1 < 0)
-            {
-                return null;
-            }
-            int pos2 = pos1 + 10;
-            string part1, part2, part3;
-            part1 = sp.Species.Substring(0, pos1);
-            part2 = "экспертиза";
-            part3 = sp.Species.Substring(pos2);
-            var noun = Nouns.FindOne(part2);
-            return part1.Decline(@case) + noun[@case] + part3;
-        }
-        
+       
     }
 
     public static class DateUtil
@@ -288,7 +273,7 @@ namespace PLSE_MVVMStrong.Model
                 var parts = str.DevideByNoun(n.Word);
                 return parts.Item1.Decline(@case) + n[@case] + parts.Item3;
             }
-            else throw new NotSupportedException("Предложение не содержит существительного");
+            else throw new NotSupportedException("Не удалось выявить существительное в предложении");
         }
     }
 }
