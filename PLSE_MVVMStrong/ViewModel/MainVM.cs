@@ -187,20 +187,25 @@ namespace PLSE_MVVMStrong.ViewModel
             else if (curhour >= 17 && curhour <= 21) Messages.Add(new Message($"Добрый вечер, {Employee.Fname} {Employee.Mname}", MsgType.Temporary, TimeSpan.FromSeconds(5)));
             else Messages.Add(new Message($"Доброй ночи, {Employee.Fname} {Employee.Mname}", MsgType.Normal, TimeSpan.FromSeconds(5)));
             //app.PropertyChanged += (o, e) => Employee = app.LogedEmployee;
-            foreach (var item in CommonInfo.Employees)
-            {
-                string text = null;
-                try
-                {
-                    text += item.ToString("D") + "\t";
-                    text += item.ToString("G");
-                }
-                catch (Exception e)
-                {
+            //foreach (var item in CommonInfo.Employees)
+            //{
+            //    string text = null;
+            //    try
+            //    {
+            //        text += item.ToString("D") + "\t";
+            //        text += item.ToString("G");
+            //    }
+            //    catch (Exception e)
+            //    {
 
-                    text += e.Message;
-                }
-                Messages.Add(new Message(text, MsgType.Warning));
+            //        text += e.Message;
+            //    }
+            //    Messages.Add(new Message(text, MsgType.Warning));
+            //}
+            
+            foreach (var item in Word._exeptions.Where(n => n._text.LastRight(2) == "жь" || n._text.LastRight(2) == "шь" || n._text.LastRight(2) == "щь" || n._text.LastRight(2) == "чь"))
+            {
+                Messages.Add(new Message(item.ToString()));
             }
         }
 

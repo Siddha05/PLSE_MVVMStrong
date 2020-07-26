@@ -248,7 +248,7 @@ namespace PLSE_MVVMStrong.Model
             var noun = Nouns.FindOne(part2);
             return part1.Decline(@case) + noun[@case] + part3;
         }
-        public static Tuple<string, string, string> DevideByNoun(this string str, string noun)
+        public static Tuple<string, string, string> DevideByWord(this string str, string noun)
         {
             int pos1 = str?.IndexOf(noun) ?? -1;
             if (pos1 < 0)
@@ -270,7 +270,7 @@ namespace PLSE_MVVMStrong.Model
             }
             if (n != null)
             {
-                var parts = str.DevideByNoun(n.Word);
+                var parts = str.DevideByWord(n.Word);
                 return parts.Item1.Decline(@case) + n[@case] + parts.Item3;
             }
             else throw new NotSupportedException("Не удалось выявить существительное в предложении");

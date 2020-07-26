@@ -6506,21 +6506,13 @@ namespace PLSE_MVVMStrong.Model
         {
             Resolution = resolution;
             _inicailpath = @"\\ASASSIN-ПК\SIRSERVER\DocFiles\DOCS";
-            _subscribetemp = @"c:\Users\Asassin\Documents\Настраиваемые шаблоны Office\подписка эксперта2.dotx";
+            _subscribetemp = @"c:\Users\Asassin\Documents\Настраиваемые шаблоны Office\подписка эксперта.dotx";
             _notifytemp = @"c:\Users\Asassin\Documents\Настраиваемые шаблоны Office\Уведомление следователю.dotx";
         }
-        private string DestinationPath()
+        private string DestinationFolder()
         {
-            string path = Path.Combine(_inicailpath, Resolution.RegistrationDate.Year.ToString());
-            if (!Directory.Exists(path))
-            {
-                Directory.CreateDirectory(path);
-            }
-            path = Path.Combine(path, Resolution.OverallNumber);
-            if (!Directory.Exists(path))
-            {
-                Directory.CreateDirectory(path);
-            }
+            string path = Path.Combine(_inicailpath, Resolution.RegistrationDate.Year.ToString(), Resolution.OverallNumber);
+            Directory.CreateDirectory(path);
             return path;
         }
         public void CreateSubscribe(Microsoft.Office.Interop.Word.Application word, IGrouping<int,Expertise> group)
@@ -6534,9 +6526,7 @@ namespace PLSE_MVVMStrong.Model
             {
                 throw;
             }
-            
             doc.Activate(); //needed?
-            
             var bmarks = doc.Bookmarks;
             bmarks["number"].Range.Text = group.Select(n => n.FullNumber).Aggregate((c, n) => c + ", " + n);
             bmarks["annotate"].Range.Text = Resolution.Case.AnnotateBuilder();
@@ -6582,7 +6572,7 @@ namespace PLSE_MVVMStrong.Model
             bmarks["date"].Range.Text = group.First().StartDate.ToString("dd MMMM yyyy");
             bmarks["codex"].Range.Text = Resolution.Case.Codex();
             bmarks["respon"].Range.Text = Resolution.Case.SubcribeArticle();
-            string to = Path.Combine(DestinationPath(), e.ToString() + " подписка.docx");
+            string to = Path.Combine(DestinationFolder(), e.ToString() + " подписка.docx");
             if (File.Exists(to))
             {
                 File.Delete(to);
@@ -6602,7 +6592,15 @@ namespace PLSE_MVVMStrong.Model
         }
         public void CreateNotify(Microsoft.Office.Interop.Word.Application word, IGrouping<DateTime, Expertise> group)
         {
-            var doc = word.Documents.Add(_notifytemp);
+            Document doc = null;
+            try
+            {
+                doc = word.Documents.Add(_notifytemp);
+            }
+            catch (Exception)
+            { 
+                throw;
+            }
             doc.Activate();
             var bmarks = doc.Bookmarks;
             if (Resolution.ResolutionDate != null)
@@ -6644,14 +6642,14 @@ namespace PLSE_MVVMStrong.Model
             }
             sb.Append(Resolution.Customer.ToString("d"));
             bmarks["recipient"].Range.Text = bmarks["recipient2"].Range.Text = sb.ToString();
-            string spec = null; 
+            string spec = String.Empty; 
             var sp = group.Select(n => n.Expert.Speciality).Distinct(new SpecialityComperer());
             foreach (var item in sp)
             {
                 spec += Declination.DeclineSpeciality(item, LingvoNET.Case.Genitive);
             }
-            bmarks["species"].Range.Text = bmarks["species2"].Range.Text = spec != null ? spec : "экспертизы";
-            string to = Path.Combine(DestinationPath(), $"уведомление следователю от {group.Key:d}.docx");
+            bmarks["species"].Range.Text = bmarks["species2"].Range.Text = spec.Length > 0 ? spec : "экспертизы";
+            string to = Path.Combine(DestinationFolder(), $"уведомление следователю от {group.Key:d}.docx");
             if (File.Exists(to))
             {
                 File.Delete(to);
@@ -6716,12 +6714,14 @@ namespace PLSE_MVVMStrong.Model
     {
         public bool Equals(Speciality x, Speciality y)
         {
-            return x.SpecialityID == y.SpecialityID;
+            if (Object.ReferenceEquals(x, y)) return true;
+            if (x.Species == y.Species) return true;
+            return false;
         }
 
         public int GetHashCode(Speciality obj)
         {
-            return obj.SpecialityID.GetHashCode();
+            return obj.Species?.GetHashCode() ?? 0;
         }
     }
 }
