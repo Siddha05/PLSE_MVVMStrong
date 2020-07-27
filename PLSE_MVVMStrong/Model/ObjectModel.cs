@@ -70,42 +70,82 @@ namespace PLSE_MVVMStrong.Model
             Male,
             Female
         }
-    internal sealed class Word
+    internal enum DeclineType
+    {
+        None,
+        I,
+        II,
+        III,
+        Invariant
+    }
+    internal sealed class Noun
     {
         public readonly string _text;
         public readonly bool _IsDeclinated;
         public readonly WordGender _WordGender;
-        public readonly PartOfSpeech _PartofSpeech;
         public readonly bool _HasRunawayVowel;
-        public static readonly HashSet<Word> _exeptions;
-        public static Word Determine(string str, PartOfSpeech expect = PartOfSpeech.None)
+        public static readonly HashSet<Noun> _exeptions;
+        private static string ConsonantLetters = "бвгджзклмнпрстфхцчшщъыь";
+        private static string VowelLetters = "аеёийоуэюя";
+        #region Metods
+        private static bool HasRunawayVowel(string str)
         {
-            var x = _exeptions.FirstOrDefault(n => n._text == str.ToLower());
-            if (x != null) return x;
-            if (str.LastRight(2) == "ёк")
+            if (str.Length < 3) return false;
+            string l2 = str.LastRight(2);
+            if (l2 == "ёк")
             {
-                if ("лнр".Contains(str[str.PositionRunawayVowel() - 1])) return new Word(str, true, WordGender.Male, expect, true);
-                else return new Word(str, true, WordGender.Male, expect, false);
+                if ("лнр".Contains(str[str.PositionRunawayVowel() - 1])) return true;
+                else return false;
             }
-            if (str.LastRight(2) == "ок" || str.LastRight(2) == "ец" || str.LastRight(2) == "ек")
+            if (l2 == "ок" || l2 == "ец" || l2 == "ек")
             {
-                if (str.EndsWith("век")) return new Word(str, true, WordGender.Male, expect, false);
+                if (str.EndsWith("век")) return false;
                 int _pos = str.Length - 3, __pos = _pos - 1;
                 if (_pos <= 0)
                 {
-                    return new Word(str, true, WordGender.Male, expect, false);
+                    return false;
                 }
                 else
                 {
                     if (!"ёйуеъыаоэяиью".Contains(str[_pos]) && !"ёйуеъыаоэяиью".Contains(str[__pos]))
                     {
-                        return new Word(str, true, WordGender.Male, expect, false);
+                        return false;
                     }
-                    else return new Word(str, true, WordGender.Male, expect, true);
+                    else return true;
                 }
             }
-            return new Word(str, true, DetermineGender(str), expect, false);
+            return false;
         }
+        public static Noun Determine(string str)
+        {
+            var x = _exeptions.FirstOrDefault(n => n._text == str.ToLower());
+            if (x != null) return x;
+            if (str.LastRight(2) == "ёк")
+            {
+                if ("лнр".Contains(str[str.PositionRunawayVowel() - 1])) return new Noun(str, true, WordGender.Male, true);
+                else return new Noun(str, true, WordGender.Male, false);
+            }
+            if (str.LastRight(2) == "ок" || str.LastRight(2) == "ец" || str.LastRight(2) == "ек")
+            {
+                if (str.EndsWith("век")) return new Noun(str, true, WordGender.Male, false);
+                int _pos = str.Length - 3, __pos = _pos - 1;
+                if (_pos <= 0)
+                {
+                    return new Noun(str, true, WordGender.Male, false);
+                }
+                else
+                {
+                    if (!"ёйуеъыаоэяиью".Contains(str[_pos]) && !"ёйуеъыаоэяиью".Contains(str[__pos]))
+                    {
+                        return new Noun(str, true, WordGender.Male, false);
+                    }
+                    else return new Noun(str, true, WordGender.Male, true);
+                }
+            }
+            return new Noun(str, true, DetermineGender(str), false);
+        }
+#endregion
+        
         public static WordGender DetermineGender(string str)
         {
             char[] consonantLetter = { 'ц', 'к', 'н', 'г', 'ш', 'щ', 'з', 'х', 'ф', 'в', 'п', 'р', 'л', 'д', 'ж', 'ч', 'с', 'м', 'т', 'б' };
@@ -139,6 +179,10 @@ namespace PLSE_MVVMStrong.Model
                 return sb.Remove(p, 1).Insert(p, 'й').ToString();
             }
             return sb.Remove(p, 1).ToString();
+        }
+        public DeclineType DetermineDeclineType()
+        {
+            if ()
         }
         public static string AdjectiveToGenetive(string str)
         {
@@ -246,12 +290,12 @@ namespace PLSE_MVVMStrong.Model
         }
         public static string NounToGenetive(string str)
         {
-            var word = Word.Determine(str);
+            var word = Noun.Determine(str);
             if (word._IsDeclinated)
             {
                 if (word._HasRunawayVowel)
                 {
-                    str = Word.ReplaceRunawayVowel(word._text);
+                    str = Noun.ReplaceRunawayVowel(word._text);
                 }
                 string L1 = str.LastRight(1);
                 if (word._WordGender == WordGender.Male)
@@ -292,12 +336,12 @@ namespace PLSE_MVVMStrong.Model
         }
         public static string NounToDative(string str)
         {
-            var word = Word.Determine(str);
+            var word = Noun.Determine(str);
             if (word._IsDeclinated)
             {
                 if (word._HasRunawayVowel)
                 {
-                    str = Word.ReplaceRunawayVowel(word._text);
+                    str = Noun.ReplaceRunawayVowel(word._text);
                 }
                 string L1 = str.LastRight(1);
                 if (word._WordGender == WordGender.Female)
@@ -337,7 +381,7 @@ namespace PLSE_MVVMStrong.Model
                     {
                         if (_HasRunawayVowel)
                         {
-                           str = Word.ReplaceRunawayVowel(_text);
+                           str = Noun.ReplaceRunawayVowel(_text);
                         }
                         string L1 = str.LastRight(1);
                         if (_WordGender == WordGender.Male)
@@ -462,7 +506,7 @@ namespace PLSE_MVVMStrong.Model
                     {
                         if (_HasRunawayVowel)
                         {
-                            str = Word.ReplaceRunawayVowel(_text);
+                            str = Noun.ReplaceRunawayVowel(_text);
                         }
                         string L1 = str.LastRight(1);
                         if (_WordGender == WordGender.Female)
@@ -565,7 +609,7 @@ namespace PLSE_MVVMStrong.Model
                     throw new NotSupportedException("Склонение не поддерживается для применяемой части речи");
             }
         }
-        public Word(string word, bool decl, WordGender kind, PartOfSpeech part, bool runaway)
+        public Noun(string word, bool decl, WordGender kind, bool runaway)
         {
             _text = word;
             _IsDeclinated = decl;
@@ -573,176 +617,176 @@ namespace PLSE_MVVMStrong.Model
             _PartofSpeech = part;
             _HasRunawayVowel = runaway;
         }
-        static Word()
+        static Noun()
         {
-            _exeptions = new HashSet<Word>()
+            _exeptions = new HashSet<Noun>()
                 {
                     //сущ. м.р. с нестандартными окончаниями
-                    new Word("папа", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("дядя", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("дедушка", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("прадедушка", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("атташе", false, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("денди", false, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("импресарио", false, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("кюре", false, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("портье", false, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("крупье", false, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("маэстро", false, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("конферансье", false, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("буржуа", false, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("кофе", false, WordGender.Male, PartOfSpeech.Noun, false),
+                    new Noun("папа", true, WordGender.Male,  false),
+                    new Noun("дядя", true, WordGender.Male,  false),
+                    new Noun("дедушка", true, WordGender.Male,  false),
+                    new Noun("прадедушка", true, WordGender.Male,  false),
+                    new Noun("атташе", false, WordGender.Male,  false),
+                    new Noun("денди", false, WordGender.Male,  false),
+                    new Noun("импресарио", false, WordGender.Male,  false),
+                    new Noun("кюре", false, WordGender.Male,  false),
+                    new Noun("портье", false, WordGender.Male,  false),
+                    new Noun("крупье", false, WordGender.Male,  false),
+                    new Noun("маэстро", false, WordGender.Male,  false),
+                    new Noun("конферансье", false, WordGender.Male,  false),
+                    new Noun("буржуа", false, WordGender.Male,  false),
+                    new Noun("кофе", false, WordGender.Male,  false),
                     //сущ. м.р. оканчивающиеся на -ь, кроме -арь, -тель
-                    new Word("автомобиль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("апрель", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("артикль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("аэрозоль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("бемоль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("бинокль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("богатырь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("бюллетень", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("вестибюль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("вихрь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("водевиль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("вождь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("гармонь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("гвоздь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("главарь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("глухарь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("голубь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("госпиталь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("гость", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("гребень", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("гусь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("дактиль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("деготь", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("декабрь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("день", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("дирижабль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("дождь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("егерь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("жёлудь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("журавль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("зверь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("зять", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("игорь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("июль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("июнь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("кабель", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("камень", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("каракуль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("карась", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("картофель", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("кашель", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("кисель", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("клубень", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("коготь", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("коктейль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("контроль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("конь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("корабль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("корень", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("король", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("костыль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("кремль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("крендель", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("куль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("лагерь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("лапоть", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("лебедь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("ливень", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("лодырь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("локоть", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("ломоть", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("лосось", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("лось", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("медведь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("миндаль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("модуль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("нашатырь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("недоросль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("никель", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("ноготь", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("ноль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("ноябрь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("огонь", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("октябрь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("окунь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("олень", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("отель", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("панцирь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("пароль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("паствиль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("патруль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("пельмень", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("пень", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("перечень", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("печень", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("пластырь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("плетень", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("полдень", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("портфель", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("поршень", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("профиль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("пудель", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("путь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("рашпиль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("ремень", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("рояль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("рубль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("руль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("сентябрь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("скальпель", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("соболь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("спектакль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("ставень", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("стебель", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("стержень", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("стиль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("студень", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("табель", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("текстиль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("толь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("тополь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("трутень", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("туннель", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("тюлень", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("тюль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("уголь", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("уровень", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("февраль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("фитиль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("флигель", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("хмель", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("хрусталь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("шампунь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("шмель", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("штиль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("штемпель", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("штепсель", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("щавель", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("щебень", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("эндшпиль", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("юань", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("якорь", true, WordGender.Male, PartOfSpeech.Noun, false),
-                    new Word("ячмень", true, WordGender.Male, PartOfSpeech.Noun, false),
+                    new Noun("автомобиль", true, WordGender.Male,  false),
+                    new Noun("апрель", true, WordGender.Male,  false),
+                    new Noun("артикль", true, WordGender.Male,  false),
+                    new Noun("аэрозоль", true, WordGender.Male,  false),
+                    new Noun("бемоль", true, WordGender.Male,  false),
+                    new Noun("бинокль", true, WordGender.Male,  false),
+                    new Noun("богатырь", true, WordGender.Male,  false),
+                    new Noun("бюллетень", true, WordGender.Male,  false),
+                    new Noun("вестибюль", true, WordGender.Male,  false),
+                    new Noun("вихрь", true, WordGender.Male,  false),
+                    new Noun("водевиль", true, WordGender.Male,  false),
+                    new Noun("вождь", true, WordGender.Male,  false),
+                    new Noun("гармонь", true, WordGender.Male,  false),
+                    new Noun("гвоздь", true, WordGender.Male,  false),
+                    new Noun("главарь", true, WordGender.Male,  false),
+                    new Noun("глухарь", true, WordGender.Male,  false),
+                    new Noun("голубь", true, WordGender.Male,  false),
+                    new Noun("госпиталь", true, WordGender.Male,  false),
+                    new Noun("гость", true, WordGender.Male,  false),
+                    new Noun("гребень", true, WordGender.Male,  true),
+                    new Noun("гусь", true, WordGender.Male,  false),
+                    new Noun("дактиль", true, WordGender.Male,  false),
+                    new Noun("деготь", true, WordGender.Male,  true),
+                    new Noun("декабрь", true, WordGender.Male,  false),
+                    new Noun("день", true, WordGender.Male,  true),
+                    new Noun("дирижабль", true, WordGender.Male,  false),
+                    new Noun("дождь", true, WordGender.Male,  false),
+                    new Noun("егерь", true, WordGender.Male,  false),
+                    new Noun("жёлудь", true, WordGender.Male,  false),
+                    new Noun("журавль", true, WordGender.Male,  false),
+                    new Noun("зверь", true, WordGender.Male,  false),
+                    new Noun("зять", true, WordGender.Male,  false),
+                    new Noun("игорь", true, WordGender.Male,  false),
+                    new Noun("июль", true, WordGender.Male,  false),
+                    new Noun("июнь", true, WordGender.Male,  false),
+                    new Noun("кабель", true, WordGender.Male,  false),
+                    new Noun("камень", true, WordGender.Male,  true),
+                    new Noun("каракуль", true, WordGender.Male,  false),
+                    new Noun("карась", true, WordGender.Male,  false),
+                    new Noun("картофель", true, WordGender.Male,  false),
+                    new Noun("кашель", true, WordGender.Male,  true),
+                    new Noun("кисель", true, WordGender.Male,  false),
+                    new Noun("клубень", true, WordGender.Male,  true),
+                    new Noun("коготь", true, WordGender.Male,  true),
+                    new Noun("коктейль", true, WordGender.Male,  false),
+                    new Noun("контроль", true, WordGender.Male,  false),
+                    new Noun("конь", true, WordGender.Male,  false),
+                    new Noun("корабль", true, WordGender.Male,  false),
+                    new Noun("корень", true, WordGender.Male,  true),
+                    new Noun("король", true, WordGender.Male,  false),
+                    new Noun("костыль", true, WordGender.Male,  false),
+                    new Noun("кремль", true, WordGender.Male,  false),
+                    new Noun("крендель", true, WordGender.Male,  false),
+                    new Noun("куль", true, WordGender.Male,  false),
+                    new Noun("лагерь", true, WordGender.Male,  false),
+                    new Noun("лапоть", true, WordGender.Male,  true),
+                    new Noun("лебедь", true, WordGender.Male,  false),
+                    new Noun("ливень", true, WordGender.Male,  true),
+                    new Noun("лодырь", true, WordGender.Male,  false),
+                    new Noun("локоть", true, WordGender.Male,  true),
+                    new Noun("ломоть", true, WordGender.Male,  true),
+                    new Noun("лосось", true, WordGender.Male,  false),
+                    new Noun("лось", true, WordGender.Male,  false),
+                    new Noun("медведь", true, WordGender.Male,  false),
+                    new Noun("миндаль", true, WordGender.Male,  false),
+                    new Noun("модуль", true, WordGender.Male,  false),
+                    new Noun("нашатырь", true, WordGender.Male,  false),
+                    new Noun("недоросль", true, WordGender.Male,  false),
+                    new Noun("никель", true, WordGender.Male,  false),
+                    new Noun("ноготь", true, WordGender.Male,  true),
+                    new Noun("ноль", true, WordGender.Male,  false),
+                    new Noun("ноябрь", true, WordGender.Male,  false),
+                    new Noun("огонь", true, WordGender.Male,  true),
+                    new Noun("октябрь", true, WordGender.Male,  false),
+                    new Noun("окунь", true, WordGender.Male,  false),
+                    new Noun("олень", true, WordGender.Male,  false),
+                    new Noun("отель", true, WordGender.Male,  false),
+                    new Noun("панцирь", true, WordGender.Male,  false),
+                    new Noun("пароль", true, WordGender.Male,  false),
+                    new Noun("паствиль", true, WordGender.Male,  false),
+                    new Noun("патруль", true, WordGender.Male,  false),
+                    new Noun("пельмень", true, WordGender.Male,  false),
+                    new Noun("пень", true, WordGender.Male,  true),
+                    new Noun("перечень", true, WordGender.Male,  true),
+                    new Noun("печень", true, WordGender.Male,  false),
+                    new Noun("пластырь", true, WordGender.Male,  false),
+                    new Noun("плетень", true, WordGender.Male,  true),
+                    new Noun("полдень", true, WordGender.Male,  true),
+                    new Noun("портфель", true, WordGender.Male,  false),
+                    new Noun("поршень", true, WordGender.Male,  true),
+                    new Noun("профиль", true, WordGender.Male,  false),
+                    new Noun("пудель", true, WordGender.Male,  false),
+                    new Noun("путь", true, WordGender.Male,  false),
+                    new Noun("рашпиль", true, WordGender.Male,  false),
+                    new Noun("ремень", true, WordGender.Male,  true),
+                    new Noun("рояль", true, WordGender.Male,  false),
+                    new Noun("рубль", true, WordGender.Male,  false),
+                    new Noun("руль", true, WordGender.Male,  false),
+                    new Noun("сентябрь", true, WordGender.Male,  false),
+                    new Noun("скальпель", true, WordGender.Male,  false),
+                    new Noun("соболь", true, WordGender.Male,  false),
+                    new Noun("спектакль", true, WordGender.Male,  false),
+                    new Noun("ставень", true, WordGender.Male,  true),
+                    new Noun("стебель", true, WordGender.Male,  true),
+                    new Noun("стержень", true, WordGender.Male,  true),
+                    new Noun("стиль", true, WordGender.Male,  false),
+                    new Noun("студень", true, WordGender.Male,  true),
+                    new Noun("табель", true, WordGender.Male,  false),
+                    new Noun("текстиль", true, WordGender.Male,  false),
+                    new Noun("толь", true, WordGender.Male,  false),
+                    new Noun("тополь", true, WordGender.Male,  false),
+                    new Noun("трутень", true, WordGender.Male,  true),
+                    new Noun("туннель", true, WordGender.Male,  false),
+                    new Noun("тюлень", true, WordGender.Male,  false),
+                    new Noun("тюль", true, WordGender.Male,  false),
+                    new Noun("уголь", true, WordGender.Male,  true),
+                    new Noun("уровень", true, WordGender.Male,  true),
+                    new Noun("февраль", true, WordGender.Male,  false),
+                    new Noun("фитиль", true, WordGender.Male,  false),
+                    new Noun("флигель", true, WordGender.Male,  false),
+                    new Noun("хмель", true, WordGender.Male,  false),
+                    new Noun("хрусталь", true, WordGender.Male,  false),
+                    new Noun("шампунь", true, WordGender.Male,  false),
+                    new Noun("шмель", true, WordGender.Male,  false),
+                    new Noun("штиль", true, WordGender.Male,  false),
+                    new Noun("штемпель", true, WordGender.Male,  false),
+                    new Noun("штепсель", true, WordGender.Male,  false),
+                    new Noun("щавель", true, WordGender.Male,  false),
+                    new Noun("щебень", true, WordGender.Male,  true),
+                    new Noun("эндшпиль", true, WordGender.Male,  false),
+                    new Noun("юань", true, WordGender.Male,  false),
+                    new Noun("якорь", true, WordGender.Male,  false),
+                    new Noun("ячмень", true, WordGender.Male,  false),
                     //сущ. с беглыми гласными, кроме оканчивающихся на -ец, -ок, -ек
-                    new Word("лев", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("павел", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("ров", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("сон", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("угол", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("лоб", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("рот", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("лёд", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("лён", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("сон", true, WordGender.Male, PartOfSpeech.Noun, true),
-                    new Word("чехол", true, WordGender.Male, PartOfSpeech.Noun, true)
+                    new Noun("лев", true, WordGender.Male,  true),
+                    new Noun("павел", true, WordGender.Male,  true),
+                    new Noun("ров", true, WordGender.Male,  true),
+                    new Noun("сон", true, WordGender.Male,  true),
+                    new Noun("угол", true, WordGender.Male,  true),
+                    new Noun("лоб", true, WordGender.Male,  true),
+                    new Noun("рот", true, WordGender.Male,  true),
+                    new Noun("лёд", true, WordGender.Male,  true),
+                    new Noun("лён", true, WordGender.Male,  true),
+                    new Noun("сон", true, WordGender.Male,  true),
+                    new Noun("чехол", true, WordGender.Male,  true)
                 };
         }
         public override string ToString()
         {
-            return $"{_text}({_PartofSpeech}, {_WordGender}, {_IsDeclinated}, {_HasRunawayVowel})";
+            return $"{_text}({_WordGender}, {_IsDeclinated}, {_HasRunawayVowel})";
         }
     }
 
@@ -2883,10 +2927,10 @@ namespace PLSE_MVVMStrong.Model
                                     parts[i] = devide[i];
                                     break;
                                 case LingvoNET.Case.Genitive:
-                                    parts[i] = Word.NounToGenetive(devide[i]);
+                                    parts[i] = Noun.NounToGenetive(devide[i]);
                                     break;
                                 case LingvoNET.Case.Dative:
-                                    parts[i] = Word.NounToDative(devide[i]);
+                                    parts[i] = Noun.NounToDative(devide[i]);
                                     break;
                                 case LingvoNET.Case.Accusative:
                                 case LingvoNET.Case.Instrumental:
@@ -2936,7 +2980,7 @@ namespace PLSE_MVVMStrong.Model
                         parts[i] = devide[i];
                         continue;
                     }
-                    var w = Word.Determine(devide[i], PartOfSpeech.Noun);
+                    var w = Noun.Determine(devide[i], PartOfSpeech.Noun);
                     switch (w._WordGender)
                     {
                         case WordGender.Male:
@@ -3021,9 +3065,9 @@ namespace PLSE_MVVMStrong.Model
                         case LingvoNET.Case.Nominative:
                             return Fname;
                         case LingvoNET.Case.Genitive:
-                            return Word.NounToGenetive(Fname);
+                            return Noun.NounToGenetive(Fname);
                         case LingvoNET.Case.Dative:
-                            return Word.NounToDative(Fname);
+                            return Noun.NounToDative(Fname);
                         case LingvoNET.Case.Accusative:
                         case LingvoNET.Case.Instrumental:
                         case LingvoNET.Case.Locative:
@@ -3042,9 +3086,9 @@ namespace PLSE_MVVMStrong.Model
                         case LingvoNET.Case.Nominative:
                             return Fname;
                         case LingvoNET.Case.Genitive:
-                            return Word.NounToGenetive(Fname);
+                            return Noun.NounToGenetive(Fname);
                         case LingvoNET.Case.Dative:
-                            return Word.NounToDative(Fname);
+                            return Noun.NounToDative(Fname);
                         case LingvoNET.Case.Accusative:
                         case LingvoNET.Case.Instrumental:
                         case LingvoNET.Case.Locative:
@@ -3065,7 +3109,7 @@ namespace PLSE_MVVMStrong.Model
                 string rs;
                 try
                 {
-                    rs = Word.NounToGenetive(Fname);
+                    rs = Noun.NounToGenetive(Fname);
                 }
                 catch (NotImplementedException ex)
                 {
@@ -3081,7 +3125,7 @@ namespace PLSE_MVVMStrong.Model
                     string rs;
                     try
                     {
-                        rs = Word.NounToGenetive(Fname);
+                        rs = Noun.NounToGenetive(Fname);
                     }
                     catch (NotImplementedException ex)
                     {
@@ -3101,7 +3145,7 @@ namespace PLSE_MVVMStrong.Model
                 string rs;
                 try
                 {
-                    rs = Word.NounToDative(Fname);
+                    rs = Noun.NounToDative(Fname);
                 }
                 catch (NotImplementedException ex)
                 {
@@ -3117,7 +3161,7 @@ namespace PLSE_MVVMStrong.Model
                     string rs;
                     try
                     {
-                        rs = Word.NounToDative(Fname);
+                        rs = Noun.NounToDative(Fname);
                     }
                     catch (NotImplementedException ex)
                     {

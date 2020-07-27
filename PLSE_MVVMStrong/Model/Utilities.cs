@@ -261,7 +261,7 @@ namespace PLSE_MVVMStrong.Model
         public static string DeclineBeforeNoun(this string str, LingvoNET.Case @case)
         {
             if (str == null) return null;
-            Noun n = null;
+            LingvoNET.Noun n = null;
             var words = Regex.Split(str, @"[,.:; ]", RegexOptions.IgnoreCase);
             foreach (var item in words)
             {
