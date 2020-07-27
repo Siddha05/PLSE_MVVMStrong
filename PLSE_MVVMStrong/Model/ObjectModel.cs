@@ -83,36 +83,46 @@ namespace PLSE_MVVMStrong.Model
         public readonly string _text;
         public readonly bool _IsDeclinated;
         public readonly WordGender _WordGender;
-        public readonly bool _HasRunawayVowel;
+        public readonly bool? _HasRunawayVowel;
         public static readonly HashSet<Noun> _exeptions;
-        private static string ConsonantLetters = "бвгджзклмнпрстфхцчшщъыь";
-        private static string VowelLetters = "аеёийоуэюя";
+        
         #region Metods
-        private static bool HasRunawayVowel(string str)
+        private static bool? HasRunawayVowel(string str)
         {
-            if (str.Length < 3) return false;
+            if (str.Length < 4 && str.IsOneVowelLetter()) return false;
             string l2 = str.LastRight(2);
             if (l2 == "ёк")
             {
                 if ("лнр".Contains(str[str.PositionRunawayVowel() - 1])) return true;
                 else return false;
             }
-            if (l2 == "ок" || l2 == "ец" || l2 == "ек")
+            int _pos = str.Length - 3, __pos = _pos - 1;
+            if (l2 == "ек")
             {
                 if (str.EndsWith("век")) return false;
-                int _pos = str.Length - 3, __pos = _pos - 1;
-                if (_pos <= 0)
+                if (str.EndsWith("чек")) return true;
+                if (StringUtil.VowelLetters.Contains(str[_pos]))
+                {
+                    return true;
+                }
+                if (!StringUtil.VowelLetters.Contains(str[_pos]) && !StringUtil.VowelLetters.Contains(str[__pos]))
                 {
                     return false;
                 }
-                else
+                return null;
+            }
+            if (l2 == "ок" || l2 == "ец")
+            {
+                if (StringUtil.VowelLetters.Contains(str[_pos]))
                 {
-                    if (!"ёйуеъыаоэяиью".Contains(str[_pos]) && !"ёйуеъыаоэяиью".Contains(str[__pos]))
-                    {
-                        return false;
-                    }
-                    else return true;
+                    return true;
                 }
+                if (!StringUtil.VowelLetters.Contains(str[_pos]) && !StringUtil.VowelLetters.Contains(str[__pos]))
+                {
+                   return false;
+                }
+                else return true;
+                
             }
             return false;
         }
@@ -120,29 +130,7 @@ namespace PLSE_MVVMStrong.Model
         {
             var x = _exeptions.FirstOrDefault(n => n._text == str.ToLower());
             if (x != null) return x;
-            if (str.LastRight(2) == "ёк")
-            {
-                if ("лнр".Contains(str[str.PositionRunawayVowel() - 1])) return new Noun(str, true, WordGender.Male, true);
-                else return new Noun(str, true, WordGender.Male, false);
-            }
-            if (str.LastRight(2) == "ок" || str.LastRight(2) == "ец" || str.LastRight(2) == "ек")
-            {
-                if (str.EndsWith("век")) return new Noun(str, true, WordGender.Male, false);
-                int _pos = str.Length - 3, __pos = _pos - 1;
-                if (_pos <= 0)
-                {
-                    return new Noun(str, true, WordGender.Male, false);
-                }
-                else
-                {
-                    if (!"ёйуеъыаоэяиью".Contains(str[_pos]) && !"ёйуеъыаоэяиью".Contains(str[__pos]))
-                    {
-                        return new Noun(str, true, WordGender.Male, false);
-                    }
-                    else return new Noun(str, true, WordGender.Male, true);
-                }
-            }
-            return new Noun(str, true, DetermineGender(str), false);
+            return new Noun(str, true, DetermineGender(str), HasRunawayVowel(str));
         }
 #endregion
         
@@ -609,7 +597,7 @@ namespace PLSE_MVVMStrong.Model
                     throw new NotSupportedException("Склонение не поддерживается для применяемой части речи");
             }
         }
-        public Noun(string word, bool decl, WordGender kind, bool runaway)
+        public Noun(string word, bool decl, WordGender kind, bool? runaway)
         {
             _text = word;
             _IsDeclinated = decl;
@@ -621,7 +609,7 @@ namespace PLSE_MVVMStrong.Model
         {
             _exeptions = new HashSet<Noun>()
                 {
-                    //сущ. м.р. с нестандартными окончаниями
+                    //сущ. м.р. с нестандартными окончаниями и несклоняемые сущ.
                     new Noun("папа", true, WordGender.Male,  false),
                     new Noun("дядя", true, WordGender.Male,  false),
                     new Noun("дедушка", true, WordGender.Male,  false),
@@ -781,7 +769,9 @@ namespace PLSE_MVVMStrong.Model
                     new Noun("лёд", true, WordGender.Male,  true),
                     new Noun("лён", true, WordGender.Male,  true),
                     new Noun("сон", true, WordGender.Male,  true),
-                    new Noun("чехол", true, WordGender.Male,  true)
+                    new Noun("чехол", true, WordGender.Male,  true),
+                    new Noun("костёр", true, WordGender.Male,  true),
+                    new Noun("шатёр", true, WordGender.Male,  true)
                 };
         }
         public override string ToString()
@@ -2980,7 +2970,7 @@ namespace PLSE_MVVMStrong.Model
                         parts[i] = devide[i];
                         continue;
                     }
-                    var w = Noun.Determine(devide[i], PartOfSpeech.Noun);
+                    var w = Noun.Determine(devide[i]);
                     switch (w._WordGender)
                     {
                         case WordGender.Male:

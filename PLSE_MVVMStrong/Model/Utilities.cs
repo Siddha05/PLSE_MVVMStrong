@@ -13,6 +13,9 @@ namespace PLSE_MVVMStrong.Model
 {
     public static class StringUtil
     {
+        public static string ConsonantLetters = "бвгджзклмнпрстфхцчшщй";
+        public static string VowelLetters = "аеёиоуэюяы";
+        public static string HissingLetters = "гкхжшщч";
         /// <summary>
         /// Переворачивает строку
         /// </summary>
@@ -100,6 +103,15 @@ namespace PLSE_MVVMStrong.Model
             //else return -1;
             if (str[str.Length - 2] == 'о' || str[str.Length - 2] == 'е' || str[str.Length - 2] == 'ё') return str.Length - 2;
             else return str.Length - 3;
+        }
+        /// <summary>
+        /// Равно ли количество гласных букв в слове 1?
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static bool IsOneVowelLetter(this string str)
+        {
+            return str.Where(n => VowelLetters.Contains(n)).Count() == 1;
         }
         public static string Joining(string str, LingvoNET.Case @case)
         {
