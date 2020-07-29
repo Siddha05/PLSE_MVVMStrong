@@ -77,7 +77,9 @@ namespace PLSE_MVVMStrong.Model
         I,
         II,
         III,
-        Invariant
+        Invariant,
+        Mixed,
+        Adjective
     }
     internal struct ProbableDecline
     {
@@ -311,13 +313,13 @@ namespace PLSE_MVVMStrong.Model
         }
         private DeclineType DetermineDeclineType(Noun noun)
         {
-            string l1 = noun._text.Last();
-            if (StringUtil.ConsonantLetters.Contains(l1) || l1 == "" || l1 == "")
+            string l1 = noun._text.LastRight(1);
+            if (StringUtil.ConsonantLetters.Contains(l1) || l1 == "о" || l1 == "е")
             {
                 return DeclineType.II;
             }
-            if (l1 == "" || l1 == "") return DeclineType.I;
-            if (l1 == "" && noun._WordGender == WordGender.Female) return DeclineType.III;
+            if (l1 == "а" || l1 == "я") return DeclineType.I;
+            if (l1 == "ь" && noun._WordGender == WordGender.Female) return DeclineType.III;
         }
         public static string ReplaceRunawayVowel(string str)
         {
