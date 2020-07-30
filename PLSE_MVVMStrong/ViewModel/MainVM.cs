@@ -203,7 +203,7 @@ namespace PLSE_MVVMStrong.ViewModel
             //    Messages.Add(new Message(text, MsgType.Warning));
             //}
             
-            foreach (var item in Noun._exeptions.Where(n => n._text.LastRight(2) == "жь" || n._text.LastRight(2) == "шь" || n._text.LastRight(2) == "щь" || n._text.LastRight(2) == "чь"))
+            foreach (var item in Noun._exeptions.Where(n => n.Text.LastRight(2) == "жь" || n.Text.LastRight(2) == "шь" || n.Text.LastRight(2) == "щь" || n.Text.LastRight(2) == "чь"))
             {
                 Messages.Add(new Message(item.ToString()));
             }
