@@ -83,8 +83,8 @@ namespace PLSE_MVVMStrong.Model
     }
     internal struct ProbableDecline
     {
-        readonly bool  IsExact;
-        readonly string Result;
+        public readonly bool  IsExact;
+        public readonly string Result;
 
         public ProbableDecline(string decline, bool exact = true)
         {
@@ -233,9 +233,10 @@ namespace PLSE_MVVMStrong.Model
         public readonly bool IsDeclinated;
         public readonly WordGender WordGender;
         public readonly bool? HasRunawayVowel;
-        public static readonly HashSet<Noun> _exeptions;
+        private static readonly HashSet<Noun> _exeptions;
+        private static Lazy<HashSet<string>> _nounAsAdjective;
         
-        #region Metods
+#region Metods
         private static bool? DetermineRunawayVowel(string str)
         {
             if (str.Length < 4 && str.IsOneVowelLetter()) return false;
@@ -287,14 +288,12 @@ namespace PLSE_MVVMStrong.Model
             }
             return false;
         }
-        public static Noun Determine(string str)
+        private static Noun Determine(string str)
         {
             var x = _exeptions.FirstOrDefault(n => n.Text == str.ToLower());
             if (x != null) return x;
             return new Noun(str, true, DetermineGender(str), DetermineRunawayVowel(str));
         }
-#endregion
-        
         private static WordGender DetermineGender(string str)
         {
             
@@ -338,150 +337,157 @@ namespace PLSE_MVVMStrong.Model
             }
             return DeclineType.None;
         }
-        public ProbableDecline ToGenetive()
+        private string ReplaceRunawayVowel()
         {
-            switch (DetermineDeclineType())
+            var p = Text.PositionRunawayVowel();
+            StringBuilder sb = new StringBuilder(Text);
+            if (Text[Text.PositionRunawayVowel() - 1] == 'л' && Text[p] != 'о')
             {
-                case DeclineType.None:
-                    break;
-                case DeclineType.I:
-                    break;
-                case DeclineType.II:
-                    if (Text == "путь") return new ProbableDecline(Text.PositionReplace("и", Text.Length - 1));
-                    if ("й" == Text.LastRight(1) && StringUtil.VowelLetters.Contains(Text[Text.Length -2]))
-                    {
-                        return new ProbableDecline(Text.PositionReplace("я", Text.Length - 1), false);
-                    }
-                    if ("оеё" == Text.LastRight(1) && Text[Text.Length -2] == 'и')
-                    {
-
-                    }    
-                case DeclineType.III:
-                    if (Text == "мать" || Text == "дочь") return new ProbableDecline(Text.PositionReplace("ери", Text.Length - 1));
-                    return new ProbableDecline(Text.PositionReplace("и", Text.Length - 1));
-                case DeclineType.Invariant:
-                    return new ProbableDecline(Text);
-                case DeclineType.Mixed:
-                    break;
-                case DeclineType.Adjective:
-                    return new ProbableDecline(Adjective.AdjectiveToGenetive(Text), false);
-                default:
-                    break;
+                return sb.Replace(Text[Text.PositionRunawayVowel()], 'ь', Text.PositionRunawayVowel(), 1).ToString();
             }
-        }
-        private bool AsAdjective()
-        {
-            return false;
-        }
-        public static string ReplaceRunawayVowel(string str)
-        {
-            var p = str.PositionRunawayVowel();
-            StringBuilder sb = new StringBuilder(str);
-            if (str[str.PositionRunawayVowel() - 1] == 'л' && str[p] != 'о')
+            if ("нр".Contains(Text[Text.PositionRunawayVowel() - 1]) && Text[p] == 'ё')
             {
-                return sb.Replace(str[str.PositionRunawayVowel()], 'ь', str.PositionRunawayVowel(), 1).ToString();
+                return sb.Replace('ё', 'ь', Text.PositionRunawayVowel(), 1).ToString();
             }
-            if ("нр".Contains(str[str.PositionRunawayVowel() - 1]) && str[p] == 'ё')
-            {
-                return sb.Replace('ё', 'ь', str.PositionRunawayVowel(), 1).ToString();
-            }
-            if ("уеаоэяию".Contains(str[str.PositionRunawayVowel() - 1]))
+            if ("уеаоэяию".Contains(Text[Text.PositionRunawayVowel() - 1]))
             {
                 return sb.Remove(p, 1).Insert(p, 'й').ToString();
             }
             return sb.Remove(p, 1).ToString();
         }
-        public static ProbableDecline NounToGenetive(string str)
+        private bool AsAdjective()
         {
             
-            var word = Noun.Determine(str);
-            if (word.IsDeclinated)
+            if (Text.EndsWith("ый")) return true;
+            if (Text.EndsWith("ий") || Text.EndsWith("ой"))
             {
-                bool ex = true;
-                if (!word.HasRunawayVowel.HasValue)
-                {
-                    ex = false;
-                    str = Noun.ReplaceRunawayVowel(word.Text);
-                }  
-                else if (word.HasRunawayVowel.Value == true)
-                    {
-                        str = Noun.ReplaceRunawayVowel(word.Text);
-                    }
-                string L1 = str.LastRight(1);
-                if (word.WordGender == WordGender.Male)
-                {
-                    if (str == "путь") return new ProbableDecline("пути") ;
-                    if (L1 == "ь" || L1 == "й") return new ProbableDecline(str.PositionReplace("я", str.Length - 1));
-                    if (L1 == "а")
-                    {
-                        if ("хгкжщчщ".Contains(str[str.Length - 2])) return new ProbableDecline(str.PositionReplace("и", str.Length - 1));
-                        else return new ProbableDecline(str.PositionReplace("ы", str.Length - 1));
-                    }
-                    if (L1 == "я") return new ProbableDecline(str.PositionReplace("и", str.Length - 1));
-                    return new ProbableDecline(str + "а",ex);
-                }
-                if (word.WordGender == WordGender.Female)
-                {
-                    if (str == "мать" || str == "дочь") return new ProbableDecline(str.PositionReplace("ери", str.Length - 1));
-                    if (L1 == "я" || L1 == "ь")
-                    {
-                        return new ProbableDecline(str.PositionReplace("и", str.Length - 1));
-                    }
-                    if (L1 == "а")
-                    {
-                        if ("хгкжщчщ".Contains(str[str.Length - 2])) return new ProbableDecline(str.PositionReplace("и", str.Length - 1));
-                        else return new ProbableDecline(str.PositionReplace("ы", str.Length - 1));
-                    }
-                }
-                if (word.WordGender == WordGender.Neuter)
-                {
-                    if (str.LastRight(2) == "мя") return new ProbableDecline(str.PositionReplace("ени", str.Length - 1));
-                    if (str == "дитя") return new ProbableDecline("дитяти");
-                    if ((L1 == "е" || L1 == "ё") && !"жщчщь".Contains(str[str.Length - 2])) return new ProbableDecline(str.PositionReplace("я", str.Length - 1));
-                    else return new ProbableDecline(str.PositionReplace("а", str.Length - 1));
-                }
-                throw new NotSupportedException("Склонение сущ. в родительном падеже невозможно");
+                if (Text.Length < 4) return false;
+                if (_nounAsAdjective.Value.Contains(Text)) return false;
+                else return true;
             }
-            else return new ProbableDecline(str);
+            else return false;
         }
-        public static ProbableDecline NounToDative(string str)
+        public static ProbableDecline ToGenetive(string str)
         {
-            var word = Noun.Determine(str);
-            if (word.IsDeclinated)
-            {
-                if (word.HasRunawayVowel ?? false)
-                {
-                    str = Noun.ReplaceRunawayVowel(word.Text);
-                }
-                string L1 = str.LastRight(1);
-                if (word.WordGender == WordGender.Female)
-                {
-                    if (str == "мать" || str == "дочь") return str.PositionReplace("ери", str.Length - 1);
-                    if (L1 == "ь" || str.LastRight(2) == "ия") return str.PositionReplace("и", str.Length - 1);
-                    else return str.PositionReplace("е", str.Length - 1);
-                }
-                if (word.WordGender == WordGender.Male)
-                {
-                    if (str == "путь") return "пути";
-                    if (L1 == "ь" || L1 == "й") return str.PositionReplace("ю", str.Length - 1);
-                    if (L1 == "а" || L1 == "я") return str.PositionReplace("е", str.Length - 1);
-                    else return str + "у";
-                }
-                if (word.WordGender == WordGender.Neuter)
-                {
-                    if (str.LastRight(2) == "мя") return str.PositionReplace("ени", str.Length - 1);
-                    if (str == "дитя") return "дитяти";
-                    if ((L1 == "е" || L1 == "ё") && !"жщчщ".Contains(str[str.Length - 2])) return str.PositionReplace("ю", str.Length - 1);
-                    else return str.PositionReplace("у", str.Length - 1);
-                }
-                throw new NotImplementedException("Склонение сущ. в дательном падеже невозможно");
-            }
+            return Noun.Determine(str).ToGenetive();
+        }
+        public static ProbableDecline ToDative(string str)
+        {
+            return Noun.Determine(str).ToDative();
+        }
+#endregion
+           
+        public ProbableDecline ToGenetive()
+        {
+            bool exac = true; string s = Text;
+            if (HasRunawayVowel == null) exac = false;
             else
             {
-                return str;
+                if (HasRunawayVowel.Value == true) s = this.ReplaceRunawayVowel();
+            }
+            switch (DetermineDeclineType())
+            {
+                case DeclineType.I:
+                    switch (Text)
+                    {
+                        case "дитя":
+                            return new ProbableDecline(Text.PositionReplace("яти", Text.Length - 1));
+                        case "время":
+                        case "бремя":
+                        case "вымя":
+                        case "знямя":
+                        case "имя":
+                        case "пламя":
+                        case "племя":
+                        case "семя":
+                        case "стремя":
+                        case "темя":
+                            return new ProbableDecline(Text.PositionReplace("ени", Text.Length - 1));
+                        default:
+                            break;
+                    }
+                    if (Text[Text.Length - 2] == 'и') return new ProbableDecline(Text.PositionReplace("и", Text.Length - 1));
+                    if (StringUtil.HissingLetters.Contains(Text[Text.Length - 2])) return new ProbableDecline(s.PositionReplace("и", Text.Length - 1),exac);
+                    else return new ProbableDecline(s.PositionReplace("ы", Text.Length - 1), exac);
+                case DeclineType.II:
+                    if (Text == "путь") return new ProbableDecline(Text.PositionReplace("и", Text.Length - 1));
+                    if ("й" == Text.LastRight(1) && StringUtil.VowelLetters.Contains(Text[Text.Length -2]))
+                    {
+                        return new ProbableDecline(s.PositionReplace("я", Text.Length - 1), false);
+                    }
+                    if ("оеё" == Text.LastRight(1) && Text[Text.Length -2] == 'и')
+                    {
+                        return new ProbableDecline(s.PositionReplace("я", Text.Length - 1));
+                    }
+                    if (Text.LastRight(1) == "ь") return new ProbableDecline(s.PositionReplace("я", Text.Length - 1),exac);
+                    else return new ProbableDecline(s.PositionReplace("а", Text.Length - 1), exac);
+                case DeclineType.III:
+                    if (Text == "мать" || Text == "дочь") return new ProbableDecline(Text.PositionReplace("ери", Text.Length - 1));
+                    return new ProbableDecline(s.PositionReplace("и", Text.Length - 1),exac);
+                case DeclineType.Invariant:
+                    return new ProbableDecline(Text);
+                case DeclineType.Adjective:
+                    return new ProbableDecline(Adjective.AdjectiveToGenetive(Text), false);
+                default:
+                    throw new NotSupportedException("Склонение не поддерживается");
             }
         }
-        public Noun(string word, bool decl, WordGender kind, bool? runaway)
+        public ProbableDecline ToDative()
+        {
+            bool exac = true; string s = Text;
+            if (HasRunawayVowel == null) exac = false;
+            else
+            {
+                if (HasRunawayVowel.Value == true) s = this.ReplaceRunawayVowel();
+            }
+            switch (DetermineDeclineType())
+            {
+                case DeclineType.I:
+                    switch (Text)
+                    {
+                        case "дитя":
+                            return new ProbableDecline(Text.PositionReplace("яти", Text.Length - 1));
+                        case "время":
+                        case "бремя":
+                        case "вымя":
+                        case "знямя":
+                        case "имя":
+                        case "пламя":
+                        case "племя":
+                        case "семя":
+                        case "стремя":
+                        case "темя":
+                            return new ProbableDecline(Text.PositionReplace("ени", Text.Length - 1));
+                        default:
+                            break;
+                    }
+                    if (Text[Text.Length - 2] == 'и') return new ProbableDecline(s.PositionReplace("и", Text.Length - 1), exac);
+                    else return new ProbableDecline(s.PositionReplace("е", Text.Length - 1), exac);
+                case DeclineType.II:
+                    if (Text == "путь") return new ProbableDecline(Text.PositionReplace("и", Text.Length - 1));
+                    if ("й" == Text.LastRight(1) && StringUtil.VowelLetters.Contains(Text[Text.Length - 2]))
+                    {
+                        return new ProbableDecline(s.PositionReplace("ю", Text.Length - 1), false);
+                    }
+                    if ("оеё" == Text.LastRight(1) && Text[Text.Length - 2] == 'и')
+                    {
+                        return new ProbableDecline(s.PositionReplace("ю", Text.Length - 1));
+                    }
+                    if (Text.LastRight(1) == "ь") return new ProbableDecline(s.PositionReplace("ю", Text.Length - 1), exac);
+                    else return new ProbableDecline(s.PositionReplace("у", Text.Length - 1), exac);
+                case DeclineType.III:
+                    if (Text == "мать" || Text == "дочь") return new ProbableDecline(Text.PositionReplace("ери", Text.Length - 1));
+                    return new ProbableDecline(s.PositionReplace("и", Text.Length - 1), exac);
+                case DeclineType.Invariant:
+                    return new ProbableDecline(Text);
+                case DeclineType.Adjective:
+                    return new ProbableDecline(Adjective.AdjectiveToDative(Text), false);
+                default:
+                    throw new NotSupportedException("Склонение не поддерживается");
+            }
+        }
+        
+        private Noun(string word, bool decl, WordGender kind, bool? runaway)
         {
             Text = word;
             IsDeclinated = decl;
@@ -490,6 +496,7 @@ namespace PLSE_MVVMStrong.Model
         }
         static Noun()
         {
+            _nounAsAdjective = new Lazy<HashSet<string>>(AsAdjectiveInit);
             _exeptions = new HashSet<Noun>()
                 {
                     //сущ. м.р. с нестандартными окончаниями и несклоняемые сущ.
@@ -656,6 +663,16 @@ namespace PLSE_MVVMStrong.Model
                     new Noun("костёр", true, WordGender.Male,  true),
                     new Noun("шатёр", true, WordGender.Male,  true)
                 };
+        }
+        private static HashSet<string> AsAdjectiveInit()
+        {
+            return new HashSet<string>()
+            {
+                "аграрий",
+                "актиний"
+
+            };
+
         }
         public override string ToString()
         {
@@ -2750,9 +2767,10 @@ namespace PLSE_MVVMStrong.Model
         /// <returns></returns>
         /// <exception cref="NotImplementedException">Пол не мужской или женский</exception>
         /// <exception cref="NotSupportedException">Склонение не предусмотрено</exeption>
-        protected string SurnameDeclinate(LingvoNET.Case @case)
+        protected Tuple<string, bool> SurnameDeclinate(LingvoNET.Case @case)
         {
-            if (_declinated == false) return Sname;
+            bool exac = true;
+            if (_declinated == false) return new Tuple<string, bool>(Sname, exac);
             var devide = Sname.Split(separator: new char[] { '-' }, options: StringSplitOptions.RemoveEmptyEntries, count: 2);//двойная или одинарная фамилия, более двойной запрещено законом
             if (Gender == "мужской")
             {
@@ -2811,10 +2829,10 @@ namespace PLSE_MVVMStrong.Model
                                     parts[i] = devide[i];
                                     break;
                                 case LingvoNET.Case.Genitive:
-                                    parts[i] = Noun.NounToGenetive(devide[i]);
+                                    parts[i] = Noun.ToGenetive(devide[i]).Result;
                                     break;
                                 case LingvoNET.Case.Dative:
-                                    parts[i] = Noun.NounToDative(devide[i]);
+                                    parts[i] = Noun.ToDative(devide[i]).Result;
                                     break;
                                 case LingvoNET.Case.Accusative:
                                 case LingvoNET.Case.Instrumental:

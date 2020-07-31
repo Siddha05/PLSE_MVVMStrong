@@ -165,57 +165,27 @@ namespace PLSE_MVVMStrong.Model
             }
             return sb.ToString();
         }
-        public static string Decline(this string str, LingvoNET.Case @case)
+        public static string DeclineAsNoun(this string str, LingvoNET.Case @case)
         {
             if (str == null) return null;
-            return Regex.Replace(str,
-                            @"«.+?»|[а-я]+", declinated, RegexOptions.IgnoreCase);
-            
-            string declinated(Match match)
+            //return Regex.Replace(str,
+            //                @"«.+?»|[а-я]+", declinated, RegexOptions.IgnoreCase);
+            switch (@case)
             {
-                string c;
-                string l2 = match.Value.LastRight(2);
-                switch (l2)
-                {
-                    case "ая":
-                    case "яя":
-                        c = match.Value.PositionReplace("ий", match.Value.Length - 2);
-                        break;
-                    default:
-                        c = match.Value;
-                        break;
-                }
-                if (c.LastRight(2) == "ий" || c.LastRight(2) == "ый" || c.LastRight(2) == "ой")
-                {
-                    var noun = Nouns.FindOne(c);
-                    if (noun == null)
-                    {
-                        var plural_noun = Nouns.FindOne(match.Value.PositionReplace("е", match.Value.Length - 1));
-                        if (plural_noun != null) return match.Value;
-                    }
-                    else return noun[@case];
-                    var adj = Adjectives.FindSimilar(c);
-                    if (adj != null)
-                    {
-                        if (l2 == "яя" || l2 == "ая")
-                        {
-                            return adj[@case, Gender.F];
-                        }
-                        else return adj[@case, Gender.M];
-                    }
-                    else return match.Value;
-                }
-                else
-                {
-                    var s = Nouns.FindOne(match.Value);
-                    if (s != null)
-                    {
-                        return s[@case];
-                    }
-                    return match.Value;
-                }
-               
+                case LingvoNET.Case.Nominative:
+                    return str;
+                case LingvoNET.Case.Genitive:
+                    return 
+                case LingvoNET.Case.Dative:
+                    break;
+                case LingvoNET.Case.Accusative:
+                case LingvoNET.Case.Instrumental:
+                case LingvoNET.Case.Locative:
+                    throw new NotSupportedException("Не реализованный падеж склонения");
+                default:
+                    break;
             }
+
         }
        
     }
