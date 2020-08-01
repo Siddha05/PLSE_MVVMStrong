@@ -13,13 +13,21 @@ namespace PLSE_MVVMStrong.Model
 {
     public static class StringUtil
     {
+        /// <summary>
+        /// Согласные буквы русского алфавита.
+        /// </summary>
         public static string ConsonantLetters = "бвгджзклмнпрстфхцчшщй";
+        /// <summary>
+        /// Гласные буквы русского алфавита.
+        /// </summary>
         public static string VowelLetters = "аеёиоуэюяы";
+        /// <summary>
+        /// Щипящие буквы русского алфавита.
+        /// </summary>
         public static string HissingLetters = "гкхжшщч";
         /// <summary>
         /// Переворачивает строку
         /// </summary>
-        /// <param name="str">Исходная строка</param>
         /// <returns>Новая перевернутая строка</returns>
         static public string StrReverse(this string str)
         {
@@ -29,23 +37,30 @@ namespace PLSE_MVVMStrong.Model
         /// Ищет первую букву в исходной строке и переводит ее в верхний регистр
         /// </summary>
         /// <param name="str">Исходная строка</param>
-        /// <returns>String</returns>
+        /// <returns>Если буква не обнаружена или исходная строка пустая, возвращается исходная строка</returns>
         static public string ToUpperFirstLetter(this string str)
         {
-            if (String.IsNullOrWhiteSpace(str)) return str;//throw new ArgumentException("Аргумент является пустой строкой или состоящей только из символов разделителей");
+            if (String.IsNullOrWhiteSpace(str)) return str;
             int i;
             for (i = 0; i < str.Length; i++)
             {
-                if (Char.IsLetter(str[i])) return str.Remove(i, 1).Insert(i, str.Substring(i, 1).ToUpper()); ;
+                if (Char.IsLetter(str[i])) return str.Remove(i, 1).Insert(i, str.Substring(i, 1).ToUpper());
             }
-            throw new ArgumentException("Строка не содержит букв");
+            return str;
         }
-        static public string LastRight(this string str, int cnt)
+        /// <summary>
+        /// Возвращает <paramref name="cnt"/> последних символов строки.
+        /// </summary>
+        /// <param name="cnt">Целое, указывающее количесво символов для возврата.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="cnt"/> меньше или равен 0</exception>
+        static public string LastRight(this string str, int cnt = 1)
         {
+            if (String.IsNullOrEmpty(str)) return str;
             if (str.Length < cnt) cnt = str.Length;
             if (cnt <= 0) throw new ArgumentOutOfRangeException();
             return str.Substring(str.Length - cnt);
-        }//возвращает cnt последних символов
+        }
         static public string PositionReplace(this string sourse, string str, int pos)
         {
             if (pos < 0 || pos >= sourse.Length) throw new ArgumentOutOfRangeException();
@@ -75,17 +90,16 @@ namespace PLSE_MVVMStrong.Model
         /// <summary>
         /// Возвращает только цифровые символы из исходной строки
         /// </summary>
-        /// <param name="s">Исходная строка</param>
-        /// <returns>String</returns>
+        /// <returns>Строка, содержащая только цифры или пустая строка</returns>
         public static string OnlyDigits(this string s)
         {
+            if (string.IsNullOrEmpty(s)) return string.Empty;
             return new string(s.Where(n => Char.IsDigit(n)).ToArray());
         }
         /// <summary>
         /// Убирает все пробелы из исходной строки
         /// </summary>
-        /// <param name="s">Исходная строка</param>
-        /// <returns></returns>
+        /// <returns>Строка без пробелов</returns>
         public static string SpaceFree(this string s)
         {
             return s == null ? null : s.Replace(" ", "");
@@ -95,14 +109,6 @@ namespace PLSE_MVVMStrong.Model
             int posdot = s.IndexOf('.');
             if (posdot < 0) return s;
             else return s.Substring(0, posdot + 2);
-        }
-        static public int PositionRunawayVowel(this string str)
-        {
-            //var p = str.StrReverse().IndexOfAny(new char[] { 'о', 'е', 'ё' });
-            //if (p > 0) return str.Length - p - 1;
-            //else return -1;
-            if (str[str.Length - 2] == 'о' || str[str.Length - 2] == 'е' || str[str.Length - 2] == 'ё') return str.Length - 2;
-            else return str.Length - 3;
         }
         /// <summary>
         /// Равно ли количество гласных букв в слове 1?
@@ -170,21 +176,6 @@ namespace PLSE_MVVMStrong.Model
             if (str == null) return null;
             //return Regex.Replace(str,
             //                @"«.+?»|[а-я]+", declinated, RegexOptions.IgnoreCase);
-            switch (@case)
-            {
-                case LingvoNET.Case.Nominative:
-                    return str;
-                case LingvoNET.Case.Genitive:
-                    return 
-                case LingvoNET.Case.Dative:
-                    break;
-                case LingvoNET.Case.Accusative:
-                case LingvoNET.Case.Instrumental:
-                case LingvoNET.Case.Locative:
-                    throw new NotSupportedException("Не реализованный падеж склонения");
-                default:
-                    break;
-            }
 
         }
        

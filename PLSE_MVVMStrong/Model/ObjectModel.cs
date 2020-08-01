@@ -23,7 +23,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using LingvoNET;
 using Microsoft.Office.Interop.Word;
-using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
+using Xceed.Wpf.Toolkit;
+
 
 namespace PLSE_MVVMStrong.Model
 {
@@ -80,21 +81,6 @@ namespace PLSE_MVVMStrong.Model
         Invariant,
         Mixed,
         Adjective
-    }
-    internal struct ProbableDecline
-    {
-        public readonly bool  IsExact;
-        public readonly string Result;
-
-        public ProbableDecline(string decline, bool exact = true)
-        {
-            IsExact = exact;
-            Result = decline;
-        }
-        public override string ToString()
-        {
-            return Result;
-        }
     }
     internal sealed class Adjective
     {
@@ -235,8 +221,8 @@ namespace PLSE_MVVMStrong.Model
         public readonly bool? HasRunawayVowel;
         private static readonly HashSet<Noun> _exeptions;
         private static Lazy<HashSet<string>> _nounAsAdjective;
-        
-#region Metods
+
+        #region Metods
         private static bool? DetermineRunawayVowel(string str)
         {
             if (str.Length < 4 && str.IsOneVowelLetter()) return false;
@@ -248,10 +234,10 @@ namespace PLSE_MVVMStrong.Model
                 {
                     return false;
                 }
-                if ("лнр".Contains(str[str.PositionRunawayVowel() - 1])) return true;
+                if ("лнр".Contains(str[PositionRunawayVowel() - 1])) return true;
                 else return false;
             }
-            
+
             if (l2 == "ек")
             {
                 if (str.EndsWith("век")) return false;
@@ -282,13 +268,13 @@ namespace PLSE_MVVMStrong.Model
                 }
                 if (!StringUtil.VowelLetters.Contains(str[_pos]) && !StringUtil.VowelLetters.Contains(str[__pos]))
                 {
-                   return false;
+                    return false;
                 }
                 else return null;
             }
             return false;
         }
-        private static Noun Determine(string str)
+        public static Noun Determine(string str)
         {
             var x = _exeptions.FirstOrDefault(n => n.Text == str.ToLower());
             if (x != null) return x;
@@ -296,7 +282,7 @@ namespace PLSE_MVVMStrong.Model
         }
         private static WordGender DetermineGender(string str)
         {
-            
+
             if (StringUtil.ConsonantLetters.Contains(str.Last()))
             {
                 return WordGender.Male;
@@ -313,11 +299,12 @@ namespace PLSE_MVVMStrong.Model
         private DeclineType DetermineDeclineType()
         {
             if (!IsDeclinated) return DeclineType.Invariant;
-            if (Text.Length < 2) return DeclineType.None;
+            if ((Text?.Length ?? 0) < 2) return DeclineType.None;
             string l1 = Text.LastRight(1);
             if (l1 == "а" || l1 == "я")
             {
                 if (Text.Length < 3) return DeclineType.Invariant;
+                if (AsAdjective()) return DeclineType.Adjective;
                 else return DeclineType.I;
             }
             if (l1 == "ь")
@@ -337,155 +324,284 @@ namespace PLSE_MVVMStrong.Model
             }
             return DeclineType.None;
         }
+        private int PositionRunawayVowel()
+        {
+            if (Text == null && Text.Length < 3) return -1;
+            for (int i = Text.Length - 1; i >= 0; i--)
+            {
+                if (Text[i] == 'о' || Text[i] == 'е' || Text[i] == 'ё') return i;
+            }
+            return -1;
+        }
         private string ReplaceRunawayVowel()
         {
-            var p = Text.PositionRunawayVowel();
-            StringBuilder sb = new StringBuilder(Text);
-            if (Text[Text.PositionRunawayVowel() - 1] == 'л' && Text[p] != 'о')
+            var p = PositionRunawayVowel();
+            if (p < 1) return Text;
+            else
             {
-                return sb.Replace(Text[Text.PositionRunawayVowel()], 'ь', Text.PositionRunawayVowel(), 1).ToString();
+                StringBuilder sb = new StringBuilder(Text);
+                if (Text[p - 1] == 'л' && Text[p] != 'о')
+                {
+                    return sb.Replace(Text[p], 'ь', p, 1).ToString();
+                }
+                if ("нр".Contains(Text[p - 1]) && Text[p] == 'ё')
+                {
+                    return sb.Replace('ё', 'ь', p, 1).ToString();
+                }
+                if ("уеаоэяию".Contains(Text[p - 1]))
+                {
+                    return sb.Remove(p, 1).Insert(p, 'й').ToString();
+                }
+                return sb.Remove(p, 1).ToString();
             }
-            if ("нр".Contains(Text[Text.PositionRunawayVowel() - 1]) && Text[p] == 'ё')
-            {
-                return sb.Replace('ё', 'ь', Text.PositionRunawayVowel(), 1).ToString();
-            }
-            if ("уеаоэяию".Contains(Text[Text.PositionRunawayVowel() - 1]))
-            {
-                return sb.Remove(p, 1).Insert(p, 'й').ToString();
-            }
-            return sb.Remove(p, 1).ToString();
+
         }
         private bool AsAdjective()
         {
-            
-            if (Text.EndsWith("ый")) return true;
-            if (Text.EndsWith("ий") || Text.EndsWith("ой"))
+            if (Text.Length < 4) return false;
+            if (Text.EndsWith("ый") || Text.EndsWith("яя")) return true;
+            if (Text.EndsWith("ий") || Text.EndsWith("ой") || Text.EndsWith("ая"))
             {
-                if (Text.Length < 4) return false;
                 if (_nounAsAdjective.Value.Contains(Text)) return false;
+                var n = Nouns.FindOne(Text); //TODO удалить и использовать только _nounAsAdjective
+                if (n != null) return false;
                 else return true;
             }
             else return false;
         }
-        public static ProbableDecline ToGenetive(string str)
+        /// <summary>
+        /// Склоняет существительное в родительном падеже
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns>Требуемый падеж с возможным альт. вариантом</returns>
+        /// <exception cref="NotSupportedException">Тип склонения не установлен</exception>
+        public static Tuple<string, string> ToGenetive(string str)
         {
             return Noun.Determine(str).ToGenetive();
         }
-        public static ProbableDecline ToDative(string str)
+        /// <summary>
+        /// Склоняет существительное в дательном падеже
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns>Требуемый падеж с возможным альт. вариантом</returns>
+        /// <exception cref="NotSupportedException">Тип склонения не установлен</exception>
+        public static Tuple<string, string> ToDative(string str)
         {
             return Noun.Determine(str).ToDative();
         }
-#endregion
-           
-        public ProbableDecline ToGenetive()
+        public Tuple<string, string> ToGenetive()
         {
-            bool exac = true; string s = Text;
-            if (HasRunawayVowel == null) exac = false;
+            string s = null;
+            if (HasRunawayVowel == null)
+            {
+                s = this.ReplaceRunawayVowel();
+                switch (DetermineDeclineType())
+                {
+                    case DeclineType.I:
+                        if (Text[Text.Length - 2] == 'и')
+                        {
+                            return new Tuple<string, string>(Text.PositionReplace("и", Text.Length - 1), s.PositionReplace("и", Text.Length - 1));
+                        }
+                        if (StringUtil.HissingLetters.Contains(Text[Text.Length - 2]))
+                        {
+                            return new Tuple<string, string>(Text.PositionReplace("и", Text.Length - 1), s.PositionReplace("и", Text.Length - 1));
+                        }
+                        else return new Tuple<string, string>(Text.PositionReplace("ы", Text.Length - 1), s.PositionReplace("ы", Text.Length - 1));
+                    case DeclineType.II:
+                        if ("й" == Text.LastRight(1) && StringUtil.VowelLetters.Contains(Text[Text.Length - 2]))
+                        {
+                            return new Tuple<string, string>(Text.PositionReplace("я", Text.Length - 1), s.PositionReplace("я", Text.Length - 1));
+                        }
+                        if ("оеё".Contains(Text.LastRight(1)))
+                        {
+                            if (Text[Text.Length - 2] == 'и')
+                            {
+                                return new Tuple<string, string>(Text.PositionReplace("я", Text.Length - 1), s.PositionReplace("я", Text.Length - 1));
+                            }
+                            else return new Tuple<string, string>(Text.PositionReplace("а", Text.Length - 1), s.PositionReplace("а", Text.Length - 1));
+                        }
+                        if (Text.LastRight(1) == "ь")
+                        {
+                            return new Tuple<string, string>(Text.PositionReplace("я", Text.Length - 1), s.PositionReplace("я", Text.Length - 1));
+                        }
+                        else return new Tuple<string, string>(Text + "а", s + "а");
+                    case DeclineType.III:
+                        return new Tuple<string, string>(Text.PositionReplace("и", Text.Length - 1), s.PositionReplace("и", Text.Length - 1));
+                    case DeclineType.Invariant:
+                        return new Tuple<string, string>(Text, null);
+                    case DeclineType.Adjective:
+                        return new Tuple<string, string>(Adjective.AdjectiveToGenetive(Text), Adjective.AdjectiveToGenetive(s));
+                    default:
+                        throw new NotSupportedException("Не удалось определить тип склонения");
+                }
+            }
             else
             {
                 if (HasRunawayVowel.Value == true) s = this.ReplaceRunawayVowel();
-            }
-            switch (DetermineDeclineType())
-            {
-                case DeclineType.I:
-                    switch (Text)
-                    {
-                        case "дитя":
-                            return new ProbableDecline(Text.PositionReplace("яти", Text.Length - 1));
-                        case "время":
-                        case "бремя":
-                        case "вымя":
-                        case "знямя":
-                        case "имя":
-                        case "пламя":
-                        case "племя":
-                        case "семя":
-                        case "стремя":
-                        case "темя":
-                            return new ProbableDecline(Text.PositionReplace("ени", Text.Length - 1));
-                        default:
-                            break;
-                    }
-                    if (Text[Text.Length - 2] == 'и') return new ProbableDecline(Text.PositionReplace("и", Text.Length - 1));
-                    if (StringUtil.HissingLetters.Contains(Text[Text.Length - 2])) return new ProbableDecline(s.PositionReplace("и", Text.Length - 1),exac);
-                    else return new ProbableDecline(s.PositionReplace("ы", Text.Length - 1), exac);
-                case DeclineType.II:
-                    if (Text == "путь") return new ProbableDecline(Text.PositionReplace("и", Text.Length - 1));
-                    if ("й" == Text.LastRight(1) && StringUtil.VowelLetters.Contains(Text[Text.Length -2]))
-                    {
-                        return new ProbableDecline(s.PositionReplace("я", Text.Length - 1), false);
-                    }
-                    if ("оеё" == Text.LastRight(1) && Text[Text.Length -2] == 'и')
-                    {
-                        return new ProbableDecline(s.PositionReplace("я", Text.Length - 1));
-                    }
-                    if (Text.LastRight(1) == "ь") return new ProbableDecline(s.PositionReplace("я", Text.Length - 1),exac);
-                    else return new ProbableDecline(s.PositionReplace("а", Text.Length - 1), exac);
-                case DeclineType.III:
-                    if (Text == "мать" || Text == "дочь") return new ProbableDecline(Text.PositionReplace("ери", Text.Length - 1));
-                    return new ProbableDecline(s.PositionReplace("и", Text.Length - 1),exac);
-                case DeclineType.Invariant:
-                    return new ProbableDecline(Text);
-                case DeclineType.Adjective:
-                    return new ProbableDecline(Adjective.AdjectiveToGenetive(Text), false);
-                default:
-                    throw new NotSupportedException("Склонение не поддерживается");
+                else s = Text;
+                switch (DetermineDeclineType())
+                {
+                    case DeclineType.I:
+                        switch (Text)
+                        {
+                            case "дитя":
+                                return new Tuple<string, string>(Text.PositionReplace("яти", Text.Length - 1), null);
+                            case "время":
+                            case "бремя":
+                            case "вымя":
+                            case "знамя":
+                            case "имя":
+                            case "пламя":
+                            case "племя":
+                            case "семя":
+                            case "стремя":
+                            case "темя":
+                                return new Tuple<string, string>(Text.PositionReplace("ени", Text.Length - 1), null);
+                            default:
+                                break;
+                        }
+                        if (Text[Text.Length - 2] == 'и')
+                        {
+                            return new Tuple<string, string>(s.PositionReplace("и", Text.Length - 1), null);
+                        }
+                        if (StringUtil.HissingLetters.Contains(Text[Text.Length - 2]))
+                        {
+                            return new Tuple<string, string>(s.PositionReplace("и", Text.Length - 1), null);
+                        }
+                        else return new Tuple<string, string>(s.PositionReplace("ы", Text.Length - 1), null);
+                    case DeclineType.II:
+                        if (Text == "путь") return new Tuple<string, string>(Text.PositionReplace("и", Text.Length - 1), null);
+                        if ("й" == Text.LastRight(1) && StringUtil.VowelLetters.Contains(Text[Text.Length - 2]))
+                        {
+                            return new Tuple<string, string>(s.PositionReplace("я", Text.Length - 1), null);
+                        }
+                        if ("оеё".Contains(Text.LastRight(1)))
+                        {
+                            if (Text[Text.Length - 2] == 'и')
+                            {
+                                return new Tuple<string, string>(Text.PositionReplace("я", Text.Length - 1), null);
+                            }
+                            else return new Tuple<string, string>(Text.PositionReplace("а", Text.Length - 1), null);
+                        }
+                        if (Text.LastRight(1) == "ь") return new Tuple<string, string>(s.PositionReplace("я", Text.Length - 1), null);
+                        else return new Tuple<string, string>(s + "а", null);
+                    case DeclineType.III:
+                        if (Text == "мать" || Text == "дочь") return new Tuple<string, string>(Text.PositionReplace("ери", Text.Length - 1), null);
+                        return new Tuple<string, string>(s.PositionReplace("и", Text.Length - 1), null);
+                    case DeclineType.Invariant:
+                        return new Tuple<string, string>(Text, null);
+                    case DeclineType.Adjective:
+                        return new Tuple<string, string>(Adjective.AdjectiveToGenetive(Text), null);
+                    default:
+                        throw new NotSupportedException("Не удалось определить тип склонения");
+                }
             }
         }
-        public ProbableDecline ToDative()
+        public Tuple<string, string> ToDative()
         {
-            bool exac = true; string s = Text;
-            if (HasRunawayVowel == null) exac = false;
+            string s = null;
+            if (HasRunawayVowel == null)
+            {
+                s = this.ReplaceRunawayVowel();
+                switch (DetermineDeclineType())
+                {
+                    case DeclineType.I:
+                        if (Text[Text.Length - 2] == 'и')
+                        {
+                            return new Tuple<string, string>(Text.PositionReplace("и", Text.Length - 1), s.PositionReplace("и", Text.Length - 1));
+                        }
+                        else return new Tuple<string, string>(Text.PositionReplace("е", Text.Length - 1), s.PositionReplace("е", Text.Length - 1));
+                    case DeclineType.II:
+                        if ("й" == Text.LastRight(1) && StringUtil.VowelLetters.Contains(Text[Text.Length - 2]))
+                        {
+                            return new Tuple<string, string>(Text.PositionReplace("ю", Text.Length - 1), s.PositionReplace("ю", Text.Length - 1));
+                        }
+                        if ("оеё".Contains(Text.LastRight(1)))
+                        {
+                            if (Text[Text.Length - 2] == 'и')
+                            {
+                                return new Tuple<string, string>(Text.PositionReplace("ю", Text.Length - 1), s.PositionReplace("ю", Text.Length - 1));
+                            }
+                            else return new Tuple<string, string>(Text.PositionReplace("у", Text.Length - 1), s.PositionReplace("у", Text.Length - 1));
+                        }
+                        if (Text.LastRight(1) == "ь")
+                        {
+                            return new Tuple<string, string>(Text.PositionReplace("ю", Text.Length - 1), s.PositionReplace("ю", Text.Length - 1));
+                        }
+                        else return new Tuple<string, string>(Text + "у", s + "у");
+                    case DeclineType.III:
+                        return new Tuple<string, string>(Text.PositionReplace("и", Text.Length - 1), s.PositionReplace("и", Text.Length - 1));
+                    case DeclineType.Invariant:
+                        return new Tuple<string, string>(Text, null);
+                    case DeclineType.Adjective:
+                        return new Tuple<string, string>(Adjective.AdjectiveToDative(Text), Adjective.AdjectiveToDative(s));
+                    default:
+                        throw new NotSupportedException("Не удалось определить тип склонения");
+                }
+            }
             else
             {
                 if (HasRunawayVowel.Value == true) s = this.ReplaceRunawayVowel();
-            }
-            switch (DetermineDeclineType())
-            {
-                case DeclineType.I:
-                    switch (Text)
-                    {
-                        case "дитя":
-                            return new ProbableDecline(Text.PositionReplace("яти", Text.Length - 1));
-                        case "время":
-                        case "бремя":
-                        case "вымя":
-                        case "знямя":
-                        case "имя":
-                        case "пламя":
-                        case "племя":
-                        case "семя":
-                        case "стремя":
-                        case "темя":
-                            return new ProbableDecline(Text.PositionReplace("ени", Text.Length - 1));
-                        default:
-                            break;
-                    }
-                    if (Text[Text.Length - 2] == 'и') return new ProbableDecline(s.PositionReplace("и", Text.Length - 1), exac);
-                    else return new ProbableDecline(s.PositionReplace("е", Text.Length - 1), exac);
-                case DeclineType.II:
-                    if (Text == "путь") return new ProbableDecline(Text.PositionReplace("и", Text.Length - 1));
-                    if ("й" == Text.LastRight(1) && StringUtil.VowelLetters.Contains(Text[Text.Length - 2]))
-                    {
-                        return new ProbableDecline(s.PositionReplace("ю", Text.Length - 1), false);
-                    }
-                    if ("оеё" == Text.LastRight(1) && Text[Text.Length - 2] == 'и')
-                    {
-                        return new ProbableDecline(s.PositionReplace("ю", Text.Length - 1));
-                    }
-                    if (Text.LastRight(1) == "ь") return new ProbableDecline(s.PositionReplace("ю", Text.Length - 1), exac);
-                    else return new ProbableDecline(s.PositionReplace("у", Text.Length - 1), exac);
-                case DeclineType.III:
-                    if (Text == "мать" || Text == "дочь") return new ProbableDecline(Text.PositionReplace("ери", Text.Length - 1));
-                    return new ProbableDecline(s.PositionReplace("и", Text.Length - 1), exac);
-                case DeclineType.Invariant:
-                    return new ProbableDecline(Text);
-                case DeclineType.Adjective:
-                    return new ProbableDecline(Adjective.AdjectiveToDative(Text), false);
-                default:
-                    throw new NotSupportedException("Склонение не поддерживается");
+                else s = Text;
+                switch (DetermineDeclineType())
+                {
+                    case DeclineType.I:
+                        switch (Text)
+                        {
+                            case "дитя":
+                                return new Tuple<string, string>(Text.PositionReplace("яти", Text.Length - 1), null);
+                            case "время":
+                            case "бремя":
+                            case "вымя":
+                            case "знамя":
+                            case "имя":
+                            case "пламя":
+                            case "племя":
+                            case "семя":
+                            case "стремя":
+                            case "темя":
+                                return new Tuple<string, string>(Text.PositionReplace("ени", Text.Length - 1), null);
+                            default:
+                                break;
+                        }
+                        if (Text[Text.Length - 2] == 'и')
+                        {
+                            return new Tuple<string, string>(s.PositionReplace("и", Text.Length - 1), null);
+                        }
+                        else return new Tuple<string, string>(s.PositionReplace("е", Text.Length - 1), null);
+                    case DeclineType.II:
+                        if (Text == "путь") return new Tuple<string, string>(Text.PositionReplace("и", Text.Length - 1), null);
+                        if ("й" == Text.LastRight(1) && StringUtil.VowelLetters.Contains(Text[Text.Length - 2]))
+                        {
+                            return new Tuple<string, string>(s.PositionReplace("ю", Text.Length - 1), null);
+                        }
+                        if ("оеё".Contains(Text.LastRight(1)))
+                        {
+                            if (Text[Text.Length - 2] == 'и')
+                            {
+                                return new Tuple<string, string>(Text.PositionReplace("ю", Text.Length - 1), null);
+                            }
+                            else return new Tuple<string, string>(Text.PositionReplace("у", Text.Length - 1), null);
+                        }
+                        if (Text.LastRight(1) == "ь")
+                        {
+                            return new Tuple<string, string>(s.PositionReplace("ю", Text.Length - 1), null);
+                        }
+                        else return new Tuple<string, string>(s + "у", null);
+                    case DeclineType.III:
+                        if (Text == "мать" || Text == "дочь") return new Tuple<string, string>(Text.PositionReplace("ери", Text.Length - 1), null);
+                        return new Tuple<string, string>(s.PositionReplace("и", Text.Length - 1), null);
+                    case DeclineType.Invariant:
+                        return new Tuple<string, string>(Text, null);
+                    case DeclineType.Adjective:
+                        return new Tuple<string, string>(Adjective.AdjectiveToDative(Text), null);
+                    default:
+                        throw new NotSupportedException("Не удалось определить тип склонения");
+                }
             }
         }
+        #endregion
+
         
         private Noun(string word, bool decl, WordGender kind, bool? runaway)
         {
@@ -670,28 +786,25 @@ namespace PLSE_MVVMStrong.Model
             {
                 "аграрий",
                 "актиний"
-
             };
-
         }
         public override string ToString()
         {
             return $"{Text}({WordGender}, {IsDeclinated}, {HasRunawayVowel})";
         }
     }
-
     /// <summary>
-    /// Класс с общей информацией по серверу, базе данных и лаборатории
+    /// Класс с общей информацией по серверу, базе данных и лаборатории.
     /// </summary>
     public static class CommonInfo
     {
         /// <summary>
-        /// Строка подключения к базе данных
+        /// Строка подключения к базе данных.
         /// </summary>
         public static readonly SqlConnection connection;
 
         /// <summary>
-        /// Общая информация о ПЛСЭ
+        /// Общая информация о ПЛСЭ.
         /// </summary>
         public static readonly Laboratory PLSE;
         private static ObservableCollection<Speciality> _specialities = new ObservableCollection<Speciality>();
@@ -1239,8 +1352,7 @@ namespace PLSE_MVVMStrong.Model
             }
             rd.Close();
             connection.Close();
-        }
-        
+        }  
         public static List<Resolution> LoadResolution(string query)
         {
             SqlCommand cmd = connection.CreateCommand();
@@ -1554,7 +1666,6 @@ namespace PLSE_MVVMStrong.Model
         //    return resolutions;
         //}
     }
-
     public class RelayCommand : ICommand
     {
         private Action<object> _execute;
@@ -1580,7 +1691,6 @@ namespace PLSE_MVVMStrong.Model
             _execute(parameter);
         }
     }
-
     public class BaseViewModel<T> : INotifyPropertyChanged
                                 where T : NotifyBase
     {
@@ -1626,7 +1736,6 @@ namespace PLSE_MVVMStrong.Model
 
         public event PropertyChangedEventHandler PropertyChanged;
     }
-
     public enum MsgType
     {
         Normal = 0x0001,
@@ -1635,7 +1744,6 @@ namespace PLSE_MVVMStrong.Model
         Error = 0x0008,
         Congratulation = 0x0010
     }
-
     public class Message
     {
         private string _msg;
@@ -2761,170 +2869,239 @@ namespace PLSE_MVVMStrong.Model
             else return false;
         }
         /// <summary>
-        /// Склоняет фамилию в указанном параметром падеже
+        /// Склоняет фамилию в указанном параметром падеже.
         /// </summary>
         /// <param name="case">Требуемое склонение</param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException">Пол не мужской или женский</exception>
-        /// <exception cref="NotSupportedException">Склонение не предусмотрено</exeption>
-        protected Tuple<string, bool> SurnameDeclinate(LingvoNET.Case @case)
+        /// <returns>Список возможных вариантов склонения</returns>
+        /// <exception cref="NotImplementedException">Пол не мужской или женский или склонение в запрашиваемом падеже не реализовано.</exception>
+        /// <exception cref="NotSupportedException">Склонение не поддерживается.</exeption>
+        protected List<string> SurnameDeclinate(LingvoNET.Case @case)
         {
-            bool exac = true;
-            if (_declinated == false) return new Tuple<string, bool>(Sname, exac);
-            var devide = Sname.Split(separator: new char[] { '-' }, options: StringSplitOptions.RemoveEmptyEntries, count: 2);//двойная или одинарная фамилия, более двойной запрещено законом
+            List<string> ret = new List<string>(6);
+            if (_declinated == false)
+            {
+                ret.Add(Sname);
+                return ret;
+            }
+            var devide = Sname.Split(separator: new char[] { '-' }, options: StringSplitOptions.RemoveEmptyEntries, count: 2);//двойная или одинарная фамилия,
+                                                                                                                              //более двойной запрещено законом
             if (Gender == "мужской")
             {
-                string[] parts = new string[devide.Length];
+                Tuple<string,string>[] parts = new Tuple<string, string>[devide.Length];
                 string l2, l1;
                 for (int i = 0; i < devide.Length; i++)
                 {
                     l2 = devide[i].LastRight(2); l1 = devide[i].LastRight(1);
-                    if (l2 == "ий" || l2 == "ый" || l2 == "ой")
-                    {
-                        var en = Nouns.FindOne(devide[i]);
-                        if (en != null)
-                        {
-                            parts[i] = en[@case];
-                        }
-                        else
-                        {
-                            switch (@case)
-                            {
-                                case LingvoNET.Case.Nominative:
-                                    parts[i] = devide[i];
-                                    break;
-                                case LingvoNET.Case.Genitive:
-                                    parts[i] = Adjective.AdjectiveToGenetive(devide[i]);
-                                    break;
-                                case LingvoNET.Case.Dative:
-                                    parts[i] = Adjective.AdjectiveToDative(devide[i]);
-                                    break;
-                                default:
-                                    throw new NotSupportedException("Нереализованный тип склонения");
-                            }
-                        }
-                        continue;
-                    }
+                    //if ((l2 == "ий" || l2 == "ый" || l2 == "ой") && devide[i].Length > 3)
+                    //{
+                    //    var en = Nouns.FindOne(devide[i]);
+                    //    if (en != null)
+                    //    {
+                    //        parts[i] = en[@case];
+                    //    }
+                    //    else
+                    //    {
+                    //        switch (@case)
+                    //        {
+                    //            case LingvoNET.Case.Nominative:
+                    //                parts[i] = devide[i];
+                    //                break;
+                    //            case LingvoNET.Case.Genitive:
+                    //                parts[i] = Adjective.AdjectiveToGenetive(devide[i]);
+                    //                break;
+                    //            case LingvoNET.Case.Dative:
+                    //                parts[i] = Adjective.AdjectiveToDative(devide[i]);
+                    //                break;
+                    //            default:
+                    //                throw new NotSupportedException("Нереализованный тип склонения");
+                    //        }
+                    //    }
+                    //    continue;
+                    //}
                     if (l1 == "о" || l1 == "и" || l1 == "ю" || l1 == "у" || l1 == "е")
                     {
-                        parts[i] = devide[i];
+                        parts[i] = new Tuple<string, string>(devide[i], null);
                         continue;
                     }
                     if (l2 == "ых" || l2 == "их")
                     {
                         var n = Nouns.FindOne(devide[i]);
-                        if (n != null) parts[i] = n[@case];
-                        else parts[i] = devide[i];
+                        if (n != null) parts[i] = new Tuple<string, string>(n[@case], null);
+                        else parts[i] = new Tuple<string, string>(devide[i], null);
                         continue;
                     }
                     var m = Nouns.FindOne(devide[i]);
-                    if (m != null) parts[i] = m[@case];
+                    if (m != null) parts[i] = new Tuple<string, string>(m[@case], null);
                     else
                     {
-                        try
-                        {
                             switch (@case)
                             {
                                 case LingvoNET.Case.Nominative:
-                                    parts[i] = devide[i];
+                                    parts[i] = new Tuple<string, string>(devide[i], null);
                                     break;
                                 case LingvoNET.Case.Genitive:
-                                    parts[i] = Noun.ToGenetive(devide[i]).Result;
+                                    parts[i]  = Noun.ToGenetive(devide[i]);
                                     break;
                                 case LingvoNET.Case.Dative:
-                                    parts[i] = Noun.ToDative(devide[i]).Result;
+                                    parts[i] = Noun.ToDative(devide[i]);
                                     break;
                                 case LingvoNET.Case.Accusative:
                                 case LingvoNET.Case.Instrumental:
                                 case LingvoNET.Case.Locative:
-                                    throw new NotSupportedException("Нереализованный тип склонения");
+                                    throw new NotImplementedException("Нереализованный тип склонения");
                                 default:
                                     break;
                             }
-                        }
-                        catch (Exception)
-                        {
-                            throw;
-                        }
                     }
                 }
-                return String.Join("-", parts);
+                if (parts.Length > 1)
+                {
+                    if (parts[0].Item1 != null)
+                    {
+                        if (parts[1].Item1 != null) ret.Add(parts[0].Item1 + "-" + parts[1].Item1);
+                        if (parts[1].Item2 != null) ret.Add(parts[0].Item1 + "-" + parts[1].Item2);
+                    }
+                    if (parts[0].Item2 != null)
+                    {
+                        if (parts[1].Item1 != null) ret.Add(parts[0].Item2 + "-" + parts[1].Item1);
+                        if (parts[1].Item2 != null) ret.Add(parts[0].Item2 + "-" + parts[1].Item2);
+                    }
+                }
+                else
+                {
+                    if (parts[0].Item1 != null) ret.Add(parts[0].Item1);
+                    if (parts[0].Item2 != null) ret.Add(parts[0].Item2);
+                }
+                return ret;
             }
             if (Gender == "женский")
             {
                 string l2, l1;
-                string[] parts = new string[devide.Length];
+                Tuple<string, string>[] parts = new Tuple<string, string>[devide.Length];
                 for (int i = 0; i < devide.Length; i++)
                 {
                     l2 = devide[i].LastRight(2); l1 = devide[i].LastRight(1);
-                    if (l2 == "ая" || l2 == "яя")
-                    {
-                        var en = Nouns.FindOne(devide[i]);
-                        if (en != null)
-                        {
-                            parts[i] = en[@case];
-                        }
-                        else
-                        {
-                            var a = Adjectives.FindSimilar(devide[i]);
-                            if (a != null) parts[i] = a[@case, LingvoNET.Gender.FA];
-                            else throw new NotSupportedException($"Не удалось склонить фамилию {Sname}");
-                        }
-                        continue;
-                    }
+                    //if (l2 == "ая" || l2 == "яя")
+                    //{
+                    //    var en = Nouns.FindOne(devide[i]);
+                    //    if (en != null)
+                    //    {
+                    //        parts[i] = en[@case];
+                    //    }
+                    //    else
+                    //    {
+                    //        switch (@case)
+                    //        {
+                    //            case LingvoNET.Case.Nominative:
+                    //                parts[i] = devide[i];
+                    //                break;
+                    //            case LingvoNET.Case.Genitive:
+                    //                parts[i] = Adjective.AdjectiveToGenetive(devide[i]);
+                    //                break;
+                    //            case LingvoNET.Case.Dative:
+                    //                parts[i] = Adjective.AdjectiveToDative(devide[i]);
+                    //                break;
+                    //            case LingvoNET.Case.Accusative:
+                    //            case LingvoNET.Case.Instrumental:
+                    //            case LingvoNET.Case.Locative:
+                    //            case LingvoNET.Case.Short:
+                    //            case LingvoNET.Case.Undefined:
+                    //                throw new NotImplementedException("Нереализованный тип склонения");
+                    //            default:
+                    //                break;
+                    //        }
+                    //    }
+                    //    continue;
+                    //}
                     if (l1 == "о" || l1 == "и" || l1 == "ю" || l1 == "у" || l1 == "е")
                     {
-                        parts[i] = devide[i];
+                        parts[i] = new Tuple<string, string>(devide[i], null);
                         continue;
                     }
                     if (l2 == "ых" || l2 == "их")
                     {
-                        parts[i] = devide[i];
+                        parts[i] = new Tuple<string, string>(devide[i], null);
                         continue;
                     }
                     var w = Noun.Determine(devide[i]);
                     switch (w.WordGender)
                     {
                         case WordGender.Male:
-                            parts[i] = devide[i];
+                            parts[i] = new Tuple<string, string>(devide[i], null);
                             break;
                         case WordGender.Female:
-                            var en = Nouns.FindOne(devide[i]);
-                            if (en != null)
                             {
-                                parts[i] = en[@case];
-                            }
-                            else
-                            {
-                                bool st = (devide[i].LastRight(3) == "ова" || devide[i].LastRight(3) == "ева" || devide[i].LastRight(3) == "ина"
-                                                            || devide[i].LastRight(3) == "ына" || devide[i].LastRight(3) == "ёва");
+                                if (devide[i].LastRight(3) == "ова" || devide[i].LastRight(3) == "ева" || devide[i].LastRight(3) == "ина"
+                                                                    || devide[i].LastRight(3) == "ына" || devide[i].LastRight(3) == "ёва")
                                 {
+                                    var en = Nouns.FindOne(devide[i]);
                                     switch (@case)
                                     {
                                         case LingvoNET.Case.Nominative:
-                                            parts[i] = devide[i];
+                                            parts[i] = new Tuple<string,string>(devide[i], null);
                                             break;
                                         case LingvoNET.Case.Genitive:
-                                            parts[i] = st ? devide[i].PositionReplace("ой", devide[i].Length - 1) : w.ToGenetive();
-                                            break;
                                         case LingvoNET.Case.Dative:
-                                            parts[i] = st ? devide[i].PositionReplace("ой", devide[i].Length - 1) : w.ToDative();
+                                            parts[i] = new Tuple<string, string>(devide[i].PositionReplace("ой", devide[i].Length - 1), en == null ? null : en[LingvoNET.Case.Dative]);
                                             break;
                                         case LingvoNET.Case.Accusative:
                                         case LingvoNET.Case.Instrumental:
                                         case LingvoNET.Case.Locative:
+                                        case LingvoNET.Case.Short:
+                                        case LingvoNET.Case.Undefined:
                                             throw new NotSupportedException("Нереализованный тип склонения");
                                         default:
                                             throw new NotSupportedException("Нереализованный тип склонения");
                                     }
                                 }
+                                else
+                                {
+                                    switch (@case)
+                                    {
+                                        case LingvoNET.Case.Nominative:
+                                            parts[i] = new Tuple<string, string>(devide[i], null);
+                                            break;
+                                        case LingvoNET.Case.Genitive:
+                                            parts[i] = w.ToGenetive();
+                                            break;
+                                        case LingvoNET.Case.Dative:
+                                            parts[i] = w.ToDative();
+                                            break;
+                                        case LingvoNET.Case.Accusative:
+                                        case LingvoNET.Case.Instrumental:
+                                        case LingvoNET.Case.Locative:
+                                        case LingvoNET.Case.Short:
+                                        case LingvoNET.Case.Undefined:
+                                            throw new NotSupportedException("Нереализованный тип склонения");
+                                        default:
+                                            throw new NotSupportedException("Нереализованный тип склонения");
+                                    }
+                                }
+                                break;
                             }
-                            break;
                         default:
                             throw new NotSupportedException($"Не удалось склонить фамилию {Sname}");
                     }
                 }
-                return String.Join("-", parts);
+                if (parts.Length > 1)
+                {
+                    if (parts[0].Item1 != null)
+                    {
+                        if (parts[1].Item1 != null) ret.Add(parts[0].Item1 + "-" + parts[1].Item1);
+                        if (parts[1].Item2 != null) ret.Add(parts[0].Item1 + "-" + parts[1].Item2);
+                    }
+                    if (parts[0].Item2 != null)
+                    {
+                        if (parts[1].Item1 != null) ret.Add(parts[0].Item2 + "-" + parts[1].Item1);
+                        if (parts[1].Item2 != null) ret.Add(parts[0].Item2 + "-" + parts[1].Item2);
+                    }
+                }
+                else
+                {
+                    if (parts[0].Item1 != null) ret.Add(parts[0].Item1);
+                    if (parts[0].Item2 != null) ret.Add(parts[0].Item2);
+                }
+                return ret;
             }
             else throw new NotImplementedException("Пол неизвестен. Склонение фамилии невозможно");
         }
@@ -2967,9 +3144,9 @@ namespace PLSE_MVVMStrong.Model
                         case LingvoNET.Case.Nominative:
                             return Fname;
                         case LingvoNET.Case.Genitive:
-                            return Noun.NounToGenetive(Fname);
+                            return Noun.ToGenetive(Fname).Item1;
                         case LingvoNET.Case.Dative:
-                            return Noun.NounToDative(Fname);
+                            return Noun.ToDative(Fname).Item1;
                         case LingvoNET.Case.Accusative:
                         case LingvoNET.Case.Instrumental:
                         case LingvoNET.Case.Locative:
@@ -2980,7 +3157,7 @@ namespace PLSE_MVVMStrong.Model
             }
             if (Gender == "женский")
             {
-                if ("цкнгшщзхфвпрлджчсмтб".Contains(Fname.LastRight(1))) return Fname;
+                if (StringUtil.ConsonantLetters.Contains(Fname.LastRight(1))) return Fname;
                 else
                 {
                     switch (@case)
@@ -2988,9 +3165,9 @@ namespace PLSE_MVVMStrong.Model
                         case LingvoNET.Case.Nominative:
                             return Fname;
                         case LingvoNET.Case.Genitive:
-                            return Noun.NounToGenetive(Fname);
+                            return Noun.ToGenetive(Fname).Item1;
                         case LingvoNET.Case.Dative:
-                            return Noun.NounToDative(Fname);
+                            return Noun.ToDative(Fname).Item1;
                         case LingvoNET.Case.Accusative:
                         case LingvoNET.Case.Instrumental:
                         case LingvoNET.Case.Locative:
@@ -3002,78 +3179,78 @@ namespace PLSE_MVVMStrong.Model
             }
             else throw new NotImplementedException("Пол неизвестен.Склонение имени невозможно");
         }
-        protected string NameToGenitive()
-        {
-            if (Gender == "мужской")
-            {
-                if (String.Compare(Fname, "Павел", true) == 0) return "Павла";
-                if (String.Compare(Fname, "Лев", true) == 0) return "Льва";
-                string rs;
-                try
-                {
-                    rs = Noun.NounToGenetive(Fname);
-                }
-                catch (NotImplementedException ex)
-                {
-                    rs = Fname;
-                }
-                return rs;
-            }
-            if (Gender == "женский")
-            {
-                if ("цкнгшщзхфвпрлджчсмтб".Contains(Fname.LastRight(1))) return Fname;
-                else
-                {
-                    string rs;
-                    try
-                    {
-                        rs = Noun.NounToGenetive(Fname);
-                    }
-                    catch (NotImplementedException ex)
-                    {
-                        rs = Fname;
-                    }
-                    return rs;
-                }
-            }
-            else throw new NotImplementedException("Пол неизвестен.Склонение имени невозможно");
-        }
-        protected string NameToDative()
-        {
-            if (Gender == "мужской")
-            {
-                if (String.Compare(Fname, "Павел", true) == 0) return "Павлу";
-                if (String.Compare(Fname, "Лев", true) == 0) return "Льву";
-                string rs;
-                try
-                {
-                    rs = Noun.NounToDative(Fname);
-                }
-                catch (NotImplementedException ex)
-                {
-                    rs = Fname;
-                }
-                return rs;
-            }
-            if (Gender == "женский")
-            {
-                if ("цкнгшщзхфвпрлджчсмтб".Contains(Fname.LastRight(1))) return Fname;
-                else
-                {
-                    string rs;
-                    try
-                    {
-                        rs = Noun.NounToDative(Fname);
-                    }
-                    catch (NotImplementedException ex)
-                    {
-                        rs = Fname;
-                    }
-                    return rs;
-                }
-            }
-            else throw new NotImplementedException("Пол неизвестен.Склонение имени невозможно");
-        }
+        //protected string NameToGenitive()
+        //{
+        //    if (Gender == "мужской")
+        //    {
+        //        if (String.Compare(Fname, "Павел", true) == 0) return "Павла";
+        //        if (String.Compare(Fname, "Лев", true) == 0) return "Льва";
+        //        string rs;
+        //        try
+        //        {
+        //            rs = Noun.NounToGenetive(Fname);
+        //        }
+        //        catch (NotImplementedException ex)
+        //        {
+        //            rs = Fname;
+        //        }
+        //        return rs;
+        //    }
+        //    if (Gender == "женский")
+        //    {
+        //        if ("цкнгшщзхфвпрлджчсмтб".Contains(Fname.LastRight(1))) return Fname;
+        //        else
+        //        {
+        //            string rs;
+        //            try
+        //            {
+        //                rs = Noun.NounToGenetive(Fname);
+        //            }
+        //            catch (NotImplementedException ex)
+        //            {
+        //                rs = Fname;
+        //            }
+        //            return rs;
+        //        }
+        //    }
+        //    else throw new NotImplementedException("Пол неизвестен.Склонение имени невозможно");
+        //}
+        //protected string NameToDative()
+        //{
+        //    if (Gender == "мужской")
+        //    {
+        //        if (String.Compare(Fname, "Павел", true) == 0) return "Павлу";
+        //        if (String.Compare(Fname, "Лев", true) == 0) return "Льву";
+        //        string rs;
+        //        try
+        //        {
+        //            rs = Noun.NounToDative(Fname);
+        //        }
+        //        catch (NotImplementedException ex)
+        //        {
+        //            rs = Fname;
+        //        }
+        //        return rs;
+        //    }
+        //    if (Gender == "женский")
+        //    {
+        //        if ("цкнгшщзхфвпрлджчсмтб".Contains(Fname.LastRight(1))) return Fname;
+        //        else
+        //        {
+        //            string rs;
+        //            try
+        //            {
+        //                rs = Noun.NounToDative(Fname);
+        //            }
+        //            catch (NotImplementedException ex)
+        //            {
+        //                rs = Fname;
+        //            }
+        //            return rs;
+        //        }
+        //    }
+        //    else throw new NotImplementedException("Пол неизвестен.Склонение имени невозможно");
+        //}
         public override string ToString()
         {
             return ToString(null, null);
@@ -3098,7 +3275,7 @@ namespace PLSE_MVVMStrong.Model
                     sb.Append(" "); sb.Append(Mname);
                     return sb.ToString();
                 case "G"://genetive case, full
-                    sb.Append(SurnameDeclinate(LingvoNET.Case.Genitive)); sb.Append(" "); sb.Append(NameToGenitive());
+                    sb.Append(SurnameDeclinate(LingvoNET.Case.Genitive)); sb.Append(" "); sb.Append(NameDeclinate(LingvoNET.Case.Genitive));
                     sb.Append(" "); sb.Append(MiddleNameDeclinate(LingvoNET.Case.Genitive));
                     return sb.ToString();
                 case "g"://genetive case, short
@@ -3106,7 +3283,7 @@ namespace PLSE_MVVMStrong.Model
                     sb.Append("."); sb.Append(Mname[0]); sb.Append(".");
                     return sb.ToString();
                 case "D":// dative case
-                    sb.Append(SurnameDeclinate(LingvoNET.Case.Dative)); sb.Append(" "); sb.Append(NameToDative());
+                    sb.Append(SurnameDeclinate(LingvoNET.Case.Dative)); sb.Append(" "); sb.Append(NameDeclinate(LingvoNET.Case.Dative));
                     sb.Append(" "); sb.Append(MiddleNameDeclinate(LingvoNET.Case.Dative));
                     return sb.ToString();
                 case "d":
@@ -4770,7 +4947,7 @@ namespace PLSE_MVVMStrong.Model
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show(ex.Message);
+                        System.Windows.MessageBox.Show(ex.Message);
                     }
                     if (_expertisies.Count > 0)
                     {
@@ -4792,7 +4969,7 @@ namespace PLSE_MVVMStrong.Model
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show(ex.Message);
+                        System.Windows.MessageBox.Show(ex.Message);
                     }
                     ResolutionStatus = "рассмотрение";
                     break;
@@ -4833,9 +5010,8 @@ namespace PLSE_MVVMStrong.Model
         /// Сохраняет новое основание в базу данных
         /// </summary>
         /// <param name="con">SqlConnection. Строка подключения к базе данных</param>
-        /// <returns>Int32. Новое значение ключа идентификации в базе данных</returns>
-        /// <exception cref="System.NullReferenceException">Поле <c>Customer</c> или аргумент <c>con</c> равны null</exception>
-        /// <exception cref="System.Data.SqlClient.SqlException"></exception>
+        /// <exception cref="NullReferenceException">Поле <c>Customer</c> или аргумент <paramref name="con"/> равны null</exception>
+        /// <exception cref="SqlException"></exception>
         private void AddToDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
@@ -6650,10 +6826,10 @@ namespace PLSE_MVVMStrong.Model
             catch (Exception)
             {
 
-                MessageBox.Show("Error occur during creating word documents");
+                System.Windows.MessageBox.Show("Error occur during creating word documents");
             }
-            
-            MessageBox.Show("Documents created");
+
+            System.Windows.MessageBox.Show("Documents created");
         }
     }
     public class SpecialityComperer : IEqualityComparer<Speciality>
