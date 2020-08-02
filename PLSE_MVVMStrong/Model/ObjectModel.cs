@@ -225,16 +225,17 @@ namespace PLSE_MVVMStrong.Model
         #region Metods
         private static bool? DetermineRunawayVowel(string str)
         {
-            if (str.Length < 4 && str.IsOneVowelLetter()) return false;
+            int pr = PositionRunawayVowel(str);
+            if (pr < 1 && str.IsOneVowelLetter()) return false;
+            int _pos = pr - 1, __pos = _pos - 1;
             string l2 = str.LastRight(2);
-            int _pos = str.Length - 3, __pos = _pos - 1;
             if (l2 == "ёк")
             {
-                if (!StringUtil.VowelLetters.Contains(str[_pos]) && !StringUtil.VowelLetters.Contains(str[__pos]))
+                if (StringUtil.ConsonantLetters.Contains(str[_pos]) && StringUtil.ConsonantLetters.Contains(str[__pos]))
                 {
                     return false;
                 }
-                if ("лнр".Contains(str[PositionRunawayVowel() - 1])) return true;
+                if ("лнр".Contains(str[_pos])) return true;
                 else return false;
             }
 
@@ -324,18 +325,18 @@ namespace PLSE_MVVMStrong.Model
             }
             return DeclineType.None;
         }
-        private int PositionRunawayVowel()
+        private static int PositionRunawayVowel(string str)
         {
-            if (Text == null && Text.Length < 3) return -1;
-            for (int i = Text.Length - 1; i >= 0; i--)
+            if (str == null && str.Length < 3) return -1;
+            for (int i = str.Length - 1; i >= 0; i--)
             {
-                if (Text[i] == 'о' || Text[i] == 'е' || Text[i] == 'ё') return i;
+                if (str[i] == 'о' || str[i] == 'е' || str[i] == 'ё') return i;
             }
             return -1;
         }
         private string ReplaceRunawayVowel()
         {
-            var p = PositionRunawayVowel();
+            var p = PositionRunawayVowel(Text);
             if (p < 1) return Text;
             else
             {

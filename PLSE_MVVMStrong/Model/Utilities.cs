@@ -221,30 +221,66 @@ namespace PLSE_MVVMStrong.Model
             var noun = Nouns.FindOne(part2);
             return part1.Decline(@case) + noun[@case] + part3;
         }
-        public static Tuple<string, string, string> DevideByWord(this string str, string noun)
+        public static Tuple<string, string, string> DevideByWord(this string str, string wrd)
         {
-            int pos1 = str?.IndexOf(noun) ?? -1;
+            int pos1 = str?.IndexOf(wrd) ?? -1;
             if (pos1 < 0)
             {
                 return new Tuple<string, string, string>(null, null, null);
             }
-            int pos2 = pos1 + noun.Length;
-            return new Tuple<string, string, string>(str.Substring(0, pos1), noun, str.Substring(pos2));
+            int pos2 = pos1 + wrd.Length;
+            return new Tuple<string, string, string>(str.Substring(0, pos1), wrd, str.Substring(pos2));
         }
+        //public static string DeclineAsAdjective(string[] wrd, LingvoNET.Case @case)
+        //{
+        //    foreach (var item in collection)
+        //    {
+
+        //    }
+        //}
         public static string DeclineBeforeNoun(this string str, LingvoNET.Case @case)
         {
             if (str == null) return null;
             LingvoNET.Noun n = null;
-            var words = Regex.Split(str, @"[,.:; ]", RegexOptions.IgnoreCase);
+            //var words = Regex.Split(str, @"[,.:; ]", RegexOptions.IgnoreCase);
+            var words = str.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+            var pos = 0;
             foreach (var item in words)
             {
                 n = Nouns.FindOne(item);
                 if (n != null) break;
+                pos++;
             }
             if (n != null)
             {
-                var parts = str.DevideByWord(n.Word);
-                return parts.Item1.Decline(@case) + n[@case] + parts.Item3;
+                for (; pos > 0; pos--)
+                {
+                    try
+                    {
+                        switch (@case)
+                        {
+                            case LingvoNET.Case.Nominative:
+                                break;
+                            case LingvoNET.Case.Genitive:
+                                words[pos-1] = Adjective.AdjectiveToGenetive(words[pos-1]);
+                                break;
+                            case LingvoNET.Case.Dative:
+                                words[pos -1] = Adjective.AdjectiveToDative(words[pos-1]);
+                                break;
+                            case LingvoNET.Case.Accusative:
+                            case LingvoNET.Case.Instrumental:
+                            case LingvoNET.Case.Locative:
+                            case LingvoNET.Case.Short:
+                            case LingvoNET.Case.Undefined:
+                                throw new NotImplementedException("Запрашиваемый падеж для склонения не реализован");
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        continue;
+                    }
+                }
+                return String.Join(" ", words);
             }
             else throw new NotSupportedException("Не удалось выявить существительное в предложении");
         }
