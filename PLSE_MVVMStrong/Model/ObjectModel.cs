@@ -2874,7 +2874,7 @@ namespace PLSE_MVVMStrong.Model
         /// </summary>
         /// <param name="case">Требуемое склонение</param>
         /// <returns>Список возможных вариантов склонения</returns>
-        /// <exception cref="NotImplementedException">Пол не мужской или женский или склонение в запрашиваемом падеже не реализовано.</exception>
+        /// <exception cref="NotImplementedException">Пол не известен или склонение в запрашиваемом падеже не реализовано.</exception>
         /// <exception cref="NotSupportedException">Склонение не поддерживается.</exeption>
         protected List<string> SurnameDeclinate(LingvoNET.Case @case)
         {
@@ -3256,10 +3256,75 @@ namespace PLSE_MVVMStrong.Model
         {
             return ToString(null, null);
         }
+        /// <summary>
+        /// Возвращает ФИО в заданном параметре <paramref name="format"/> падеже.
+        /// <list type="bullet">
+        /// <item>
+        ///     <term>N</term>
+        ///     <description>Полный в именительном падеже</description>
+        /// </item>
+        /// <item>
+        ///     <term>n</term>
+        ///     <description>Короткий в именительном падеже</description>
+        /// </item>
+        /// <item>
+        ///     <term>G</term>
+        ///     <description>Полный в родительном падеже</description>
+        /// </item>
+        /// <item>
+        ///     <term>g</term>
+        ///     <description>Короткий в родительном падеже</description>
+        /// </item>
+        /// <item>
+        ///     <term>D</term>
+        ///     <description>Полный в дательном падеже</description>
+        /// </item>
+        /// <item>
+        ///     <term>d</term>
+        ///     <description>Короткий в дательном падеже</description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="format">Строка формата падежа.</param>
+        /// <exception cref="FormatException">Неизвестный формат</exception>
         public string ToString(string format)
         {
             return ToString(format, new CultureInfo("ru-RU"));
         }
+        /// <summary>
+        /// Возвращает ФИО в заданном параметре <paramref name="format"/> падеже.
+        /// </summary>
+        /// <param name="format">Строка формата падежа.
+        /// <list type="bullet">
+        /// <item>
+        ///     <term>N</term>
+        ///     <description>Полный в именительном падеже</description>
+        /// </item>
+        /// <item>
+        ///     <term>n</term>
+        ///     <description>Короткий в именительном падеже</description>
+        /// </item>
+        /// <item>
+        ///     <term>G</term>
+        ///     <description>Полный в родительном падеже</description>
+        /// </item>
+        /// <item>
+        ///     <term>g</term>
+        ///     <description>Короткий в родительном падеже</description>
+        /// </item>
+        /// <item>
+        ///     <term>D</term>
+        ///     <description>Полный в дательном падеже</description>
+        /// </item>
+        /// <item>
+        ///     <term>d</term>
+        ///     <description>Короткий в дательном падеже</description>
+        /// </item>
+        /// </list>
+        /// </param>
+        /// <param name="formatProvider"></param>
+        /// <returns></returns>
+        /// <exception cref="FormatException">Неизвестный формат</exception>
         public string ToString(string format, IFormatProvider formatProvider)
         {
             if (String.IsNullOrEmpty(format)) format = "n";
@@ -3269,31 +3334,45 @@ namespace PLSE_MVVMStrong.Model
             {
                 case "n":
                     sb.Append(Sname); sb.Append(" "); sb.Append(Fname[0]);
-                    sb.Append(".");sb.Append(Mname[0]);sb.Append(".");
+                    sb.Append("."); sb.Append(Mname[0]); sb.Append(".");
                     return sb.ToString();
                 case "N":
                     sb.Append(Sname); sb.Append(" "); sb.Append(Fname);
                     sb.Append(" "); sb.Append(Mname);
                     return sb.ToString();
                 case "G"://genetive case, full
-                    sb.Append(SurnameDeclinate(LingvoNET.Case.Genitive)); sb.Append(" "); sb.Append(NameDeclinate(LingvoNET.Case.Genitive));
+                    sb.Append(DeclineListToString(SurnameDeclinate(LingvoNET.Case.Genitive))); 
+                    sb.Append(" "); sb.Append(NameDeclinate(LingvoNET.Case.Genitive));
                     sb.Append(" "); sb.Append(MiddleNameDeclinate(LingvoNET.Case.Genitive));
                     return sb.ToString();
                 case "g"://genetive case, short
-                    sb.Append(SurnameDeclinate(LingvoNET.Case.Genitive)); sb.Append(" "); sb.Append(Fname[0]);
+                    sb.Append(DeclineListToString(SurnameDeclinate(LingvoNET.Case.Genitive)));
+                    sb.Append(" "); sb.Append(Fname[0]);
                     sb.Append("."); sb.Append(Mname[0]); sb.Append(".");
                     return sb.ToString();
                 case "D":// dative case
-                    sb.Append(SurnameDeclinate(LingvoNET.Case.Dative)); sb.Append(" "); sb.Append(NameDeclinate(LingvoNET.Case.Dative));
+                    sb.Append(DeclineListToString(SurnameDeclinate(LingvoNET.Case.Dative)));
+                    sb.Append(" "); sb.Append(NameDeclinate(LingvoNET.Case.Dative));
                     sb.Append(" "); sb.Append(MiddleNameDeclinate(LingvoNET.Case.Dative));
                     return sb.ToString();
                 case "d":
-                    sb.Append(SurnameDeclinate(LingvoNET.Case.Dative)); sb.Append(" "); sb.Append(Fname[0]);
+                    sb.Append(DeclineListToString(SurnameDeclinate(LingvoNET.Case.Dative)));
+                    sb.Append(" "); sb.Append(Fname[0]);
                     sb.Append("."); sb.Append(Mname[0]); sb.Append(".");
                     return sb.ToString();
                 default:
                     throw new FormatException("Неизвестный формат");
             }
+        }
+        private string DeclineListToString(List<string> lst)
+        {
+            string res = null;
+            res += lst[0];
+            if (lst.Count > 1)
+            {
+                res += "(" + lst[1] + ")";
+            }
+            return res;
         }
         public Person Clone()
         {
@@ -4975,7 +5054,6 @@ namespace PLSE_MVVMStrong.Model
                     ResolutionStatus = "рассмотрение";
                     break;
             }
-            
         }
 
         public override string ToString()
@@ -6655,7 +6733,7 @@ namespace PLSE_MVVMStrong.Model
             bmarks["annotate"].Range.Text = Resolution.Case.AnnotateBuilder();
             StringBuilder sb = new StringBuilder(400);
             Employee e = group.First().Expert.Employee;
-            sb.Append(StringUtil.Decline(e.Inneroffice, LingvoNET.Case.Dative));
+            sb.Append(Declination.DeclineBeforeNoun(e.Inneroffice, LingvoNET.Case.Dative));
             sb.Append(", ");
             sb.Append(e.ToString("D"));
             if (e.Gender == "женский")
@@ -6754,22 +6832,30 @@ namespace PLSE_MVVMStrong.Model
             bmarks["plurality"].Range.Text =  bmarks["plurality3"].Range.Text = pr;
             bmarks["plurality2"].Range.Text = bmarks["plurality4"].Range.Text = pr.ToUpperFirstLetter();
             StringBuilder sb = new StringBuilder(300);
-            sb.Append(StringUtil.Decline(Resolution.Customer.Office, LingvoNET.Case.Dative).ToUpperFirstLetter());
+            sb.Append(Declination.DeclineBeforeNoun(Resolution.Customer.Office, LingvoNET.Case.Dative).ToUpperFirstLetter());
             sb.Append(" ");
             sb.Append(Resolution.Customer?.Organization.Name.DeclineBeforeNoun(LingvoNET.Case.Genitive));
             sb.AppendLine();
             if (Resolution.Customer.Rank != null)
             {
-                sb.Append(StringUtil.Decline(Resolution.Customer.Rank, LingvoNET.Case.Dative));
+                sb.Append(Declination.DeclineBeforeNoun(Resolution.Customer.Rank, LingvoNET.Case.Dative));
                 sb.AppendLine();
             }
             sb.Append(Resolution.Customer.ToString("d"));
             bmarks["recipient"].Range.Text = bmarks["recipient2"].Range.Text = sb.ToString();
             string spec = String.Empty; 
-            var sp = group.Select(n => n.Expert.Speciality).Distinct(new SpecialityComperer());
+            var sp = group.Select(n => n.Expert.Speciality).Distinct(new SpecialityCompererBySpecies());
             foreach (var item in sp)
             {
-                spec += Declination.DeclineSpeciality(item, LingvoNET.Case.Genitive);
+                string dec = null;
+                try
+                {
+                    dec += Declination.DeclineSpeciality(item, LingvoNET.Case.Genitive);
+                }
+                catch (InvalidOperationException)
+                {
+                }
+                spec += dec;
             }
             bmarks["species"].Range.Text = bmarks["species2"].Range.Text = spec.Length > 0 ? spec : "экспертизы";
             string to = Path.Combine(DestinationFolder(), $"уведомление следователю от {group.Key:d}.docx");
@@ -6833,7 +6919,7 @@ namespace PLSE_MVVMStrong.Model
             System.Windows.MessageBox.Show("Documents created");
         }
     }
-    public class SpecialityComperer : IEqualityComparer<Speciality>
+    public class SpecialityCompererBySpecies : IEqualityComparer<Speciality>
     {
         public bool Equals(Speciality x, Speciality y)
         {

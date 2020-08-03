@@ -203,10 +203,7 @@ namespace PLSE_MVVMStrong.ViewModel
             //    Messages.Add(new Message(text, MsgType.Warning));
             //}
             
-            foreach (var item in Noun._exeptions.Where(n => n.Text.LastRight(2) == "жь" || n.Text.LastRight(2) == "шь" || n.Text.LastRight(2) == "щь" || n.Text.LastRight(2) == "чь"))
-            {
-                Messages.Add(new Message(item.ToString()));
-            }
+           
         }
 
         private void App_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -258,8 +255,8 @@ namespace PLSE_MVVMStrong.ViewModel
             {
                 foreach (var item in CommonInfo.Specialities)
                 {
-                    
-                Thread.Sleep(500);
+                    progress.Report(new Message(item.DeclineSpeciality(LingvoNET.Case.Genitive), MsgType.Warning));  
+                    Thread.Sleep(500);
                 }
                 
             });

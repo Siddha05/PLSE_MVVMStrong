@@ -201,20 +201,26 @@ namespace PLSE_MVVMStrong.Model
     }
     public static class Declination
     {
+        /// <summary>
+        /// Склоняет вид специальности в заданном аргументом <paramref name="case"/> падеже.
+        /// </summary>
+        /// <param name="case">Требуемый падеж</param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">Вид экспертизы null или не содержит слово "экспертиза"</exception>
         public static string DeclineSpeciality(this Speciality sp, LingvoNET.Case @case)
         {
             int pos1 = sp.Species?.IndexOf("экспертиза") ?? -1;
             if (pos1 < 0)
             {
-                return null;
+                throw new InvalidOperationException("Невозможно склонить вид экспертизы.");
             }
             string part1, part3;
             part1 = sp.Species.Substring(0, pos1);
             part3 = sp.Species.Substring(pos1 + 10);
             var noun = Nouns.FindOne("экспертиза");
-            return DeclineAsAdjecive(part1, @case) + noun[@case] + part3;
+            return DeclineAsAdjecive(part1, @case) + " " + noun[@case] + part3;
         }
-        public static Tuple<string, string, string> DevideByWord(this string str, string wrd)
+        private static Tuple<string, string, string> DevideByWord(this string str, string wrd)
         {
             int pos1 = str?.IndexOf(wrd) ?? -1;
             if (pos1 < 0)
@@ -224,30 +230,53 @@ namespace PLSE_MVVMStrong.Model
             int pos2 = pos1 + wrd.Length;
             return new Tuple<string, string, string>(str.Substring(0, pos1), wrd, str.Substring(pos2));
         }
-        public static Tuple<LingvoNET.Noun, int> PreferNoun(string[] wrd)
+        private static Tuple<string, int> PreferNoun(string[] wrd, LingvoNET.Case @case)
         {
-            List<Tuple<LingvoNET.Noun, int>> nlist = new List<Tuple<LingvoNET.Noun, int>>();
-            List<Tuple<LingvoNET.Noun, int>> adnlist = new List<Tuple<LingvoNET.Noun, int>>();
+            List<Tuple<string, int>> nlist = new List<Tuple<string, int>>();
+            List<Tuple<string, int>> adnlist = new List<Tuple<string, int>>();
             LingvoNET.Noun n = null;
             LingvoNET.Adjective ad = null;
             int pos = 0;
             foreach (var item in wrd)
             {
-                n = Nouns.FindOne(item);
-                ad = Adjectives.FindOne(item);
-                if (n != null)
+                if (item == "майор")
                 {
-                    if (ad == null) nlist.Add(new Tuple<LingvoNET.Noun, int>(n, pos));
-                    else adnlist.Add(new Tuple<LingvoNET.Noun, int>(n, pos));
+                    switch (@case)
+                    {
+                        case LingvoNET.Case.Nominative:
+                            break;
+                        case LingvoNET.Case.Genitive:
+                            nlist.Add(new Tuple<string, int>(Noun.Determine(item).ToGenetive().Item1, pos));
+                            break;
+                        case LingvoNET.Case.Dative:
+                            nlist.Add(new Tuple<string, int>(Noun.Determine(item).ToDative().Item1, pos));
+                            break;
+                        case LingvoNET.Case.Accusative:
+                        case LingvoNET.Case.Instrumental:
+                        case LingvoNET.Case.Locative:
+                        case LingvoNET.Case.Short:
+                        case LingvoNET.Case.Undefined:
+                            throw new NotImplementedException("Запрашиваемый падеж не реализован");
+                    }
+                }
+                else
+                {
+                    n = Nouns.FindOne(item);
+                    ad = Adjectives.FindOne(item);
+                    if (n != null)
+                    {
+                        if (ad == null) nlist.Add(new Tuple<string, int>(n[@case], pos));
+                        else adnlist.Add(new Tuple<string, int>(n[@case], pos));
+                    }
                 }
                 pos++;
             }
-            if (nlist.Count > 2) throw new Exception("Строка содержит более одного существительного");
+            if (nlist.Count > 2) throw new InvalidOperationException("Строка содержит более одного существительного");
             if (nlist.Count == 1) return nlist[0];
             else
             {
                 if (adnlist.Count > 0) return adnlist.Last();
-                else throw new Exception("Строка не содержит существительного");
+                else throw new InvalidOperationException("Строка не содержит существительного");
             }
         }
         public static string DeclineAsAdjecive(string str, LingvoNET.Case @case)
@@ -283,13 +312,18 @@ namespace PLSE_MVVMStrong.Model
             }
             return String.Join(" ", words);
         }
-        public static string DeclineBeforeNoun(string str, LingvoNET.Case @case)
+        /// <summary>
+        /// Склоняет фразу в заданнон <paramref name="case"/> падеже на основании существительного.
+        /// </summary>
+        /// <param name="case">Требуемый падеж.</param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">В строке не одно существительное.</exception>
+        public static string DeclineBeforeNoun(this string str, LingvoNET.Case @case)
         {
             if (str == null) return null;
-            //var words = Regex.Split(str, @"[,.:; ]", RegexOptions.IgnoreCase);
             var words = str.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
-            var N = PreferNoun(words);
-            words[N.Item2] = N.Item1[@case];
+            var N = PreferNoun(words, @case);
+            words[N.Item2] = N.Item1;
             for (int i = 0; i < N.Item2; i++)
             {
                 try
