@@ -212,7 +212,7 @@ namespace PLSE_MVVMStrong.Model
             part1 = sp.Species.Substring(0, pos1);
             part3 = sp.Species.Substring(pos1 + 10);
             var noun = Nouns.FindOne("экспертиза");
-            return part1.Decline(@case) + noun[@case] + part3;
+            return DeclineAsAdjecive(part1, @case) + noun[@case] + part3;
         }
         public static Tuple<string, string, string> DevideByWord(this string str, string wrd)
         {
@@ -250,7 +250,39 @@ namespace PLSE_MVVMStrong.Model
                 else throw new Exception("Строка не содержит существительного");
             }
         }
-        public static string m+++++++++
+        public static string DeclineAsAdjecive(string str, LingvoNET.Case @case)
+        {
+            if (str == null) return null;
+            var words = str.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < words.Length; i++)
+            {
+                try
+                {
+                    switch (@case)
+                    {
+                        case LingvoNET.Case.Nominative:
+                            break;
+                        case LingvoNET.Case.Genitive:
+                            words[i] = Adjective.AdjectiveToGenetive(words[i]);
+                            break;
+                        case LingvoNET.Case.Dative:
+                            words[i] = Adjective.AdjectiveToDative(words[i]);
+                            break;
+                        case LingvoNET.Case.Accusative:
+                        case LingvoNET.Case.Instrumental:
+                        case LingvoNET.Case.Locative:
+                        case LingvoNET.Case.Short:
+                        case LingvoNET.Case.Undefined:
+                            throw new NotImplementedException("Запрашиваемый падеж для склонения не реализован");
+                    }
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
+            }
+            return String.Join(" ", words);
+        }
         public static string DeclineBeforeNoun(string str, LingvoNET.Case @case)
         {
             if (str == null) return null;
