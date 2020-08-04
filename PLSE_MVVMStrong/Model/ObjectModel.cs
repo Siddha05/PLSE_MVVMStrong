@@ -6690,13 +6690,28 @@ namespace PLSE_MVVMStrong.Model
     {
 #region Fields
         private readonly string _inicailpath;
+        /// <summary>
+        /// Подписка эксперта
+        /// </summary>
         private readonly string _subscribetemp;
+        /// <summary>
+        /// Уведомление следователю
+        /// </summary>
         private readonly string _notifytemp;
-        private readonly string _accompantemp;
+        /// <summary>
+        /// Ходатайство
+        /// </summary>
+        private readonly string _petitiontemp;
+        /// <summary>
+        /// Заключение эксперта
+        /// </summary>
         private readonly string _conclusiontemp;
         private readonly string _acttemp;
         private readonly string _calculationtemp;
         private readonly string _claimtemp;
+        /// <summary>
+        /// Рапорт
+        /// </summary>
         private readonly string _reporttemp;
 #endregion
 #region Properties
@@ -6709,6 +6724,7 @@ namespace PLSE_MVVMStrong.Model
             _inicailpath = @"\\ASASSIN-ПК\SIRSERVER\DocFiles\DOCS";
             _subscribetemp = @"c:\Users\Asassin\Documents\Настраиваемые шаблоны Office\подписка эксперта.dotx";
             _notifytemp = @"c:\Users\Asassin\Documents\Настраиваемые шаблоны Office\Уведомление следователю.dotx";
+            _petitiontemp = @"c:\Users\Asassin\Documents\Настраиваемые шаблоны Office\Ходатайство.dotx";
         }
         private string DestinationFolder()
         {
@@ -6870,6 +6886,39 @@ namespace PLSE_MVVMStrong.Model
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                doc.Close();
+            }
+        }
+        public void CreatePetition(DateTime petitiondate)
+        {
+            Microsoft.Office.Interop.Word.Application word = new Microsoft.Office.Interop.Word.Application();
+            Document doc;
+            try
+            {
+                doc = word.Documents.Add(this._petitiontemp);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            doc.Activate();
+            var bmarks = doc.Bookmarks;
+
+            string to = Path.Combine(DestinationFolder(), $"Ходатайство от {petitiondate:d}.docx");
+            if (File.Exists(to))
+            {
+                File.Delete(to);
+            }
+            try
+            {
+                doc.SaveAs2(to);
+            }
+            catch (Exception)
+            {
+                throw;
             }
             finally
             {
