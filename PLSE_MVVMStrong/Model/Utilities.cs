@@ -313,7 +313,7 @@ namespace PLSE_MVVMStrong.Model
             return String.Join(" ", words);
         }
         /// <summary>
-        /// Склоняет фразу в заданнон <paramref name="case"/> падеже на основании существительного.
+        /// Склоняет фразу в заданнон <paramref name="case"/> падеже до первого существительного.
         /// </summary>
         /// <param name="case">Требуемый падеж.</param>
         /// <returns></returns>

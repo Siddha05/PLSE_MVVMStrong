@@ -205,23 +205,21 @@ namespace PLSE_MVVMStrong.ViewModel
             });
             Save = new RelayCommand(n =>
             {
-                var pr = new DocsCreater(Resolution);
-                pr.Crtr();
-                //try
-                //{
-                //    Resolution.SaveChanges(CommonInfo.connection);
-                //    var pr = new DocsCreater(Resolution);
-                //    pr.StartDoc();
-                //    if (MessageBox.Show("Сохранение успешно. Продолжить?", "Сохранение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
-                //    {
-                //        Resolution = InicialState();
-                //    }
-                //    else (n as Window).Close();
-                //}
-                //catch (Exception ex)
-                //{
-                //    MessageBox.Show(ex.Message);
-                //}
+                try
+                {
+                    Resolution.SaveChanges(CommonInfo.connection);
+                    var pr = new DocsCreater(Resolution);
+                    var t = pr.OnExpertiseCreateAsync();
+                    if (MessageBox.Show("Сохранение успешно. Продолжить?", "Сохранение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    {
+                        Resolution = InicialState();
+                    }
+                    else (n as Window).Close();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
             },
              o=>
              {

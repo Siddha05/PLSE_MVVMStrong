@@ -15,6 +15,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Documents;
@@ -1692,51 +1693,7 @@ namespace PLSE_MVVMStrong.Model
             _execute(parameter);
         }
     }
-    public class BaseViewModel<T> : INotifyPropertyChanged
-                                where T : NotifyBase
-    {
-        public T CurrentItem { get; set; }
-        private RelayCommand _additem;
-        private RelayCommand _deleteitem;
-        private RelayCommand _save;
-
-        #region Commands
-
-        public RelayCommand AddItem => _additem ?? (_additem = new RelayCommand(o => ItemsList.Add((T)o)));
-
-        //public RelayCommand DeleteItem => _deleteitem ?? (_deleteitem = new RelayCommand(
-        //            o => { T item = (T)o; item.DeleteFromDB(CommonInfo.connection); ItemsList.Remove(item); },
-        //            o => CurrentItem == null
-        //            ));
-
-        #endregion Commands
-
-        public ObservableCollection<T> ItemsList { get; } = new ObservableCollection<T>();
-
-        public Dictionary<string, IReadOnlyList<string>> ConstantData { get; } = new Dictionary<string, IReadOnlyList<string>>();
-
-        public BaseViewModel(T item)
-        {
-            CurrentItem = item;
-        }
-
-        public BaseViewModel(IEnumerable<T> items)
-        {
-            if (items is ObservableCollection<T>) ItemsList = (ObservableCollection<T>)items;
-            else
-                foreach (var item in items)
-                {
-                    ItemsList.Add(item);
-                }
-        }
-
-        public void AddConstData(string name, IReadOnlyList<string> data)
-        {
-            ConstantData.Add(name, data);
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-    }
+    
     public enum MsgType
     {
         Normal = 0x0001,
@@ -1790,7 +1747,6 @@ namespace PLSE_MVVMStrong.Model
         private DispatcherTimer timer;
 
         public int TickInterval { get; set; } = 1;
-
         private void OnTimerTick(object sender, EventArgs e)
         {
             var fil = this.Where(x => DateTime.Now - x.InicialTime > x.LifeTime).ToArray();
@@ -1799,7 +1755,6 @@ namespace PLSE_MVVMStrong.Model
                 if (item.Type == MsgType.Temporary) Remove(item);
             }
         }
-
         public MessageQuery()
         {
             timer = new DispatcherTimer(DispatcherPriority.Normal)
@@ -6686,7 +6641,7 @@ namespace PLSE_MVVMStrong.Model
             }
         }
     }
-    public class DocsCreater
+    public sealed class DocsCreater
     {
 #region Fields
         private readonly string _inicailpath;
@@ -6718,10 +6673,10 @@ namespace PLSE_MVVMStrong.Model
         public string InitialSavePath => _inicailpath;
         public Resolution Resolution { get; }
 #endregion
-        public DocsCreater(Resolution resolution)
+        public DocsCreater(Resolution resolution, string initpath = @"\\ASASSIN-ПК\SIRSERVER\DocFiles\DOCS")
         {
             Resolution = resolution;
-            _inicailpath = @"\\ASASSIN-ПК\SIRSERVER\DocFiles\DOCS";
+            _inicailpath = initpath;
             _subscribetemp = @"c:\Users\Asassin\Documents\Настраиваемые шаблоны Office\подписка эксперта.dotx";
             _notifytemp = @"c:\Users\Asassin\Documents\Настраиваемые шаблоны Office\Уведомление следователю.dotx";
             _petitiontemp = @"c:\Users\Asassin\Documents\Настраиваемые шаблоны Office\Ходатайство.dotx";
@@ -6732,7 +6687,38 @@ namespace PLSE_MVVMStrong.Model
             Directory.CreateDirectory(path);
             return path;
         }
-        public void CreateSubscribe(Microsoft.Office.Interop.Word.Application word, IGrouping<int,Expertise> group)
+        public void CreateSubcribe(Microsoft.Office.Interop.Word.Application wordapp = null)
+        {
+            bool toclose = false;
+            Microsoft.Office.Interop.Word.Application word = wordapp;
+            if (word == null)
+            {
+                toclose = true;
+                word = new Microsoft.Office.Interop.Word.Application();
+            }
+            foreach (var item in Resolution.Expertisies.GroupBy(n => n.Expert.Employee.EmployeeID))
+            {
+                CreateSubscribeByEmployee(word, item);
+            }
+            if (toclose) word.Quit();
+        }
+        public void CreateNotify(Microsoft.Office.Interop.Word.Application wordapp = null)
+        {
+            if (Resolution.Case.TypeCase == "уголовное") return;
+            bool toclose = false;
+            Microsoft.Office.Interop.Word.Application word = wordapp;
+            if (word == null)
+            {
+                toclose = true;
+                word = new Microsoft.Office.Interop.Word.Application();
+            }
+            foreach (var item in Resolution.Expertisies.GroupBy(n => n.StartDate))
+            {
+                CreateNotifyByStartDate(word, item);
+            }
+            if (toclose) word.Quit();
+        }
+        private void CreateSubscribeByEmployee(Microsoft.Office.Interop.Word.Application word, IGrouping<int,Expertise> group)
         {
             Document doc = null;
             try
@@ -6743,7 +6729,7 @@ namespace PLSE_MVVMStrong.Model
             {
                 throw;
             }
-            doc.Activate(); //needed?
+            doc.Activate();
             var bmarks = doc.Bookmarks;
             bmarks["number"].Range.Text = group.Select(n => n.FullNumber).Aggregate((c, n) => c + ", " + n);
             bmarks["annotate"].Range.Text = Resolution.Case.AnnotateBuilder();
@@ -6752,15 +6738,18 @@ namespace PLSE_MVVMStrong.Model
             sb.Append(Declination.DeclineBeforeNoun(e.Inneroffice, LingvoNET.Case.Dative));
             sb.Append(", ");
             sb.Append(e.ToString("D"));
-            if (e.Gender == "женский")
+            switch (e.Gender)
             {
-                sb.Append(", имеющей ");
-                bmarks["gender"].Range.Text = "предупреждена";
-            }                
-            else
-            {
-                sb.Append(", имеющему ");
-                bmarks["gender"].Range.Text = "предупрежден";
+                case "женский":
+                    sb.Append(", имеющей ");
+                    bmarks["gender"].Range.Text = "предупреждена";
+                    break;
+                case "мужской":
+                    sb.Append(", имеющему ");
+                    bmarks["gender"].Range.Text = "предупрежден";
+                    break;
+                default:
+                    throw new NotSupportedException("Неопределенный пол сотрудника");
             }
             sb.Append(e.Education1);
             if(e.Education2 != null)
@@ -6798,16 +6787,12 @@ namespace PLSE_MVVMStrong.Model
             {
                 doc.SaveAs2(to);
             }
-            catch (Exception)
-            {
-                throw;
-            }
             finally
             {
                 doc.Close();
             }
         }
-        public void CreateNotify(Microsoft.Office.Interop.Word.Application word, IGrouping<DateTime, Expertise> group)
+        private void CreateNotifyByStartDate(Microsoft.Office.Interop.Word.Application word, IGrouping<DateTime, Expertise> group)
         {
             Document doc = null;
             try
@@ -6925,47 +6910,33 @@ namespace PLSE_MVVMStrong.Model
                 doc.Close();
             }
         }
-        private void StartDoc()
+        private void StartDocCreator()
         {
             Microsoft.Office.Interop.Word.Application word = null;
             try
             {
                 word = new Microsoft.Office.Interop.Word.Application();
-                foreach (var item in Resolution.Expertisies.GroupBy(n => n.Expert.Employee.EmployeeID))
-                {
-                    CreateSubscribe(word, item);
-                }
-                if (Resolution.Case.TypeCase == "уголовное")
-                {
-                    foreach (var item in Resolution.Expertisies.GroupBy(n => n.StartDate))
-                    {
-                        CreateNotify(word, item);
-                    }
-                }  
-            }
-            catch (Exception)
-            {
-                throw;
+                CreateSubcribe(word);
+                CreateNotify(word); 
             }
             finally
             {
                 word.Quit();
             }
         }
-        public async System.Threading.Tasks.Task Crtr()
+        public async System.Threading.Tasks.Task OnExpertiseCreateAsync()
         {
-            System.Threading.Tasks.Task t = System.Threading.Tasks.Task.Run(() => StartDoc());
+            System.Threading.Tasks.Task t = System.Threading.Tasks.Task.Run(() => StartDocCreator());
             try
             {
                 await t;
             }
             catch (Exception)
             {
-
                 System.Windows.MessageBox.Show("Error occur during creating word documents");
             }
-
             System.Windows.MessageBox.Show("Documents created");
+            
         }
     }
     public class SpecialityCompererBySpecies : IEqualityComparer<Speciality>
