@@ -99,6 +99,7 @@
     <Compile Include="ViewModel\LoginVM.cs" />
     <Compile Include="ViewModel\MainVM.cs" />
     <Compile Include="ViewModel\OrganizationAddVM.cs" />
+    <Compile Include="ViewModel\ResolutionAddInfoVM.cs" />
     <Compile Include="ViewModel\ResolutionAddVM.cs" />
     <Compile Include="ViewModel\SpecialityAddVM.cs" />
     <Compile Include="ViewModel\SpecialityVM.cs" />
@@ -134,6 +135,9 @@
     </Compile>
     <Compile Include="View\ResolutionAdd.xaml.cs">
       <DependentUpon>ResolutionAdd.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\ResolutionAddInfo.xaml.cs">
+      <DependentUpon>ResolutionAddInfo.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\Specialities.xaml.cs">
       <DependentUpon>Specialities.xaml</DependentUpon>
@@ -194,6 +198,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\ResolutionAdd.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\ResolutionAddInfo.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

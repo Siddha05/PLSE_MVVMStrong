@@ -1,0 +1,42 @@
+﻿<Window x:Class="PLSE_MVVMStrong.View.ResolutionAddInfo"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PLSE_MVVMStrong.View"
+        xmlns:viewmodel="clr-namespace:PLSE_MVVMStrong.ViewModel" xmlns:plse_mvvmstrong="clr-namespace:PLSE_MVVMStrong"
+        mc:Ignorable="d"
+        Title="ResolutionAddInfo" Height="370" Width="600" WindowStartupLocation="CenterScreen" WindowStyle="None" Name="wnd"
+         ContentRendered="wnd_ContentRendered">
+    <Window.Resources>
+        <plse_mvvmstrong:TaskStatusToColorConverter x:Key="TaskStatusConv"/>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <ListBox BorderThickness="0" Margin="10,10" ItemsSource="{Binding Path=Tasks}">
+            <ListBox.ItemTemplate>
+                <DataTemplate DataType="RuningTask">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="{Binding Path=RuningAction, Mode=OneWay}" Foreground="{Binding Path=Status, Converter={StaticResource TaskStatusConv}, Mode=OneWay}"
+                               FontSize="{StaticResource UIFontSize}" HorizontalAlignment="Left" TextWrapping="Wrap" FontWeight="Bold"/>
+                        <TextBlock Grid.Row="1" Margin="10,3,0,0" Text="{Binding Path=SubTasksList}" Foreground="{Binding Path=Status, Converter={StaticResource TaskStatusConv}, Mode=OneWay}"
+                               FontSize="{StaticResource UIFontSize}" HorizontalAlignment="Left" TextWrapping="Wrap" FontWeight="Normal"/>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center">
+            <Button Style="{StaticResource BaseUIButton}" Content="ВЫХОД" Margin="0,0,7,15" Command="{Binding Path=Exit}" 
+                    CommandParameter="{Binding ElementName=wnd}" Foreground="Red"/>
+            <Button Style="{StaticResource BaseUIButton}" Content="ПРОДОЛЖИТЬ" Margin="7,0,0,15" Command="{Binding Path=Continue}"
+                    CommandParameter="{Binding ElementName=wnd}" Foreground="GreenYellow"/>
+        </StackPanel>
+    </Grid>
+</Window>

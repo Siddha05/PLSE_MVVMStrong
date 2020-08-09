@@ -142,4 +142,53 @@ namespace PLSE_MVVMStrong
             throw new NotImplementedException();
         }
     }
+    /// <summary>
+    /// Конвертер перевода перечисления RuningTaskStatus в свойство Color
+    /// <list type="bullet">
+    ///     <item>
+    ///         <term>None</term>
+    ///         <description>Transparent</description>
+    ///     </item>
+    ///     <item>
+    ///         <term>Completed</term>
+    ///         <description>Green</description>
+    ///     </item>
+    ///     <item>
+    ///         <term>Running</term>
+    ///         <description>Grey</description>
+    ///     </item>
+    ///     <item>
+    ///         <term>Error</term>
+    ///         <description>Red</description>
+    ///     </item>
+    /// </list>
+    /// </summary>
+    public class TaskStatusToColorConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is RuningTaskStatus)
+            {
+                var status = (RuningTaskStatus)value;
+                switch (status)
+                {
+                    case RuningTaskStatus.None:
+                        return "Transparent";
+                    case RuningTaskStatus.Completed:
+                        return "GreenYellow";
+                    case RuningTaskStatus.Running:
+                        return "Gray";
+                    case RuningTaskStatus.Error:
+                        return "Red";
+                    default:
+                        return "Transparent";
+                }
+            }
+            else return "Transparent";
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

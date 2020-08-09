@@ -1765,6 +1765,69 @@ namespace PLSE_MVVMStrong.Model
             timer.Start();
         }
     }
+    public enum RuningTaskStatus
+    {
+        None,
+        Completed,
+        Running,
+        Error
+    }
+    public class RuningTask : INotifyPropertyChanged
+    {
+        private RuningTaskStatus _status;
+        private string _action;
+        private List<RuningTask> _subtasks = new List<RuningTask>();
+        public string RuningAction
+        { 
+            get => _action;
+            set
+            {
+                _action = value;
+                OnProprtyChanged();
+            }
+        }
+        public RuningTaskStatus Status
+        {
+            get => _status;
+            set 
+            { 
+                _status = value;
+                OnProprtyChanged();
+            }
+        }
+        public IReadOnlyList<RuningTask> SubTasks
+        {
+            get => _subtasks;
+        }
+        public string SubTasksList
+        {
+            get
+            {
+                string s = null;
+                foreach (var item in SubTasks)
+                {
+                    s += item._action + Environment.NewLine;
+                }
+                return s;
+            }
+        }
+        public RuningTask(string action, RuningTaskStatus status = RuningTaskStatus.Running)
+        {
+            RuningAction = action;
+            Status = status;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        void OnProprtyChanged([CallerMemberName] string prop = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
+        }
+        public void AddSubTask(RuningTask sub)
+        {
+            _subtasks.Add(sub);
+            OnProprtyChanged("SubTasksList");
+        }
+    }
     public class Passport
     {
         private string _firstName;
@@ -6687,9 +6750,14 @@ namespace PLSE_MVVMStrong.Model
             Directory.CreateDirectory(path);
             return path;
         }
-        public void CreateSubcribe(Microsoft.Office.Interop.Word.Application wordapp = null)
+        public void CreateSubcribe(Microsoft.Office.Interop.Word.Application wordapp = null, RuningTask task = null)
         {
             bool toclose = false;
+            if (task != null)
+            {
+                task.RuningAction = "Cоздание подписок для экспертов";
+                task.Status = RuningTaskStatus.Running;
+            }
             Microsoft.Office.Interop.Word.Application word = wordapp;
             if (word == null)
             {
@@ -6698,7 +6766,22 @@ namespace PLSE_MVVMStrong.Model
             }
             foreach (var item in Resolution.Expertisies.GroupBy(n => n.Expert.Employee.EmployeeID))
             {
-                CreateSubscribeByEmployee(word, item);
+                var t = new RuningTask($" Подписка эксперта {item.First().Expert.Employee:g}");
+                //task.SubTasks.Add(t);
+                try
+                {
+                    CreateSubscribeByEmployee(word, item);
+                    t.Status = RuningTaskStatus.Completed;
+                }
+                catch (Exception)
+                {
+                    t.Status = RuningTaskStatus.Error;
+                }
+            }
+            if (task != null)
+            {
+                task.RuningAction = "Cоздание подписок для экспертов";
+                task.Status = RuningTaskStatus.Completed;
             }
             if (toclose) word.Quit();
         }

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http.Headers;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
@@ -45,13 +46,13 @@ namespace PLSE_MVVMStrong.ViewModel
             DependencyProperty.Register("CustomerSearchText", typeof(string), typeof(ResolutionAddVM), new PropertyMetadata(String.Empty, CustomerSearchTextChanged));
 
         [Obsolete]
-        public string Info
-        {
-            get => (string)GetValue(InfoProperty);
-            set => SetValue(InfoProperty, value);
-        }
-        public static readonly DependencyProperty InfoProperty =
-            DependencyProperty.Register("Info", typeof(string), typeof(ResolutionAddVM), new PropertyMetadata(string.Empty));
+        //public string Info
+        //{
+        //    get => (string)GetValue(InfoProperty);
+        //    set => SetValue(InfoProperty, value);
+        //}
+        //public static readonly DependencyProperty InfoProperty =
+        //    DependencyProperty.Register("Info", typeof(string), typeof(ResolutionAddVM), new PropertyMetadata(string.Empty));
         public IEnumerable<string> CaseTypesList
         {
             get => (IEnumerable<string>)GetValue(CaseTypesListProperty);
@@ -205,21 +206,26 @@ namespace PLSE_MVVMStrong.ViewModel
             });
             Save = new RelayCommand(n =>
             {
-                try
-                {
-                    Resolution.SaveChanges(CommonInfo.connection);
-                    var pr = new DocsCreater(Resolution);
-                    var t = pr.OnExpertiseCreateAsync();
-                    if (MessageBox.Show("Сохранение успешно. Продолжить?", "Сохранение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
-                    {
-                        Resolution = InicialState();
-                    }
-                    else (n as Window).Close();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message);
-                }
+                var infownd = new ResolutionAddInfo(Resolution);
+                infownd.ShowDialog();
+                //try
+                //{
+                //    var bd = new RuningTask("Сохранение в базу данных");
+                //    Resolution.SaveChanges(CommonInfo.connection);
+                //    Thread.Sleep(500);
+                //    bd.Status = RuningTaskStatus.Completed;
+                //    //var pr = new DocsCreater(Resolution);
+                //    //var t = pr.OnExpertiseCreateAsync();
+                //    //if (MessageBox.Show("Сохранение успешно. Продолжить?", "Сохранение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                //    //{
+                //    //    Resolution = InicialState();
+                //    //}
+                //    //else (n as Window).Close();
+                //}
+                //catch (Exception ex)
+                //{
+                //    MessageBox.Show(ex.Message);
+                //}
             },
              o=>
              {

@@ -237,5 +237,6 @@
                 </ListBox.ItemContainerStyle>
             </ListBox>
         </StackPanel>
+        
     </Grid>
 </Window>
