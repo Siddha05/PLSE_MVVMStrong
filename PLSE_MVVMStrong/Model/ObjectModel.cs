@@ -1805,7 +1805,7 @@ namespace PLSE_MVVMStrong.Model
                 string s = null;
                 foreach (var item in SubTasks)
                 {
-                    s += item._action + Environment.NewLine;
+                    s += $"- {item._action}" + Environment.NewLine;
                 }
                 return s;
             }
@@ -6782,7 +6782,7 @@ namespace PLSE_MVVMStrong.Model
         }
         public async System.Threading.Tasks.Task CreateNotifyAsync(RuningTask task, Microsoft.Office.Interop.Word.Application wordapp = null)
         {
-            if (Resolution.Case.TypeCase == "уголовное") return;
+            if (Resolution.Case.TypeCase != "уголовное") return;
             task.RuningAction = "Создание уведомления";
             task.Status = RuningTaskStatus.Running;
             bool toclose = false;
@@ -6934,8 +6934,9 @@ namespace PLSE_MVVMStrong.Model
                 catch (InvalidOperationException)
                 {
                 }
-                spec += dec;
+                spec += ", " + dec;
             }
+            spec = spec.Remove(0, 1);
             bmarks["species"].Range.Text = bmarks["species2"].Range.Text = spec.Length > 0 ? spec : "экспертизы";
             string to = Path.Combine(DestinationFolder(), $"уведомление следователю от {group.Key:d}.docx");
             if (File.Exists(to))

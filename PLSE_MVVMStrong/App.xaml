@@ -17,7 +17,7 @@
         <SolidColorBrush x:Key="MouseOverControl" Color="#FFD6F8FD"/>
         <SolidColorBrush x:Key="ExitColor" Color="#FFDA7B1D"/>
         <SolidColorBrush x:Key="SaveEnterColor" Color="#FF89C330"/>
-
+        <SolidColorBrush x:Key="PositiveGreenColor" Color="#FF92D825"/>
         <BitmapImage x:Key="lens" UriSource="Resources\lens.jpg" SourceRect="210 10 480 480"/>
         
 

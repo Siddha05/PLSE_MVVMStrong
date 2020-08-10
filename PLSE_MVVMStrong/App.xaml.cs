@@ -175,7 +175,7 @@ namespace PLSE_MVVMStrong
                     case RuningTaskStatus.None:
                         return "Transparent";
                     case RuningTaskStatus.Completed:
-                        return "GreenYellow";
+                        return "#FF92D825";
                     case RuningTaskStatus.Running:
                         return "Gray";
                     case RuningTaskStatus.Error:

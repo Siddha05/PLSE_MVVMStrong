@@ -70,7 +70,7 @@ namespace PLSE_MVVMStrong.ViewModel
             Tasks.Add(bd);
             try
             {
-                Resolution.SaveChanges(CommonInfo.connection);
+                //Resolution.SaveChanges(CommonInfo.connection);
                 bd.Status = RuningTaskStatus.Completed;
             }
             catch (Exception)
