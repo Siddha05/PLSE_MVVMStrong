@@ -70,7 +70,7 @@ namespace PLSE_MVVMStrong.ViewModel
             Tasks.Add(bd);
             try
             {
-                //Resolution.SaveChanges(CommonInfo.connection);
+                Resolution.SaveChanges(CommonInfo.connection);
                 bd.Status = RuningTaskStatus.Completed;
             }
             catch (Exception)
@@ -78,13 +78,18 @@ namespace PLSE_MVVMStrong.ViewModel
                 bd.Status = RuningTaskStatus.Error;
                 goto End;
             }
+            Application word = new Application();
+            var not = new RuningTask("");
+            Tasks.Add(not);
+            var t = cr.CreateNotifyAsync(not, word);
+            await t;
             var pod = new RuningTask("");
             Tasks.Add(pod);
-            var t = Worker(pod);
-            var pod1 = new RuningTask("");
-            Tasks.Add(pod1);
-            var t1 = Worker1(pod1);
-            await System.Threading.Tasks.Task.WhenAll(new System.Threading.Tasks.Task[] { t, t1});
+            var t1 = cr.CreateSubscribeAsync(pod);
+            await t1;
+            word.Quit(SaveChanges: WdSaveOptions.wdDoNotSaveChanges);
+            if (t.IsFaulted) not.Status = RuningTaskStatus.Error;
+            if (t1.IsFaulted) pod.Status = RuningTaskStatus.Error;
         End:
             Completed = true;
         }

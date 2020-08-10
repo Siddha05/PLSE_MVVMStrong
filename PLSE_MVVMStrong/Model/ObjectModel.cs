@@ -647,8 +647,6 @@ namespace PLSE_MVVMStrong.Model
                     new Noun("вождь", true, WordGender.Male,  false),
                     new Noun("гармонь", true, WordGender.Male,  false),
                     new Noun("гвоздь", true, WordGender.Male,  false),
-                    new Noun("главарь", true, WordGender.Male,  false),
-                    new Noun("глухарь", true, WordGender.Male,  false),
                     new Noun("голубь", true, WordGender.Male,  false),
                     new Noun("госпиталь", true, WordGender.Male,  false),
                     new Noun("гость", true, WordGender.Male,  false),
@@ -1784,6 +1782,7 @@ namespace PLSE_MVVMStrong.Model
             {
                 _action = value;
                 OnProprtyChanged();
+                OnProprtyChanged("SubTasksList");
             }
         }
         public RuningTaskStatus Status
@@ -6750,44 +6749,42 @@ namespace PLSE_MVVMStrong.Model
             Directory.CreateDirectory(path);
             return path;
         }
-        public void CreateSubcribe(Microsoft.Office.Interop.Word.Application wordapp = null, RuningTask task = null)
+        public async System.Threading.Tasks.Task CreateSubscribeAsync(RuningTask task, Microsoft.Office.Interop.Word.Application wordapp = null)
         {
             bool toclose = false;
-            if (task != null)
-            {
-                task.RuningAction = "Cоздание подписок для экспертов";
-                task.Status = RuningTaskStatus.Running;
-            }
+            task.RuningAction = "Cоздание подписок для экспертов";
+            task.Status = RuningTaskStatus.Running;
             Microsoft.Office.Interop.Word.Application word = wordapp;
             if (word == null)
             {
                 toclose = true;
                 word = new Microsoft.Office.Interop.Word.Application();
             }
-            foreach (var item in Resolution.Expertisies.GroupBy(n => n.Expert.Employee.EmployeeID))
-            {
-                var t = new RuningTask($" Подписка эксперта {item.First().Expert.Employee:g}");
-                //task.SubTasks.Add(t);
-                try
-                {
-                    CreateSubscribeByEmployee(word, item);
-                    t.Status = RuningTaskStatus.Completed;
-                }
-                catch (Exception)
-                {
-                    t.Status = RuningTaskStatus.Error;
-                }
-            }
-            if (task != null)
-            {
-                task.RuningAction = "Cоздание подписок для экспертов";
-                task.Status = RuningTaskStatus.Completed;
-            }
+            await System.Threading.Tasks.Task.Run(() =>
+                                                        {
+                                                            foreach (var item in Resolution.Expertisies.GroupBy(n => n.Expert.Employee.EmployeeID))
+                                                            {
+                                                                var t = new RuningTask($"Подписка эксперта {item.First().Expert.Employee:g}");
+                                                                task.AddSubTask(t);
+                                                                try
+                                                                {
+                                                                    CreateSubscribeByEmployee(word, item);
+                                                                    t.Status = RuningTaskStatus.Completed;
+                                                                }
+                                                                catch (Exception)
+                                                                {
+                                                                    t.Status = RuningTaskStatus.Error;
+                                                                }
+                                                            }
+                                                        });
+            task.Status = RuningTaskStatus.Completed;
             if (toclose) word.Quit();
         }
-        public void CreateNotify(Microsoft.Office.Interop.Word.Application wordapp = null)
+        public async System.Threading.Tasks.Task CreateNotifyAsync(RuningTask task, Microsoft.Office.Interop.Word.Application wordapp = null)
         {
             if (Resolution.Case.TypeCase == "уголовное") return;
+            task.RuningAction = "Создание уведомления";
+            task.Status = RuningTaskStatus.Running;
             bool toclose = false;
             Microsoft.Office.Interop.Word.Application word = wordapp;
             if (word == null)
@@ -6795,23 +6792,29 @@ namespace PLSE_MVVMStrong.Model
                 toclose = true;
                 word = new Microsoft.Office.Interop.Word.Application();
             }
-            foreach (var item in Resolution.Expertisies.GroupBy(n => n.StartDate))
-            {
-                CreateNotifyByStartDate(word, item);
-            }
+            await System.Threading.Tasks.Task.Run(() =>
+                                                        {
+                                                            foreach (var item in Resolution.Expertisies.GroupBy(n => n.StartDate))
+                                                            {
+                                                                var t = new RuningTask($"Уведомление следователю от {item.Key:d}");
+                                                                task.AddSubTask(t);
+                                                                try
+                                                                {
+                                                                    CreateNotifyByStartDate(word, item);
+                                                                    t.Status = RuningTaskStatus.Completed;
+                                                                }
+                                                                catch (Exception)
+                                                                {
+                                                                    t.Status = RuningTaskStatus.Error;
+                                                                }
+                                                            }
+                                                        });
+            task.Status = RuningTaskStatus.Completed;
             if (toclose) word.Quit();
         }
         private void CreateSubscribeByEmployee(Microsoft.Office.Interop.Word.Application word, IGrouping<int,Expertise> group)
         {
-            Document doc = null;
-            try
-            {
-                doc = word.Documents.Add(_subscribetemp);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            Document doc = word.Documents.Add(_subscribetemp);
             doc.Activate();
             var bmarks = doc.Bookmarks;
             bmarks["number"].Range.Text = group.Select(n => n.FullNumber).Aggregate((c, n) => c + ", " + n);
@@ -6877,15 +6880,7 @@ namespace PLSE_MVVMStrong.Model
         }
         private void CreateNotifyByStartDate(Microsoft.Office.Interop.Word.Application word, IGrouping<DateTime, Expertise> group)
         {
-            Document doc = null;
-            try
-            {
-                doc = word.Documents.Add(_notifytemp);
-            }
-            catch (Exception)
-            { 
-                throw;
-            }
+            Document doc = word.Documents.Add(_notifytemp);
             doc.Activate();
             var bmarks = doc.Bookmarks;
             if (Resolution.ResolutionDate != null)
@@ -6951,9 +6946,9 @@ namespace PLSE_MVVMStrong.Model
             {
                 doc.SaveAs2(to);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Console.WriteLine(ex.Message);
+                throw;
             }
             finally
             {
@@ -6963,15 +6958,7 @@ namespace PLSE_MVVMStrong.Model
         public void CreatePetition(DateTime petitiondate)
         {
             Microsoft.Office.Interop.Word.Application word = new Microsoft.Office.Interop.Word.Application();
-            Document doc;
-            try
-            {
-                doc = word.Documents.Add(this._petitiontemp);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            Document doc = word.Documents.Add(this._petitiontemp);
             doc.Activate();
             var bmarks = doc.Bookmarks;
 
@@ -6993,34 +6980,7 @@ namespace PLSE_MVVMStrong.Model
                 doc.Close();
             }
         }
-        private void StartDocCreator()
-        {
-            Microsoft.Office.Interop.Word.Application word = null;
-            try
-            {
-                word = new Microsoft.Office.Interop.Word.Application();
-                CreateSubcribe(word);
-                CreateNotify(word); 
-            }
-            finally
-            {
-                word.Quit();
-            }
-        }
-        public async System.Threading.Tasks.Task OnExpertiseCreateAsync()
-        {
-            System.Threading.Tasks.Task t = System.Threading.Tasks.Task.Run(() => StartDocCreator());
-            try
-            {
-                await t;
-            }
-            catch (Exception)
-            {
-                System.Windows.MessageBox.Show("Error occur during creating word documents");
-            }
-            System.Windows.MessageBox.Show("Documents created");
-            
-        }
+        
     }
     public class SpecialityCompererBySpecies : IEqualityComparer<Speciality>
     {
