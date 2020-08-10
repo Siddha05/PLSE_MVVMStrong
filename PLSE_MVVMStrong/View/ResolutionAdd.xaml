@@ -42,9 +42,9 @@
         <ScrollViewer Grid.RowSpan="3" Margin="5" Name="scview" VerticalScrollBarVisibility="Visible">
             <Grid VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="5">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto" />
                     <ColumnDefinition />
-                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition />
+                    <!--<ColumnDefinition Width="120" />-->
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition />
@@ -66,23 +66,29 @@
                     <RowDefinition />
                     <RowDefinition />
                 </Grid.RowDefinitions>
-                <TextBlock Grid.ColumnSpan="3" Text="Основание для производства" FontSize="{StaticResource HeaderFontSize}" FontWeight="Bold" FontStyle="Italic" HorizontalAlignment="Center"
-                           Margin="5,5,5,10" />
-                <TextBlock Text="Основание" Grid.Row="1" Style="{StaticResource UITextBlock}"/>
-                <ComboBox Name="cbTypeResolution" Grid.Column="1" Grid.Row="1"  Style="{StaticResource UIComboBox}"
-                                  ItemsSource="{Binding Path=ResolutionTypes}" Text ="{Binding Path=Resolution.ResolutionType}" VerticalContentAlignment="Center" Margin="5,5,0,5" Width="303" />
-                <TextBlock Grid.Row="2" Text="Статус" Style="{StaticResource UITextBlock}"/>
-                <ComboBox Grid.Column="1" Grid.Row="2"  Name="resStatus" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=ResolutionStatus}"
-                                  Text="{Binding Path=Resolution.ResolutionStatus}" Margin="5,5,0,5" Width="303" />
-                <TextBlock Grid.Row="3"  Text="Дата регистрации*" Style="{StaticResource UITextBlock}"/>
-                <DatePicker Grid.Row="3" Grid.Column="1"  Name="resRegistrationDate"
-                                Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Resolution.RegistrationDate, ValidatesOnExceptions=True}" />
-                <TextBlock Grid.Row="4" Text="Дата вынесения" Style="{StaticResource UITextBlock}"/>
-                <DatePicker Grid.Row="4" Grid.Column="1"  Name="resDate" Style="{StaticResource UIDatePicker}"
-                                    SelectedDate="{Binding Path=Resolution.ResolutionDate, ValidatesOnExceptions=True}" />
-                <TextBlock Text="Нативный вид" Grid.Row="5" Style="{StaticResource UITextBlock}"/>
-                <TextBox Name="resPrescribeType" Grid.Row="5" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Resolution.PrescribeType}" Margin="5,5,0,5" Width="633" />
-                <TextBlock Grid.Row="6" Text="Заказчик*" Style="{StaticResource UITextBlock}"/>
+                <TextBlock Text="Основание для производства" FontSize="{StaticResource HeaderFontSize}" FontWeight="Bold" FontStyle="Italic" 
+                           HorizontalAlignment="Center" Margin="5"/>
+                <TextBlock Text="Основание" Grid.Row="1" Style="{StaticResource UITextBlock}" HorizontalAlignment="Left" Margin="5,0,0,0" Height="auto"/>
+                <ComboBox Name="cbTypeResolution" Grid.Row="2"  Style="{StaticResource UIComboBox}"
+                                  ItemsSource="{Binding Path=ResolutionTypes}" Text ="{Binding Path=Resolution.ResolutionType}" VerticalContentAlignment="Center" Margin="5,0,0,5" Width="303" />
+                <TextBlock Grid.Row="3" Text="Статус" Style="{StaticResource UITextBlock}" HorizontalAlignment="Left" Margin="5,0,0,0" Height="auto"/>
+                <ComboBox Grid.Row="4"  Name="resStatus" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=ResolutionStatus}"
+                                  Text="{Binding Path=Resolution.ResolutionStatus}" Margin="5,0,0,5" Width="303" />
+                <TextBlock Grid.Row="5" Text="Дата регистрации*" Style="{StaticResource UITextBlock}" HorizontalAlignment="Left" Margin="5,0,0,0" Height="auto"/>
+                <DatePicker Grid.Row="6"  Name="resRegistrationDate" Style="{StaticResource UIDatePicker}"
+                            SelectedDate="{Binding Path=Resolution.RegistrationDate, ValidatesOnExceptions=True}" Margin="5,0,0,5"/>
+                <TextBlock Grid.Row="7" Text="Дата вынесения" Style="{StaticResource UITextBlock}" HorizontalAlignment="Left" Margin="5,0,0,1" Height="auto"/>
+                <DatePicker Grid.Row="8"  Name="resDate" Style="{StaticResource UIDatePicker}"
+                                    SelectedDate="{Binding Path=Resolution.ResolutionDate, ValidatesOnExceptions=True}" Margin="5,0,0,5"/>
+                <TextBlock Text="Нативный вид" Grid.Row="9" Style="{StaticResource UITextBlock}" HorizontalAlignment="Left" Margin="5,0,0,0" Height="auto"/>
+                <TextBox Name="resPrescribeType" Grid.Row="10" Style="{StaticResource UITextBox}" Text="{Binding Path=Resolution.PrescribeType}" Margin="5,0,0,5" Width="633" />
+                <TextBlock Grid.Row="11" Text="Заказчик*" Style="{StaticResource UITextBlock}" HorizontalAlignment="Left" Margin="5,0,0,0" Height="auto"/>
+                
+                
+                <!--
+                
+                
+                
                 <StackPanel Orientation="Horizontal" Grid.Row="6" Grid.Column="1" Margin="5">
                     <TextBlock Text="{Binding Path=Resolution.Customer.Fio, TargetNullValue='не выбрано'}" ToolTip="{Binding Path=Resolution.Customer.Requisite}" 
                                FontSize="{StaticResource UIFontSize}" FontWeight="DemiBold" VerticalAlignment="Center" Height="auto" Margin="0,0,2,0"/>
@@ -139,13 +145,13 @@
                               RowStyle="{StaticResource DataGridSimpleRow}" ColumnHeaderStyle="{StaticResource DataGridNoHeaders}">
                         <DataGrid.Columns>
                             <DataGridTextColumn Binding="{Binding Path=Content}" Width="*"/>
-                            <!--<DataGridTemplateColumn Width="*">
+                            --><!--<DataGridTemplateColumn Width="*">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBox TextWrapping="Wrap" Text="{Binding Path=Content}" BorderThickness="0" AcceptsReturn="False"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>-->
+                            </DataGridTemplateColumn>--><!--
                         </DataGrid.Columns>
                     </DataGrid>
                 </Expander>
@@ -172,7 +178,7 @@
                                  Visibility="{Binding ElementName=tbPlaintiff, Path=Visibility}" Margin="5,5,0,5" Width="430" />
                 <TextBlock Grid.Row="16" Text="Комментарий" Style="{StaticResource UITextBlock}"/>
                 <TextBox Grid.Row="16" Grid.Column="1" Grid.RowSpan="2" MinLines="20" AcceptsReturn="True" Margin="5" FontSize="{StaticResource UIFontSize}"
-                                    TextWrapping="Wrap" Name="caseComment" Height="100" Text="{Binding Path=Resolution.Case.Comment}" />
+                                    TextWrapping="Wrap" Name="caseComment" Height="100" Text="{Binding Path=Resolution.Case.Comment}" />-->
             </Grid>
         </ScrollViewer>
         <Button Style="{StaticResource BaseUIButton}" Grid.Column="1" Grid.Row="1" Content="ДОБАВИТЬ" Foreground="GreenYellow" Command="{Binding Path=Save}"
