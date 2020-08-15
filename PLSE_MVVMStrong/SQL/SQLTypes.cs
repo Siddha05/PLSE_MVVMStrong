@@ -1,6 +1,7 @@
 ﻿using Microsoft.SqlServer.Server;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data.SqlTypes;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -11,13 +12,12 @@ namespace PLSE_MVVMStrong.SQL
     public class ContentWrapper
     {
         
-        public string Content { get; set; }
-
+        public string Content { get;}
+        public string Number { get; set; }
         public ContentWrapper(string q)
         {
             Content = q;
         }
-
         public override string ToString()
         {
             return Content;
@@ -29,10 +29,10 @@ namespace PLSE_MVVMStrong.SQL
     [StructLayout(LayoutKind.Sequential)]
     public class QuestionsList : INullable, IBinarySerialize
     {
-        private List<ContentWrapper> _quest = new List<ContentWrapper>();
+        private ObservableCollection<ContentWrapper> _quest = new ObservableCollection<ContentWrapper>();
         private bool _null;
 
-        public List<ContentWrapper> Questions => _quest;
+        public ObservableCollection<ContentWrapper> Questions => _quest;
         public bool IsNull => _null;
 
         public override string ToString()
@@ -84,12 +84,26 @@ namespace PLSE_MVVMStrong.SQL
 
         public QuestionsList()
         {
+            _quest.CollectionChanged += _quest_CollectionChanged;
         }
-        public QuestionsList(IEnumerable<ContentWrapper> r)
+
+        private void _quest_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            foreach (var item in r)
+            switch (e.Action)
             {
-                _quest.Add(item);
+                case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
+                case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
+                case System.Collections.Specialized.NotifyCollectionChangedAction.Replace:
+                case System.Collections.Specialized.NotifyCollectionChangedAction.Move:
+                    int i = 1;
+                    foreach (var item in _quest)
+                    {
+                        item.Number = i.ToString();
+                        i++;
+                    }
+                    break;
+                default:
+                    break;
             }
         }
     }
@@ -134,6 +148,7 @@ namespace PLSE_MVVMStrong.SQL
             }
             return sb.ToString();
         }
+        
         
         public void Read(BinaryReader r)
         {

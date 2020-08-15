@@ -3350,8 +3350,7 @@ namespace PLSE_MVVMStrong.Model
             switch (format)
             {
                 case "n":
-                    sb.Append(Sname); sb.Append(" "); sb.Append(Fname[0]);
-                    sb.Append("."); sb.Append(Mname[0]); sb.Append(".");
+                    sb.Append(Sname).Append(" ").Append(Fname[0]).Append(".").Append(Mname[0]).Append(".");
                     return sb.ToString();
                 case "N":
                     sb.Append(Sname); sb.Append(" "); sb.Append(Fname);
@@ -4458,12 +4457,14 @@ namespace PLSE_MVVMStrong.Model
                 if (stringBuilder.Length > 0) stringBuilder.Append(", ");
                 stringBuilder.Append(Rank);
             }
-            stringBuilder.Append(" ");
-            stringBuilder.Append(base.ToString("n"));
+            stringBuilder.Append(" ").Append(base.ToString("n"));
+            if (Mobilephone != null)
+            {
+                stringBuilder.AppendLine().Append(Mobilephone);
+            }
             if (Organization != null)
             {
-                stringBuilder.AppendLine();
-                stringBuilder.Append(Organization.ToString());
+                stringBuilder.AppendLine().Append(Organization.ToString());
             }       
             return stringBuilder.ToString();
         }

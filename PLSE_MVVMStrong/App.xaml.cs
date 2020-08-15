@@ -1,6 +1,7 @@
 ﻿using PLSE_MVVMStrong.Model;
 using PLSE_MVVMStrong.View;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
@@ -186,6 +187,22 @@ namespace PLSE_MVVMStrong
             }
             else return "Transparent";
         }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class PositionInListConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var lts = value as IList<ContentWrapper>;
+            if (lts != null)
+            {
+                return lts.IndexOf()
+            }
+        }
+
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();

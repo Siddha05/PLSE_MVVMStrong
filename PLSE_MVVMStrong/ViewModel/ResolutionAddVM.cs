@@ -21,6 +21,7 @@ namespace PLSE_MVVMStrong.ViewModel
         private RelayCommand _addnewcustomer;
         private RelayCommand _editcustomer;
         private RelayCommand _addexpertise;
+        private RelayCommand _addquestion;
         #endregion Fields
 
         #region Properties
@@ -152,6 +153,16 @@ namespace PLSE_MVVMStrong.ViewModel
             }
         }
         public RelayCommand SelectCustomer { get; }
+        public RelayCommand AddQuestion
+        {
+            get
+            {
+                return _addquestion != null ? _addquestion : _addquestion = new RelayCommand(n =>
+                                                                            {
+                                                                                Resolution.Questions.Questions.Add(new ContentWrapper("Вопрос 1"));
+                                                                            });
+            }
+        }
         #endregion Commands
         
         public ResolutionAddVM()
@@ -293,6 +304,8 @@ namespace PLSE_MVVMStrong.ViewModel
                 ResolutionStatus = "рассмотрение",
             };
             r.Case.TypeCase = "уголовное";
+            r.Objects.Objects.Add(new ContentWrapper("материалы гражданского дела № 22541"));
+            r.Objects.Objects.Add(new ContentWrapper("руководство по эксплуатации"));
             return r;
         }
 
