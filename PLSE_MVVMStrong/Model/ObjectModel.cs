@@ -25,7 +25,7 @@ using System.Windows.Threading;
 using LingvoNET;
 using Microsoft.Office.Interop.Word;
 using Xceed.Wpf.Toolkit;
-
+using PLSE_MVVMStrong.SQL;
 
 namespace PLSE_MVVMStrong.Model
 {

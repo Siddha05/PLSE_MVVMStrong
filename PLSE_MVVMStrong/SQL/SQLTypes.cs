@@ -2,25 +2,55 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Data.SqlTypes;
 using System.IO;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
 namespace PLSE_MVVMStrong.SQL
 {
-    public class ContentWrapper
+    public class ContentWrapper : INotifyPropertyChanged
     {
-        
-        public string Content { get;}
-        public string Number { get; set; }
+        string _num;
+        string _cont;
+        public string Content
+        {
+            get => _cont;
+            set
+            {
+                _cont = value;
+                OnPropertyChanged();
+            }
+        }
+        public string Number
+        {
+            get => _num;
+            set
+            {
+                _num = value;
+                OnPropertyChanged();
+            }
+        }
         public ContentWrapper(string q)
         {
             Content = q;
         }
+        public ContentWrapper()
+        {
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public override string ToString()
         {
             return Content;
+        }
+        private void OnPropertyChanged([CallerMemberName] string prop = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
         }
     }
 
@@ -68,7 +98,6 @@ namespace PLSE_MVVMStrong.SQL
         public void Read(BinaryReader r)
         {
             _null = r.ReadBoolean();
-            //_quest = new List<ContentWrapper>();
             var a = r.ReadString().Split('*');
             foreach (var item in a)
             {
@@ -78,7 +107,7 @@ namespace PLSE_MVVMStrong.SQL
         public void Write(BinaryWriter w)
         {
             w.Write(_null);
-            string[] sa = _quest.ConvertAll<string>(n => n.ToString()).ToArray();
+            string[] sa = _quest.Select(n => n.ToString()).ToArray();
             w.Write(String.Join("*", sa));
         }
 
@@ -114,9 +143,9 @@ namespace PLSE_MVVMStrong.SQL
     public class ObjectsList : INullable, IBinarySerialize
     {
         private bool _null;
-        private List<ContentWrapper> _objects = new List<ContentWrapper>();
+        private ObservableCollection<ContentWrapper> _objects = new ObservableCollection<ContentWrapper>();
 
-        public List<ContentWrapper> Objects => _objects;
+        public ObservableCollection<ContentWrapper> Objects => _objects;
         public static ObjectsList Null
         {
             get
@@ -162,11 +191,32 @@ namespace PLSE_MVVMStrong.SQL
         public void Write(BinaryWriter w)
         {
             w.Write(_null);
-            string[] sa = _objects.ConvertAll<string>(n => n.ToString()).ToArray();
+            string[] sa = _objects.Select(n => n.ToString()).ToArray();
             w.Write(String.Join("*", sa));
         }
         public ObjectsList()
         {
+            this._objects.CollectionChanged += _objects_CollectionChanged;
+        }
+
+        private void _objects_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
+                case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
+                case System.Collections.Specialized.NotifyCollectionChangedAction.Replace:
+                case System.Collections.Specialized.NotifyCollectionChangedAction.Move:
+                    int i = 1;
+                    foreach (var item in _objects)
+                    {
+                        item.Number = i.ToString();
+                        i++;
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

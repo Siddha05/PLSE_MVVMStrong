@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using PLSE_MVVMStrong.SQL;
 
 namespace PLSE_MVVMStrong.ViewModel
 {

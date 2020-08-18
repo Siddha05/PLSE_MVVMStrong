@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
+using PLSE_MVVMStrong.SQL;
 
 namespace PLSE_MVVMStrong.ViewModel
 {

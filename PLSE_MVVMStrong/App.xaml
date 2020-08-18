@@ -468,13 +468,15 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
-                        <Grid Width="{TemplateBinding Width}" Height="{TemplateBinding Height}" Name="grid">
+                        <Grid Width="{TemplateBinding ActualWidth}" Height="{TemplateBinding Height}" Name="grid">
                             <TextBlock Name="block" Text="{TemplateBinding Tag}" Padding="5,0,0,0" Focusable="False" TextAlignment="Left" Style="{x:Null}"
                                    Width="{Binding ElementName=grid, Path=ActualWidth}" Height="auto" Foreground="Gray"
                                    FontStyle="Italic" FontWeight="Thin" FontSize="{TemplateBinding FontSize}" Background="{TemplateBinding Background}" VerticalAlignment="Center"/>
                             <TextBox Name="box" Background="{Binding RelativeSource={RelativeSource Self}, Path=Text, Converter={StaticResource TextConverter}}" VerticalContentAlignment="Center"
-                                 FontSize="{TemplateBinding FontSize}" FontWeight="Normal" FontStyle="Normal" Style="{x:Null}" TextAlignment="Left" Panel.ZIndex="2"
-                                 Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type TextBox}}, Path=Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                 FontSize="{TemplateBinding FontSize}" FontWeight="Normal" FontStyle="Normal" Style="{x:Null}" TextAlignment="Left" Panel.ZIndex="2" Height="{TemplateBinding Height}"
+                                 Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type TextBox}}, Path=Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 AcceptsReturn="{Binding RelativeSource={RelativeSource AncestorType={x:Type TextBox}}, Path=AcceptsReturn}" TextWrapping="Wrap"
+                                     Width="{Binding ElementName=grid, Path=ActualWidth}">
                             </TextBox>
                         </Grid>
                     </ControlTemplate>

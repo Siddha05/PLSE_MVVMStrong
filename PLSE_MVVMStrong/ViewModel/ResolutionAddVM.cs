@@ -9,6 +9,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
+using PLSE_MVVMStrong.SQL;
 
 namespace PLSE_MVVMStrong.ViewModel
 {
@@ -38,6 +39,24 @@ namespace PLSE_MVVMStrong.ViewModel
         public static readonly DependencyProperty CustomersListOpenedProperty =
             DependencyProperty.Register("CustomersListOpened", typeof(bool), typeof(ResolutionAddVM), new PropertyMetadata(false));
 
+
+        public string QuestionText
+        {
+            get { return (string)GetValue(QuestionTextProperty); }
+            set { SetValue(QuestionTextProperty, value); }
+        }
+        public static readonly DependencyProperty QuestionTextProperty =
+            DependencyProperty.Register("QuestionText", typeof(string), typeof(ResolutionAddVM), new PropertyMetadata("", QuestionText_Changed));
+
+
+        public string ObjectText
+        {
+            get { return (string)GetValue(ObjectTextProperty); }
+            set { SetValue(ObjectTextProperty, value); }
+        }
+        public static readonly DependencyProperty ObjectTextProperty =
+            DependencyProperty.Register("ObjectText", typeof(string), typeof(ResolutionAddVM), new PropertyMetadata("", ObjectText_Changed));
+
         public string CustomerSearchText
         {
             get { return (string)GetValue(CustomerSearchTextProperty); }
@@ -45,15 +64,6 @@ namespace PLSE_MVVMStrong.ViewModel
         }
         public static readonly DependencyProperty CustomerSearchTextProperty =
             DependencyProperty.Register("CustomerSearchText", typeof(string), typeof(ResolutionAddVM), new PropertyMetadata(String.Empty, CustomerSearchTextChanged));
-
-        [Obsolete]
-        //public string Info
-        //{
-        //    get => (string)GetValue(InfoProperty);
-        //    set => SetValue(InfoProperty, value);
-        //}
-        //public static readonly DependencyProperty InfoProperty =
-        //    DependencyProperty.Register("Info", typeof(string), typeof(ResolutionAddVM), new PropertyMetadata(string.Empty));
         public IEnumerable<string> CaseTypesList
         {
             get => (IEnumerable<string>)GetValue(CaseTypesListProperty);
@@ -82,7 +92,6 @@ namespace PLSE_MVVMStrong.ViewModel
 
 #region Commands
         public RelayCommand ObjectsClick { get; }
-        public RelayCommand QuestionsClick { get; }
         public RelayCommand Save { get; }
         public RelayCommand AddExpertise
         {
@@ -153,16 +162,6 @@ namespace PLSE_MVVMStrong.ViewModel
             }
         }
         public RelayCommand SelectCustomer { get; }
-        public RelayCommand AddQuestion
-        {
-            get
-            {
-                return _addquestion != null ? _addquestion : _addquestion = new RelayCommand(n =>
-                                                                            {
-                                                                                Resolution.Questions.Questions.Add(new ContentWrapper("Вопрос 1"));
-                                                                            });
-            }
-        }
         #endregion Commands
         
         public ResolutionAddVM()
@@ -203,12 +202,7 @@ namespace PLSE_MVVMStrong.ViewModel
                 if (SelectedCustomer != null) return true;
                 return false;
             });
-            QuestionsClick = new RelayCommand(n =>
-            {
-                var o = n as Popup;
-                if (o.IsOpen) o.IsOpen = false;
-                else o.IsOpen = true;
-            });
+            
             ObjectsClick = new RelayCommand(n =>
             {
                 var o = n as Popup;
@@ -295,6 +289,25 @@ namespace PLSE_MVVMStrong.ViewModel
                 instance.CustomersListOpened = false;
             }
         }
+        private static void QuestionText_Changed(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var ins = d as ResolutionAddVM;
+            if (ins.QuestionText.EndsWith(Environment.NewLine))
+            {
+                ins.Resolution.Questions.Questions.Add(new ContentWrapper(ins.QuestionText.Replace(Environment.NewLine, "")));
+                ins.QuestionText = "";
+            }
+        }
+        private static void ObjectText_Changed(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var ins = d as ResolutionAddVM;
+            if (ins.ObjectText.EndsWith(Environment.NewLine))
+            {
+                ins.Resolution.Objects.Objects.Add(new ContentWrapper(ins.ObjectText.Replace(Environment.NewLine, "")));
+                ins.ObjectText = "";
+            }
+        }
+
         private Resolution InicialState()
         {
             var r = new Resolution()
@@ -304,8 +317,9 @@ namespace PLSE_MVVMStrong.ViewModel
                 ResolutionStatus = "рассмотрение",
             };
             r.Case.TypeCase = "уголовное";
-            r.Objects.Objects.Add(new ContentWrapper("материалы гражданского дела № 22541"));
-            r.Objects.Objects.Add(new ContentWrapper("руководство по эксплуатации"));
+            //r.Objects.Objects.Add(new ContentWrapper("материалы гражданского дела № 22541"));
+            //r.Objects.Objects.Add(new ContentWrapper("руководство по эксплуатации"));
+           //r.Questions.Questions.Add(new ContentWrapper("Какова остаточная стоимость предоставленного на исследование сотового телефона марки \"Apple IPhone 11s\" с учетом износа на дату совершения кражи, т.е. на 21.07.2020? Какова стоимость указанного телефона без учета износа на дату совершения кражи, т.е. на 24.12.2020?"));
             return r;
         }
 

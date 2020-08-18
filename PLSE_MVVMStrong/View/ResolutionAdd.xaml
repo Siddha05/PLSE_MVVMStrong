@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:PLSE_MVVMStrong.View"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:viewmodel="clr-namespace:PLSE_MVVMStrong.ViewModel"
+        xmlns:plse_mvvmstrong="clr-namespace:PLSE_MVVMStrong"
         mc:Ignorable="d"
         Title="ResolutionAdd" Height="1000" Width="1600" Name="wnd" WindowStartupLocation="CenterScreen">
     <Window.DataContext>
@@ -16,12 +17,40 @@
         <local:ResTypeToEnableConverter x:Key="RTypeConverter" />
         <local:CaseTypeToVisibleConverter x:Key="CTypeConverter" />
         <Style TargetType="{x:Type DataGridRow}" x:Key="DataGridSimpleRow">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type DataGridRow}">
-                        <Border BorderBrush="#FF0B4FE2" BorderThickness="0" CornerRadius="3" Margin="1" Height="auto">
-                            <DataGridCellsPresenter Margin="1" FontSize="{StaticResource UIFontSize}" />
+                        <Border BorderBrush="Transparent" BorderThickness="1" Margin="1" Height="auto" Name="brd">
+                            <SelectiveScrollingGrid>
+                                <SelectiveScrollingGrid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition/>
+                                </SelectiveScrollingGrid.ColumnDefinitions>
+                                <Path Fill="Transparent" Data="M 0,0 8,8 0,16 Z" HorizontalAlignment="Center" VerticalAlignment="Center" x:Name="path"/>
+                                <DataGridCellsPresenter FontSize="{StaticResource UIFontSize}" Grid.Column="1" Margin="5,0,0,2"/>
+                            </SelectiveScrollingGrid>
                         </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter TargetName="path" Property="Fill" Value="#FF38CEE6"/>
+                                <!--<Setter TargetName="brd" Property="TextBlock.Foreground" Value="DarkOrchid"/>-->
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="true">
+                                <Setter TargetName="path" Property="Fill" Value="{StaticResource SelectedControl}"/>
+                                <!--<Setter TargetName="brd" Property="TextBlock.Foreground" Value="DarkBlue"/>-->
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="{x:Type DataGridCell}" x:Key="DataGridSimpleCell">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="DataGridCell">
+                        <ContentPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -37,6 +66,8 @@
             <Setter Property="Height" Value="auto" />
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
+        <plse_mvvmstrong:TextLenghtConverter x:Key="TextLenghtConv"/>
+        <plse_mvvmstrong:ZeroToVisibilityConverter x:Key="IntToVisibConv"/>
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -47,7 +78,7 @@
             <RowDefinition Height="4*" />
             <RowDefinition />
         </Grid.RowDefinitions>
-        <ScrollViewer Grid.RowSpan="3" Margin="5" Name="scview" VerticalScrollBarVisibility="Visible">
+        <ScrollViewer Grid.RowSpan="3" Margin="5" Name="scview" VerticalScrollBarVisibility="Auto">
             <Grid VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"/>
@@ -140,75 +171,114 @@
                         </Grid>
                     </Border>
                 </Popup>
-                <Expander Grid.Row="11" BorderBrush="Black" BorderThickness="0" Margin="30,5" Grid.ColumnSpan="2" MinHeight="30" Foreground="#FF1263D8" IsExpanded="True">
+                <Expander Grid.Row="11" BorderBrush="Black" BorderThickness="0" Margin="30,5" Grid.ColumnSpan="2" MinHeight="30" Foreground="#FF1263D8" IsExpanded="False">
                     <Expander.Header>
                         <TextBlock Text="{Binding Path=Resolution.Objects.Objects.Count, StringFormat='Предоставленные объекты: {0}', Mode=OneWay}" FontSize="{StaticResource UIFontSize}"
                                    FontWeight="DemiBold" />
                     </Expander.Header>
-                    <DataGrid ItemsSource="{Binding Path=Resolution.Objects.Objects}" AutoGenerateColumns="False" Height="100" GridLinesVisibility="None" 
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+                        <DataGrid ItemsSource="{Binding Path=Resolution.Objects.Objects}" AutoGenerateColumns="False"  GridLinesVisibility="None" 
                               HorizontalScrollBarVisibility="Disabled" FontSize="{StaticResource RegularFontSize}" BorderThickness="0" Margin="2" Background="White"
-                              RowStyle="{StaticResource DataGridSimpleRow}" ColumnHeaderStyle="{StaticResource DataGridNoHeaders}" >                     
-                        <DataGrid.Columns>
-                            <DataGridTemplateColumn Width="20">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock FontWeight="Bold" Text="5" VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                            <DataGridTextColumn FontSize="{StaticResource RegularFontSize}" Binding="{Binding Path=Content}" Width="*">
-                                
-                            </DataGridTextColumn>
-                        </DataGrid.Columns>
-                    </DataGrid>
+                              RowStyle="{StaticResource DataGridSimpleRow}" ColumnHeaderStyle="{StaticResource DataGridNoHeaders}" CanUserAddRows="False"
+                              CellStyle="{StaticResource DataGridSimpleCell}" Name="dgObjects">
+                            <DataGrid.Columns>
+                                <DataGridTemplateColumn Width="30">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <TextBlock FontWeight="Bold" Text="{Binding Path=Number}" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                   FontSize="{StaticResource HeaderFontSize}" Foreground="#FF1263D8" Focusable="False" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Width="*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock FontSize="{StaticResource UIFontSize}" Text="{Binding Path=Content}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                    <DataGridTemplateColumn.CellEditingTemplate>
+                                        <DataTemplate>
+                                            <TextBox FontSize="{StaticResource UIFontSize}" Text="{Binding Path=Content}" TextWrapping="Wrap" AcceptsReturn="False"
+                                                     Margin="0,0,5,0"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellEditingTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <TextBlock Grid.Row="1" HorizontalAlignment="Right" Foreground="Gray" FontStyle="Italic" 
+                                   Visibility="{Binding Path=Resolution.Objects.Objects.Count , Converter={StaticResource IntToVisibConv}, ConverterParameter='2'}"
+                                   Text="Нажмите 'Delete' для удаления выбранного объекта или 'MouseDoubleClick' для редактирования" 
+                                  />
+                        <TextBox Grid.Row="2" Style="{StaticResource SearchTextBox}" Tag="Введите объект" Margin="5,7,0,3" TextWrapping="Wrap" Height="auto" Width="770"
+                                 HorizontalAlignment="Left" Text="{Binding Path=ObjectText, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True">
+                        </TextBox>
+                        <TextBlock Grid.Row="3" HorizontalAlignment="Right" Foreground="Gray" FontStyle="Italic"
+                                   Text="Нажмите 'Enter' для добавления объекта"
+                                  />
+                    </Grid>
                 </Expander>
-                <Expander Grid.Row="12" BorderBrush="Black" BorderThickness="0" Margin="30,5" Grid.ColumnSpan="2" IsExpanded="True" MinHeight="30" Foreground="#FF1263D8">
+                <Expander Grid.Row="12" BorderBrush="Black" BorderThickness="0" Margin="30,5" Grid.ColumnSpan="2" IsExpanded="False">
                     <Expander.Header>
-                        <TextBlock Text="{Binding Path=Resolution.Questions.Questions.Count, StringFormat='Поставленные вопросы: {0}'}" FontSize="{StaticResource UIFontSize}" FontWeight="DemiBold"/>
+                        <TextBlock Foreground="Blue"
+                            Text="{Binding Path=Resolution.Questions.Questions.Count, StringFormat='Поставленные вопросы: {0}'}" FontSize="{StaticResource UIFontSize}" FontWeight="DemiBold"/>
                     </Expander.Header>
-                    <!--<DataGrid ItemsSource="{Binding Path=Resolution.Questions.Questions}" AutoGenerateColumns="False" Height="100" GridLinesVisibility="None" 
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+                        <DataGrid ItemsSource="{Binding Path=Resolution.Questions.Questions}" AutoGenerateColumns="False"  GridLinesVisibility="None" 
                               HorizontalScrollBarVisibility="Disabled" FontSize="{StaticResource RegularFontSize}" BorderThickness="0" Margin="2" Background="White"
-                              RowStyle="{StaticResource DataGridSimpleRow}" ColumnHeaderStyle="{StaticResource DataGridNoHeaders}">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Binding="{Binding Path=Content}" Width="*"/>
-                            <DataGridTemplateColumn Width="*">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBox TextWrapping="Wrap" Text="{Binding Path=Content}" BorderThickness="0" AcceptsReturn="False"/>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                        </DataGrid.Columns>
-                    </DataGrid>-->
-                    <Border BorderBrush="Black" BorderThickness="1" MinHeight="100" CornerRadius="2">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition/>
-                                <RowDefinition Height="auto"/>
-                            </Grid.RowDefinitions>
-                        <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Left">
-                                <TextBox Margin="3" FontSize="{StaticResource UIFontSize}" MinLines="2" Width="450" TextWrapping="Wrap"/>
-                                <Button Style="{StaticResource BaseUIButton}" Content="Добавить" Foreground="{StaticResource PositiveGreenColor}" Margin="5,3,3,3"
-                                        Command="{Binding Path=AddQuestion}"/>
-                            </StackPanel>
-                            <DataGrid ItemsSource="{Binding Path=Resolution.Questions.Questions}" AutoGenerateColumns="False" GridLinesVisibility="None" 
-                              HorizontalScrollBarVisibility="Disabled" FontSize="{StaticResource RegularFontSize}" BorderThickness="0" Margin="2" Background="White"
-                               ColumnHeaderStyle="{StaticResource DataGridNoHeaders}" CanUserAddRows="False">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Width="30" />
-                                    <DataGridTextColumn Binding="{Binding Path=Content}" Width="*"/>
-                                    <DataGridTemplateColumn Width="*">
-                                        <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <TextBox TextWrapping="Wrap" Text="{Binding Path=Content}" BorderThickness="0" AcceptsReturn="False"/>
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                    </DataGridTemplateColumn>
-                                </DataGrid.Columns>
-                            </DataGrid>
-                        </Grid>
-                        
-                    </Border>
+                              RowStyle="{StaticResource DataGridSimpleRow}" ColumnHeaderStyle="{StaticResource DataGridNoHeaders}" CanUserAddRows="False"
+                              CellStyle="{StaticResource DataGridSimpleCell}" Name="dgQuestions">
+                            <DataGrid.Columns>
+                                <DataGridTemplateColumn Width="30">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <TextBlock FontWeight="Bold" Text="{Binding Path=Number}" VerticalAlignment="Center" HorizontalAlignment="Center" Name="ntb"
+                                                   FontSize="{StaticResource HeaderFontSize}" Foreground="#FF1263D8" Focusable="False" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Width="*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock FontSize="{StaticResource UIFontSize}" Text="{Binding Path=Content}" TextWrapping="Wrap" Name="bcnt" VerticalAlignment="Center"
+                                                       />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                    <DataGridTemplateColumn.CellEditingTemplate>
+                                        <DataTemplate>
+                                            <TextBox FontSize="{StaticResource UIFontSize}" Text="{Binding Path=Content}" TextWrapping="Wrap" AcceptsReturn="False"
+                                                     Margin="0,0,5,0"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellEditingTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <TextBlock Grid.Row="1" HorizontalAlignment="Right" Foreground="Gray" FontStyle="Italic" 
+                                   Visibility="{Binding Path=Resolution.Questions.Questions.Count, Converter={StaticResource IntToVisibConv}, ConverterParameter='2'}"
+                                   Text="Нажмите 'Delete' для удаления выбранного вопроса или 'MouseDoubleClick' для редактирования"
+                                  />
+                        <TextBox Grid.Row="2" Style="{StaticResource SearchTextBox}" Tag="Введите вопрос" Margin="5,7,0,3" TextWrapping="Wrap" Height="auto" Width="770"
+                                 HorizontalAlignment="Left" Text="{Binding Path=QuestionText, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" >
+                        </TextBox>
+                        <TextBlock Grid.Row="3" HorizontalAlignment="Right" Foreground="Gray" FontStyle="Italic"
+                                   Text="Нажмите 'Enter' для добавления вопроса"
+                                  /> 
+                    </Grid>
                 </Expander>
                 <TextBlock Grid.Row="13" Grid.ColumnSpan="3" Text="Материалы дела" Style="{x:Null}" FontSize="{StaticResource HeaderFontSize}" FontWeight="Bold" FontStyle="Italic" HorizontalAlignment="Center"
                            Margin="5,20,5,10" />
@@ -216,38 +286,26 @@
                 <ComboBox Name="cbTypeCase" Grid.Row="15" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=CaseTypesList}"
                            IsEnabled="{Binding Path=Resolution.ResolutionType, Converter={StaticResource RTypeConverter}}" 
                           SelectedItem="{Binding Path =Resolution.Case.TypeCase}" Margin="5,0,0,5" Width="303"/>
-                <TextBlock Grid.Row="14" Text="Номер" Grid.Column="1" Visibility="{Binding ElementName=tbNumber, Path=Visibility}" Style="{StaticResource UIRightOrient}"
+                <TextBlock Grid.Row="14" Text="Номер дела" Grid.Column="1" Visibility="{Binding ElementName=tbNumber, Path=Visibility}" Style="{StaticResource UIRightOrient}"
                            Margin="15,0,0,0"/>
                 <TextBox Name="tbNumber" Grid.Row="15" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Resolution.Case.Number}"
                                  Visibility ="{Binding Path=NumberVisible, Mode=OneWay}" Margin="15,0,0,5" Width="303"/>
                 <TextBlock Grid.Row="16" Text="Дата" Style="{StaticResource UIRightOrient}"/>
                 <DatePicker Grid.Row="17" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Resolution.Case.DispatchDate}" Margin="5,0,0,5"/>
-                <TextBlock  Grid.Row="18" Text="Истец" Style="{StaticResource UIRightOrient}"/>
+                
+                <TextBlock  Grid.Row="18" Text="Истец" Style="{StaticResource UIRightOrient}" Visibility="{Binding ElementName=tbPlaintiff, Path=Visibility}"/>
                 <TextBox Name="tbPlaintiff" Grid.Row="19" Style="{StaticResource UITextBox}" Text="{Binding Path=Resolution.Case.Plaintiff}"
-                                  Margin="5,0,0,5" Width="200" Height="{StaticResource UIHeigth}"/>
-                <TextBlock Grid.Row="18" Grid.Column="1" Text="Ответчик" Visibility="{Binding ElementName=tbRespondent, Path=Visibility}" 
+                                  Margin="5,0,0,5" Width="200" Height="{StaticResource UIHeigth}" Visibility="{Binding Path=RespondentVisible, Mode=OneWay}"/>
+                <TextBlock Grid.Row="18" Grid.Column="1" Text="Ответчик" Visibility="{Binding ElementName=tbPlaintiff, Path=Visibility}" 
                            Style="{StaticResource UIRightOrient}" Margin="15,0,0,0"/>
                 <TextBox Name="tbRespondent" Grid.Row="19" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Resolution.Case.Respondent}"
-                                  Margin="15,0,0,5" Width="200" Height="{StaticResource UIHeigth}"/>
+                                  Margin="15,0,0,5" Width="200" Height="{StaticResource UIHeigth}" Visibility="{Binding ElementName=tbPlaintiff, Path=Visibility}"/>
                 <TextBlock Grid.Row="20" Text="Анотация" Style="{StaticResource UIRightOrient}"/>
                 <TextBox Grid.Row="21" Grid.ColumnSpan="2" MinLines="8" AcceptsReturn="True" FontSize="{StaticResource UIFontSize}"
                                     TextWrapping="Wrap" Name="caseAnnotate" Height="100" Text="{Binding Path=Resolution.Case.Annotate}" Margin="5,0,0,5" />
                 <TextBlock Grid.Row="22" Text="Комментарий" Style="{StaticResource UIRightOrient}"/>
                 <TextBox Grid.Row="23" Grid.ColumnSpan="2" Grid.RowSpan="2" MinLines="20" AcceptsReturn="True" Margin="5,0,0,5" FontSize="{StaticResource UIFontSize}"
                                     TextWrapping="Wrap" Name="caseComment" Height="100" Text="{Binding Path=Resolution.Case.Comment}"/>
-                <!--
-               
-                
-                <TextBlock  Grid.Row="18" Text="Истец" Visibility="{Binding ElementName=tbPlaintiff, Path=Visibility}" Style="{StaticResource UIRightOrient}"/>
-                <TextBox Name="tbPlaintiff" Grid.Row="19" Style="{StaticResource UITextBox}" Text="{Binding Path=Resolution.Case.Plaintiff}"
-                                 Visibility="{Binding Path=RespondentVisible, Mode=OneWay}" Margin="5,0,0,5" Width="303"/>
-                
-                
-                <TextBlock Grid.Row="15" Text="Ответчик" Visibility="{Binding ElementName=tbRespondent, Path=Visibility}" Style="{StaticResource UITextBlock}"/>
-                <TextBox Name="tbRespondent" Grid.Row="15" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Resolution.Case.Respondent}"
-                                 Visibility="{Binding ElementName=tbPlaintiff, Path=Visibility}" Margin="5,5,0,5" Width="430" />
-                
-                -->
             </Grid>
         </ScrollViewer>
         <Button Style="{StaticResource BaseUIButton}" Grid.Column="1" Grid.Row="1" Content="ДОБАВИТЬ" Foreground="GreenYellow" Command="{Binding Path=Save}"
@@ -312,6 +370,6 @@
                 </ListBox.ItemContainerStyle>
             </ListBox>
         </StackPanel>
-        
+
     </Grid>
 </Window>

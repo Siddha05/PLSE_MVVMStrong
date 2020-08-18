@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media.TextFormatting;
 
@@ -124,18 +125,61 @@ namespace PLSE_MVVMStrong
         }
     }
     /// <summary>
+    /// Конвертер перевода длинны строки в целое
+    /// <list type="bullet">
+    ///     <item>
+    ///         <term>Null</term>
+    ///         <description>0</description>
+    ///     </item>
+    ///     <item>
+    ///         <term>Lenght = 0</term>
+    ///         <description>1</description>
+    ///     </item>
+    ///     <item>
+    ///         <term>Lenght > 0</term>
+    ///         <description>0</description>
+    ///     </item>
+    /// </list>
+    /// </summary>
+    public class TextLenghtConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var s = value as string;
+            if (s != null)
+            {
+                return s.Length == 0 ? 1 : 0;
+            }
+            else return 0;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    /// <summary>
     /// Конвертер перевода числа в свойство Visibility.
     /// <para>
-    /// 0 - Collapsed, else Visibility
+    /// 0 - Visibility, else Collapsed
     /// </para>
+    /// <para>Если <paramref name="parameter"/> не null, то инвертирует поведение</para>
     /// </summary>
     public class ZeroToVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             int val = (int)value;
-            if (val == 0.0) return "Visible";
-            return "Collapsed";
+            if (parameter == null)
+            {
+                if (val == 0) return "Visible";
+                else return "Collapsed";
+            }
+            else
+            {
+                if (val == 0) return "Collapsed";
+                else return "Visible";
+            }
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -187,22 +231,6 @@ namespace PLSE_MVVMStrong
             }
             else return "Transparent";
         }
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
-    public class PositionInListConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            var lts = value as IList<ContentWrapper>;
-            if (lts != null)
-            {
-                return lts.IndexOf()
-            }
-        }
-
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();

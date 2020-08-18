@@ -35,9 +35,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Database2">
-      <HintPath>..\..\Database2\Database2\bin\Debug\Database2.dll</HintPath>
-    </Reference>
     <Reference Include="LingvoNET, Version=1.1.2.0, Culture=neutral, PublicKeyToken=7d49b21a20bef57b, processorArchitecture=MSIL">
       <HintPath>..\packages\LingvoNET.1.1.2\lib\LingvoNET.dll</HintPath>
     </Reference>
