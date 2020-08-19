@@ -25,7 +25,6 @@ using System.Windows.Threading;
 using LingvoNET;
 using Microsoft.Office.Interop.Word;
 using Xceed.Wpf.Toolkit;
-using SQLTypes;
 
 namespace PLSE_MVVMStrong.Model
 {
@@ -1352,7 +1351,12 @@ namespace PLSE_MVVMStrong.Model
             }
             rd.Close();
             connection.Close();
-        }  
+        }
+        /// <summary>
+        /// Возвращает список постановлений из БД 
+        /// </summary>
+        /// <param name="query"></param>
+        /// <returns></returns>
         public static List<Resolution> LoadResolution(string query)
         {
             SqlCommand cmd = connection.CreateCommand();
@@ -1407,6 +1411,7 @@ namespace PLSE_MVVMStrong.Model
                     int colPlaintiff = rd.GetOrdinal("Plaintiff");
                     int colRespondent = rd.GetOrdinal("Respondent");
                     int colCaseType = rd.GetOrdinal("TypeCase");
+                    int colNativeQuestions = rd.GetOrdinal();
                     Resolution _resolution = null;
                     Expertise _expertise = null;
                     while (rd.Read())
@@ -1419,8 +1424,9 @@ namespace PLSE_MVVMStrong.Model
                                                 resolutiondate: rd[colResolDate] == DBNull.Value ? null : new DateTime?(rd.GetDateTime(colResolDate)),
                                                 resolutiontype: rd.GetString(colResolutionType),
                                                 customer: Customers.Single(n => n.CustomerID == rd.GetInt32(colCustomerID)),
-                                                obj: rd[colObjects] == DBNull.Value ? null : (ObjectsList)rd[colObjects],
-                                                quest: (QuestionsList)rd[colQuestions],
+                                                obj: rd[colObjects] == DBNull.Value ? null : rd.GetString(colObjects),
+                                                quest: rd[colQuestions] == DBNull.Value ? null : rd.GetString(colQuestions),
+                                                nativenumeration: rd.GetBoolean(colNativeQuestions),
                                                 status: rd.GetString(colResolutionStatus),
                                                 prescribe: rd[colPrescribeType] == DBNull.Value ? null : rd.GetString(colPrescribeType),
                                                 vr: Version.Original,
@@ -1514,6 +1520,15 @@ namespace PLSE_MVVMStrong.Model
                 connection.Close();
             }
             return resolutions;
+        }
+        /// <summary>
+        /// Завершает загрузку необязательных полей (списки вопросов, объектов и т.д.) из БД для постановления, указанного параметром <paramref name="resolution"/>
+        /// </summary>
+        /// <param name="resolution"></param>
+        public static void LoadResolutionEnding(Resolution resolution)
+        {
+            if (resolution.Version == Version.New) return;
+
         }
         //public static List<Resolution> LoadResolution(int empID)
         //{
@@ -4829,9 +4844,10 @@ namespace PLSE_MVVMStrong.Model
         private string _restype;
         private Customer _customer;
         private Case _case = new Case();
-        private ObjectsList _objects = new ObjectsList();
+        private ObservableCollection<string> _objects = new ObservableCollection<string>();
         private string _prescribetype;
-        private QuestionsList _quest = new QuestionsList();
+        private ObservableCollection<String> _quest = new ObservableCollection<string>();
+        private bool _nativenumeration;
         private string _status;
         private readonly ObservableCollection<Expertise> _expertisies = new ObservableCollection<Expertise>();
         private int _id;
@@ -4850,33 +4866,27 @@ namespace PLSE_MVVMStrong.Model
                 }
             }
         }
-        public QuestionsList Questions
+
+        public ObservableCollection<string> Questions => _quest;
+        /// <summary>
+        /// Нумерация вопросов согласно постановления
+        /// </summary>
+        public bool NativeQuestionNumeration
         {
-            get => _quest;
+            get => _nativenumeration;
             set
             {
-                if (!Object.ReferenceEquals(value, _quest))
-                {
-                    _quest = value;
-                    OnPropertyChanged();
-                }
+                _nativenumeration = value;
+                OnPropertyChanged();
             }
         }
         /// <summary>
         /// Список предоставленных объектов
         /// </summary>
-        public ObjectsList Objects
-        {
-            get => _objects;
-            set
-            {
-                if (!Object.ReferenceEquals(value, _objects))
-                {
-                    _objects = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
+        public ObservableCollection<string> Objects => _objects;
+        /// <summary>
+        /// Вид экспертизы, назначенной в постановлении
+        /// </summary>
         public string PrescribeType
         {
             get => _prescribetype;
@@ -4917,6 +4927,9 @@ namespace PLSE_MVVMStrong.Model
                 }
             }
         }
+        /// <summary>
+        /// Дата вынесения постановления
+        /// </summary>
         public DateTime? ResolutionDate
         {
             get => _resdate;
@@ -4948,19 +4961,23 @@ namespace PLSE_MVVMStrong.Model
         public int ResolutionID => _id;
         public ObservableCollection<Expertise> Expertisies => _expertisies;
         public bool IsInstanceValidState => (Customer?.IsInstanceValidState ?? false) && !String.IsNullOrWhiteSpace(ResolutionType)
-                                            && !String.IsNullOrWhiteSpace(ResolutionStatus) && Case.IsInstanceValidState; 
+                                            && !String.IsNullOrWhiteSpace(ResolutionStatus) && Case.IsInstanceValidState;
         public string QeustionsString
         {
             get
             {
                 StringBuilder sb = new StringBuilder(200);
-                foreach (var item in Questions.Questions)
+                foreach (var item in _quest)
                 {
                     sb.AppendLine(item.Content);
                 }
                 return sb.ToString();
             }
         }
+        /// <summary>
+        /// Номера всех экспертиз, перечисленных через запятую
+        /// </summary>
+        /// /// <example>213, 214</example>
         public string OverallNumber
         {     
             get
@@ -4973,6 +4990,10 @@ namespace PLSE_MVVMStrong.Model
                 return sb.Length > 2 ? sb.Remove(0, 2).ToString() : null;
             }
         }
+        /// <summary>
+        /// Номера всех экспертиз с кодом отдела и кодом дела, перечисленных через запятую
+        /// </summary>
+        /// <example>213/2-3, 214/2-2</example>
         public string FullOverallNumber
         {
             get
@@ -4993,17 +5014,19 @@ namespace PLSE_MVVMStrong.Model
             ((INotifyPropertyChanged)_expertisies).PropertyChanged += ExpertiseStatusChanged;
             _case.PropertyChanged += (o, e) => OnPropertyChanged(e.PropertyName);
         }
-        public Resolution(int id, DateTime registrationdate, DateTime? resolutiondate, string resolutiontype, Customer customer, ObjectsList obj, string prescribe, QuestionsList quest,
-                            string status, Version vr, DateTime updatedate) : base(vr, updatedate)
+        public Resolution(int id, DateTime registrationdate, DateTime? resolutiondate, string resolutiontype, Customer customer, 
+                            string obj, string prescribe, string quest, bool nativenumeration, string status,
+                            Version vr, DateTime updatedate) : base(vr, updatedate)
         {
             _id = id;
             _regdate = registrationdate;
             _resdate = resolutiondate;
             _restype = resolutiontype;
             _customer = customer;
-            _objects = obj;
+            DBStringToCollection(_objects,obj);
             _prescribetype = prescribe;
-            _quest = quest;
+            DBStringToCollection(_quest, quest);
+            _nativenumeration = nativenumeration;
             _status = status;
             _expertisies.CollectionChanged += ExpertiseListChanged;
             ((INotifyPropertyChanged)_expertisies).PropertyChanged += ExpertiseStatusChanged;
@@ -5238,8 +5261,20 @@ namespace PLSE_MVVMStrong.Model
                     ContentToDB(con);
                     break;
             }
+        }   
+        private void DBStringToCollection(ICollection<string> coll, string s, char delimeter = '|')
+        {
+            if (String.IsNullOrEmpty(s)) return;
+            var ar = s.Split(new char[] { delimeter }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var item in ar)
+            {
+                coll.Add(item);
+            }
         }
-        
+        private void CollectionToDBString(IEnumerable<string> coll, out string s, char delimeter = '|')
+        {
+            s = String.Join(delimeter.ToString(), coll);
+        }
     }
 
     public class Equipment : NotifyBase // todo load from db
@@ -5924,7 +5959,6 @@ namespace PLSE_MVVMStrong.Model
                 return sb.ToString();
             }
         }
-
         private void OnBillListChanged(object o, NotifyCollectionChangedEventArgs e)
         {
             switch (e.Action)
