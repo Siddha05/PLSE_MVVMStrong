@@ -70,7 +70,7 @@ namespace PLSE_MVVMStrong.ViewModel
             Tasks.Add(bd);
             try
             {
-                //Resolution.SaveChanges(CommonInfo.connection);
+                Resolution.SaveChanges(CommonInfo.connection);
                 bd.Status = RuningTaskStatus.Completed;
             }
             catch (Exception)
@@ -92,24 +92,6 @@ namespace PLSE_MVVMStrong.ViewModel
             if (t1.IsFaulted) pod.Status = RuningTaskStatus.Error;
         End:
             Completed = true;
-        }
-        async System.Threading.Tasks.Task Worker(RuningTask task)
-        {
-            task.RuningAction = "Worker started";
-            await System.Threading.Tasks.Task.Delay(2000);
-            var tk = new RuningTask("Worker subtask started");
-            task.AddSubTask(tk);
-            await System.Threading.Tasks.Task.Delay(1000);
-            tk.Status = RuningTaskStatus.Completed;
-            task.RuningAction = "Worker compleated";
-            task.Status = RuningTaskStatus.Completed;
-        }
-        async System.Threading.Tasks.Task Worker1(RuningTask task)
-        {
-            task.RuningAction = "Worker1 started";
-            await System.Threading.Tasks.Task.Delay(4000);
-            task.RuningAction = "Worker error";
-            task.Status = RuningTaskStatus.Error;
         }
     }
 }

@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using PLSE_MVVMStrong.SQL;
 
 namespace PLSE_MVVMStrong.ViewModel
 {
@@ -99,67 +98,65 @@ namespace PLSE_MVVMStrong.ViewModel
             //}
             ExpertiseList = new List<Expertise>();
             #region Init
-            ObjectsList objects = new ObjectsList();
-            QuestionsList questions = new QuestionsList();
-            questions.Questions.Add(new ContentWrapper("Question 1"));
-            objects.Objects.Add(new ContentWrapper("Object 1"));
-            Resolution res = new Resolution(1, new DateTime(2019, 11, 21), new DateTime(2019, 11, 21),
-                                            "определение",
-                                            CommonInfo.Customers.First(n => n.CustomerID == 4),
-                                            objects,
-                                            "судебная экспертиза",
-                                            questions,
-                                            "в работе",
-                                            Model.Version.Original, new DateTime(2019, 11, 21));
-            res.Case.Number = "1220522142222000";
-            res.Case.Plaintiff = "Карпухин А.В.";
-            res.Case.Respondent = "ОАО \"Фирма всяческих производственных направленностей\"";
-            res.Case.TypeCase =  "гражданское";
-            res.Case.Annotate = "по факту мошенничества и незаконных действий в отношении Карпухина А.В., а также возмещения причиненного ущерба";
-            res.Case.Comment = "Длинный комментарий, написанный по поводу визуального тестирования расположения и восприятия на форме отображения состояния экспертизы по требованию и нет";
-            questions.Questions.Add(new ContentWrapper("Question 2"));
-            Resolution res2 = new Resolution(2, new DateTime(2020, 03, 23), new DateTime(2020, 3, 24),
-                                            "определение",
-                                            CommonInfo.Customers.First(n => n.CustomerID == 3),
-                                            objects,
-                                            "судебная экспертиза",
-                                            questions,
-                                            "в работе",
-                                            Model.Version.Original, new DateTime(2020, 3, 24));
-            Expertise e1 = new Expertise(1, "324",
-                                                CommonInfo.Experts.First(n => n.ExpertID == 7),
-                                                "в работе",
-                                                new DateTime(2019, 11, 21),
-                                                null,
-                                                30,
-                                                "первичная",
-                                                null,
-                                                null,
-                                                Model.Version.Original);
-            Expertise e2 = new Expertise(2, "325",
-                                                CommonInfo.Experts.First(n => n.ExpertID == 59),
-                                                "в работе",
-                                                new DateTime(2019, 11, 21),
-                                                null,
-                                                30,
-                                                "первичная",
-                                                null,
-                                                null,
-                                                Model.Version.Original);
-            Expertise e3 = new Expertise(3, "1438",
-                                               CommonInfo.Experts.First(n => n.ExpertID == 6),
-                                               "в работе",
-                                               new DateTime(2020, 3, 24),
-                                               null,
-                                               20,
-                                               "первичная",
-                                               null,
-                                               null,
-                                               Model.Version.Original);
-            res.Expertisies.Add(e1);
-            res.Expertisies.Add(e2);
-            res2.Expertisies.Add(e3);
-            ExpertiseList.Add(e1); ExpertiseList.Add(e2); ExpertiseList.Add(e3);
+            //questions.Questions.Add(new ContentWrapper("Question 1"));
+            //objects.Objects.Add(new ContentWrapper("Object 1"));
+            //Resolution res = new Resolution(1, new DateTime(2019, 11, 21), new DateTime(2019, 11, 21),
+            //                                "определение",
+            //                                CommonInfo.Customers.First(n => n.CustomerID == 4),
+            //                                objects,
+            //                                "судебная экспертиза",
+            //                                questions,
+            //                                "в работе",
+            //                                Model.Version.Original, new DateTime(2019, 11, 21));
+            //res.Case.Number = "1220522142222000";
+            //res.Case.Plaintiff = "Карпухин А.В.";
+            //res.Case.Respondent = "ОАО \"Фирма всяческих производственных направленностей\"";
+            //res.Case.TypeCase =  "гражданское";
+            //res.Case.Annotate = "по факту мошенничества и незаконных действий в отношении Карпухина А.В., а также возмещения причиненного ущерба";
+            //res.Case.Comment = "Длинный комментарий, написанный по поводу визуального тестирования расположения и восприятия на форме отображения состояния экспертизы по требованию и нет";
+            //questions.Questions.Add(new ContentWrapper("Question 2"));
+            //Resolution res2 = new Resolution(2, new DateTime(2020, 03, 23), new DateTime(2020, 3, 24),
+            //                                "определение",
+            //                                CommonInfo.Customers.First(n => n.CustomerID == 3),
+            //                                objects,
+            //                                "судебная экспертиза",
+            //                                questions,
+            //                                "в работе",
+            //                                Model.Version.Original, new DateTime(2020, 3, 24));
+            //Expertise e1 = new Expertise(1, "324",
+            //                                    CommonInfo.Experts.First(n => n.ExpertID == 7),
+            //                                    "в работе",
+            //                                    new DateTime(2019, 11, 21),
+            //                                    null,
+            //                                    30,
+            //                                    "первичная",
+            //                                    null,
+            //                                    null,
+            //                                    Model.Version.Original);
+            //Expertise e2 = new Expertise(2, "325",
+            //                                    CommonInfo.Experts.First(n => n.ExpertID == 59),
+            //                                    "в работе",
+            //                                    new DateTime(2019, 11, 21),
+            //                                    null,
+            //                                    30,
+            //                                    "первичная",
+            //                                    null,
+            //                                    null,
+            //                                    Model.Version.Original);
+            //Expertise e3 = new Expertise(3, "1438",
+            //                                   CommonInfo.Experts.First(n => n.ExpertID == 6),
+            //                                   "в работе",
+            //                                   new DateTime(2020, 3, 24),
+            //                                   null,
+            //                                   20,
+            //                                   "первичная",
+            //                                   null,
+            //                                   null,
+            //                                   Model.Version.Original);
+            //res.Expertisies.Add(e1);
+            //res.Expertisies.Add(e2);
+            //res2.Expertisies.Add(e3);
+            //ExpertiseList.Add(e1); ExpertiseList.Add(e2); ExpertiseList.Add(e3);
             #endregion
             Find = new RelayCommand(x =>
             {

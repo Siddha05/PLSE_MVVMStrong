@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
@@ -1411,7 +1412,7 @@ namespace PLSE_MVVMStrong.Model
                     int colPlaintiff = rd.GetOrdinal("Plaintiff");
                     int colRespondent = rd.GetOrdinal("Respondent");
                     int colCaseType = rd.GetOrdinal("TypeCase");
-                    int colNativeQuestions = rd.GetOrdinal();
+                    int colNativeQuestions = rd.GetOrdinal("NativeQuestionsNumeration");
                     Resolution _resolution = null;
                     Expertise _expertise = null;
                     while (rd.Read())
@@ -1706,7 +1707,39 @@ namespace PLSE_MVVMStrong.Model
             _execute(parameter);
         }
     }
-    
+    public class ContentWrapper : INotifyPropertyChanged
+    {
+        private string _content;
+        private int _num;
+        public string Content
+        {
+            get => _content;
+            set
+            {
+                _content = value;
+                OnPropertyChanged();
+            }
+        }
+        public int Number
+        {
+            get => _num;
+            set
+            {
+                _num = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ContentWrapper(string text)
+        {
+            _content = text;
+        }
+        public event PropertyChangedEventHandler PropertyChanged;
+        void OnPropertyChanged([CallerMemberName] string prop = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
+        }
+    }
     public enum MsgType
     {
         Normal = 0x0001,
@@ -4839,14 +4872,15 @@ namespace PLSE_MVVMStrong.Model
     public sealed class Resolution : NotifyBase
     {
 #region Fields
+
         private DateTime _regdate;
         private DateTime? _resdate;
         private string _restype;
         private Customer _customer;
         private Case _case = new Case();
-        private ObservableCollection<string> _objects = new ObservableCollection<string>();
+        private ObservableCollection<ContentWrapper> _objects = new ObservableCollection<ContentWrapper>();
         private string _prescribetype;
-        private ObservableCollection<String> _quest = new ObservableCollection<string>();
+        private ObservableCollection<ContentWrapper> _quest = new ObservableCollection<ContentWrapper>();
         private bool _nativenumeration;
         private string _status;
         private readonly ObservableCollection<Expertise> _expertisies = new ObservableCollection<Expertise>();
@@ -4866,8 +4900,7 @@ namespace PLSE_MVVMStrong.Model
                 }
             }
         }
-
-        public ObservableCollection<string> Questions => _quest;
+        public ObservableCollection<ContentWrapper> Questions => _quest;
         /// <summary>
         /// Нумерация вопросов согласно постановления
         /// </summary>
@@ -4883,7 +4916,7 @@ namespace PLSE_MVVMStrong.Model
         /// <summary>
         /// Список предоставленных объектов
         /// </summary>
-        public ObservableCollection<string> Objects => _objects;
+        public ObservableCollection<ContentWrapper> Objects => _objects;
         /// <summary>
         /// Вид экспертизы, назначенной в постановлении
         /// </summary>
@@ -5013,6 +5046,8 @@ namespace PLSE_MVVMStrong.Model
             _expertisies.CollectionChanged += ExpertiseListChanged;
             ((INotifyPropertyChanged)_expertisies).PropertyChanged += ExpertiseStatusChanged;
             _case.PropertyChanged += (o, e) => OnPropertyChanged(e.PropertyName);
+            _quest.CollectionChanged += _quest_CollectionChanged;
+            _objects.CollectionChanged += _quest_CollectionChanged;
         }
         public Resolution(int id, DateTime registrationdate, DateTime? resolutiondate, string resolutiontype, Customer customer, 
                             string obj, string prescribe, string quest, bool nativenumeration, string status,
@@ -5031,6 +5066,42 @@ namespace PLSE_MVVMStrong.Model
             _expertisies.CollectionChanged += ExpertiseListChanged;
             ((INotifyPropertyChanged)_expertisies).PropertyChanged += ExpertiseStatusChanged;
             _case.PropertyChanged += (o, e) => OnPropertyChanged(e.PropertyName);
+            _quest.CollectionChanged += _quest_CollectionChanged;
+            _objects.CollectionChanged += _quest_CollectionChanged;
+        }
+
+        private void _quest_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                case NotifyCollectionChangedAction.Replace:
+                    var c = sender as ObservableCollection<ContentWrapper>;
+                    int i = e.NewStartingIndex;
+                    foreach (var item in c.Skip(i))
+                    {
+                        item.Number = ++i;
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Remove:
+                    var c1 = sender as ObservableCollection<ContentWrapper>;
+                    int i1 = e.OldStartingIndex;
+                    foreach (var item in c1.Skip(i1))
+                    {
+                        item.Number = ++i1;
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Move:
+                    var c2 = sender as ObservableCollection<ContentWrapper>;
+                    int i2 = Math.Min(e.NewStartingIndex, e.OldStartingIndex);
+                    foreach (var item in c2.Skip(i2))
+                    {
+                        item.Number = ++i2;
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
 
         private void ExpertiseStatusChanged(object o, PropertyChangedEventArgs e)//CHECK!!!!
@@ -5114,7 +5185,7 @@ namespace PLSE_MVVMStrong.Model
             sb.AppendLine(Customer?.ToString());
             sb.AppendLine("----------------------------");
             sb.AppendLine("Questions: ");
-            foreach (var item in Questions?.Questions)
+            foreach (var item in Questions)
             {
                 sb.Append("\t");
                 sb.AppendLine(item.Content);
@@ -5150,13 +5221,10 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@Plaintiff", SqlDbType.NVarChar, 150).Value = ConvertToDBNull(Case.Plaintiff);
             cmd.Parameters.Add("@DispatchDate", SqlDbType.Date).Value = ConvertToDBNull(Case.DispatchDate);
             cmd.Parameters.Add("@PrescribeType", SqlDbType.NVarChar, 200).Value = ConvertToDBNull(PrescribeType);
-            var par = cmd.Parameters.Add("@Questions", SqlDbType.Udt);
-            par.UdtTypeName = "PLSE_New.dbo.QuestionsList";
-            par.Value = Questions.Questions.Count == 0 ? DBNull.Value : ConvertToDBNull(Questions);
-            par = cmd.Parameters.Add("@Objects", SqlDbType.Udt);
-            par.UdtTypeName = "PLSE_New.dbo.ResObjects";
-            par.Value = Objects.Objects.Count == 0 ? DBNull.Value : ConvertToDBNull(Objects);
-            par = cmd.Parameters.Add("@InsertedID", SqlDbType.Int);
+            cmd.Parameters.Add("@Questions", SqlDbType.NVarChar).Value = ConvertToDBNull(CollectionToDBString(Questions));
+            cmd.Parameters.Add("@Objects", SqlDbType.NVarChar).Value = ConvertToDBNull(CollectionToDBString(Objects));
+            cmd.Parameters.Add("@NativeQNumeration", SqlDbType.Bit).Value = NativeQuestionNumeration;
+            var par = cmd.Parameters.Add("@InsertedID", SqlDbType.Int);
             par.Direction = ParameterDirection.Output;
             cmd.Connection.Open();
             try
@@ -5194,12 +5262,9 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@Comment", SqlDbType.NVarChar, 500).Value = ConvertToDBNull(Case.Comment);
             cmd.Parameters.Add("@PrescribeType", SqlDbType.NVarChar, 200).Value = ConvertToDBNull(PrescribeType);
             cmd.Parameters.Add("@ResolIden", SqlDbType.Int).Value = ResolutionID;
-            var par = cmd.Parameters.Add("@Questions", SqlDbType.Udt);
-            par.UdtTypeName = "PLSE_New.dbo.QuestionsList";
-            par.Value = ConvertToDBNull(Questions);
-            par = cmd.Parameters.Add("@Objects", SqlDbType.Udt);
-            par.UdtTypeName = "PLSE_New.dbo.ResObjects";
-            par.Value = ConvertToDBNull(Objects);
+            cmd.Parameters.Add("@Questions", SqlDbType.NVarChar).Value = ConvertToDBNull(CollectionToDBString(Questions));
+            cmd.Parameters.Add("@Objects", SqlDbType.NVarChar).Value = ConvertToDBNull(CollectionToDBString(Objects));
+            cmd.Parameters.Add("@NativeQNumeration", SqlDbType.Bit).Value = NativeQuestionNumeration;
             try
             {
                 cmd.Connection.Open();
@@ -5262,19 +5327,22 @@ namespace PLSE_MVVMStrong.Model
                     break;
             }
         }   
-        private void DBStringToCollection(ICollection<string> coll, string s, char delimeter = '|')
+        private void DBStringToCollection(ICollection<ContentWrapper> coll, string s, char delimeter = '|')
         {
             if (String.IsNullOrEmpty(s)) return;
             var ar = s.Split(new char[] { delimeter }, StringSplitOptions.RemoveEmptyEntries);
             foreach (var item in ar)
             {
-                coll.Add(item);
+                coll.Add(new ContentWrapper(item));
             }
         }
-        private void CollectionToDBString(IEnumerable<string> coll, out string s, char delimeter = '|')
+        private string CollectionToDBString(IEnumerable<ContentWrapper> coll, char delimeter = '|')
         {
-            s = String.Join(delimeter.ToString(), coll);
+            if (coll == null && coll.Count() < 1) return null;
+            var scol = coll.Select(n => n.Content);
+            return String.Join(delimeter.ToString(), scol);
         }
+        
     }
 
     public class Equipment : NotifyBase // todo load from db

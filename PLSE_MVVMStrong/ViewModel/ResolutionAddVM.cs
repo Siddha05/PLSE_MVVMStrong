@@ -9,7 +9,6 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
-using PLSE_MVVMStrong.SQL;
 
 namespace PLSE_MVVMStrong.ViewModel
 {
@@ -294,7 +293,7 @@ namespace PLSE_MVVMStrong.ViewModel
             var ins = d as ResolutionAddVM;
             if (ins.QuestionText.EndsWith(Environment.NewLine))
             {
-                ins.Resolution.Questions.Questions.Add(new ContentWrapper(ins.QuestionText.Replace(Environment.NewLine, "")));
+                ins.Resolution.Questions.Add(new ContentWrapper(ins.QuestionText.Replace(Environment.NewLine, "")));
                 ins.QuestionText = "";
             }
         }
@@ -303,7 +302,7 @@ namespace PLSE_MVVMStrong.ViewModel
             var ins = d as ResolutionAddVM;
             if (ins.ObjectText.EndsWith(Environment.NewLine))
             {
-                ins.Resolution.Objects.Objects.Add(new ContentWrapper(ins.ObjectText.Replace(Environment.NewLine, "")));
+                ins.Resolution.Objects.Add(new ContentWrapper(ins.ObjectText.Replace(Environment.NewLine, "")));
                 ins.ObjectText = "";
             }
         }
