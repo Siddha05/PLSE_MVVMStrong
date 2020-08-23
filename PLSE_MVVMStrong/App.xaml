@@ -88,8 +88,14 @@
             <Setter Property="FontWeight" Value="DemiBold" />
             <Setter Property="Height" Value="{StaticResource UIHeigth}" />
             <Setter Property="VerticalAlignment" Value="Center"/>
-            
-
+        </Style>
+        <Style TargetType="{x:Type TextBlock}" x:Key="UIRightOrient">
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="Margin" Value="5,0,0,0" />
+            <Setter Property="FontSize" Value="{StaticResource UIFontSize}" />
+            <Setter Property="FontWeight" Value="DemiBold" />
+            <Setter Property="Height" Value="auto" />
+            <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
         <Style TargetType="{x:Type DatePicker}" x:Key="UIDatePicker">
             <Setter Property="FontSize" Value="{StaticResource UIFontSize}" />

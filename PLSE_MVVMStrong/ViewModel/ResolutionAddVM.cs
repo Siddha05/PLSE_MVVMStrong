@@ -24,7 +24,7 @@ namespace PLSE_MVVMStrong.ViewModel
         private RelayCommand _addquestion;
         #endregion Fields
 
-        #region Properties
+#region Properties
         public IReadOnlyList<string> ResolutionTypes => CommonInfo.ResolutionTypes;
         public IReadOnlyList<string> ResolutionStatus => CommonInfo.ResolutionStatus;
         public ListCollectionView CustomersList { get; }
@@ -90,7 +90,6 @@ namespace PLSE_MVVMStrong.ViewModel
         #endregion Properties
 
 #region Commands
-        public RelayCommand ObjectsClick { get; }
         public RelayCommand Save { get; }
         public RelayCommand AddExpertise
         {
@@ -161,7 +160,7 @@ namespace PLSE_MVVMStrong.ViewModel
             }
         }
         public RelayCommand SelectCustomer { get; }
-        #endregion Commands
+#endregion Commands
         
         public ResolutionAddVM()
         {
@@ -201,35 +200,13 @@ namespace PLSE_MVVMStrong.ViewModel
                 if (SelectedCustomer != null) return true;
                 return false;
             });
-            
-            ObjectsClick = new RelayCommand(n =>
-            {
-                var o = n as Popup;
-                if (o.IsOpen) o.IsOpen = false;
-                else o.IsOpen = true;
-            });
             Save = new RelayCommand(n =>
             {
                 var infownd = new ResolutionAddInfo(Resolution);
-                infownd.ShowDialog();
-                //try
-                //{
-                //    var bd = new RuningTask("Сохранение в базу данных");
-                //    Resolution.SaveChanges(CommonInfo.connection);
-                //    Thread.Sleep(500);
-                //    bd.Status = RuningTaskStatus.Completed;
-                //    //var pr = new DocsCreater(Resolution);
-                //    //var t = pr.OnExpertiseCreateAsync();
-                //    //if (MessageBox.Show("Сохранение успешно. Продолжить?", "Сохранение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
-                //    //{
-                //    //    Resolution = InicialState();
-                //    //}
-                //    //else (n as Window).Close();
-                //}
-                //catch (Exception ex)
-                //{
-                //    MessageBox.Show(ex.Message);
-                //}
+                if (infownd.ShowDialog() ?? false)
+                {
+                    Resolution = InicialState();
+                }
             },
              o=>
              {
@@ -314,11 +291,9 @@ namespace PLSE_MVVMStrong.ViewModel
                 RegistrationDate = DateTime.Now,
                 ResolutionType = "постановление",
                 ResolutionStatus = "рассмотрение",
+                NativeQuestionNumeration = true
             };
             r.Case.TypeCase = "уголовное";
-            //r.Objects.Objects.Add(new ContentWrapper("материалы гражданского дела № 22541"));
-            //r.Objects.Objects.Add(new ContentWrapper("руководство по эксплуатации"));
-           //r.Questions.Questions.Add(new ContentWrapper("Какова остаточная стоимость предоставленного на исследование сотового телефона марки \"Apple IPhone 11s\" с учетом износа на дату совершения кражи, т.е. на 21.07.2020? Какова стоимость указанного телефона без учета износа на дату совершения кражи, т.е. на 24.12.2020?"));
             return r;
         }
 

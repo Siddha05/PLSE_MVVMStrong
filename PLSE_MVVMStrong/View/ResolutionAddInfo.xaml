@@ -10,20 +10,21 @@
          ContentRendered="wnd_ContentRendered">
     <Window.Resources>
         <plse_mvvmstrong:TaskStatusToColorConverter x:Key="TaskStatusConv"/>
+        <plse_mvvmstrong:TextLenghtToIntConverter x:Key="TestLenghtToIntConv"/>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-        <ListBox BorderThickness="0" Margin="10,10" ItemsSource="{Binding Path=Tasks}">
+        <ListBox BorderThickness="1" Margin="10,10" ItemsSource="{Binding Path=Tasks}" BorderBrush="Gray">
             <ListBox.ItemContainerStyle>
                 <Style TargetType="{x:Type ListBoxItem}">
                     <Setter Property="OverridesDefaultStyle" Value="True"/>
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="{x:Type ListBoxItem}">
-                                <ContentPresenter/>
+                                <ContentPresenter Margin="4"/>
                             </ControlTemplate>
                         </Setter.Value>
                     </Setter>
@@ -33,19 +34,19 @@
                 <DataTemplate DataType="RuningTask">
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition/>
+                            <RowDefinition Height="auto"/>
                             <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
                         <TextBlock Text="{Binding Path=RuningAction, Mode=OneWay}" Foreground="{Binding Path=Status, Converter={StaticResource TaskStatusConv}, Mode=OneWay}"
                                FontSize="{StaticResource UIFontSize}" HorizontalAlignment="Left" TextWrapping="Wrap" FontWeight="Bold"/>
-                        <TextBlock Grid.Row="1" Margin="15,3,0,0" Text="{Binding Path=SubTasksList, Mode=OneWay}" 
-                                   Foreground="{Binding Path=Status, Converter={StaticResource TaskStatusConv}, Mode=OneWay}" FontSize="{StaticResource UIFontSize}"
-                                   HorizontalAlignment="Left" TextWrapping="Wrap" FontWeight="Normal"/>
+                        <TextBlock Grid.Row="1" Margin="15,3,0,0" Text="{Binding Path=SubTasksList, Mode=OneWay}" FontSize="{StaticResource UIFontSize}" FontWeight="Normal"
+                                   Foreground="{Binding Path=Status, Converter={StaticResource TaskStatusConv}, Mode=OneWay}" HorizontalAlignment="Left" TextWrapping="Wrap" 
+                                    Height="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Text, Converter={StaticResource TestLenghtToIntConv}}"/>
                     </Grid>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center">
+        <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right" Margin="0,0,20,0">
             <Button Style="{StaticResource BaseUIButton}" Content="ВЫХОД" Margin="0,0,5,15" Command="{Binding Path=Exit}" 
                     CommandParameter="{Binding ElementName=wnd}" Foreground="#FFD83535"/>
             <Button Style="{StaticResource BaseUIButton}" Content="ПРОДОЛЖИТЬ" Margin="5,0,0,15" Command="{Binding Path=Continue}"

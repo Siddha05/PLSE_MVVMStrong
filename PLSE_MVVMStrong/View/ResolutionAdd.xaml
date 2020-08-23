@@ -58,14 +58,6 @@
         <Style TargetType="{x:Type DataGridColumnHeader}" x:Key="DataGridNoHeaders">
             <Setter Property="Visibility" Value="Collapsed"/>
         </Style>
-        <Style TargetType="{x:Type TextBlock}" x:Key="UIRightOrient">
-            <Setter Property="HorizontalAlignment" Value="Left" />
-            <Setter Property="Margin" Value="5,0,0,0" />
-            <Setter Property="FontSize" Value="{StaticResource UIFontSize}" />
-            <Setter Property="FontWeight" Value="DemiBold" />
-            <Setter Property="Height" Value="auto" />
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
         <plse_mvvmstrong:TextLenghtConverter x:Key="TextLenghtConv"/>
         <plse_mvvmstrong:ZeroToVisibilityConverter x:Key="IntToVisibConv"/>
     </Window.Resources>
@@ -171,10 +163,10 @@
                         </Grid>
                     </Border>
                 </Popup>
-                <Expander Grid.Row="11" BorderBrush="Black" BorderThickness="0" Margin="30,5" Grid.ColumnSpan="2" MinHeight="30" Foreground="#FF1263D8" IsExpanded="False">
+                <Expander Grid.Row="11" BorderBrush="Black" BorderThickness="0" Margin="30,5" Grid.ColumnSpan="2" MinHeight="30">
                     <Expander.Header>
-                        <TextBlock Text="{Binding Path=Resolution.Objects.Count, StringFormat='Предоставленные объекты: {0}', Mode=OneWay}" FontSize="{StaticResource UIFontSize}"
-                                   FontWeight="DemiBold" />
+                        <TextBlock Foreground="DarkBlue" Text="{Binding Path=Resolution.Objects.Count, StringFormat='Предоставленные объекты: {0}', Mode=OneWay}" FontSize="{StaticResource UIFontSize}"
+                                   FontWeight="Bold"/>
                     </Expander.Header>
                     <Grid>
                         <Grid.RowDefinitions>
@@ -184,6 +176,7 @@
                             <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
                         <DataGrid ItemsSource="{Binding Path=Resolution.Objects}" AutoGenerateColumns="False"  GridLinesVisibility="None" 
+                                 
                               HorizontalScrollBarVisibility="Disabled" FontSize="{StaticResource RegularFontSize}" BorderThickness="0" Margin="2" Background="White"
                               RowStyle="{StaticResource DataGridSimpleRow}" ColumnHeaderStyle="{StaticResource DataGridNoHeaders}" CanUserAddRows="False"
                               CellStyle="{StaticResource DataGridSimpleCell}" Name="dgObjects">
@@ -221,23 +214,24 @@
                                  HorizontalAlignment="Left" Text="{Binding Path=ObjectText, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True">
                         </TextBox>
                         <TextBlock Grid.Row="3" HorizontalAlignment="Right" Foreground="Gray" FontStyle="Italic"
-                                   Text="Нажмите 'Enter' для добавления объекта"
-                                  />
+                                   Text="Нажмите 'Enter' для добавления объекта"/>
                     </Grid>
                 </Expander>
-                <Expander Grid.Row="12" BorderBrush="Black" BorderThickness="0" Margin="30,5" Grid.ColumnSpan="2" IsExpanded="False">
+                <Expander Grid.Row="12" BorderBrush="Black" BorderThickness="0" Margin="30,5" Grid.ColumnSpan="2">
                     <Expander.Header>
-                        <TextBlock Foreground="Blue"
-                            Text="{Binding Path=Resolution.Questions.Count, StringFormat='Поставленные вопросы: {0}'}" FontSize="{StaticResource UIFontSize}" FontWeight="DemiBold"/>
+                        <TextBlock Foreground="DarkBlue" FontSize="{StaticResource UIFontSize}" FontWeight="Bold"
+                            Text="{Binding Path=Resolution.Questions.Count, StringFormat='Поставленные вопросы: {0}'}"  />
                     </Expander.Header>
                     <Grid>
                         <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
                             <RowDefinition/>
                             <RowDefinition Height="auto"/>
                             <RowDefinition Height="auto"/>
                             <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
-                        <DataGrid ItemsSource="{Binding Path=Resolution.Questions}" AutoGenerateColumns="False"  GridLinesVisibility="None" 
+                        <CheckBox Style="{StaticResource GreenCheck}" Content="Нумерация согласно постановления" Margin="10,0" IsChecked="{Binding Path=Resolution.NativeQuestionNumeration}"/>
+                        <DataGrid ItemsSource="{Binding Path=Resolution.Questions}" AutoGenerateColumns="False"  GridLinesVisibility="None" Grid.Row="1"
                               HorizontalScrollBarVisibility="Disabled" FontSize="{StaticResource RegularFontSize}" BorderThickness="0" Margin="2" Background="White"
                               RowStyle="{StaticResource DataGridSimpleRow}" ColumnHeaderStyle="{StaticResource DataGridNoHeaders}" CanUserAddRows="False"
                               CellStyle="{StaticResource DataGridSimpleCell}" Name="dgQuestions">
@@ -268,14 +262,14 @@
                                 </DataGridTemplateColumn>
                             </DataGrid.Columns>
                         </DataGrid>
-                        <TextBlock Grid.Row="1" HorizontalAlignment="Right" Foreground="Gray" FontStyle="Italic" 
+                        <TextBlock Grid.Row="2" HorizontalAlignment="Right" Foreground="Gray" FontStyle="Italic" 
                                    Visibility="{Binding Path=Resolution.Questions.Count, Converter={StaticResource IntToVisibConv}, ConverterParameter='2'}"
                                    Text="Нажмите 'Delete' для удаления выбранного вопроса или 'MouseDoubleClick' для редактирования"
                                   />
-                        <TextBox Grid.Row="2" Style="{StaticResource SearchTextBox}" Tag="Введите вопрос" Margin="5,7,0,3" TextWrapping="Wrap" Height="auto" Width="770"
+                        <TextBox Grid.Row="3" Style="{StaticResource SearchTextBox}" Tag="Введите вопрос" Margin="5,7,0,3" TextWrapping="Wrap" Height="auto" Width="770"
                                  HorizontalAlignment="Left" Text="{Binding Path=QuestionText, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" >
                         </TextBox>
-                        <TextBlock Grid.Row="3" HorizontalAlignment="Right" Foreground="Gray" FontStyle="Italic"
+                        <TextBlock Grid.Row="4" HorizontalAlignment="Right" Foreground="Gray" FontStyle="Italic"
                                    Text="Нажмите 'Enter' для добавления вопроса"
                                   /> 
                     </Grid>
@@ -311,7 +305,7 @@
         <Button Style="{StaticResource BaseUIButton}" Grid.Column="1" Grid.Row="1" Content="ДОБАВИТЬ" Foreground="GreenYellow" Command="{Binding Path=Save}"
                 CommandParameter="{Binding ElementName=wnd}" HorizontalAlignment="Right" Margin="5,85, 40,10"/>
         <StackPanel Grid.Column="1" Orientation="Vertical">
-            <TextBlock Style="{x:Null}" Text="{Binding Path=Resolution.Expertisies.Count, StringFormat=Экспертизы {0}}" FontSize="{StaticResource HeaderFontSize}" 
+            <TextBlock Style="{x:Null}" Text="Экспертизы" FontSize="{StaticResource HeaderFontSize}" FontStyle="Italic"
                        FontWeight="Bold" HorizontalAlignment="Center" Margin="0,15,0,5"/>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,20,0">
                 <Button Style="{StaticResource AddItemButton}" Width="45" Height="45" Margin="1" Command="{Binding Path=AddExpertise}"
@@ -319,33 +313,28 @@
                 <Button Style="{StaticResource DeleteButton}" Width="45" Height="45" Margin="1" Command="{Binding Path=DeleteExpertise}"/>
             </StackPanel>
             <ListBox Margin="15,3" BorderThickness="0" MaxHeight="600" MinWidth="630" ItemsSource="{Binding Path=Resolution.Expertisies}" HorizontalContentAlignment="Stretch"
-                     SelectedItem="{Binding Path=SelectedExpertise}">
+                     SelectedItem="{Binding Path=SelectedExpertise}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="Expertise">
-                        <Grid>
+                        <Grid Height="90">
                             <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
                                 <RowDefinition Height="auto"/>
-                                <RowDefinition/>
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="90"/>
-                                <ColumnDefinition/>
-                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="6*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Name="tbNumber" Text="{Binding Path=Number, Mode=OneWay}" FontWeight="Bold" Foreground="#FF261ED3" VerticalAlignment="Center"
-                                           HorizontalAlignment="Center" Grid.RowSpan="2" Margin="5,0,5,0" FontSize="{StaticResource HeaderFontSize}"/>
-                            <TextBlock Grid.Column="1" Margin="8,1,1,1" HorizontalAlignment="Center" FontSize="{StaticResource UIFontSize}" FontWeight="DemiBold" 
-                                         TextWrapping="Wrap" Text="{Binding Path=Expert.Employee, Mode=OneWay}" TextDecorations="Underline">
-                            </TextBlock>
-                            <TextBlock Style="{x:Null}" Grid.Column="1" Grid.Row="1" Margin="8,1,1,1" HorizontalAlignment="Left" FontSize="{StaticResource UIFontSize}" FontWeight="DemiBold" 
-                                       TextWrapping="Wrap" MaxWidth="450" FontStyle="Italic" Text="{Binding Path=Expert.Speciality.Code, Mode=OneWay}"/>
-                            <TextBlock Grid.Column="2" Style="{x:Null}" Grid.RowSpan="2" FontSize="{StaticResource RegularFontSize}" Margin="2,2,6,2" VerticalAlignment="Center"
-                                       TextAlignment="Center">
-                                <Run Text="{Binding Path=StartDate, Mode=OneWay,StringFormat='от {0:d}', ConverterCulture='ru-RU'}"/>
+                            <TextBlock Name="tbNumber" Text="{Binding Path=Number, Mode=OneWay}" FontWeight="ExtraBlack"  VerticalAlignment="Center"
+                                           HorizontalAlignment="Center" Margin="5,0,5,0" FontSize="26" Foreground="DarkBlue" Grid.RowSpan="2"/>
+                            <TextBlock Grid.Column="1" Margin="8,1,1,1" HorizontalAlignment="Left" 
+                                         TextWrapping="Wrap" >
+                                <Run Text="{Binding Path=Expert.Employee, Mode=OneWay}" TextDecorations="Underline" FontSize="{StaticResource UIFontSize}" FontWeight="Bold"/>
                                 <LineBreak/>
-                                <Run Text="{Binding Path=TimeLimit, Mode=OneWay, StringFormat='срок {0}д.'}" FontSize="{StaticResource UIFontSize}" Foreground="#FF261ED3" FontWeight="Bold"
-                                     />
+                                <Run FontSize="{StaticResource UIFontSize}" FontWeight="DemiBold" FontStyle="Italic" Text="{Binding Path=Expert.Speciality.Code, Mode=OneWay}"/>
                             </TextBlock>
+                            <TextBlock Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" Margin="0,2,7,0" Panel.ZIndex="1" 
+                                       Text="{Binding Path=DeadLine, Mode=OneWay, StringFormat='до {0:d}', ConverterCulture='ru-RU'}"/>
                         </Grid>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
@@ -359,8 +348,19 @@
                                         <ContentPresenter/>
                                     </Border>
                                     <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="brd" Property="Control.Background" Value="{StaticResource MouseOverControl}"/>
+                                        </Trigger>
                                         <Trigger Property="IsSelected" Value="true">
-                                            <Setter TargetName="brd" Property="Background" Value="#FF8BAEF9"/>
+                                            <Setter TargetName="brd" Property="Control.Background">
+                                                <Setter.Value>
+                                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                        <GradientStop Color="Transparent" Offset=".14"/>
+                                                        <GradientStop Color="DarkBlue" Offset=".14"/>
+                                                    </LinearGradientBrush>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Setter Property="TextBlock.Foreground" Value="White"/>
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
