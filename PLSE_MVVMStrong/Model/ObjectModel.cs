@@ -1853,9 +1853,9 @@ namespace PLSE_MVVMStrong.Model
                 string s = null;
                 foreach (var item in SubTasks)
                 {
-                    s += $"- {item._action}" + Environment.NewLine;
+                    s += Environment.NewLine + $"- {item._action}";
                 }
-                return s;
+                return s?.Remove(0,2);
             }
         }
         public RuningTask(string action, RuningTaskStatus status = RuningTaskStatus.Running)
@@ -5936,6 +5936,17 @@ namespace PLSE_MVVMStrong.Model
                     return (TimeLimit - (DateTime.Now - _startdate).Days);
                 }
                 else return null;
+            }
+        }
+        public DateTime? DeadLine
+        {
+            get
+            {
+                if (Remain2 == null) return null;
+                else
+                {
+                    return DateTime.Now.AddDays(Remain2.Value);
+                }
             }
         }
         public int Inwork => EndDate == null ? (DateTime.Now - StartDate).Days : (EndDate.Value - StartDate).Days;

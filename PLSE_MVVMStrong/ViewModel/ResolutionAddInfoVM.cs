@@ -62,6 +62,10 @@ namespace PLSE_MVVMStrong.ViewModel
                                             w.Close();
                                         },
                                         e => Completed);
+            RuningTask task = new RuningTask("Testing task visualizator");
+
+            task.AddSubTask(new RuningTask("Sub task fo testing task"));
+            Tasks.Add(task);
         }
         public async void Proceed()
         {
@@ -70,7 +74,7 @@ namespace PLSE_MVVMStrong.ViewModel
             Tasks.Add(bd);
             try
             {
-                Resolution.SaveChanges(CommonInfo.connection);
+                //Resolution.SaveChanges(CommonInfo.connection);
                 bd.Status = RuningTaskStatus.Completed;
             }
             catch (Exception)
@@ -83,12 +87,12 @@ namespace PLSE_MVVMStrong.ViewModel
             Tasks.Add(not);
             var t = cr.CreateNotifyAsync(not, word);
             await t;
+            if (t.IsFaulted) not.Status = RuningTaskStatus.Error;
             var pod = new RuningTask("");
             Tasks.Add(pod);
             var t1 = cr.CreateSubscribeAsync(pod);
             await t1;
             word.Quit(SaveChanges: WdSaveOptions.wdDoNotSaveChanges);
-            if (t.IsFaulted) not.Status = RuningTaskStatus.Error;
             if (t1.IsFaulted) pod.Status = RuningTaskStatus.Error;
         End:
             Completed = true;

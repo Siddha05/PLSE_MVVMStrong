@@ -148,7 +148,7 @@ namespace PLSE_MVVMStrong
             var s = value as string;
             if (s != null)
             {
-                return s.Length == 0 ? 1 : 0;
+                 return s.Length == 0 ? 1 : 0;
             }
             else return 0;
         }
@@ -158,6 +158,28 @@ namespace PLSE_MVVMStrong
             throw new NotImplementedException();
         }
     }
+    /// <summary>
+    /// Конвертер перевода длинны строки в целое, указанное параметром.
+    /// <para>Если параметр не задан возвращает 'auto'</para>
+    /// </summary>
+    public class TextLenghtToIntConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var s = value as string;
+            if (String.IsNullOrEmpty(s))
+            {
+                return "0";
+            }
+            else return parameter == null ? "auto" : parameter.ToString();
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     /// <summary>
     /// Конвертер перевода числа в свойство Visibility.
     /// <para>
