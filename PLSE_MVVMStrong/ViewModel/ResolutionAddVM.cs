@@ -24,7 +24,7 @@ namespace PLSE_MVVMStrong.ViewModel
         private RelayCommand _addquestion;
         #endregion Fields
 
-        #region Properties
+#region Properties
         public IReadOnlyList<string> ResolutionTypes => CommonInfo.ResolutionTypes;
         public IReadOnlyList<string> ResolutionStatus => CommonInfo.ResolutionStatus;
         public ListCollectionView CustomersList { get; }
@@ -37,8 +37,6 @@ namespace PLSE_MVVMStrong.ViewModel
         }
         public static readonly DependencyProperty CustomersListOpenedProperty =
             DependencyProperty.Register("CustomersListOpened", typeof(bool), typeof(ResolutionAddVM), new PropertyMetadata(false));
-
-
         public string QuestionText
         {
             get { return (string)GetValue(QuestionTextProperty); }
@@ -46,8 +44,6 @@ namespace PLSE_MVVMStrong.ViewModel
         }
         public static readonly DependencyProperty QuestionTextProperty =
             DependencyProperty.Register("QuestionText", typeof(string), typeof(ResolutionAddVM), new PropertyMetadata("", QuestionText_Changed));
-
-
         public string ObjectText
         {
             get { return (string)GetValue(ObjectTextProperty); }
@@ -55,7 +51,6 @@ namespace PLSE_MVVMStrong.ViewModel
         }
         public static readonly DependencyProperty ObjectTextProperty =
             DependencyProperty.Register("ObjectText", typeof(string), typeof(ResolutionAddVM), new PropertyMetadata("", ObjectText_Changed));
-
         public string CustomerSearchText
         {
             get { return (string)GetValue(CustomerSearchTextProperty); }
@@ -249,13 +244,13 @@ namespace PLSE_MVVMStrong.ViewModel
                 else
                 {
                     CaseTypesList = CaseTypesFull;
-                    Resolution.Case.TypeCase = "уголовное";
+                    Resolution.TypeCase = "уголовное";
                 }
                 return;
             }
             if (e.PropertyName == "TypeCase")
             {
-                switch (Resolution.Case.TypeCase)
+                switch (Resolution.TypeCase)
                 {
                     case "исследование":
                         NumberVisible = Visibility.Collapsed;
@@ -315,7 +310,7 @@ namespace PLSE_MVVMStrong.ViewModel
                 ResolutionType = "постановление",
                 ResolutionStatus = "рассмотрение",
             };
-            r.Case.TypeCase = "уголовное";
+            r.TypeCase = "уголовное";
             //r.Objects.Objects.Add(new ContentWrapper("материалы гражданского дела № 22541"));
             //r.Objects.Objects.Add(new ContentWrapper("руководство по эксплуатации"));
            //r.Questions.Questions.Add(new ContentWrapper("Какова остаточная стоимость предоставленного на исследование сотового телефона марки \"Apple IPhone 11s\" с учетом износа на дату совершения кражи, т.е. на 21.07.2020? Какова стоимость указанного телефона без учета износа на дату совершения кражи, т.е. на 24.12.2020?"));

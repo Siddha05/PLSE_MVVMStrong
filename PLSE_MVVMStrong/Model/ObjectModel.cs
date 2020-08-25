@@ -1429,17 +1429,17 @@ namespace PLSE_MVVMStrong.Model
                                                 quest: rd[colQuestions] == DBNull.Value ? null : rd.GetString(colQuestions),
                                                 nativenumeration: rd.GetBoolean(colNativeQuestions),
                                                 status: rd.GetString(colResolutionStatus),
+                                                typecase: CaseTypes[rd.GetString(colCaseType)],
+                                                respondent: rd[colRespondent] == DBNull.Value ? null : rd.GetString(colRespondent),
+                                                plaintiff: rd[colPlaintiff] == DBNull.Value ? null : rd.GetString(colPlaintiff),
+                                                casenumber: rd[colNumberCase] == DBNull.Value ? null : rd.GetString(colNumberCase),
+                                                comment: rd[colCaseComment] == DBNull.Value ? null : rd.GetString(colCaseComment),
+                                                dispatchdate: rd[colDispatchDate] == DBNull.Value ? null : new DateTime?(rd.GetDateTime(colDispatchDate)),
+                                                annotate: rd[colAnnotate] == DBNull.Value ? null : rd.GetString(colAnnotate),
                                                 prescribe: rd[colPrescribeType] == DBNull.Value ? null : rd.GetString(colPrescribeType),
                                                 vr: Version.Original,
                                                 updatedate: DateTime.Now
                                                 );
-                            if (rd[colAnnotate] != DBNull.Value) _resolution.Case.Annotate = rd.GetString(colAnnotate);
-                            if (rd[colDispatchDate] != DBNull.Value) _resolution.Case.DispatchDate = new DateTime?(rd.GetDateTime(colDispatchDate));
-                            if (rd[colCaseComment] != DBNull.Value) _resolution.Case.Comment = rd.GetString(colCaseComment);
-                            if (rd[colNumberCase] != DBNull.Value) _resolution.Case.Number = rd.GetString(colNumberCase);
-                            if (rd[colPlaintiff] != DBNull.Value) _resolution.Case.Plaintiff = rd.GetString(colPlaintiff);
-                            if (rd[colRespondent] != DBNull.Value) _resolution.Case.Respondent = rd.GetString(colRespondent);
-                            if (rd[colCaseType] != DBNull.Value) _resolution.Case.TypeCase = CaseTypes[rd.GetString(colCaseType)];
                             resolutions.Add(_resolution);
                         }
                         if (!_resolution.Expertisies.Any(n => n.ExpertiseID == rd.GetInt32(colExpertiseID)))
@@ -4643,241 +4643,16 @@ namespace PLSE_MVVMStrong.Model
         }
         object ICloneable.Clone() => Clone();
     }
-    public sealed class Case : INotifyPropertyChanged
-    {
-        private string _number;
-        private string _respondent;
-        private string _plaintiff;
-        private string _typecase;
-        private string _annotate;
-        private string _comment;
-        private DateTime? _dispatchdate;
-
-        public DateTime? DispatchDate
-        {
-            get => _dispatchdate;
-            set
-            {
-                if (value != _dispatchdate)
-                {
-                    _dispatchdate = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-        public string Comment
-        {
-            get => _comment;
-            set
-            {
-                if (value != _comment)
-                {
-                    _comment = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-        public string Annotate
-        {
-            get => _annotate;
-            set
-            {
-                if (value != _annotate)
-                {
-                    _annotate = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-        public string TypeCase
-        {
-            get => _typecase;
-            set
-            {
-                if (value != _typecase)
-                {
-                    _typecase = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-        public string Plaintiff
-        {
-            get
-            {
-                if (TypeCase == "проверка КУCП" && TypeCase == "уголовное" && TypeCase == "административное правонарушение") return null;
-                else return _plaintiff;
-            }
-            set
-            {
-                if (value != _plaintiff)
-                {
-                    _plaintiff = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-        public string Respondent
-        {
-            get
-            {
-                if (TypeCase == "проверка КУCП" && TypeCase == "уголовное" && TypeCase == "административное правонарушение") return null;
-                else return _respondent;
-            }
-            set
-            {
-                if (value != _respondent)
-                {
-                    _respondent = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-        public string Number
-        {
-            get => _number;
-            set
-            {
-                if (value != _number)
-                {
-                    _number = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-        public string Essense => AnnotateBuilder();
-
-        public bool IsInstanceValidState => !String.IsNullOrWhiteSpace(_typecase);
-
-        public Case(){}
-        public Case(string number, string type, string respondent, string plaintiff, string annotate, string comment = null, DateTime? dispatchdate = null)
-                    : base()
-        {
-            _number = number;
-            _typecase = type;
-            _respondent = respondent;
-            _plaintiff = plaintiff;
-            _annotate = annotate;
-            _comment = comment;
-            _dispatchdate = dispatchdate;
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void OnPropertyChanged([CallerMemberName]string prop = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
-        }
-        public override string ToString()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.Append("Number: ");
-            sb.AppendLine(Number);
-            sb.Append("Type: ");
-            sb.AppendLine(TypeCase);
-            sb.Append("DispatchDate: ");
-            sb.AppendLine(this.DispatchDate.ToString());
-            sb.Append("Annotate: ");
-            sb.AppendLine(Annotate);
-            sb.Append("Comment: ");
-            sb.AppendLine(Comment);
-            sb.Append("Respondent: ");
-            sb.AppendLine(Respondent);
-            sb.Append("Plaintiff: ");
-            sb.AppendLine(Plaintiff);
-            return sb.ToString();
-        }
-        private string CaseTypeDeclination()
-        {
-            switch (_typecase)
-            {
-                case "уголовное":
-                    return "уголовного";
-                case "гражданское":
-                    return "гражданского";
-                case "арбитражное":
-                    return "арбитражного";
-                case "административное правонарушение":
-                    return "административного правонарушения";
-                case "проверка КУСП":
-                    return "проверки КУСП";
-                case "исследование":
-                    return "исследования";
-                case "административное судопроизводство":
-                    return "административного судопроизводства";
-                default:
-                    return _typecase;
-            }
-        }
-        public string AnnotateBuilder()
-        {
-            switch (_typecase)
-            {
-                case "уголовное":
-                case "гражданское":
-                case "арбитражное":
-                    return $"по материалам {CaseTypeDeclination()} дела № {Number} {Annotate}";
-                case "административное правонарушение":
-                    return $"по материалам {CaseTypeDeclination()} {Annotate}";
-                case "проверка КУСП":
-                    return $"по материалам {CaseTypeDeclination()} № {Number} {Annotate}";
-                case "исследование":
-                    return $"{CaseTypeDeclination()} {Annotate}";
-                case "административное судопроизводство":
-                    return $"по материалам {CaseTypeDeclination()} № {Number} {Annotate}";
-                default:
-                    return null;
-            }
-        }
-        public string Codex()
-        {
-            switch (_typecase)
-            {
-                case "уголовное":
-                    return "57 УПК РФ";
-                case "гражданское":
-                    return "85 ГПК РФ";
-                case "арбитражное":
-                    return "55 АПК РФ";
-                case "административное правонарушение":
-                    return "25.9 КоАП РФ";
-                case "проверка КУСП":
-                    return "57 УПК РФ";
-                case "административное судопроизводство":
-                    return "49 КАС РФ";
-                default:
-                    return null;
-            }
-        }
-        public string SubcribeArticle()
-        {
-            switch (_typecase)
-            {
-                case "уголовное":  
-                case "гражданское":
-                case "арбитражное":
-                case "проверка КУСП":
-                case "административное судопроизводство":
-                    return "307 УК РФ";
-                case "административное правонарушение":
-                    return "17.9 КоАП РФ";
-                default:
-                    return null;
-            }
-        }
-    }
-
     /// <summary>
     /// The main <c>Resolution</c> class. Contains all another linked entities, like expertise, customers, ect.
     /// </summary>
     public sealed class Resolution : NotifyBase
     {
 #region Fields
-
         private DateTime _regdate;
         private DateTime? _resdate;
         private string _restype;
         private Customer _customer;
-        private Case _case = new Case();
         private ObservableCollection<ContentWrapper> _objects = new ObservableCollection<ContentWrapper>();
         private string _prescribetype;
         private ObservableCollection<ContentWrapper> _quest = new ObservableCollection<ContentWrapper>();
@@ -4885,8 +4660,15 @@ namespace PLSE_MVVMStrong.Model
         private string _status;
         private readonly ObservableCollection<Expertise> _expertisies = new ObservableCollection<Expertise>();
         private int _id;
+        private string _casenumber;
+        private string _respondent;
+        private string _plaintiff;
+        private string _typecase;
+        private string _annotate;
+        private string _comment;
+        private DateTime? _dispatchdate;
         #endregion
-       
+
 #region Property
         public string ResolutionStatus
         {
@@ -4932,7 +4714,6 @@ namespace PLSE_MVVMStrong.Model
                 }
             }
         }
-        public Case Case => _case;
         public Customer Customer
         {
             get => _customer;
@@ -4955,7 +4736,7 @@ namespace PLSE_MVVMStrong.Model
                 {
                     if (String.IsNullOrWhiteSpace(value)) throw new ArgumentException("Поле не может быть пустым");
                     _restype = value;
-                    if (value == "договор") this.Case.TypeCase = "исследование";
+                    if (value == "договор") TypeCase = "исследование";
                     OnPropertyChanged();
                 }
             }
@@ -4994,7 +4775,7 @@ namespace PLSE_MVVMStrong.Model
         public int ResolutionID => _id;
         public ObservableCollection<Expertise> Expertisies => _expertisies;
         public bool IsInstanceValidState => (Customer?.IsInstanceValidState ?? false) && !String.IsNullOrWhiteSpace(ResolutionType)
-                                            && !String.IsNullOrWhiteSpace(ResolutionStatus) && Case.IsInstanceValidState;
+                                            && !String.IsNullOrWhiteSpace(ResolutionStatus) && !String.IsNullOrWhiteSpace(_typecase);
         public string QeustionsString
         {
             get
@@ -5039,19 +4820,117 @@ namespace PLSE_MVVMStrong.Model
                 return sb.Length > 2 ? sb.Remove(0, 2).ToString() : null;
             }
         }
-#endregion
-        
+        public DateTime? DispatchDate
+        {
+            get => _dispatchdate;
+            set
+            {
+                if (value != _dispatchdate)
+                {
+                    _dispatchdate = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public string Comment
+        {
+            get => _comment;
+            set
+            {
+                if (value != _comment)
+                {
+                    _comment = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public string CaseAnnotate
+        {
+            get => _annotate;
+            set
+            {
+                if (value != _annotate)
+                {
+                    _annotate = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public string TypeCase
+        {
+            get => _typecase;
+            set
+            {
+                if (value != _typecase)
+                {
+                    if (String.IsNullOrWhiteSpace(value)) throw new ArgumentException("Поле не может быть пустым");
+                    _typecase = value;
+                    if (_typecase == "исследование")
+                    {
+                        ResolutionType = "договор";
+                        Plaintiff = Respondent = CaseNumber = null;
+                    } 
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public string Plaintiff
+        {
+            get
+            {
+                if (TypeCase == "проверка КУCП" && TypeCase == "уголовное" && TypeCase == "административное правонарушение") return null;
+                else return _plaintiff;
+            }
+            set
+            {
+                if (value != _plaintiff)
+                {
+                    _plaintiff = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public string Respondent
+        {
+            get
+            {
+                if (TypeCase == "проверка КУCП" && TypeCase == "уголовное" && TypeCase == "административное правонарушение") return null;
+                else return _respondent;
+            }
+            set
+            {
+                if (value != _respondent)
+                {
+                    _respondent = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public string CaseNumber
+        {
+            get => _casenumber;
+            set
+            {
+                if (value != _casenumber)
+                {
+                    _casenumber = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public string Essense => AnnotateBuilder();
+        #endregion
+
         public Resolution() : base()
         {
             _expertisies.CollectionChanged += ExpertiseListChanged;
             ((INotifyPropertyChanged)_expertisies).PropertyChanged += ExpertiseStatusChanged;
-            _case.PropertyChanged += (o, e) => OnPropertyChanged(e.PropertyName);
             _quest.CollectionChanged += _quest_CollectionChanged;
             _objects.CollectionChanged += _quest_CollectionChanged;
         }
         public Resolution(int id, DateTime registrationdate, DateTime? resolutiondate, string resolutiontype, Customer customer, 
-                            string obj, string prescribe, string quest, bool nativenumeration, string status,
-                            Version vr, DateTime updatedate) : base(vr, updatedate)
+                            string obj, string prescribe, string quest, bool nativenumeration, string status, string casenumber, string respondent, string plaintiff,
+                            string typecase, string annotate,string comment, DateTime? dispatchdate, Version vr, DateTime updatedate) : base(vr, updatedate)
         {
             _id = id;
             _regdate = registrationdate;
@@ -5063,13 +4942,19 @@ namespace PLSE_MVVMStrong.Model
             DBStringToCollection(_quest, quest);
             _nativenumeration = nativenumeration;
             _status = status;
+            _casenumber = casenumber;
+            _respondent = respondent;
+            _plaintiff = plaintiff;
+            _typecase = typecase;
+            _annotate = annotate;
+            _comment = comment;
+            _dispatchdate = dispatchdate;
             _expertisies.CollectionChanged += ExpertiseListChanged;
             ((INotifyPropertyChanged)_expertisies).PropertyChanged += ExpertiseStatusChanged;
-            _case.PropertyChanged += (o, e) => OnPropertyChanged(e.PropertyName);
             _quest.CollectionChanged += _quest_CollectionChanged;
             _objects.CollectionChanged += _quest_CollectionChanged;
         }
-
+        #region Methods
         private void _quest_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             switch (e.Action)
@@ -5103,7 +4988,6 @@ namespace PLSE_MVVMStrong.Model
                     break;
             }
         }
-
         private void ExpertiseStatusChanged(object o, PropertyChangedEventArgs e)//CHECK!!!!
         {
             OnPropertyChanged("Expertisies", true);
@@ -5117,7 +5001,7 @@ namespace PLSE_MVVMStrong.Model
                 ResolutionStatus = "выполнено";
             }
         }
-        private void ExpertiseListChanged(object o, NotifyCollectionChangedEventArgs e)  
+        private void ExpertiseListChanged(object o, NotifyCollectionChangedEventArgs e) 
         {
             switch (e.Action)
             {
@@ -5167,7 +5051,6 @@ namespace PLSE_MVVMStrong.Model
                     break;
             }
         }
-
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder("<Resolution> ID is ");
@@ -5191,8 +5074,6 @@ namespace PLSE_MVVMStrong.Model
                 sb.AppendLine(item.Content);
             }
             sb.AppendLine("---------------------------");
-            sb.AppendLine("Case: ");
-            sb.AppendLine(Case?.ToString());
             sb.AppendLine("Expertisies: ");
             sb.Append(Expertisies.Count);
             return sb.ToString();
@@ -5213,13 +5094,13 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@TypeResol", SqlDbType.NVarChar, 30).Value = ResolutionType;
             cmd.Parameters.Add("@Status", SqlDbType.NVarChar, 30).Value = _status;
             cmd.Parameters.Add("@CustID", SqlDbType.Int).Value = Customer.CustomerID;
-            cmd.Parameters.Add("@TypeCase", SqlDbType.Char, 1).Value = CommonInfo.CaseTypes[Case.TypeCase];
-            cmd.Parameters.Add("@Annotate", SqlDbType.NVarChar, 500).Value = ConvertToDBNull(Case.Annotate);
-            cmd.Parameters.Add("@Comment", SqlDbType.NVarChar, 500).Value = ConvertToDBNull(Case.Comment);
-            cmd.Parameters.Add("@NumberCase", SqlDbType.NVarChar, 50).Value = ConvertToDBNull(Case.Number);
-            cmd.Parameters.Add("@Respondent", SqlDbType.NVarChar, 150).Value = ConvertToDBNull(Case.Respondent);
-            cmd.Parameters.Add("@Plaintiff", SqlDbType.NVarChar, 150).Value = ConvertToDBNull(Case.Plaintiff);
-            cmd.Parameters.Add("@DispatchDate", SqlDbType.Date).Value = ConvertToDBNull(Case.DispatchDate);
+            cmd.Parameters.Add("@TypeCase", SqlDbType.Char, 1).Value = CommonInfo.CaseTypes[TypeCase];
+            cmd.Parameters.Add("@Annotate", SqlDbType.NVarChar, 500).Value = ConvertToDBNull(CaseAnnotate);
+            cmd.Parameters.Add("@Comment", SqlDbType.NVarChar, 500).Value = ConvertToDBNull(Comment);
+            cmd.Parameters.Add("@NumberCase", SqlDbType.NVarChar, 50).Value = ConvertToDBNull(CaseNumber);
+            cmd.Parameters.Add("@Respondent", SqlDbType.NVarChar, 150).Value = ConvertToDBNull(Respondent);
+            cmd.Parameters.Add("@Plaintiff", SqlDbType.NVarChar, 150).Value = ConvertToDBNull(Plaintiff);
+            cmd.Parameters.Add("@DispatchDate", SqlDbType.Date).Value = ConvertToDBNull(DispatchDate);
             cmd.Parameters.Add("@PrescribeType", SqlDbType.NVarChar, 200).Value = ConvertToDBNull(PrescribeType);
             cmd.Parameters.Add("@Questions", SqlDbType.NVarChar).Value = ConvertToDBNull(CollectionToDBString(Questions));
             cmd.Parameters.Add("@Objects", SqlDbType.NVarChar).Value = ConvertToDBNull(CollectionToDBString(Objects));
@@ -5253,13 +5134,13 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@TypeResol", SqlDbType.NVarChar, 30).Value = ResolutionType;
             cmd.Parameters.Add("@Status", SqlDbType.NVarChar, 30).Value = _status;
             cmd.Parameters.Add("@CustID", SqlDbType.Int).Value = Customer.CustomerID;
-            cmd.Parameters.Add("@NumberCase", SqlDbType.NVarChar, 50).Value = ConvertToDBNull(Case.Number);
-            cmd.Parameters.Add("@Annotate", SqlDbType.NVarChar, 500).Value = ConvertToDBNull(Case.Annotate);
-            cmd.Parameters.Add("@Respondent", SqlDbType.NVarChar, 150).Value = ConvertToDBNull(Case.Respondent);
-            cmd.Parameters.Add("@Plaintiff", SqlDbType.NVarChar, 150).Value = ConvertToDBNull(Case.Plaintiff);
-            cmd.Parameters.Add("@DispatchDate", SqlDbType.Date).Value = ConvertToDBNull(Case.DispatchDate);
-            cmd.Parameters.Add("@TypeCase", SqlDbType.Char, 1).Value = CommonInfo.CaseTypes[Case.TypeCase];
-            cmd.Parameters.Add("@Comment", SqlDbType.NVarChar, 500).Value = ConvertToDBNull(Case.Comment);
+            cmd.Parameters.Add("@NumberCase", SqlDbType.NVarChar, 50).Value = ConvertToDBNull(CaseNumber);
+            cmd.Parameters.Add("@Annotate", SqlDbType.NVarChar, 500).Value = ConvertToDBNull(CaseAnnotate);
+            cmd.Parameters.Add("@Respondent", SqlDbType.NVarChar, 150).Value = ConvertToDBNull(Respondent);
+            cmd.Parameters.Add("@Plaintiff", SqlDbType.NVarChar, 150).Value = ConvertToDBNull(Plaintiff);
+            cmd.Parameters.Add("@DispatchDate", SqlDbType.Date).Value = ConvertToDBNull(DispatchDate);
+            cmd.Parameters.Add("@TypeCase", SqlDbType.Char, 1).Value = CommonInfo.CaseTypes[TypeCase];
+            cmd.Parameters.Add("@Comment", SqlDbType.NVarChar, 500).Value = ConvertToDBNull(Comment);
             cmd.Parameters.Add("@PrescribeType", SqlDbType.NVarChar, 200).Value = ConvertToDBNull(PrescribeType);
             cmd.Parameters.Add("@ResolIden", SqlDbType.Int).Value = ResolutionID;
             cmd.Parameters.Add("@Questions", SqlDbType.NVarChar).Value = ConvertToDBNull(CollectionToDBString(Questions));
@@ -5342,6 +5223,85 @@ namespace PLSE_MVVMStrong.Model
             var scol = coll.Select(n => n.Content);
             return String.Join(delimeter.ToString(), scol);
         }
+        private string CaseTypeDeclination()
+        {
+            switch (_typecase)
+            {
+                case "уголовное":
+                    return "уголовного";
+                case "гражданское":
+                    return "гражданского";
+                case "арбитражное":
+                    return "арбитражного";
+                case "административное правонарушение":
+                    return "административного правонарушения";
+                case "проверка КУСП":
+                    return "проверки КУСП";
+                case "исследование":
+                    return "исследования";
+                case "административное судопроизводство":
+                    return "административного судопроизводства";
+                default:
+                    return _typecase;
+            }
+        }
+        public string AnnotateBuilder()
+        {
+            switch (_typecase)
+            {
+                case "уголовное":
+                case "гражданское":
+                case "арбитражное":
+                    return $"по материалам {CaseTypeDeclination()} дела № {CaseNumber} {CaseAnnotate}";
+                case "административное правонарушение":
+                    return $"по материалам {CaseTypeDeclination()} {CaseAnnotate}";
+                case "проверка КУСП":
+                    return $"по материалам {CaseTypeDeclination()} № {CaseNumber} {CaseAnnotate}";
+                case "исследование":
+                    return $"{CaseTypeDeclination()} {CaseAnnotate}";
+                case "административное судопроизводство":
+                    return $"по материалам {CaseTypeDeclination()} № {CaseNumber} {CaseAnnotate}";
+                default:
+                    return null;
+            }
+        }
+        public string Codex()
+        {
+            switch (_typecase)
+            {
+                case "уголовное":
+                    return "57 УПК РФ";
+                case "гражданское":
+                    return "85 ГПК РФ";
+                case "арбитражное":
+                    return "55 АПК РФ";
+                case "административное правонарушение":
+                    return "25.9 КоАП РФ";
+                case "проверка КУСП":
+                    return "57 УПК РФ";
+                case "административное судопроизводство":
+                    return "49 КАС РФ";
+                default:
+                    return null;
+            }
+        }
+        public string SubcribeArticle()
+        {
+            switch (_typecase)
+            {
+                case "уголовное":
+                case "гражданское":
+                case "арбитражное":
+                case "проверка КУСП":
+                case "административное судопроизводство":
+                    return "307 УК РФ";
+                case "административное правонарушение":
+                    return "17.9 КоАП РФ";
+                default:
+                    return null;
+            }
+        }
+        #endregion
         
     }
 
@@ -5881,8 +5841,7 @@ namespace PLSE_MVVMStrong.Model
         {
             get
             {
-                string s;
-                CommonInfo.CaseTypes.TryGetValue(_resolution.Case.TypeCase, out s);
+                CommonInfo.CaseTypes.TryGetValue(_resolution.TypeCase, out string  s);
                 return $"{_number}/{Expert.Employee?.Departament.DigitalCode}-{s}";
             }
         }
@@ -6885,7 +6844,7 @@ namespace PLSE_MVVMStrong.Model
         }
         public async System.Threading.Tasks.Task CreateNotifyAsync(RuningTask task, Microsoft.Office.Interop.Word.Application wordapp = null)
         {
-            if (Resolution.Case.TypeCase != "уголовное") return;
+            if (Resolution.TypeCase != "уголовное") return;
             task.RuningAction = "Создание уведомления";
             task.Status = RuningTaskStatus.Running;
             bool toclose = false;
@@ -6921,7 +6880,7 @@ namespace PLSE_MVVMStrong.Model
             doc.Activate();
             var bmarks = doc.Bookmarks;
             bmarks["number"].Range.Text = group.Select(n => n.FullNumber).Aggregate((c, n) => c + ", " + n);
-            bmarks["annotate"].Range.Text = Resolution.Case.AnnotateBuilder();
+            bmarks["annotate"].Range.Text = Resolution.AnnotateBuilder();
             StringBuilder sb = new StringBuilder(400);
             Employee e = group.First().Expert.Employee;
             sb.Append(Declination.DeclineBeforeNoun(e.Inneroffice, LingvoNET.Case.Dative));
@@ -6965,8 +6924,8 @@ namespace PLSE_MVVMStrong.Model
             bmarks["expert"].Range.Text = sb.ToString();
             bmarks["fio"].Range.Text = e.ToString();
             bmarks["date"].Range.Text = group.First().StartDate.ToString("dd MMMM yyyy");
-            bmarks["codex"].Range.Text = Resolution.Case.Codex();
-            bmarks["respon"].Range.Text = Resolution.Case.SubcribeArticle();
+            bmarks["codex"].Range.Text = Resolution.Codex();
+            bmarks["respon"].Range.Text = Resolution.SubcribeArticle();
             string to = Path.Combine(DestinationFolder(), e.ToString() + " подписка.docx");
             if (File.Exists(to))
             {
@@ -6999,7 +6958,7 @@ namespace PLSE_MVVMStrong.Model
                 r.Text = "[не указано]";
                 r.Font.Color = WdColor.wdColorRed;
             }
-            bmarks["casenumber"].Range.Text = bmarks["casenumber2"].Range.Text = Resolution.Case.Number;
+            bmarks["casenumber"].Range.Text = bmarks["casenumber2"].Range.Text = Resolution.CaseNumber;
             bmarks["date"].Range.Text = bmarks["date2"].Range.Text = bmarks["startdate"].Range.Text = bmarks["startdate2"].Range.Text = group.Key.ToString("dd.MM.yyyy");
             bmarks["departament"].Range.Text = bmarks["departament2"].Range.Text = group.Select(n => n.Expert.Employee.Departament.Acronym)
                                                                                         .Distinct()
