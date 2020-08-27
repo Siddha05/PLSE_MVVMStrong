@@ -1429,7 +1429,7 @@ namespace PLSE_MVVMStrong.Model
                                                 quest: rd[colQuestions] == DBNull.Value ? null : rd.GetString(colQuestions),
                                                 nativenumeration: rd.GetBoolean(colNativeQuestions),
                                                 status: rd.GetString(colResolutionStatus),
-                                                typecase: CaseTypes[rd.GetString(colCaseType)],
+                                                typecase: CaseTypes.Single(n => n.Value == rd.GetString(colCaseType)).Key,
                                                 respondent: rd[colRespondent] == DBNull.Value ? null : rd.GetString(colRespondent),
                                                 plaintiff: rd[colPlaintiff] == DBNull.Value ? null : rd.GetString(colPlaintiff),
                                                 casenumber: rd[colNumberCase] == DBNull.Value ? null : rd.GetString(colNumberCase),
@@ -1512,10 +1512,10 @@ namespace PLSE_MVVMStrong.Model
                     rd.Close();
                 }
             }
-            catch (Exception)
-            {
-                throw;
-            }
+            //catch (Exception)
+            //{
+            //    throw;
+            //}
             finally
             {
                 connection.Close();

@@ -258,4 +258,26 @@ namespace PLSE_MVVMStrong
             throw new NotImplementedException();
         }
     }
+    /// <summary>
+    /// Конвертер превода оставшихся дней для экспертизы в цвет
+    /// </summary>
+    public class DatagridArrowColor : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var exp = value as Expertise;
+            if (exp.Remain2.HasValue)
+            {
+                if (exp.Remain2.Value > 3) return "Green";
+                if (exp.Remain2.Value < 1) return "Red";
+                return "Yellow";
+            }
+            else return "Green";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

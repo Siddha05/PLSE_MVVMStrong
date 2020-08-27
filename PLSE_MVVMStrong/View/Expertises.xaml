@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewmodel="clr-namespace:PLSE_MVVMStrong.ViewModel"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
-        xmlns:local="clr-namespace:PLSE_MVVMStrong.View"
+        xmlns:local="clr-namespace:PLSE_MVVMStrong.View" 
         mc:Ignorable="d"
         Title="Expertises" Width="1880" ResizeMode="CanMinimize" Height="1000">
     <Window.DataContext>
@@ -21,22 +21,27 @@
                             <ContentPresenter Name="prs" TextBlock.Foreground="Gray">
                                 <ContentPresenter.ContentTemplate>
                                     <DataTemplate DataType="Expert">
-                                        <Border>
+                                        <Border Background="Transparent">
                                             <Grid>
                                                 <Grid.RowDefinitions>
-                                                    <RowDefinition Height="60"/>
+                                                    <RowDefinition Height="50"/>
                                                 </Grid.RowDefinitions>
                                                 <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="60"/>
+                                                    <ColumnDefinition Width="50"/>
                                                     <ColumnDefinition/>
                                                 </Grid.ColumnDefinitions>
-                                                <Ellipse Stroke="Blue" Margin="1" Panel.ZIndex="3" StrokeThickness="1">
+                                                <Ellipse Stroke="Blue" Margin="1" StrokeThickness=".5">
                                                     <Ellipse.Fill>
                                                         <ImageBrush ImageSource="{Binding Path=Employee.Image}" Stretch="UniformToFill"/>
                                                     </Ellipse.Fill>
                                                 </Ellipse>
-                                                <TextBlock Style="{x:Null}" Grid.Column="1" Text="{Binding Path=Employee.Fio}" VerticalAlignment="Center"
-                                                       FontSize="16" Margin="15,0"/>
+                                                <TextBlock Style="{x:Null}" Grid.Column="1" VerticalAlignment="Center" Height="auto"
+                                                       FontSize="{StaticResource UIFontSize}" Margin="15,0" TextWrapping="Wrap">
+                                                    <Run Text="{Binding Path=Employee.Fio, Mode=OneWay}"/>
+                                                    <LineBreak/>
+                                                    <Run Text="{Binding Path=Employee.Inneroffice, Mode=OneWay}"/>
+                                                    <LineBreak/>
+                                                </TextBlock>
                                             </Grid>
                                         </Border>
                                     </DataTemplate>
@@ -56,41 +61,34 @@
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="3.5*"/>
+            <ColumnDefinition Width="3.2*"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-        <DataGrid Margin="2" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" CanUserResizeRows="False" Background="White"
+        <DataGrid Margin="5,2,2,2" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" CanUserResizeRows="False" Background="White"
                   ItemsSource="{Binding Path=ExpertiseList}" GridLinesVisibility="None" BorderBrush="#FF0097FF" ColumnHeaderStyle="{StaticResource DGColumnsHeader}"
                   RowStyle="{StaticResource DGRowStyle}" CellStyle="{StaticResource DGCellStyle}" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
             <DataGrid.RowDetailsTemplate>
                 <DataTemplate DataType="Expertise">
-                    <Grid HorizontalAlignment="Stretch" Margin="40,15,5,5" >
+                    <Grid HorizontalAlignment="Stretch" Margin="40,15,5,5">
                         <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
                             <RowDefinition/>
                             <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="auto"/>
-                            <ColumnDefinition Width="50"/>
-                            <ColumnDefinition Width="auto"/>
-                            <ColumnDefinition Width="50"/>
-                            <ColumnDefinition Width="auto"/>
-                            <ColumnDefinition Width="50"/>
                             <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Style="{x:Null}" Grid.Column="6" Margin="0,13,0,0" FontSize="14"
-                                   FontStyle="Italic" TextWrapping="Wrap">
-                            <Run Text="{Binding Path=FromResolution.Case.Essense, Mode=OneWay}"/>
-                            <LineBreak/>
-                            <LineBreak/>
-                            <Run Text="{Binding Path=FromResolution.Case.Comment, Mode=OneWay, StringFormat='Комментарий: {0}'}"/>
-                        </TextBlock>
-                        <TextBlock Style="{x:Null}" FontSize="14" FontWeight="Normal" Margin="0,13,0,0">
-                            <Run Text="{Binding Path =ExpertiseResult, StringFormat='Статус: {0}', Mode=OneWay, TargetNullValue='в работе'}"/>
+                        <TextBlock Grid.ColumnSpan="4" Text="{Binding Path=FromResolution.Essense}" HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="{StaticResource UIFontSize}"
+                                   FontStyle="Italic"/>
+                        <TextBlock Grid.Row="1" FontSize="{StaticResource UIFontSize}" FontWeight="Normal" Margin="0,13,0,0" VerticalAlignment="Center"
+                                   HorizontalAlignment="Center">
+                            <Run Text="{Binding Path =ExpertiseResult, StringFormat='Статус: сдана ({0})', Mode=OneWay, TargetNullValue='Статус: в работе'}"/>
                             <LineBreak/>
                             <Run Text="{Binding Inwork, StringFormat='Дней в работе: {0}', Mode=OneWay}"/>
                             <LineBreak/>
@@ -98,44 +96,32 @@
                             <LineBreak/>
                             <Run Text="{Binding Path=ExpertiseType, StringFormat='Тип: {0}', Mode=OneWay}"/>
                         </TextBlock>
-                        <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" Margin="0,13,0,0">
-                            <TextBlock Style="{x:Null}" FontSize="14" FontWeight="Normal" Text="{Binding Path=RequestSummary}" />
-                        </ScrollViewer>
-                        <Grid Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Left">
-                            <Grid.Resources>
-                                <Style TargetType="Image">
-                                    <Setter Property="Width" Value="40"/>
-                                    <Setter Property="Height" Value="40"/>
-                                    <Setter Property="RenderOptions.ClearTypeHint" Value="Enabled"/>
-                                </Style>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="FontSize" Value="{StaticResource RegularFontSize}"/>
-                                    <Setter Property="VerticalAlignment" Value="Center"/>
-                                    <Setter Property="Margin" Value="4,0"/>
-                                    <Setter Property="FontSize" Value="{StaticResource HeaderFontSize}"/>
-                                </Style>
-                            </Grid.Resources>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="auto"/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                            </Grid.RowDefinitions>
-                            <Image Source="pack://application:,,,/Resources/link.png" ToolTip="Связанные экспертизы"/>
-                            <TextBlock Name="tbLink" Grid.Column="1" Text="{Binding Path=LinkedExpertiseCount, Mode=OneWay}"/>
-                            <Image Grid.Row="1" Source="pack://application:,,,/Resources/dollar.png" RenderTransformOrigin=".5,.5" ToolTip="Выписанные за экспертизу счета">
+                        <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" Margin="0,7,0,0" Grid.RowSpan="2">
+                            <TextBlock Text="Движение экспертизы:" FontSize="{StaticResource UIFontSize}" FontWeight="DemiBold" HorizontalAlignment="Center"/>
+                            <ScrollViewer  VerticalScrollBarVisibility="Auto" Margin="0,3,0,0"  VerticalAlignment="Center">
+                                <TextBlock Style="{x:Null}" FontSize="14" FontWeight="Normal" Text="{Binding Path=RequestSummary}"/>
+                            </ScrollViewer>
+                        </StackPanel>
+                        <StackPanel Orientation="Vertical" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Stretch" Margin="0,7,0,0" Grid.RowSpan="2">
+                            <TextBlock Text="Комментарий:" FontSize="{StaticResource UIFontSize}" FontWeight="DemiBold" HorizontalAlignment="Center"/>
+                            <TextBlock Text="{Binding Path=FromResolution.Comment}" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Left">
+                            <Image Source="pack://application:,,,/Resources/link.png" ToolTip="Связанные экспертизы" Width="40" Height="40"/>
+                            <TextBlock Name="tbLink" FontSize="{StaticResource HeaderFontSize}" VerticalAlignment="Center" Text="{Binding Path=LinkedExpertiseCount, Mode=OneWay}"
+                                       FontWeight="Bold"/>
+                            <Image Grid.Row="1" Source="pack://application:,,,/Resources/dollar.png" RenderTransformOrigin=".5,.5" ToolTip="Выписанные за экспертизу счета"
+                                   Height="40" Width="40" Margin="10,0,0,0">
                                 <Image.RenderTransform>
                                     <ScaleTransform ScaleX=".8" ScaleY=".8"/>
                                 </Image.RenderTransform>
                             </Image>
-                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Path=Bills.Count, Mode=OneWay}"/>
-                            <Image Grid.Row="2" Source="pack://application:,,,/Resources/question.png" ToolTip="Поставленные на разрешение вопросы"/>
-                            <TextBlock Grid.Column="1" Grid.Row="2" Text="{Binding Path=FromResolution.Questions.Questions.Count, Mode=OneWay}"/>
-                        </Grid>
-                        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="6" HorizontalAlignment="Right">
+                            <TextBlock FontSize="{StaticResource HeaderFontSize}" FontWeight="Bold" VerticalAlignment="Center" Text="{Binding Path=Bills.Count, Mode=OneWay}"/>
+                            <Image Grid.Row="2" Source="pack://application:,,,/Resources/question.png" ToolTip="Поставленные на разрешение вопросы" Height="40" Width="40"
+                                   Margin="10,0,0,0"/>
+                            <TextBlock FontSize="{StaticResource HeaderFontSize}" FontWeight="Bold" VerticalAlignment="Center" Text="{Binding Path=FromResolution.Questions.Count, Mode=OneWay}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Right">
                             <Button Style="{StaticResource EditButton}" Width="35" Height="35" Margin="0,5,5,5"/>
                             <Button Style="{StaticResource WordButton}" Width="35" Height="35" Margin="0,5,5,5"/>
                             <Button Style="{StaticResource SearchButton}" Width="35" Height="35"  Margin="0,5,15,5"/>
@@ -150,7 +136,8 @@
                 <DataGridTemplateColumn Width="90" Header="Номер">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate DataType="ResEx">
-                            <TextBlock HorizontalAlignment="Center" Text="{Binding Path=Number}" FontSize="18" VerticalAlignment="Center"/>
+                            <TextBlock HorizontalAlignment="Center" Text="{Binding Path=Number}" FontSize="{StaticResource UIFontSize}" VerticalAlignment="Center" 
+                                       FontWeight="Bold"/>
                             <DataTemplate.Triggers>
 
                             </DataTemplate.Triggers>
@@ -160,14 +147,14 @@
                 <DataGridTemplateColumn Width="*" Header="Эксперт">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Style="{x:Null}" Text="{Binding Path=Expert}" FontSize="18" TextWrapping="Wrap" TextAlignment="Center"/>
+                            <TextBlock Style="{x:Null}" Text="{Binding Path=Expert}" FontSize="{StaticResource UIFontSize}" TextWrapping="Wrap" TextAlignment="Center"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
                 <DataGridTextColumn Width="110" Binding="{Binding Path=StartDate, Mode=OneWay, StringFormat=d, ConverterCulture='ru-RU'}" Header="Начата">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
-                            <Setter Property="FontSize" Value="18"/>
+                            <Setter Property="FontSize" Value="{StaticResource UIFontSize}"/>
                             <Setter Property="TextAlignment" Value="Center"/>
                             <Setter Property="VerticalAlignment" Value="Center"/>
                         </Style>
@@ -176,7 +163,7 @@
                 <DataGridTextColumn Width="120" Binding="{Binding Path=Remain2, Mode=OneWay, TargetNullValue='сдана'}" Header="Осталось">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
-                            <Setter Property="FontSize" Value="18"/>
+                            <Setter Property="FontSize" Value="{StaticResource UIFontSize}"/>
                             <Setter Property="TextAlignment" Value="Center"/>
                             <Setter Property="VerticalAlignment" Value="Center"/>
                         </Style>
@@ -185,7 +172,7 @@
                 <DataGridTemplateColumn Width="600" Header="Заказчик">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate DataType="Expertise">
-                            <TextBlock Style="{x:Null}" Text="{Binding Path=FromResolution.Customer.Requisite}" FontSize="18" VerticalAlignment="Center" TextAlignment="Center"
+                            <TextBlock Style="{x:Null}" Text="{Binding Path=FromResolution.Customer.Requisite}" FontSize="{StaticResource UIFontSize}" VerticalAlignment="Center" TextAlignment="Center"
                                        TextWrapping="Wrap"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
@@ -206,6 +193,7 @@
                     <MenuItem Header="Редактировать"/>
                 </ContextMenu>
             </DataGrid.ContextMenu>
+          
         </DataGrid>
         <StatusBar Grid.Row="1" Grid.ColumnSpan="2" Height="30" Background="#FF6D6DFB" TextBlock.Foreground="White" 
                    TextBlock.FontSize="{StaticResource UIFontSize}">
@@ -232,8 +220,8 @@
         </StatusBar>
         <StackPanel Orientation="Vertical" Grid.Column ="4">
             <TextBlock Text="Эксперт" Style="{x:Null}" FontSize="18" FontWeight="DemiBold" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Center"/>
-            <ListBox Name="lbExperts" Grid.ColumnSpan="2" Margin="5" FontSize="16" ItemsSource="{Binding Path=ExpertsList}"
-                      MaxHeight="400" SelectionMode="Multiple" ItemContainerStyle="{StaticResource LBItem}" BorderThickness="0">
+            <ListBox Name="lbExperts" Grid.ColumnSpan="2" Margin="7" FontSize="16" ItemsSource="{Binding Path=ExpertsList}"
+                      MaxHeight="400" SelectionMode="Multiple" ItemContainerStyle="{StaticResource LBItem}" BorderThickness="1">
                 <ListBox.GroupStyle>
                     <GroupStyle>
                         <GroupStyle.ContainerStyle>
@@ -252,9 +240,9 @@
                     </GroupStyle>
                 </ListBox.GroupStyle>
             </ListBox>
-            <TextBlock Style="{x:Null}" FontSize="18" FontWeight="DemiBold" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Center" 
+            <TextBlock Style="{x:Null}" FontSize="18" FontWeight="DemiBold" HorizontalAlignment="Center" Margin="0,8,0,0" VerticalAlignment="Center" 
                        Text="Статус экспертизы"/>
-            <ComboBox Grid.Column="1" Grid.Row="1" ItemsSource="{Binding Path=ExpertiseStatus}" Style="{StaticResource UIComboBox}"
+            <ComboBox Grid.Column="1" Grid.Row="1" ItemsSource="{Binding Path=ExpertiseStatus}" Style="{StaticResource UIComboBox}" Margin="5,1"
                       SelectedItem="{Binding Path=QExpertiseStatus}" HorizontalAlignment="Center">
                 <!--<ComboBox.Style>
                     <Style TargetType="{x:Type ComboBox}">
@@ -293,11 +281,28 @@
                     </Style>
                 </ComboBox.Style>-->
             </ComboBox>
-            <TextBlock Style="{x:Null}" FontSize="18" FontWeight="DemiBold" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Center" 
+            <TextBlock Style="{x:Null}" FontSize="18" FontWeight="DemiBold" HorizontalAlignment="Center" Margin="0,8,0,0" VerticalAlignment="Center" 
                        Text="Тип экспертизы"/>
             <ComboBox Grid.Column="1" Grid.Row="2" HorizontalAlignment="Center" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=ExpertiseTypes}"
-                      SelectedItem="{Binding Path=QExpertiseType}"/>
-            <TextBlock Style="{x:Null}" FontSize="18" FontWeight="DemiBold" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Center"
+                      SelectedItem="{Binding Path=QExpertiseType}" Margin="5,1"/>
+            <GroupBox Header="Периоды" BorderBrush="LightGray" BorderThickness="1" Margin="5,1" FontSize="{StaticResource HeaderFontSize}" FontWeight="DemiBold">
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Text="начата" FontSize="{StaticResource UIFontSize}" FontWeight="Normal" HorizontalAlignment="Center"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="2,3,2,7" Height="40">
+                        <DatePicker  SelectedDate="{Binding Path=QSStardDate}" FontSize="16" Style="{StaticResource UIDatePicker}"/>
+                        <Line Stroke="Black" X1="0" Y1="17" X2="15" Y2="17" Margin="2,2" StrokeThickness="2"/>
+                        <DatePicker FontSize="16" SelectedDate="{Binding Path=QEStartDate}" Style="{StaticResource UIDatePicker}"/>
+                    </StackPanel>
+                    <TextBlock Text="сдана" FontSize="{StaticResource UIFontSize}" FontWeight="Normal" HorizontalAlignment="Center"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="2,3,2,7" Height="40">
+                        <DatePicker FontSize="16" SelectedDate="{Binding Path=QSEndDate}" Style="{StaticResource UIDatePicker}"/>
+                        <Line Stroke="Black" X1="0" Y1="17" X2="15" Y2="17" Margin="2,2" StrokeThickness="2"/>
+                        <DatePicker FontSize="16" SelectedDate="{Binding Path=QEEndDate}" Style="{StaticResource UIDatePicker}"/>
+                    </StackPanel>
+                </StackPanel>
+               
+            </GroupBox>
+            <!--<TextBlock Style="{x:Null}" FontSize="18" FontWeight="DemiBold" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Center"
                        Text="Периоды"/>
             <Expander Grid.Row="3" Grid.ColumnSpan="2" FontSize="{StaticResource UIFontSize}" FontWeight="Bold" Header="Период начала"
                       Margin="5" BorderThickness="2" BorderBrush="#FF0097FF">
@@ -314,7 +319,7 @@
                     <Line Stroke="Black" X1="0" Y1="17" X2="15" Y2="17" Margin="5,0" StrokeThickness="2"/>
                     <DatePicker FontSize="16" SelectedDate="{Binding Path=QEEndDate}"/>
                 </StackPanel>
-            </Expander>
+            </Expander>-->
             <Button Grid.Row="20" Grid.ColumnSpan="2" Style="{StaticResource BaseUIButton}" Content="Поиск" Foreground="Blue" Margin="5, 20" 
                     Command="{Binding Path=Find}" CommandParameter="{Binding ElementName=lbExperts}"/>
         </StackPanel>
