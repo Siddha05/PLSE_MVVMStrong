@@ -5690,6 +5690,13 @@ namespace PLSE_MVVMStrong.Model
 
     public sealed class Expertise : NotifyBase
     {
+        public enum FocusLevel
+        {
+            None,
+            Normal,
+            Attention,
+            Extreme
+        }
  #region Fields
         private string _number;
         private Expert _expert;
@@ -5947,6 +5954,20 @@ namespace PLSE_MVVMStrong.Model
                 {
                     return DateTime.Now.AddDays(Remain2.Value);
                 }
+            }
+        }
+        public FocusLevel Focus
+        {
+            get
+            {
+                if (Remain2.HasValue)
+                {
+                    var sr = Remain2.Value;
+                    if (sr >= 5) return FocusLevel.Normal;
+                    if (sr > 0) return FocusLevel.Attention;
+                    return FocusLevel.Extreme;
+                }
+                else return FocusLevel.None;
             }
         }
         public int Inwork => EndDate == null ? (DateTime.Now - StartDate).Days : (EndDate.Value - StartDate).Days;
