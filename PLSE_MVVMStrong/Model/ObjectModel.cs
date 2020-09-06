@@ -5956,18 +5956,18 @@ namespace PLSE_MVVMStrong.Model
                 }
             }
         }
-        public FocusLevel Focus
+        public string Focus
         {
             get
             {
                 if (Remain2.HasValue)
                 {
                     var sr = Remain2.Value;
-                    if (sr >= 5) return FocusLevel.Normal;
-                    if (sr > 0) return FocusLevel.Attention;
-                    return FocusLevel.Extreme;
+                    if (sr >= 5) return "В норме";
+                    if (sr > 0) return "Требующие внимания";
+                    return "Просроченные";
                 }
-                else return FocusLevel.None;
+                else return "Выполненные";
             }
         }
         public int Inwork => EndDate == null ? (DateTime.Now - StartDate).Days : (EndDate.Value - StartDate).Days;

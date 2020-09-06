@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewmodel="clr-namespace:PLSE_MVVMStrong.ViewModel"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
-        xmlns:local="clr-namespace:PLSE_MVVMStrong.View" 
+        xmlns:local="clr-namespace:PLSE_MVVMStrong.View" xmlns:plse_mvvmstrong="clr-namespace:PLSE_MVVMStrong"
         mc:Ignorable="d"
         Title="Expertises" Width="1880" ResizeMode="CanMinimize" Height="1000">
     <Window.DataContext>
@@ -36,11 +36,10 @@
                                                     </Ellipse.Fill>
                                                 </Ellipse>
                                                 <TextBlock Style="{x:Null}" Grid.Column="1" VerticalAlignment="Center" Height="auto"
-                                                       FontSize="{StaticResource UIFontSize}" Margin="15,0" TextWrapping="Wrap">
+                                                       FontSize="{StaticResource UIFontSize}" Margin="15,4,0,0" TextWrapping="Wrap">
                                                     <Run Text="{Binding Path=Employee.Fio, Mode=OneWay}"/>
                                                     <LineBreak/>
                                                     <Run Text="{Binding Path=Employee.Inneroffice, Mode=OneWay}"/>
-                                                    <LineBreak/>
                                                 </TextBlock>
                                             </Grid>
                                         </Border>
@@ -58,6 +57,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <plse_mvvmstrong:FocusColor x:Key="FocusToColorConv"/>
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -68,9 +68,9 @@
             <RowDefinition/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-        <DataGrid Margin="5,2,2,2" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" CanUserResizeRows="False" Background="White"
+        <DataGrid Margin="10,0,443,4" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" CanUserResizeRows="False" Background="White"
                   ItemsSource="{Binding Path=ExpertiseList}" GridLinesVisibility="None" BorderBrush="#FF0097FF" ColumnHeaderStyle="{StaticResource DGColumnsHeader}"
-                  RowStyle="{StaticResource DGRowStyle}" CellStyle="{StaticResource DGCellStyle}" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                  RowStyle="{StaticResource DGRowStyle}" CellStyle="{StaticResource DGCellStyle}" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Grid.ColumnSpan="2">
             <DataGrid.RowDetailsTemplate>
                 <DataTemplate DataType="Expertise">
                     <Grid HorizontalAlignment="Stretch" Margin="40,15,5,5">
@@ -128,7 +128,7 @@
                         </StackPanel>
                     </Grid>
                     <DataTemplate.Triggers>
-                        
+
                     </DataTemplate.Triggers>
                 </DataTemplate>
             </DataGrid.RowDetailsTemplate>
@@ -181,19 +181,49 @@
             <DataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Создать">
-                            <MenuItem Header="Подписку экспетра"/>
-                            <MenuItem Header="Заключение"/>
-                            <MenuItem Header="Уведомление и рапорт"/>
-                            <MenuItem Header="Сопроводительное письмо"/>
-                            <MenuItem Header="Уведомление (по уг.)"/>
-                            <MenuItem Header="Ходатайство"/>
+                        <MenuItem Header="Подписку экспетра"/>
+                        <MenuItem Header="Заключение"/>
+                        <MenuItem Header="Уведомление и рапорт"/>
+                        <MenuItem Header="Сопроводительное письмо"/>
+                        <MenuItem Header="Уведомление (по уг.)"/>
+                        <MenuItem Header="Ходатайство"/>
                     </MenuItem>
                     <MenuItem Header="Детализация"/>
                     <MenuItem Header="Открыть"/>
                     <MenuItem Header="Редактировать"/>
                 </ContextMenu>
             </DataGrid.ContextMenu>
-          
+            <DataGrid.GroupStyle>
+                <GroupStyle>
+                    <GroupStyle.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Path=Name}"/>
+                        </DataTemplate>
+                    </GroupStyle.HeaderTemplate>
+                    <GroupStyle.ContainerStyle>
+                        <Style TargetType="{x:Type GroupItem}">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type GroupItem}">
+                                        <Expander IsExpanded="True" Margin="0,2">
+                                            <Expander.Header>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock FontSize="{StaticResource HeaderFontSize}" FontWeight="Bold">
+                                                        <Run Text="{Binding Path=Name, Mode=OneWay}"
+                                                             Foreground="{Binding Path=Name, Mode=OneWay, Converter={StaticResource FocusToColorConv}}"/>
+                                                        <Run Text="{Binding Path=ItemCount, Mode=OneWay, StringFormat='({0})'}"/>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </Expander.Header>
+                                            <ItemsPresenter Margin="0,3,0,0"/>
+                                        </Expander>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </GroupStyle.ContainerStyle>
+                </GroupStyle>
+            </DataGrid.GroupStyle>
         </DataGrid>
         <StatusBar Grid.Row="1" Grid.ColumnSpan="2" Height="30" Background="#FF6D6DFB" TextBlock.Foreground="White" 
                    TextBlock.FontSize="{StaticResource UIFontSize}">
@@ -209,17 +239,12 @@
                 </ItemsPanelTemplate>
             </StatusBar.ItemsPanel>
             <StatusBarItem>
-                <TextBlock Style="{x:Null}" Margin="0,0,5,0" Text="{Binding Path=ExpertiseList.Count, StringFormat=Экспертиз: {0}}"/>
-            </StatusBarItem>
-            <StatusBarItem Grid.Column="1">
-                <TextBlock Style="{x:Null}" Margin="5,0,5,0" Text="{Binding Path=ExpiredExpertise, StringFormat=Просроченных: {0}}"/>
-            </StatusBarItem>
-            <StatusBarItem Grid.Column="2">
-                <TextBlock Style="{x:Null}" Margin="5,0,15,0" Text="{Binding Path=AttentionExpertise, StringFormat=Требующих внимания: {0}}"/>
+                <TextBlock Style="{x:Null}" Margin="0,0,15,0" Text="{Binding Path=ExpertiseList.Count, StringFormat=Экспертиз: {0}}" FontSize="16"/>
             </StatusBarItem>
         </StatusBar>
-        <StackPanel Orientation="Vertical" Grid.Column ="4">
-            <TextBlock Text="Эксперт" Style="{x:Null}" FontSize="18" FontWeight="DemiBold" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Center"/>
+        <StackPanel Orientation="Vertical" Grid.Column ="4" Margin="4,0,0,0">
+            <TextBlock Text="Эксперт" Style="{x:Null}" FontSize="18" FontWeight="DemiBold" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Center"
+                       />
             <ListBox Name="lbExperts" Grid.ColumnSpan="2" Margin="7" FontSize="16" ItemsSource="{Binding Path=ExpertsList}"
                       MaxHeight="400" SelectionMode="Multiple" ItemContainerStyle="{StaticResource LBItem}" BorderThickness="1">
                 <ListBox.GroupStyle>
@@ -300,7 +325,7 @@
                         <DatePicker FontSize="16" SelectedDate="{Binding Path=QEEndDate}" Style="{StaticResource UIDatePicker}"/>
                     </StackPanel>
                 </StackPanel>
-               
+
             </GroupBox>
             <!--<TextBlock Style="{x:Null}" FontSize="18" FontWeight="DemiBold" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Center"
                        Text="Периоды"/>
@@ -320,7 +345,7 @@
                     <DatePicker FontSize="16" SelectedDate="{Binding Path=QEEndDate}"/>
                 </StackPanel>
             </Expander>-->
-            <Button Grid.Row="20" Grid.ColumnSpan="2" Style="{StaticResource BaseUIButton}" Content="Поиск" Foreground="Blue" Margin="5, 20" 
+            <Button Grid.Row="20" Grid.ColumnSpan="2" Style="{StaticResource BaseUIButton}" Content="ПОИСК" Foreground="Blue" Margin="5, 20" 
                     Command="{Binding Path=Find}" CommandParameter="{Binding ElementName=lbExperts}"/>
         </StackPanel>
     </Grid>

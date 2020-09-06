@@ -34,6 +34,7 @@ namespace PLSE_MVVMStrong.ViewModel
         }
         #region Fields
         private string[] all = { "все" };
+        private List<Expertise> _expcoll = new List<Expertise>();
         #endregion
         #region Properties
         public IEnumerable<string> ExpertiseTypes { get; }
@@ -45,13 +46,8 @@ namespace PLSE_MVVMStrong.ViewModel
         //}
         //public static readonly DependencyProperty ExpertiseListProperty =
         //    DependencyProperty.Register("ExpertiseList", typeof(List<Expertise>), typeof(ExpertisesVM), new PropertyMetadata(null));
-        public ListCollectionView ExpertiseList;
+        public ListCollectionView ExpertiseList { get; private set; } 
         public ListCollectionView ExpertsList { get; } = new ListCollectionView(CommonInfo.Experts.GroupBy(n => n.Employee.EmployeeID).Select(n => n.First()).ToList());
-        public int ExpiredExpertise
-        {
-            get => 5;
-        }
-        public int AttentionExpertise { get; } = 2;
         public string QExpertiseType { get; set; } = "все";
         public string QExpertiseStatus { get; set; } = "все";
         public DateTime? QSStardDate { get; set; }
@@ -74,6 +70,7 @@ namespace PLSE_MVVMStrong.ViewModel
         {
             ExpertiseTypes = CommonInfo.ExpertiseTypes.Concat(all);
             ExpertiseStatus = CommonInfo.ExpertiseResult.Concat(all).Concat(new string[] { "в работе"});
+           
             var app = Application.Current as App;
             //switch (app.Permissions.Plurality)
             //{
@@ -96,7 +93,7 @@ namespace PLSE_MVVMStrong.ViewModel
             //    default:
             //        break;
             //}
-            ExpertiseList.GroupDescriptions.Add(new PropertyGroupDescription("Focus"));
+
             #region Init
             //questions.Questions.Add(new ContentWrapper("Question 1"));
             //objects.Objects.Add(new ContentWrapper("Object 1"));
@@ -174,8 +171,11 @@ namespace PLSE_MVVMStrong.ViewModel
             res.Expertisies.Add(e1);
             res.Expertisies.Add(e2);
             res2.Expertisies.Add(e3);
-            ExpertiseList.AddNewItem(e1); ExpertiseList.AddNewItem(e2); ExpertiseList.AddNewItem(e3);
-            #endregion
+            _expcoll.Add(e1); _expcoll.Add(e2); _expcoll.Add(e3);
+#endregion
+            ExpertiseList = new ListCollectionView(_expcoll);
+            ExpertiseList.GroupDescriptions.Add(new PropertyGroupDescription("Focus"));
+            
             Find = new RelayCommand(x =>
             {
                 var lb = x as ListBox;
@@ -193,11 +193,18 @@ namespace PLSE_MVVMStrong.ViewModel
                              sdate1: QSStardDate, sdate2: QEStartDate,
                              edate1: QSEndDate, edate2: QEEndDate,
                              id: sel);
-                Debug.Print(q);
-                ExpertiseList = new ListCollectionView(CommonInfo.LoadResolution(q).SelectMany(n => n.Expertisies)
+                for (int i = _expcoll.Count - 1; i >= 0; i--)
+                {
+                    ExpertiseList.RemoveAt(i);
+                }
+                _expcoll = CommonInfo.LoadResolution(q).SelectMany(n => n.Expertisies)
                                                             .Join(sel, ke => ke.Expert.Employee.EmployeeID, ks => ks, (e, s) => e)
-                                                            .ToList()
-                                                       );
+                                                            .ToList();
+                for (int i = 0; i < _expcoll.Count; i++)
+                {
+                    ExpertiseList.AddNewItem(_expcoll[i]);
+                }
+                ExpertiseList.CommitNew();
             });
         }
         string Query(string status = null, string type = null, DateTime? sdate1 = null, DateTime? sdate2 = null,

@@ -259,20 +259,29 @@ namespace PLSE_MVVMStrong
         }
     }
     /// <summary>
-    /// Конвертер превода оставшихся дней для экспертизы в цвет
+    /// Конвертер превода состояния экспертизы (сдана, просрочена и т.д.) в цвет
     /// </summary>
-    public class DatagridArrowColor : IValueConverter
+    public class FocusColor : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var exp = value as Expertise;
-            if (exp.Remain2.HasValue)
+            var exp = value as String;
+            switch (exp)
             {
-                if (exp.Remain2.Value > 3) return "Green";
-                if (exp.Remain2.Value < 1) return "Red";
-                return "Yellow";
+                case "Просроченные":
+                    return "Red";
+                case "Требующие внимания":
+                    return "#FFE0E005";
+                default:
+                    return "#FF82C51C";
             }
-            else return "Green";
+            //if (exp.Remain2.HasValue)
+            //{
+            //    if (exp.Remain2.Value > 3) return "Green";
+            //    if (exp.Remain2.Value < 1) return "Red";
+            //    return "Yellow";
+            //}
+            //else return "Green";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
