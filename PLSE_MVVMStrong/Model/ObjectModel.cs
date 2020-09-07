@@ -5235,7 +5235,7 @@ namespace PLSE_MVVMStrong.Model
                     return "арбитражного";
                 case "административное правонарушение":
                     return "административного правонарушения";
-                case "проверка КУСП":
+                case "проверка КУCП":
                     return "проверки КУСП";
                 case "исследование":
                     return "исследования";
@@ -5255,7 +5255,7 @@ namespace PLSE_MVVMStrong.Model
                     return $"по материалам {CaseTypeDeclination()} дела № {CaseNumber} {CaseAnnotate}";
                 case "административное правонарушение":
                     return $"по материалам {CaseTypeDeclination()} {CaseAnnotate}";
-                case "проверка КУСП":
+                case "проверка КУCП":
                     return $"по материалам {CaseTypeDeclination()} № {CaseNumber} {CaseAnnotate}";
                 case "исследование":
                     return $"{CaseTypeDeclination()} {CaseAnnotate}";
@@ -5972,11 +5972,55 @@ namespace PLSE_MVVMStrong.Model
         }
         public int Inwork => EndDate == null ? (DateTime.Now - StartDate).Days : (EndDate.Value - StartDate).Days;
         public int LinkedExpertiseCount => (_resolution?.Expertisies.Count - 1) ?? 0;
+        /// <summary>
+        /// Обзорная строка на счета экспертизы
+        /// </summary>
+        public string BillOverview
+        {
+            get
+            {
+                if (_bills.Count > 0)
+                {
+                    StringBuilder sb = new StringBuilder(200);
+                    for (int i = 0; i < _bills.Count; i++)
+                    {
+                        sb.AppendLine();
+                        sb.Append(_bills[i].Number);
+                        sb.Append("\t");
+                        sb.Append(_bills[i].Paid);
+                        sb.Append("/");
+                        sb.Append(_bills[i].Hours * _bills[i].HourPrice);
+                    }
+                    sb.Remove(0, 2);
+                    return sb.ToString();
+                }
+                else return null;
+            }
+        }
+        public string LinkedExpertiseOverview
+        {
+            get
+            {
+                if ((FromResolution?.Expertisies.Count ?? 0) > 1)
+                {
+                    StringBuilder sb = new StringBuilder(200);
+                    foreach (var item in FromResolution.Expertisies.Where(n => n.ExpertiseID != this.ExpertiseID))
+                    {
+                        sb.AppendLine();
+                        sb.Append(item.Number);
+                        sb.Append("\t");
+                        sb.Append(item.Expert.Employee.ToString());
+                    }
+                    return sb.Remove(0,2).ToString();
+                }
+                else return null;
+            }
+        }
         public ObservableCollection<Request> Requests => _requests;
         public ObservableCollection<Report> Reports => _raports;
         public ObservableCollection<Bill> Bills => _bills;
         public ObservableCollection<EquipmentUsage> EquipmentUsage => _equipmentusage;
-        #endregion
+#endregion
 
         public static Expertise New => new Expertise()
         {

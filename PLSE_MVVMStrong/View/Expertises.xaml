@@ -107,17 +107,18 @@
                             <TextBlock Text="{Binding Path=FromResolution.Comment}" TextWrapping="Wrap"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Left">
-                            <Image Source="pack://application:,,,/Resources/link.png" ToolTip="Связанные экспертизы" Width="40" Height="40"/>
+                            <Image Source="pack://application:,,,/Resources/link.png" Width="31" Height="35"
+                                   ToolTip="{Binding Path=LinkedExpertiseOverview, Mode=OneWay, TargetNullValue='связанных экспертиз нет'}"/>
                             <TextBlock Name="tbLink" FontSize="{StaticResource HeaderFontSize}" VerticalAlignment="Center" Text="{Binding Path=LinkedExpertiseCount, Mode=OneWay}"
                                        FontWeight="Bold"/>
-                            <Image Grid.Row="1" Source="pack://application:,,,/Resources/dollar.png" RenderTransformOrigin=".5,.5" ToolTip="Выписанные за экспертизу счета"
-                                   Height="40" Width="40" Margin="10,0,0,0">
+                            <Image Grid.Row="1" Source="pack://application:,,,/Resources/dollar.png" RenderTransformOrigin=".5,.5" Height="40" Width="40" Margin="10,0,0,0"
+                                   ToolTip="{Binding Path=BillOverview, Mode=OneWay, TargetNullValue='счета отсутствуют'}">
                                 <Image.RenderTransform>
                                     <ScaleTransform ScaleX=".8" ScaleY=".8"/>
                                 </Image.RenderTransform>
                             </Image>
                             <TextBlock FontSize="{StaticResource HeaderFontSize}" FontWeight="Bold" VerticalAlignment="Center" Text="{Binding Path=Bills.Count, Mode=OneWay}"/>
-                            <Image Grid.Row="2" Source="pack://application:,,,/Resources/question.png" ToolTip="Поставленные на разрешение вопросы" Height="40" Width="40"
+                            <Image Grid.Row="2" Source="pack://application:,,,/Resources/question.png" ToolTip="Поставленные на разрешение вопросы" Height="38" Width="40"
                                    Margin="10,0,0,0"/>
                             <TextBlock FontSize="{StaticResource HeaderFontSize}" FontWeight="Bold" VerticalAlignment="Center" Text="{Binding Path=FromResolution.Questions.Count, Mode=OneWay}"/>
                         </StackPanel>

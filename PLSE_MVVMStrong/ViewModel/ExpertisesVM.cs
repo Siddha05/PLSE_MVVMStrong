@@ -168,6 +168,9 @@ namespace PLSE_MVVMStrong.ViewModel
                                                null,
                                                null,
                                                Model.Version.Original);
+            Bill b = new Bill(2, "218", new DateTime(2019, 11, 12), new DateTime(2019, 11, 24), null, 12, 630m, 7000m, Model.Version.Original);
+            Bill b1 = new Bill(3, "219", new DateTime(2019, 11, 12), null, null, 24, 630m, 0m, Model.Version.Original);
+            e1.Bills.Add(b); e2.Bills.Add(b1);
             res.Expertisies.Add(e1);
             res.Expertisies.Add(e2);
             res2.Expertisies.Add(e3);
