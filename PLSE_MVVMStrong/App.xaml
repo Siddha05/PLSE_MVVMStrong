@@ -571,7 +571,7 @@
                                 </SelectiveScrollingGrid.ColumnDefinitions>
                                 <DataGridCellsPresenter Name = "prs" Grid.Column="1" ItemsPanel="{TemplateBinding ItemsPanel}" 
                                                             SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" Margin="0,0,5,0"/>
-                                <DataGridDetailsPresenter Name="dp" Grid.Row="1" Grid.Column="1" Height="200" Visibility="Visible"
+                                <DataGridDetailsPresenter Name="dp" Grid.Row="1" Grid.Column="1" Height="00" Visibility="Visible"
                                                                  SelectiveScrollingGrid.SelectiveScrollingOrientation="{Binding AreRowDetailsFrozen, ConverterParameter={x:Static SelectiveScrollingOrientation.Vertical}, Converter={x:Static DataGrid.RowDetailsScrollingConverter}, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" >
                                 </DataGridDetailsPresenter>
                                 <ToggleButton Name="tb" Grid.RowSpan="2" Style="{StaticResource ArrowToggle}" IsChecked="False" Height="25" Margin="5,5,2,5" 
@@ -657,8 +657,47 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        <Style TargetType="{x:Type Popup}" x:Key="SearchPopUp">
-            
+        <Style TargetType="{x:Type DataGridRow}" x:Key="DataGridSimpleRow">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type DataGridRow}">
+                        <Border BorderBrush="Transparent" BorderThickness="1" Margin="1" Height="auto" Name="brd">
+                            <SelectiveScrollingGrid>
+                                <SelectiveScrollingGrid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition/>
+                                </SelectiveScrollingGrid.ColumnDefinitions>
+                                <Path Fill="Transparent" Data="M 0,0 8,8 0,16 Z" HorizontalAlignment="Center" VerticalAlignment="Center" x:Name="path"/>
+                                <DataGridCellsPresenter FontSize="{StaticResource UIFontSize}" Grid.Column="1" Margin="5,0,0,2"/>
+                            </SelectiveScrollingGrid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter TargetName="path" Property="Fill" Value="#FF38CEE6"/>
+                                <!--<Setter TargetName="brd" Property="TextBlock.Foreground" Value="DarkOrchid"/>-->
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="true">
+                                <Setter TargetName="path" Property="Fill" Value="{StaticResource SelectedControl}"/>
+                                <!--<Setter TargetName="brd" Property="TextBlock.Foreground" Value="DarkBlue"/>-->
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="{x:Type DataGridCell}" x:Key="DataGridSimpleCell">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="DataGridCell">
+                        <ContentPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="{x:Type DataGridColumnHeader}" x:Key="DataGridNoHeaders">
+            <Setter Property="Visibility" Value="Collapsed"/>
         </Style>
     </Application.Resources>
 </Application>

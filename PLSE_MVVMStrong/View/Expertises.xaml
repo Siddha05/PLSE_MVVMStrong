@@ -58,6 +58,7 @@
             </Setter>
         </Style>
         <plse_mvvmstrong:FocusColor x:Key="FocusToColorConv"/>
+        <plse_mvvmstrong:ZeroToVisibilityConverter x:Key="GridCountToVisiblity"/>
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -70,7 +71,8 @@
         </Grid.RowDefinitions>
         <DataGrid Margin="10,0,443,4" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" CanUserResizeRows="False" Background="White"
                   ItemsSource="{Binding Path=ExpertiseList}" GridLinesVisibility="None" BorderBrush="#FF0097FF" ColumnHeaderStyle="{StaticResource DGColumnsHeader}"
-                  RowStyle="{StaticResource DGRowStyle}" CellStyle="{StaticResource DGCellStyle}" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Grid.ColumnSpan="2">
+                  VerticalAlignment="Top" RowStyle="{StaticResource DGRowStyle}" CellStyle="{StaticResource DGCellStyle}" BorderThickness="0"
+                  ScrollViewer.HorizontalScrollBarVisibility="Disabled" Grid.ColumnSpan="2" Name="expgrid">
             <DataGrid.RowDetailsTemplate>
                 <DataTemplate DataType="Expertise">
                     <Grid HorizontalAlignment="Stretch" Margin="40,15,5,5">
@@ -123,7 +125,10 @@
                             <TextBlock FontSize="{StaticResource HeaderFontSize}" FontWeight="Bold" VerticalAlignment="Center" Text="{Binding Path=FromResolution.Questions.Count, Mode=OneWay}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Right">
-                            <Button Style="{StaticResource EditButton}" Width="35" Height="35" Margin="0,5,5,5"/>
+                            <Button Style="{StaticResource EditButton}" Width="35" Height="35" Margin="0,5,5,5" 
+                            Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.EditExpertise}"
+                                    CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type DataGridRow}}, Path=Item}"
+                                    />
                             <Button Style="{StaticResource WordButton}" Width="35" Height="35" Margin="0,5,5,5"/>
                             <Button Style="{StaticResource SearchButton}" Width="35" Height="35"  Margin="0,5,15,5"/>
                         </StackPanel>
@@ -139,9 +144,6 @@
                         <DataTemplate DataType="ResEx">
                             <TextBlock HorizontalAlignment="Center" Text="{Binding Path=Number}" FontSize="{StaticResource UIFontSize}" VerticalAlignment="Center" 
                                        FontWeight="Bold"/>
-                            <DataTemplate.Triggers>
-
-                            </DataTemplate.Triggers>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
@@ -183,7 +185,7 @@
                 <ContextMenu>
                     <MenuItem Header="Создать">
                         <MenuItem Header="Подписку экспетра"/>
-                        <MenuItem Header="Заключение"/>
+                        <MenuItem Header="Заключение" Command="{Binding Path=CreateConclusion}" CommandParameter="{Binding ElementName=lbExperts}"/>
                         <MenuItem Header="Уведомление и рапорт"/>
                         <MenuItem Header="Сопроводительное письмо"/>
                         <MenuItem Header="Уведомление (по уг.)"/>
@@ -194,19 +196,19 @@
                     <MenuItem Header="Редактировать"/>
                 </ContextMenu>
             </DataGrid.ContextMenu>
-            <DataGrid.GroupStyle>
+            <!--<DataGrid.GroupStyle>
                 <GroupStyle>
-                    <GroupStyle.HeaderTemplate>
+                    --><!--<GroupStyle.HeaderTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Path=Name}"/>
+                            <TextBlock Text="DDDDDDDDDD"/>
                         </DataTemplate>
-                    </GroupStyle.HeaderTemplate>
+                    </GroupStyle.HeaderTemplate>--><!--
                     <GroupStyle.ContainerStyle>
                         <Style TargetType="{x:Type GroupItem}">
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate TargetType="{x:Type GroupItem}">
-                                        <Expander IsExpanded="True" Margin="0,2">
+                                        <Expander x:Name="exp" Margin="2,3">
                                             <Expander.Header>
                                                 <StackPanel Orientation="Horizontal">
                                                     <TextBlock FontSize="{StaticResource HeaderFontSize}" FontWeight="Bold">
@@ -216,7 +218,7 @@
                                                     </TextBlock>
                                                 </StackPanel>
                                             </Expander.Header>
-                                            <ItemsPresenter Margin="0,3,0,0"/>
+                                            <ItemsPresenter Margin="0,3,0,0" HorizontalAlignment="Stretch"/>
                                         </Expander>
                                     </ControlTemplate>
                                 </Setter.Value>
@@ -224,30 +226,28 @@
                         </Style>
                     </GroupStyle.ContainerStyle>
                 </GroupStyle>
-            </DataGrid.GroupStyle>
+            </DataGrid.GroupStyle>-->
         </DataGrid>
-        <StatusBar Grid.Row="1" Grid.ColumnSpan="2" Height="30" Background="#FF6D6DFB" TextBlock.Foreground="White" 
+        <StatusBar Grid.Row="2" Grid.ColumnSpan="2" Height="30" Background="#FF6D6DFB" TextBlock.Foreground="White" 
                    TextBlock.FontSize="{StaticResource UIFontSize}">
-            <StatusBar.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <Grid HorizontalAlignment="Right">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="auto"/>
-                            <ColumnDefinition Width="auto"/>
-                            <ColumnDefinition Width="auto"/>
-                        </Grid.ColumnDefinitions>
-                    </Grid>
-                </ItemsPanelTemplate>
-            </StatusBar.ItemsPanel>
-            <StatusBarItem>
-                <TextBlock Style="{x:Null}" Margin="0,0,15,0" Text="{Binding Path=ExpertiseList.Count, StringFormat=Экспертиз: {0}}" FontSize="16"/>
+            
+            <StatusBarItem HorizontalAlignment="Left">
+                <TextBlock Text="Нажмите 'MouseRightButton' для вызова меню" Margin="15,0,0,0"
+                           Visibility="{Binding Path=ExpertiseList.Count, Converter={StaticResource GridCountToVisiblity}, ConverterParameter=2}"/>
+            </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Left">
+                <TextBlock Text="Нажмите 'MouseLeftButton' для выбора" Margin="15,0,0,0"
+                           Visibility="{Binding Path=ExpertiseList.Count, Converter={StaticResource GridCountToVisiblity}, ConverterParameter=2}"/>
+            </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Right">
+                <TextBlock Style="{x:Null}" Grid.Column="2" Margin="0,0,15,0" Text="{Binding Path=ExpertiseList.Count, StringFormat=Экспертиз: {0}}" FontSize="16"/>
             </StatusBarItem>
         </StatusBar>
-        <StackPanel Orientation="Vertical" Grid.Column ="4" Margin="4,0,0,0">
+        <StackPanel Orientation="Vertical" Grid.Column ="4" Margin="4,0,0,0" Grid.RowSpan="2">
             <TextBlock Text="Эксперт" Style="{x:Null}" FontSize="18" FontWeight="DemiBold" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Center"
                        />
             <ListBox Name="lbExperts" Grid.ColumnSpan="2" Margin="7" FontSize="16" ItemsSource="{Binding Path=ExpertsList}"
-                      MaxHeight="400" SelectionMode="Multiple" ItemContainerStyle="{StaticResource LBItem}" BorderThickness="1">
+                      MaxHeight="400" SelectionMode="Multiple" ItemContainerStyle="{StaticResource LBItem}" BorderThickness="0">
                 <ListBox.GroupStyle>
                     <GroupStyle>
                         <GroupStyle.ContainerStyle>
@@ -326,26 +326,7 @@
                         <DatePicker FontSize="16" SelectedDate="{Binding Path=QEEndDate}" Style="{StaticResource UIDatePicker}"/>
                     </StackPanel>
                 </StackPanel>
-
             </GroupBox>
-            <!--<TextBlock Style="{x:Null}" FontSize="18" FontWeight="DemiBold" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Center"
-                       Text="Периоды"/>
-            <Expander Grid.Row="3" Grid.ColumnSpan="2" FontSize="{StaticResource UIFontSize}" FontWeight="Bold" Header="Период начала"
-                      Margin="5" BorderThickness="2" BorderBrush="#FF0097FF">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="2,3,2,7" Height="40">
-                    <DatePicker  SelectedDate="{Binding Path=QSStardDate}" FontSize="16"/>
-                    <Line Stroke="Black" X1="0" Y1="17" X2="15" Y2="17" Margin="5,0" StrokeThickness="2"/>
-                    <DatePicker FontSize="16" SelectedDate="{Binding Path=QEStartDate}"/>
-                </StackPanel>
-            </Expander>
-            <Expander Grid.Row="4" Grid.ColumnSpan="2" FontSize="{StaticResource UIFontSize}" FontWeight="Bold" Header="Период сдачи"
-                      Margin="5" BorderBrush="#FF0097FF" BorderThickness="2">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="2,3,2,7" Height="40">
-                    <DatePicker FontSize="16" SelectedDate="{Binding Path=QSEndDate}"/>
-                    <Line Stroke="Black" X1="0" Y1="17" X2="15" Y2="17" Margin="5,0" StrokeThickness="2"/>
-                    <DatePicker FontSize="16" SelectedDate="{Binding Path=QEEndDate}"/>
-                </StackPanel>
-            </Expander>-->
             <Button Grid.Row="20" Grid.ColumnSpan="2" Style="{StaticResource BaseUIButton}" Content="ПОИСК" Foreground="Blue" Margin="5, 20" 
                     Command="{Binding Path=Find}" CommandParameter="{Binding ElementName=lbExperts}"/>
         </StackPanel>

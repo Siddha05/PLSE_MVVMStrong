@@ -5285,7 +5285,7 @@ namespace PLSE_MVVMStrong.Model
                     return null;
             }
         }
-        public string SubcribeArticle()
+        public string WarningArticle()
         {
             switch (_typecase)
             {
@@ -6848,19 +6848,22 @@ namespace PLSE_MVVMStrong.Model
         /// <summary>
         /// Подписка эксперта
         /// </summary>
-        private readonly string _subscribetemp;
+        private readonly string _subscribetemp = @"c:\Users\Asassin\Documents\Настраиваемые шаблоны Office\подписка эксперта.dotx";
         /// <summary>
         /// Уведомление следователю
         /// </summary>
-        private readonly string _notifytemp;
+        private readonly string _notifytemp = @"c:\Users\Asassin\Documents\Настраиваемые шаблоны Office\Уведомление следователю.dotx";
         /// <summary>
         /// Ходатайство
         /// </summary>
-        private readonly string _petitiontemp;
+        private readonly string _petitiontemp = @"c:\Users\Asassin\Documents\Настраиваемые шаблоны Office\Ходатайство.dotx";
         /// <summary>
         /// Заключение эксперта
         /// </summary>
-        private readonly string _conclusiontemp;
+        private readonly string _conclusiontemp = @"c:\Users\Asassin\Documents\Настраиваемые шаблоны Office\Заключение эксперта.dotx";
+        /// <summary>
+        /// Акт экспертного исследования
+        /// </summary>
         private readonly string _acttemp;
         private readonly string _calculationtemp;
         private readonly string _claimtemp;
@@ -6877,9 +6880,6 @@ namespace PLSE_MVVMStrong.Model
         {
             Resolution = resolution;
             _inicailpath = initpath;
-            _subscribetemp = @"c:\Users\Asassin\Documents\Настраиваемые шаблоны Office\подписка эксперта.dotx";
-            _notifytemp = @"c:\Users\Asassin\Documents\Настраиваемые шаблоны Office\Уведомление следователю.dotx";
-            _petitiontemp = @"c:\Users\Asassin\Documents\Настраиваемые шаблоны Office\Ходатайство.dotx";
         }
         private string DestinationFolder()
         {
@@ -7001,7 +7001,7 @@ namespace PLSE_MVVMStrong.Model
             bmarks["fio"].Range.Text = e.ToString();
             bmarks["date"].Range.Text = group.First().StartDate.ToString("dd MMMM yyyy");
             bmarks["codex"].Range.Text = Resolution.Codex();
-            bmarks["respon"].Range.Text = Resolution.SubcribeArticle();
+            bmarks["respon"].Range.Text = Resolution.WarningArticle();
             string to = Path.Combine(DestinationFolder(), e.ToString() + " подписка.docx");
             if (File.Exists(to))
             {
@@ -7119,7 +7119,152 @@ namespace PLSE_MVVMStrong.Model
                 doc.Close();
             }
         }
-        
+        public void CreateConclusion()
+        {
+            Microsoft.Office.Interop.Word.Application word = new Microsoft.Office.Interop.Word.Application();
+            Document doc = word.Documents.Add(_conclusiontemp);
+            doc.Activate();
+            var bmarks = doc.Bookmarks;
+            int expertcnt = 0;
+            bmarks["CaseAnnotate"].Range.Text = Resolution.AnnotateBuilder();
+            StringBuilder sb = new StringBuilder(1200);
+            Dictionary<DateTime, string> wexperts = new Dictionary<DateTime, string>(5);
+            foreach (var emp in Resolution.Expertisies.GroupBy(n => n.Expert.Employee))
+            {
+                sb.Append("- "); sb.Append(emp.Key.ToString("D"));
+                switch (emp.Key.Gender)
+                {
+                    case "женский":
+                        sb.Append(", имеющей ");
+                        break;
+                    case "мужской":
+                        sb.Append(", имеющему ");
+                        break;
+                    default:
+                        throw new NotSupportedException("Неопределенный пол сотрудника");
+                }
+                sb.Append(emp.Key.Education1);
+                if (emp.Key.Education2 != null)
+                {
+                    sb.Append(", ");
+                    sb.Append(emp.Key.Education2);
+                }
+                if (emp.Key.Education3 != null)
+                {
+                    sb.Append(", ");
+                    sb.Append(emp.Key.Education3);
+                }
+                if (emp.Key.Sciencedegree != null)
+                {
+                    sb.Append(", ");
+                    sb.Append(emp.Key.Sciencedegree);
+                }
+                sb.Append(", ");
+                foreach (var item in emp)
+                {
+                    sb.Append("квалификацию судебного эксперта по специальности "); sb.Append(item.Expert.Speciality.Code);
+                    sb.Append(", стаж экспертной работы по которой с "); sb.Append(item.Expert.ReceiptDate.Year);
+                    sb.Append(", ");
+                }
+                sb.Append("должность - "); sb.Append(emp.Key.Inneroffice);
+                sb.Append(" отдела "); sb.Append(emp.Key.Departament.Acronym); sb.Append(" ФБУ Пензенская ЛСЭ Минюста России");
+                sb.AppendLine(";");
+                var d = emp.Min(n => n.StartDate);
+                if (!wexperts.ContainsKey(d))
+                {
+                    wexperts.Add(d, emp.Key.ToString());
+                }
+                else
+                {
+                    wexperts[d] = wexperts[d] + ", " + emp.Key.ToString();
+                }
+                expertcnt = emp.Count();
+            }
+            sb.Replace(";", ".", sb.Length -4, 1);
+            bmarks["Experts"].Range.Text = sb.ToString();
+            if(Resolution.Objects.Count > 0)
+            {
+                sb.Clear();
+                sb.Append("из "); sb.Append(Declination.DeclineBeforeNoun(Resolution.Customer.Organization.Name, Case.Genitive));
+                sb.Append(" при "); sb.Append(Declination.DeclineBeforeNoun(Resolution.ResolutionType, Case.Genitive));
+                sb.Append(" "); sb.Append(Declination.DeclineBeforeNoun(Resolution.Customer.Office, Case.Genitive));
+                sb.Append(" "); sb.Append(Declination.DeclineBeforeNoun(Resolution.Customer.Rank, Case.Genitive));
+                sb.Append(" "); sb.Append(Resolution.Customer.ToString("d"));
+                sb.Append(" от "); sb.Append(Resolution.ResolutionDate?.ToString("d"));
+                sb.AppendLine(" о назначении экспертизы поступили:"); //TODO Prescribe add
+                foreach (var item in Resolution.Objects)
+                {
+                    sb.Append("- ");
+                    sb.Append(item.Content);
+                    sb.AppendLine(";");
+                }
+                sb.Replace(";", ".", sb.Length - 2, 1);
+            }
+            else
+            {
+                sb.Clear();
+                sb.Append("поступило "); sb.Append(Resolution.ResolutionType);
+
+                sb.Append(" "); sb.Append(Declination.DeclineBeforeNoun(Resolution.Customer.Office, Case.Genitive));
+                sb.Append(" "); sb.Append(Declination.DeclineBeforeNoun(Resolution.Customer.Rank, Case.Genitive));
+                sb.Append(" "); sb.Append(Declination.DeclineBeforeNoun(Resolution.Customer.Organization.Name, Case.Genitive));
+                sb.Append(" "); sb.Append(Resolution.Customer.ToString("d"));
+                sb.Append(" от "); sb.Append(Resolution.ResolutionDate?.ToString("d"));
+                sb.AppendLine(" о назначении экспертизы.");//TODO Prescribe add
+            }
+            bmarks["From"].Range.Text = sb.ToString();
+            bmarks["Number"].Range.Text = Resolution.FullOverallNumber;
+            sb.Clear();
+            foreach (var item in Resolution.Questions)
+            {
+                sb.Append(item.Number); sb.Append(". «");
+                sb.Append(item.Content); sb.AppendLine("»");
+            }
+            bmarks["Questions"].Range.Text = sb.ToString();
+            bmarks["RegistrationDate"].Range.Text = Resolution.RegistrationDate.ToString("d");
+            Range r = bmarks["ReleaseDate"].Range;
+            r.Text = DateTime.Now.ToString("dd MMMM yyyy");
+            r.Font.Color = WdColor.wdColorDarkYellow;
+            r = bmarks["ReleaseDateShort"].Range;
+            r.Text = DateTime.Now.ToString("d");
+            r.Font.Color = WdColor.wdColorDarkYellow;
+            bmarks["StartDate"].Range.Text = Resolution.Expertisies.Min(n => n.StartDate).ToString("d");
+            sb.Clear();
+            sb.Append(Resolution.WarningArticle());
+            if (wexperts.Count > 1)
+            {
+                sb.Append(" эксперты предупреждены: ");
+                foreach (var item in wexperts)
+                {
+                    sb.Append(item.Key.ToString("d"));
+                    sb.Append(" - ");
+                    sb.Append(item.Value);
+                }
+            }
+            else
+            {
+                sb.Append(" эксперты предупреждены");
+                sb.Append(Resolution.Expertisies[0].StartDate.ToString("d"));
+            }
+            bmarks["Warning"].Range.Text = sb.ToString();
+            word.Visible = true;
+            //if (File.Exists(to))
+            //{
+            //    File.Delete(to);
+            //}
+            //try
+            //{
+            //    doc.SaveAs2(to);
+            //}
+            //catch (Exception)
+            //{
+            //    throw;
+            //}
+            //finally
+            //{
+            //    doc.Close();
+            //}
+        }
     }
     public class SpecialityCompererBySpecies : IEqualityComparer<Speciality>
     {

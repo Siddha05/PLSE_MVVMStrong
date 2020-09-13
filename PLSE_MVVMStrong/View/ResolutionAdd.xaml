@@ -16,48 +16,6 @@
         <local:LenghtToBoolConverter x:Key="LBConverter" />
         <local:ResTypeToEnableConverter x:Key="RTypeConverter" />
         <local:CaseTypeToVisibleConverter x:Key="CTypeConverter" />
-        <Style TargetType="{x:Type DataGridRow}" x:Key="DataGridSimpleRow">
-            <Setter Property="OverridesDefaultStyle" Value="True"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type DataGridRow}">
-                        <Border BorderBrush="Transparent" BorderThickness="1" Margin="1" Height="auto" Name="brd">
-                            <SelectiveScrollingGrid>
-                                <SelectiveScrollingGrid.ColumnDefinitions>
-                                    <ColumnDefinition Width="auto"/>
-                                    <ColumnDefinition/>
-                                </SelectiveScrollingGrid.ColumnDefinitions>
-                                <Path Fill="Transparent" Data="M 0,0 8,8 0,16 Z" HorizontalAlignment="Center" VerticalAlignment="Center" x:Name="path"/>
-                                <DataGridCellsPresenter FontSize="{StaticResource UIFontSize}" Grid.Column="1" Margin="5,0,0,2"/>
-                            </SelectiveScrollingGrid>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="true">
-                                <Setter TargetName="path" Property="Fill" Value="#FF38CEE6"/>
-                                <!--<Setter TargetName="brd" Property="TextBlock.Foreground" Value="DarkOrchid"/>-->
-                            </Trigger>
-                            <Trigger Property="IsSelected" Value="true">
-                                <Setter TargetName="path" Property="Fill" Value="{StaticResource SelectedControl}"/>
-                                <!--<Setter TargetName="brd" Property="TextBlock.Foreground" Value="DarkBlue"/>-->
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style TargetType="{x:Type DataGridCell}" x:Key="DataGridSimpleCell">
-            <Setter Property="OverridesDefaultStyle" Value="True"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="DataGridCell">
-                        <ContentPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style TargetType="{x:Type DataGridColumnHeader}" x:Key="DataGridNoHeaders">
-            <Setter Property="Visibility" Value="Collapsed"/>
-        </Style>
         <plse_mvvmstrong:TextLenghtConverter x:Key="TextLenghtConv"/>
         <plse_mvvmstrong:ZeroToVisibilityConverter x:Key="IntToVisibConv"/>
     </Window.Resources>
@@ -175,8 +133,7 @@
                             <RowDefinition Height="auto"/>
                             <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
-                        <DataGrid ItemsSource="{Binding Path=Resolution.Objects}" AutoGenerateColumns="False"  GridLinesVisibility="None" 
-                                 
+                        <DataGrid ItemsSource="{Binding Path=Resolution.Objects}" AutoGenerateColumns="False"  GridLinesVisibility="None"  
                               HorizontalScrollBarVisibility="Disabled" FontSize="{StaticResource RegularFontSize}" BorderThickness="0" Margin="2" Background="White"
                               RowStyle="{StaticResource DataGridSimpleRow}" ColumnHeaderStyle="{StaticResource DataGridNoHeaders}" CanUserAddRows="False"
                               CellStyle="{StaticResource DataGridSimpleCell}" Name="dgObjects">
@@ -279,27 +236,27 @@
                 <TextBlock Text="Тип*" Grid.Row="14" Style="{StaticResource UIRightOrient}"/>
                 <ComboBox Name="cbTypeCase" Grid.Row="15" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=CaseTypesList}"
                            IsEnabled="{Binding Path=Resolution.ResolutionType, Converter={StaticResource RTypeConverter}}" 
-                          SelectedItem="{Binding Path =Resolution.Case.TypeCase}" Margin="5,0,0,5" Width="303"/>
+                          SelectedItem="{Binding Path =Resolution.TypeCase}" Margin="5,0,0,5" Width="303"/>
                 <TextBlock Grid.Row="14" Text="Номер дела" Grid.Column="1" Visibility="{Binding ElementName=tbNumber, Path=Visibility}" Style="{StaticResource UIRightOrient}"
                            Margin="15,0,0,0"/>
-                <TextBox Name="tbNumber" Grid.Row="15" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Resolution.Case.Number}"
+                <TextBox Name="tbNumber" Grid.Row="15" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Resolution.CaseNumber}"
                                  Visibility ="{Binding Path=NumberVisible, Mode=OneWay}" Margin="15,0,0,5" Width="303"/>
                 <TextBlock Grid.Row="16" Text="Дата" Style="{StaticResource UIRightOrient}"/>
-                <DatePicker Grid.Row="17" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Resolution.Case.DispatchDate}" Margin="5,0,0,5"/>
+                <DatePicker Grid.Row="17" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Resolution.DispatchDate}" Margin="5,0,0,5"/>
                 
                 <TextBlock  Grid.Row="18" Text="Истец" Style="{StaticResource UIRightOrient}" Visibility="{Binding ElementName=tbPlaintiff, Path=Visibility}"/>
-                <TextBox Name="tbPlaintiff" Grid.Row="19" Style="{StaticResource UITextBox}" Text="{Binding Path=Resolution.Case.Plaintiff}"
+                <TextBox Name="tbPlaintiff" Grid.Row="19" Style="{StaticResource UITextBox}" Text="{Binding Path=Resolution.Plaintiff}"
                                   Margin="5,0,0,5" Width="200" Height="{StaticResource UIHeigth}" Visibility="{Binding Path=RespondentVisible, Mode=OneWay}"/>
                 <TextBlock Grid.Row="18" Grid.Column="1" Text="Ответчик" Visibility="{Binding ElementName=tbPlaintiff, Path=Visibility}" 
                            Style="{StaticResource UIRightOrient}" Margin="15,0,0,0"/>
-                <TextBox Name="tbRespondent" Grid.Row="19" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Resolution.Case.Respondent}"
+                <TextBox Name="tbRespondent" Grid.Row="19" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Resolution.Respondent}"
                                   Margin="15,0,0,5" Width="200" Height="{StaticResource UIHeigth}" Visibility="{Binding ElementName=tbPlaintiff, Path=Visibility}"/>
                 <TextBlock Grid.Row="20" Text="Анотация" Style="{StaticResource UIRightOrient}"/>
                 <TextBox Grid.Row="21" Grid.ColumnSpan="2" MinLines="8" AcceptsReturn="True" FontSize="{StaticResource UIFontSize}"
-                                    TextWrapping="Wrap" Name="caseAnnotate" Height="100" Text="{Binding Path=Resolution.Case.Annotate}" Margin="5,0,0,5" />
+                                    TextWrapping="Wrap" Name="caseAnnotate" Height="100" Text="{Binding Path=Resolution.CaseAnnotate}" Margin="5,0,0,5" />
                 <TextBlock Grid.Row="22" Text="Комментарий" Style="{StaticResource UIRightOrient}"/>
                 <TextBox Grid.Row="23" Grid.ColumnSpan="2" Grid.RowSpan="2" MinLines="20" AcceptsReturn="True" Margin="5,0,0,5" FontSize="{StaticResource UIFontSize}"
-                                    TextWrapping="Wrap" Name="caseComment" Height="100" Text="{Binding Path=Resolution.Case.Comment}"/>
+                                    TextWrapping="Wrap" Name="caseComment" Height="100" Text="{Binding Path=Resolution.Comment}"/>
             </Grid>
         </ScrollViewer>
         <Button Style="{StaticResource BaseUIButton}" Grid.Column="1" Grid.Row="1" Content="ДОБАВИТЬ" Foreground="GreenYellow" Command="{Binding Path=Save}"

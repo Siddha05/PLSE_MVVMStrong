@@ -100,5 +100,9 @@ namespace PLSE_MVVMStrong.ViewModel
             r.Expertisies.Add(e);
             _expertise = e;
         }
+        public ExpertiseViewerVM(Expertise expertise)
+        {
+            _expertise = expertise;
+        }
     }
 }

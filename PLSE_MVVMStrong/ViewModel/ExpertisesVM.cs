@@ -1,4 +1,5 @@
 ﻿using PLSE_MVVMStrong.Model;
+using PLSE_MVVMStrong.View;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -35,6 +36,8 @@ namespace PLSE_MVVMStrong.ViewModel
         #region Fields
         private string[] all = { "все" };
         private List<Expertise> _expcoll = new List<Expertise>();
+        private RelayCommand _editexp;
+        private RelayCommand _crtconcl;
         #endregion
         #region Properties
         public IEnumerable<string> ExpertiseTypes { get; }
@@ -58,13 +61,44 @@ namespace PLSE_MVVMStrong.ViewModel
         #region Commands
         public RelayCommand Find { get; }
         public RelayCommand ShowDetails { get; }
-        public RelayCommand EditExpertise { get; }
+        public RelayCommand EditExpertise
+        {
+            get
+            {
+                return _editexp != null ? _editexp : _editexp = new RelayCommand(n =>
+                                                        {
+                                                            var e = n as Expertise;
+                                                            if (e != null)
+                                                            {
+                                                                var wnd = new ExpertiseViewer();
+                                                                wnd.DataContext = new ExpertiseViewerVM(e);
+                                                                if (wnd.ShowDialog() ?? false)
+                                                                {
+
+                                                                }
+                                                            }
+                                                            
+                                                        });
+            }
+        }
         public RelayCommand OpenWord { get; }
         public RelayCommand CreateSubscribe { get; }
         public RelayCommand CreateNotificationReport { get; }
         public RelayCommand CreateRequest { get; }
         public RelayCommand CreateCaseNotification { get; }
-        public RelayCommand CreateConclusion { get; }
+        public RelayCommand CreateConclusion
+        {
+            get
+            {
+                return _crtconcl != null ? _crtconcl : _crtconcl = new RelayCommand(n =>
+                                                                                    {
+                                                                                        //var dc = new DocsCreater((ExpertiseList.CurrentItem as Expertise).FromResolution);
+                                                                                        //dc.CreateConclusion();
+                                                                                        MessageBox.Show(n.GetType().Name);
+                                                                                        
+                                                                                    });
+            }
+        }
         #endregion
         public ExpertisesVM()
         {
@@ -97,85 +131,85 @@ namespace PLSE_MVVMStrong.ViewModel
             #region Init
             //questions.Questions.Add(new ContentWrapper("Question 1"));
             //objects.Objects.Add(new ContentWrapper("Object 1"));
-            Resolution res = new Resolution(id: 1,
-                                            registrationdate: new DateTime(2020, 08, 22),
-                                            resolutiondate: new DateTime(2020, 08, 20),
-                                            resolutiontype: "определение",
-                                            customer: CommonInfo.Customers.First(n => n.CustomerID == 4),
-                                            obj: null,
-                                            prescribe: "почерковедческая экспертиза",
-                                            quest: null,
-                                            nativenumeration: true,
-                                            status: "в работе",
-                                            casenumber: "547-1/2020",
-                                            respondent: "ОАО \"Фирма всяческих производственных направленностей\"",
-                                            plaintiff: "Карпухин А.В.",
-                                            typecase: "гражданское",
-                                            annotate: "по факту мошенничества и незаконных действий в отношении Карпухина А.В., а также возмещения причиненного ущерба",
-                                            comment: "Длинный комментарий, написанный по поводу визуального тестирования расположения и восприятия на форме отображения состояния экспертизы по требованию и не",
-                                            dispatchdate: null,
-                                            vr: Model.Version.Original,
-                                            updatedate: new DateTime(2020, 08, 22)
-                                            );
-            res.Questions.Add(new ContentWrapper("Question 2"));
-            Resolution res2 = new Resolution(id: 1,
-                                            registrationdate: new DateTime(2020, 06, 02),
-                                            resolutiondate: new DateTime(2020, 05, 28),
-                                            resolutiontype: "определение",
-                                            customer: CommonInfo.Customers.First(n => n.CustomerID == 16),
-                                            obj: null,
-                                            prescribe: "автотехническая и химическая экспертиза",
-                                            quest: null,
-                                            nativenumeration: true,
-                                            status: "выполнено",
-                                            casenumber: "112044444444440001",
-                                            respondent: null,
-                                            plaintiff: null,
-                                            typecase: "уголовное",
-                                            annotate: "по факту совершения административного происшествия имевшего место 05.11.2020 в г. Пензе",
-                                            comment: "Комментарий написанный бездумно",
-                                            dispatchdate: null,
-                                            vr: Model.Version.Original,
-                                            updatedate: new DateTime(2020, 06, 22)
-                                            );
-            Expertise e1 = new Expertise(1, "324",
-                                                CommonInfo.Experts.First(n => n.ExpertID == 7),
-                                                null,
-                                                new DateTime(2019, 11, 21),
-                                                null,
-                                                30,
-                                                "первичная",
-                                                null,
-                                                null,
-                                                Model.Version.Original);
-            Expertise e2 = new Expertise(2, "325",
-                                                CommonInfo.Experts.First(n => n.ExpertID == 59),
-                                                null,
-                                                new DateTime(2019, 11, 21),
-                                                null,
-                                                30,
-                                                "первичная",
-                                                null,
-                                                null,
-                                                Model.Version.Original);
-            Expertise e3 = new Expertise(3, "1438",
-                                               CommonInfo.Experts.First(n => n.ExpertID == 6),
-                                               "заключение эксперта",
-                                               new DateTime(2020, 06, 01),
-                                               new DateTime(2020, 06, 12),
-                                               20,
-                                               "первичная",
-                                               null,
-                                               null,
-                                               Model.Version.Original);
-            Bill b = new Bill(2, "218", new DateTime(2019, 11, 12), new DateTime(2019, 11, 24), null, 12, 630m, 7000m, Model.Version.Original);
-            Bill b1 = new Bill(3, "219", new DateTime(2019, 11, 12), null, null, 24, 630m, 0m, Model.Version.Original);
-            e1.Bills.Add(b); e2.Bills.Add(b1);
-            res.Expertisies.Add(e1);
-            res.Expertisies.Add(e2);
-            res2.Expertisies.Add(e3);
-            _expcoll.Add(e1); _expcoll.Add(e2); _expcoll.Add(e3);
-#endregion
+            //Resolution res = new Resolution(id: 1,
+            //                                registrationdate: new DateTime(2020, 08, 22),
+            //                                resolutiondate: new DateTime(2020, 08, 20),
+            //                                resolutiontype: "определение",
+            //                                customer: CommonInfo.Customers.First(n => n.CustomerID == 4),
+            //                                obj: null,
+            //                                prescribe: "почерковедческая экспертиза",
+            //                                quest: null,
+            //                                nativenumeration: true,
+            //                                status: "в работе",
+            //                                casenumber: "547-1/2020",
+            //                                respondent: "ОАО \"Фирма всяческих производственных направленностей\"",
+            //                                plaintiff: "Карпухин А.В.",
+            //                                typecase: "гражданское",
+            //                                annotate: "по факту мошенничества и незаконных действий в отношении Карпухина А.В., а также возмещения причиненного ущерба",
+            //                                comment: "Длинный комментарий, написанный по поводу визуального тестирования расположения и восприятия на форме отображения состояния экспертизы по требованию и не",
+            //                                dispatchdate: null,
+            //                                vr: Model.Version.Original,
+            //                                updatedate: new DateTime(2020, 08, 22)
+            //                                );
+            //res.Questions.Add(new ContentWrapper("Question 2"));
+            //Resolution res2 = new Resolution(id: 1,
+            //                                registrationdate: new DateTime(2020, 06, 02),
+            //                                resolutiondate: new DateTime(2020, 05, 28),
+            //                                resolutiontype: "определение",
+            //                                customer: CommonInfo.Customers.First(n => n.CustomerID == 16),
+            //                                obj: null,
+            //                                prescribe: "автотехническая и химическая экспертиза",
+            //                                quest: null,
+            //                                nativenumeration: true,
+            //                                status: "выполнено",
+            //                                casenumber: "112044444444440001",
+            //                                respondent: null,
+            //                                plaintiff: null,
+            //                                typecase: "уголовное",
+            //                                annotate: "по факту совершения административного происшествия имевшего место 05.11.2020 в г. Пензе",
+            //                                comment: "Комментарий написанный бездумно",
+            //                                dispatchdate: null,
+            //                                vr: Model.Version.Original,
+            //                                updatedate: new DateTime(2020, 06, 22)
+            //                                );
+            //Expertise e1 = new Expertise(1, "324",
+            //                                    CommonInfo.Experts.First(n => n.ExpertID == 7),
+            //                                    null,
+            //                                    new DateTime(2019, 11, 21),
+            //                                    null,
+            //                                    30,
+            //                                    "первичная",
+            //                                    null,
+            //                                    null,
+            //                                    Model.Version.Original);
+            //Expertise e2 = new Expertise(2, "325",
+            //                                    CommonInfo.Experts.First(n => n.ExpertID == 59),
+            //                                    null,
+            //                                    new DateTime(2019, 11, 21),
+            //                                    null,
+            //                                    30,
+            //                                    "первичная",
+            //                                    null,
+            //                                    null,
+            //                                    Model.Version.Original);
+            //Expertise e3 = new Expertise(3, "1438",
+            //                                   CommonInfo.Experts.First(n => n.ExpertID == 6),
+            //                                   "заключение эксперта",
+            //                                   new DateTime(2020, 06, 01),
+            //                                   new DateTime(2020, 06, 12),
+            //                                   20,
+            //                                   "первичная",
+            //                                   null,
+            //                                   null,
+            //                                   Model.Version.Original);
+            //Bill b = new Bill(2, "218", new DateTime(2019, 11, 12), new DateTime(2019, 11, 24), null, 12, 630m, 7000m, Model.Version.Original);
+            //Bill b1 = new Bill(3, "219", new DateTime(2019, 11, 12), null, null, 24, 630m, 0m, Model.Version.Original);
+            //e1.Bills.Add(b); e2.Bills.Add(b1);
+            //res.Expertisies.Add(e1);
+            //res.Expertisies.Add(e2);
+            //res2.Expertisies.Add(e3);
+            //_expcoll.Add(e1); _expcoll.Add(e2); _expcoll.Add(e3);
+            #endregion
             ExpertiseList = new ListCollectionView(_expcoll);
             ExpertiseList.GroupDescriptions.Add(new PropertyGroupDescription("Focus"));
             
@@ -209,6 +243,7 @@ namespace PLSE_MVVMStrong.ViewModel
                 }
                 ExpertiseList.CommitNew();
             });
+           
         }
         string Query(string status = null, string type = null, DateTime? sdate1 = null, DateTime? sdate2 = null,
                         DateTime? edate1 = null, DateTime? edate2 = null, IEnumerable<int> id = null)
