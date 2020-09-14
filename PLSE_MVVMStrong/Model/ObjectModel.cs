@@ -4957,31 +4957,46 @@ namespace PLSE_MVVMStrong.Model
         #region Methods
         private void _quest_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
+            //    switch (e.Action)
+            //    {
+            //        case NotifyCollectionChangedAction.Add:
+            //        case NotifyCollectionChangedAction.Replace:
+            //            var c = sender as ObservableCollection<ContentWrapper>;
+            //            int i = e.NewStartingIndex;
+            //            foreach (var item in c.Skip(i))
+            //            {
+            //                item.Number = ++i;
+            //            }
+            //            break;
+            //        case NotifyCollectionChangedAction.Remove:
+            //            var c1 = sender as ObservableCollection<ContentWrapper>;
+            //            int i1 = e.OldStartingIndex;
+            //            foreach (var item in c1.Skip(i1))
+            //            {
+            //                item.Number = ++i1;
+            //            }
+            //            break;
+            //        case NotifyCollectionChangedAction.Move:
+            //            var c2 = sender as ObservableCollection<ContentWrapper>;
+            //            int i2 = Math.Min(e.NewStartingIndex, e.OldStartingIndex);
+            //            foreach (var item in c2.Skip(i2))
+            //            {
+            //                item.Number = ++i2;
+            //            }
+            //            break;
+            //        default:
+            //            break;
+            //    }
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
-                case NotifyCollectionChangedAction.Replace:
-                    var c = sender as ObservableCollection<ContentWrapper>;
-                    int i = e.NewStartingIndex;
-                    foreach (var item in c.Skip(i))
-                    {
-                        item.Number = ++i;
-                    }
-                    break;
                 case NotifyCollectionChangedAction.Remove:
-                    var c1 = sender as ObservableCollection<ContentWrapper>;
-                    int i1 = e.OldStartingIndex;
-                    foreach (var item in c1.Skip(i1))
-                    {
-                        item.Number = ++i1;
-                    }
-                    break;
+                case NotifyCollectionChangedAction.Replace:
                 case NotifyCollectionChangedAction.Move:
-                    var c2 = sender as ObservableCollection<ContentWrapper>;
-                    int i2 = Math.Min(e.NewStartingIndex, e.OldStartingIndex);
-                    foreach (var item in c2.Skip(i2))
+                    var c = sender as ObservableCollection<ContentWrapper>;
+                    for (int i = 0; i < c.Count; i++)
                     {
-                        item.Number = ++i2;
+                        c[i].Number = i+1;
                     }
                     break;
                 default:
@@ -5301,8 +5316,7 @@ namespace PLSE_MVVMStrong.Model
                     return null;
             }
         }
-        #endregion
-        
+        #endregion  
     }
 
     public class Equipment : NotifyBase // todo load from db
@@ -7094,14 +7108,14 @@ namespace PLSE_MVVMStrong.Model
                 doc.Close();
             }
         }
-        public void CreatePetition(DateTime petitiondate)
+        public void CreatePetition(Request request)
         {
             Microsoft.Office.Interop.Word.Application word = new Microsoft.Office.Interop.Word.Application();
             Document doc = word.Documents.Add(this._petitiontemp);
             doc.Activate();
             var bmarks = doc.Bookmarks;
 
-            string to = Path.Combine(DestinationFolder(), $"Ходатайство от {petitiondate:d}.docx");
+            string to = Path.Combine(DestinationFolder(), $"Ходатайство от {request.RequestDate:d}.docx");
             if (File.Exists(to))
             {
                 File.Delete(to);
@@ -7224,10 +7238,10 @@ namespace PLSE_MVVMStrong.Model
             bmarks["RegistrationDate"].Range.Text = Resolution.RegistrationDate.ToString("d");
             Range r = bmarks["ReleaseDate"].Range;
             r.Text = DateTime.Now.ToString("dd MMMM yyyy");
-            r.Font.Color = WdColor.wdColorDarkYellow;
+            r.Font.Color = WdColor.wdColorRed;
             r = bmarks["ReleaseDateShort"].Range;
             r.Text = DateTime.Now.ToString("d");
-            r.Font.Color = WdColor.wdColorDarkYellow;
+            r.Font.Color = WdColor.wdColorRed;
             bmarks["StartDate"].Range.Text = Resolution.Expertisies.Min(n => n.StartDate).ToString("d");
             sb.Clear();
             sb.Append(Resolution.WarningArticle());
