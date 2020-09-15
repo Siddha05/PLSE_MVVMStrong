@@ -94,7 +94,7 @@ namespace PLSE_MVVMStrong.ViewModel
                                                                                     {
                                                                                         //var dc = new DocsCreater((ExpertiseList.CurrentItem as Expertise).FromResolution);
                                                                                         //dc.CreateConclusion();
-                                                                                        MessageBox.Show(n.GetType().Name);
+                                                                                        
                                                                                         
                                                                                     });
             }

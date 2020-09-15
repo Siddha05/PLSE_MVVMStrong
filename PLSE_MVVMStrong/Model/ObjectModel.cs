@@ -2666,7 +2666,7 @@ namespace PLSE_MVVMStrong.Model
             };
         }
     }
-    public sealed class Departament : IEquatable<Departament>
+    public struct Departament : IEquatable<Departament>
     {
         private string _title;
         private string _digitalcode;
@@ -2716,7 +2716,6 @@ namespace PLSE_MVVMStrong.Model
             _digitalcode = code;
             _isvalid = isvalid;
         }
-        public Departament() { }
         public Departament(Departament dep)
         {
             _departamentID = dep.DepartamentID;
@@ -2731,8 +2730,23 @@ namespace PLSE_MVVMStrong.Model
         }
         public bool Equals(Departament other)
         {
-            if (other == null) return false;
-            return Title.Equals(other.Title, StringComparison.CurrentCultureIgnoreCase);
+            return this.DepartamentID == other.DepartamentID;
+        }
+        public override bool Equals(object obj)
+        {
+            return this.Equals((Departament)obj);
+        }
+        public override int GetHashCode()
+        {
+            return this.DepartamentID.GetHashCode();
+        }
+        public static bool operator ==(Departament d1, Departament d2)
+        {
+            return d1.Equals(d2);
+        }
+        public static bool operator !=(Departament d1, Departament d2)
+        {
+            return !d1.Equals(d2);
         }
     }
     public class Person : NotifyBase, IFormattable, ICloneable
@@ -3718,7 +3732,7 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@Science", SqlDbType.NVarChar, 250).Value = ConvertToDBNull(Sciencedegree);
             cmd.Parameters.Add("@EmployeeStatusID", SqlDbType.NVarChar, 30).Value = EmployeeStatus;
             cmd.Parameters.Add("@foto", SqlDbType.VarBinary).Value = ConvertToDBNull(_foto); // check it
-            cmd.Parameters.Add("@Departament", SqlDbType.TinyInt).Value = ConvertToDBNull(Departament?.DepartamentID);
+            cmd.Parameters.Add("@Departament", SqlDbType.TinyInt).Value = ConvertToDBNull(Departament.DepartamentID);
             cmd.Parameters.Add("@InnerOffice", SqlDbType.NVarChar, 60).Value = Inneroffice;
             cmd.Parameters.Add("@SettlementID", SqlDbType.Int).Value = ConvertToDBNull(Adress.Settlement?.SettlementID);
             cmd.Parameters.Add("@StreetPrefix", SqlDbType.NVarChar, 20).Value = ConvertToDBNull(Adress.Streetprefix);
@@ -3767,7 +3781,7 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@Science", SqlDbType.NVarChar, 250).Value = ConvertToDBNull(Sciencedegree);
             cmd.Parameters.Add("@EmployeeStatusID", SqlDbType.NVarChar, 30).Value = EmployeeStatus;
             cmd.Parameters.Add("@foto", SqlDbType.VarBinary).Value = ConvertToDBNull(_foto);
-            cmd.Parameters.Add("@Departament", SqlDbType.TinyInt).Value = ConvertToDBNull(Departament?.DepartamentID);
+            cmd.Parameters.Add("@Departament", SqlDbType.TinyInt).Value = ConvertToDBNull(Departament.DepartamentID);
             cmd.Parameters.Add("@InnerOffice", SqlDbType.NVarChar, 60).Value = Inneroffice;
             cmd.Parameters.Add("@SettlementID", SqlDbType.Int).Value = ConvertToDBNull(Adress.Settlement?.SettlementID);
             cmd.Parameters.Add("@StreetPrefix", SqlDbType.NVarChar, 20).Value = ConvertToDBNull(Adress.Streetprefix);
@@ -5487,18 +5501,18 @@ namespace PLSE_MVVMStrong.Model
         #region Fields
         private Expertise _expertise;
         #endregion
-        #region Properties
+#region Properties
         public Expertise FromExpertise
         {
             get => _expertise;
             set { _expertise = value; }
         }
+#endregion
 
         public override void SaveChanges(SqlConnection con)
         {
             throw new NotImplementedException();
-        }
-        #endregion
+        }     
         private void AddToDB(SqlConnection con)
         {
             throw new NotImplementedException();
@@ -6886,25 +6900,21 @@ namespace PLSE_MVVMStrong.Model
         /// </summary>
         private readonly string _reporttemp;
 #endregion
-#region Properties
-        public string InitialSavePath => _inicailpath;
-        public Resolution Resolution { get; }
-#endregion
-        public DocsCreater(Resolution resolution, string initpath = @"\\ASASSIN-ПК\SIRSERVER\DocFiles\DOCS")
+
+        public DocsCreater(string initpath = @"\\ASASSIN-ПК\SIRSERVER\DocFiles\DOCS")
         {
-            Resolution = resolution;
             _inicailpath = initpath;
         }
-        private string DestinationFolder()
+        private string DestinationFolder(Resolution resolution)
         {
-            string path = Path.Combine(_inicailpath, Resolution.RegistrationDate.Year.ToString(), Resolution.OverallNumber);
+            string path = Path.Combine(_inicailpath, resolution.RegistrationDate.Year.ToString(), resolution.OverallNumber);
             Directory.CreateDirectory(path);
             return path;
         }
-        public async System.Threading.Tasks.Task CreateSubscribeAsync(RuningTask task, Microsoft.Office.Interop.Word.Application wordapp = null)
+        public async System.Threading.Tasks.Task CreateSubscribeAsync(Resolution resolution, RuningTask task, Microsoft.Office.Interop.Word.Application wordapp = null)
         {
             bool toclose = false;
-            task.RuningAction = "Cоздание подписок для экспертов";
+            task.RuningAction = $"Cоздание подписок для экспертов";
             task.Status = RuningTaskStatus.Running;
             Microsoft.Office.Interop.Word.Application word = wordapp;
             if (word == null)
@@ -6914,13 +6924,13 @@ namespace PLSE_MVVMStrong.Model
             }
             await System.Threading.Tasks.Task.Run(() =>
                                                         {
-                                                            foreach (var item in Resolution.Expertisies.GroupBy(n => n.Expert.Employee.EmployeeID))
+                                                            foreach (var item in resolution.Expertisies.GroupBy(n => n.Expert.Employee, new EmployeeComparerByID()))
                                                             {
-                                                                var t = new RuningTask($"Подписка эксперта {item.First().Expert.Employee:g}");
+                                                                var t = new RuningTask($"Подписка эксперта {item.Key:g}");
                                                                 task.AddSubTask(t);
                                                                 try
                                                                 {
-                                                                    CreateSubscribeByEmployee(word, item);
+                                                                    CreateSubscribeByGroup(word, item);
                                                                     t.Status = RuningTaskStatus.Completed;
                                                                 }
                                                                 catch (Exception)
@@ -6932,9 +6942,9 @@ namespace PLSE_MVVMStrong.Model
             task.Status = RuningTaskStatus.Completed;
             if (toclose) word.Quit();
         }
-        public async System.Threading.Tasks.Task CreateNotifyAsync(RuningTask task, Microsoft.Office.Interop.Word.Application wordapp = null)
+        public async System.Threading.Tasks.Task CreateNotifyAsync(Resolution resolution, RuningTask task, Microsoft.Office.Interop.Word.Application wordapp = null)
         {
-            if (Resolution.TypeCase != "уголовное") return;
+            if (String.Compare(resolution.TypeCase, "уголовное", StringComparison.Ordinal) != 0) return;
             task.RuningAction = "Создание уведомления";
             task.Status = RuningTaskStatus.Running;
             bool toclose = false;
@@ -6946,7 +6956,7 @@ namespace PLSE_MVVMStrong.Model
             }
             await System.Threading.Tasks.Task.Run(() =>
                                                         {
-                                                            foreach (var item in Resolution.Expertisies.GroupBy(n => n.StartDate))
+                                                            foreach (var item in resolution.Expertisies.GroupBy(n => n.StartDate))
                                                             {
                                                                 var t = new RuningTask($"Уведомление следователю от {item.Key:d}");
                                                                 task.AddSubTask(t);
@@ -6964,19 +6974,24 @@ namespace PLSE_MVVMStrong.Model
             task.Status = RuningTaskStatus.Completed;
             if (toclose) word.Quit();
         }
-        private void CreateSubscribeByEmployee(Microsoft.Office.Interop.Word.Application word, IGrouping<int,Expertise> group)
+        /// <summary>
+        /// Создает одну подписку для последовательности экспертиз (Employee считается уникальным для всей последовательности)
+        /// </summary>
+        /// <param name="word"></param>
+        /// <param name="group"></param>
+        private void CreateSubscribeByGroup(Microsoft.Office.Interop.Word.Application word, IGrouping<Employee,Expertise> group)
         {
+            if (group.Count() < 1) throw new InvalidOperationException("Parametr group not contain elements");
             Document doc = word.Documents.Add(_subscribetemp);
             doc.Activate();
             var bmarks = doc.Bookmarks;
             bmarks["number"].Range.Text = group.Select(n => n.FullNumber).Aggregate((c, n) => c + ", " + n);
-            bmarks["annotate"].Range.Text = Resolution.AnnotateBuilder();
+            bmarks["annotate"].Range.Text = group.First().FromResolution.AnnotateBuilder();
             StringBuilder sb = new StringBuilder(400);
-            Employee e = group.First().Expert.Employee;
-            sb.Append(Declination.DeclineBeforeNoun(e.Inneroffice, LingvoNET.Case.Dative));
+            sb.Append(Declination.DeclineBeforeNoun(group.Key.Inneroffice, LingvoNET.Case.Dative));
             sb.Append(", ");
-            sb.Append(e.ToString("D"));
-            switch (e.Gender)
+            sb.Append(group.Key.ToString("D"));
+            switch (group.Key.Gender)
             {
                 case "женский":
                     sb.Append(", имеющей ");
@@ -6989,21 +7004,21 @@ namespace PLSE_MVVMStrong.Model
                 default:
                     throw new NotSupportedException("Неопределенный пол сотрудника");
             }
-            sb.Append(e.Education1);
-            if(e.Education2 != null)
+            sb.Append(group.Key.Education1);
+            if(group.Key.Education2 != null)
             {
                 sb.Append(", ");
-                sb.Append(e.Education2);
+                sb.Append(group.Key.Education2);
             }
-            if (e.Education3 != null)
+            if (group.Key.Education3 != null)
             {
                 sb.Append(", ");
-                sb.Append(e.Education3);
+                sb.Append(group.Key.Education3);
             }
-            if (e.Sciencedegree != null)
+            if (group.Key.Sciencedegree != null)
             {
                 sb.Append(", ");
-                sb.Append(e.Sciencedegree);
+                sb.Append(group.Key.Sciencedegree);
             }
             sb.Append(", ");
             foreach (var item in group)
@@ -7012,11 +7027,11 @@ namespace PLSE_MVVMStrong.Model
                 sb.Append(", ");
             }
             bmarks["expert"].Range.Text = sb.ToString();
-            bmarks["fio"].Range.Text = e.ToString();
+            bmarks["fio"].Range.Text = group.Key.ToString();
             bmarks["date"].Range.Text = group.First().StartDate.ToString("dd MMMM yyyy");
-            bmarks["codex"].Range.Text = Resolution.Codex();
-            bmarks["respon"].Range.Text = Resolution.WarningArticle();
-            string to = Path.Combine(DestinationFolder(), e.ToString() + " подписка.docx");
+            bmarks["codex"].Range.Text = group.First().FromResolution.Codex();
+            bmarks["respon"].Range.Text = group.First().FromResolution.WarningArticle();
+            string to = Path.Combine(DestinationFolder(group.First().FromResolution), group.Key.ToString() + " подписка.docx");
             if (File.Exists(to))
             {
                 File.Delete(to);
@@ -7030,14 +7045,20 @@ namespace PLSE_MVVMStrong.Model
                 doc.Close();
             }
         }
+        /// <summary>
+        /// Создает одно уведомление на группу эеспертиз с одной датой начала
+        /// </summary>
+        /// <param name="word"></param>
+        /// <param name="group"></param>
         private void CreateNotifyByStartDate(Microsoft.Office.Interop.Word.Application word, IGrouping<DateTime, Expertise> group)
         {
             Document doc = word.Documents.Add(_notifytemp);
             doc.Activate();
+            Resolution resolution = group.First().FromResolution;
             var bmarks = doc.Bookmarks;
-            if (Resolution.ResolutionDate != null)
+            if (resolution.ResolutionDate != null)
             {
-                bmarks["casedate"].Range.Text = bmarks["casedate2"].Range.Text = Resolution.ResolutionDate.Value.ToString("dd.MM.yyyy");
+                bmarks["casedate"].Range.Text = bmarks["casedate2"].Range.Text = resolution.ResolutionDate.Value.ToString("dd.MM.yyyy");
             }
             else
             {
@@ -7048,7 +7069,7 @@ namespace PLSE_MVVMStrong.Model
                 r.Text = "[не указано]";
                 r.Font.Color = WdColor.wdColorRed;
             }
-            bmarks["casenumber"].Range.Text = bmarks["casenumber2"].Range.Text = Resolution.CaseNumber;
+            bmarks["casenumber"].Range.Text = bmarks["casenumber2"].Range.Text = resolution.CaseNumber;
             bmarks["date"].Range.Text = bmarks["date2"].Range.Text = bmarks["startdate"].Range.Text = bmarks["startdate2"].Range.Text = group.Key.ToString("dd.MM.yyyy");
             bmarks["departament"].Range.Text = bmarks["departament2"].Range.Text = group.Select(n => n.Expert.Employee.Departament.Acronym)
                                                                                         .Distinct()
@@ -7056,23 +7077,23 @@ namespace PLSE_MVVMStrong.Model
             bmarks["fio"].Range.Text = bmarks["fio2"].Range.Text = group.Select(n => n.Expert.Employee.ToString("d"))
                                                                         .Distinct()
                                                                         .Aggregate((c, n) => c + ", " + n);
-            bmarks["number"].Range.Text = bmarks["number2"].Range.Text = Resolution.FullOverallNumber;
+            bmarks["number"].Range.Text = bmarks["number2"].Range.Text = resolution.FullOverallNumber;
             var pr = group.Select(n => n.Expert.Employee.ToString())
                           .Distinct()
                           .Count() > 1 ? "экспертам" : "эксперту";
             bmarks["plurality"].Range.Text =  bmarks["plurality3"].Range.Text = pr;
             bmarks["plurality2"].Range.Text = bmarks["plurality4"].Range.Text = pr.ToUpperFirstLetter();
             StringBuilder sb = new StringBuilder(300);
-            sb.Append(Declination.DeclineBeforeNoun(Resolution.Customer.Office, LingvoNET.Case.Dative).ToUpperFirstLetter());
+            sb.Append(Declination.DeclineBeforeNoun(resolution.Customer.Office, LingvoNET.Case.Dative).ToUpperFirstLetter());
             sb.Append(" ");
-            sb.Append(Resolution.Customer?.Organization.Name.DeclineBeforeNoun(LingvoNET.Case.Genitive));
+            sb.Append(resolution.Customer?.Organization.Name.DeclineBeforeNoun(LingvoNET.Case.Genitive));
             sb.AppendLine();
-            if (Resolution.Customer.Rank != null)
+            if (resolution.Customer.Rank != null)
             {
-                sb.Append(Declination.DeclineBeforeNoun(Resolution.Customer.Rank, LingvoNET.Case.Dative));
+                sb.Append(Declination.DeclineBeforeNoun(resolution.Customer.Rank, LingvoNET.Case.Dative));
                 sb.AppendLine();
             }
-            sb.Append(Resolution.Customer.ToString("d"));
+            sb.Append(resolution.Customer.ToString("d"));
             bmarks["recipient"].Range.Text = bmarks["recipient2"].Range.Text = sb.ToString();
             string spec = String.Empty; 
             var sp = group.Select(n => n.Expert.Speciality).Distinct(new SpecialityCompererBySpecies());
@@ -7090,7 +7111,7 @@ namespace PLSE_MVVMStrong.Model
             }
             spec = spec.Remove(0, 1);
             bmarks["species"].Range.Text = bmarks["species2"].Range.Text = spec.Length > 0 ? spec : "экспертизы";
-            string to = Path.Combine(DestinationFolder(), $"уведомление следователю от {group.Key:d}.docx");
+            string to = Path.Combine(DestinationFolder(resolution), $"уведомление следователю от {group.Key:d}.docx");
             if (File.Exists(to))
             {
                 File.Delete(to);
@@ -7115,7 +7136,7 @@ namespace PLSE_MVVMStrong.Model
             doc.Activate();
             var bmarks = doc.Bookmarks;
 
-            string to = Path.Combine(DestinationFolder(), $"Ходатайство от {request.RequestDate:d}.docx");
+            string to = Path.Combine(DestinationFolder(request.FromExpertise.FromResolution), $"Ходатайство от {request.RequestDate:d}.docx");
             if (File.Exists(to))
             {
                 File.Delete(to);
@@ -7133,17 +7154,17 @@ namespace PLSE_MVVMStrong.Model
                 doc.Close();
             }
         }
-        public void CreateConclusion()
+        private void CreateConclusion(Resolution resolution)
         {
             Microsoft.Office.Interop.Word.Application word = new Microsoft.Office.Interop.Word.Application();
             Document doc = word.Documents.Add(_conclusiontemp);
             doc.Activate();
             var bmarks = doc.Bookmarks;
             int expertcnt = 0;
-            bmarks["CaseAnnotate"].Range.Text = Resolution.AnnotateBuilder();
+            bmarks["CaseAnnotate"].Range.Text = resolution.AnnotateBuilder();
             StringBuilder sb = new StringBuilder(1200);
             Dictionary<DateTime, string> wexperts = new Dictionary<DateTime, string>(5);
-            foreach (var emp in Resolution.Expertisies.GroupBy(n => n.Expert.Employee))
+            foreach (var emp in resolution.Expertisies.GroupBy(n => n.Expert.Employee))
             {
                 sb.Append("- "); sb.Append(emp.Key.ToString("D"));
                 switch (emp.Key.Gender)
@@ -7196,17 +7217,31 @@ namespace PLSE_MVVMStrong.Model
             }
             sb.Replace(";", ".", sb.Length -4, 1);
             bmarks["Experts"].Range.Text = sb.ToString();
-            if(Resolution.Objects.Count > 0)
+            if(resolution.Objects.Count > 0)
             {
                 sb.Clear();
-                sb.Append("из "); sb.Append(Declination.DeclineBeforeNoun(Resolution.Customer.Organization.Name, Case.Genitive));
-                sb.Append(" при "); sb.Append(Declination.DeclineBeforeNoun(Resolution.ResolutionType, Case.Genitive));
-                sb.Append(" "); sb.Append(Declination.DeclineBeforeNoun(Resolution.Customer.Office, Case.Genitive));
-                sb.Append(" "); sb.Append(Declination.DeclineBeforeNoun(Resolution.Customer.Rank, Case.Genitive));
-                sb.Append(" "); sb.Append(Resolution.Customer.ToString("d"));
-                sb.Append(" от "); sb.Append(Resolution.ResolutionDate?.ToString("d"));
-                sb.AppendLine(" о назначении экспертизы поступили:"); //TODO Prescribe add
-                foreach (var item in Resolution.Objects)
+                sb.Append("из "); sb.Append(Declination.DeclineBeforeNoun(resolution.Customer.Organization.Name, Case.Genitive));
+                sb.Append(" при "); sb.Append(Declination.DeclineBeforeNoun(resolution.ResolutionType, Case.Genitive));
+                sb.Append(" "); sb.Append(Declination.DeclineBeforeNoun(resolution.Customer.Office, Case.Genitive));
+                sb.Append(" "); sb.Append(Declination.DeclineBeforeNoun(resolution.Customer.Rank, Case.Genitive));
+                sb.Append(" "); sb.Append(resolution.Customer.ToString("d"));
+                sb.Append(" от "); sb.Append(resolution.ResolutionDate?.ToString("d"));
+                if (resolution.PrescribeType != null)
+                {
+                    sb.Append(" о назначении ");
+                    try
+                    {
+                        var s = Declination.DeclineSpeciality(resolution.PrescribeType, Case.Genitive);
+                        sb.Append(s);
+                        sb.Append(" поступили:");
+                    }
+                    catch (Exception)
+                    {
+                        sb.Append(" экспертизы поступили:");
+                    }
+                }
+                else sb.AppendLine(" о назначении экспертизы поступили:");
+                foreach (var item in resolution.Objects)
                 {
                     sb.Append("- ");
                     sb.Append(item.Content);
@@ -7217,34 +7252,48 @@ namespace PLSE_MVVMStrong.Model
             else
             {
                 sb.Clear();
-                sb.Append("поступило "); sb.Append(Resolution.ResolutionType);
+                sb.Append("поступило "); sb.Append(resolution.ResolutionType);
 
-                sb.Append(" "); sb.Append(Declination.DeclineBeforeNoun(Resolution.Customer.Office, Case.Genitive));
-                sb.Append(" "); sb.Append(Declination.DeclineBeforeNoun(Resolution.Customer.Rank, Case.Genitive));
-                sb.Append(" "); sb.Append(Declination.DeclineBeforeNoun(Resolution.Customer.Organization.Name, Case.Genitive));
-                sb.Append(" "); sb.Append(Resolution.Customer.ToString("d"));
-                sb.Append(" от "); sb.Append(Resolution.ResolutionDate?.ToString("d"));
-                sb.AppendLine(" о назначении экспертизы.");//TODO Prescribe add
+                sb.Append(" "); sb.Append(Declination.DeclineBeforeNoun(resolution.Customer.Office, Case.Genitive));
+                sb.Append(" "); sb.Append(Declination.DeclineBeforeNoun(resolution.Customer.Rank, Case.Genitive));
+                sb.Append(" "); sb.Append(Declination.DeclineBeforeNoun(resolution.Customer.Organization.Name, Case.Genitive));
+                sb.Append(" "); sb.Append(resolution.Customer.ToString("d"));
+                sb.Append(" от "); sb.Append(resolution.ResolutionDate?.ToString("d"));
+                if (resolution.PrescribeType != null)
+                {
+                    sb.Append(" о назначении ");
+                    try
+                    {
+                        var s = Declination.DeclineSpeciality(resolution.PrescribeType, Case.Genitive);
+                        sb.Append(s);
+                        sb.Append(".");
+                    }
+                    catch (Exception)
+                    {
+                        sb.Append(" экспертизы.");
+                    }
+                }
+                else sb.AppendLine(" о назначении экспертизы.");
             }
             bmarks["From"].Range.Text = sb.ToString();
-            bmarks["Number"].Range.Text = Resolution.FullOverallNumber;
+            bmarks["Number"].Range.Text = resolution.FullOverallNumber;
             sb.Clear();
-            foreach (var item in Resolution.Questions)
+            foreach (var item in resolution.Questions)
             {
                 sb.Append(item.Number); sb.Append(". «");
                 sb.Append(item.Content); sb.AppendLine("»");
             }
             bmarks["Questions"].Range.Text = sb.ToString();
-            bmarks["RegistrationDate"].Range.Text = Resolution.RegistrationDate.ToString("d");
+            bmarks["RegistrationDate"].Range.Text = resolution.RegistrationDate.ToString("d");
             Range r = bmarks["ReleaseDate"].Range;
             r.Text = DateTime.Now.ToString("dd MMMM yyyy");
             r.Font.Color = WdColor.wdColorRed;
             r = bmarks["ReleaseDateShort"].Range;
             r.Text = DateTime.Now.ToString("d");
             r.Font.Color = WdColor.wdColorRed;
-            bmarks["StartDate"].Range.Text = Resolution.Expertisies.Min(n => n.StartDate).ToString("d");
+            bmarks["StartDate"].Range.Text = resolution.Expertisies.Min(n => n.StartDate).ToString("d");
             sb.Clear();
-            sb.Append(Resolution.WarningArticle());
+            sb.Append(resolution.WarningArticle());
             if (wexperts.Count > 1)
             {
                 sb.Append(" эксперты предупреждены: ");
@@ -7258,7 +7307,7 @@ namespace PLSE_MVVMStrong.Model
             else
             {
                 sb.Append(" эксперты предупреждены");
-                sb.Append(Resolution.Expertisies[0].StartDate.ToString("d"));
+                sb.Append(resolution.Expertisies[0].StartDate.ToString("d"));
             }
             bmarks["Warning"].Range.Text = sb.ToString();
             word.Visible = true;
@@ -7279,6 +7328,13 @@ namespace PLSE_MVVMStrong.Model
             //    doc.Close();
             //}
         }
+        public async System.Threading.Tasks.Task CreateConclusionAsync(Resolution resolution, RuningTask task)
+        {
+            task.RuningAction = "Формируем заключение";
+            task.Status = RuningTaskStatus.Running;
+            await System.Threading.Tasks.Task.Run(() => CreateConclusion(resolution));
+            task.Status = RuningTaskStatus.Completed;
+        }
     }
     public class SpecialityCompererBySpecies : IEqualityComparer<Speciality>
     {
@@ -7292,6 +7348,18 @@ namespace PLSE_MVVMStrong.Model
         public int GetHashCode(Speciality obj)
         {
             return obj.Species?.GetHashCode() ?? 0;
+        }
+    }
+    public class EmployeeComparerByID : IEqualityComparer<Employee>
+    {
+        public bool Equals(Employee x, Employee y)
+        {
+            return x.EmployeeID == y.EmployeeID;
+        }
+
+        public int GetHashCode(Employee obj)
+        {
+            return obj.GetHashCode();
         }
     }
 }

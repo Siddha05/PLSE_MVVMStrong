@@ -220,6 +220,19 @@ namespace PLSE_MVVMStrong.Model
             var noun = Nouns.FindOne("экспертиза");
             return DeclineAsAdjecive(part1, @case) + " " + noun[@case] + part3;
         }
+        public static string DeclineSpeciality(string sp, Case @case)
+        {
+            int pos1 = sp?.IndexOf("экспертиза") ?? -1;
+            if (pos1 < 0)
+            {
+                throw new InvalidOperationException("Невозможно склонить вид экспертизы.");
+            }
+            string part1, part3;
+            part1 = sp.Substring(0, pos1);
+            part3 = sp.Substring(pos1 + 10);
+            var noun = Nouns.FindOne("экспертиза");
+            return DeclineAsAdjecive(part1, @case) + " " + noun[@case] + part3;
+        }
         private static Tuple<string, string, string> DevideByWord(this string str, string wrd)
         {
             int pos1 = str?.IndexOf(wrd) ?? -1;
