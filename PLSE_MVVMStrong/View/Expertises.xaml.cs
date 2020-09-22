@@ -26,5 +26,17 @@ namespace PLSE_MVVMStrong.View
             Width = SystemParameters.WorkArea.Width;
             Height = SystemParameters.WorkArea.Height;
         }
+
+        private void StackPanel_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            //var sp = sender as StackPanel;
+            //if (sp != null)
+            //{
+            //    popMenu.IsOpen = true;
+            //    popMenu.PlacementTarget = sp;
+                
+            //}
+            //else MessageBox.Show("Eror");
+        }
     }
 }

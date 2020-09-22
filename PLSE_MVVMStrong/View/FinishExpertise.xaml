@@ -1,0 +1,112 @@
+﻿<Window x:Class="PLSE_MVVMStrong.View.FinishExpertise"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PLSE_MVVMStrong.View"
+        xmlns:viewmodel="clr-namespace:PLSE_MVVMStrong.ViewModel"
+        mc:Ignorable="d"
+        Title="{Binding Path=Expertise.FullNumber, StringFormat='Экспертиза {0}'}" Height="650" Width="800">
+    <Window.DataContext>
+        <viewmodel:FinishExpertiseVM/>
+    </Window.DataContext>
+    <Window.Resources>
+        <Style TargetType="{x:Type Path}">
+            <Setter Property="Margin" Value="2,1"/>
+            <Setter Property="Data" Value="M 0 15 H 10 l 3 -12 l 3 12 h 10 l -8 5 l 2 10 l -7 -8 l -7 8 l 2 -10 z"/>
+            <Setter Property="Stroke" Value="Red"/>
+        </Style>
+        <Style TargetType="{x:Type TextBox}" x:Key="NumericTextBox">
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="Margin" Value="5,5,0,5"/>
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </Window.Resources>
+    <Grid Margin="2,5" ShowGridLines="False">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition  Height="auto"/>
+            <RowDefinition  Height="auto"/>
+            <RowDefinition  Height="auto"/>
+            <RowDefinition  Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition  Height="auto"/>
+            <RowDefinition  Height="auto"/>
+            <RowDefinition  Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <TextBlock Text="Дата сдачи" Style="{StaticResource UIRightOrient}"/>
+        <DatePicker Grid.Row="1" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Expertise.EndDate}" Margin="5,0,0,5"/>
+        <TextBlock Grid.Column="1" Grid.Row="1" Margin="5" Text="Дней в работе 24"/>
+        <TextBlock Text="Результат" Style="{StaticResource UIRightOrient}" Grid.Row="2"/>
+        <ComboBox Grid.Row="3" Style="{StaticResource UIComboBox}" Margin="5,0,0,5" ItemsSource="{Binding Path=ExpertiseResultList}"
+                  SelectedItem="{Binding Path=Expertise.ExpertiseResult}"/>
+        <StackPanel Orientation="Horizontal" Grid.Row="4">
+            <TextBlock Text="Затрачено часов" Style="{StaticResource UIRightOrient}"/>
+            <TextBox Style="{StaticResource NumericTextBox}" Text="{Binding Path=Expertise.SpendHours, ValidatesOnExceptions=True}"/>
+        </StackPanel>
+        <TextBlock Grid.Column="1" Grid.Row="4" Text="Категория сложности 2" VerticalAlignment="Center" Margin="5"/>
+        <StackPanel Orientation="Horizontal" Grid.Row="5">
+            <TextBlock Text="Объекты" Style="{StaticResource UIRightOrient}"/>
+            <TextBox Margin="5,5,0,5"  Width="45" Text="{Binding Path=Detail.ObjectsCount}" Height="26"/>
+        </StackPanel>
+        <GroupBox Grid.Row="6" Grid.ColumnSpan="2" Header="Выводы" BorderThickness="2" BorderBrush="LightGray" FontWeight="DemiBold" FontSize="{StaticResource UIFontSize}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="65"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="Категорические" Style="{StaticResource UIRightOrient}"/>
+                <TextBox Margin="5,5,0,5" Grid.Column="1" HorizontalAlignment="Left" Width="45" Height="26" Text="{Binding Path=Detail.CategoricalAnswers}"/>
+                <TextBlock Text="Вероятные" Style="{StaticResource UIRightOrient}" Grid.Row="1"/>
+                <TextBox Margin="5,5,0,5" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" Width="45" Text="{Binding Path=Detail.ProbabilityAnswers}" Height="26"/>
+                <TextBlock Text="Альтернативные" Style="{StaticResource UIRightOrient}" Grid.Row="2"/>
+                <TextBox Margin="5,5,0,5" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" Width="45" Text="{Binding Path=Detail.AlternativeAnswers}" Height="26"/>
+
+                <TextBlock Text="НПВ (методика)" Style="{StaticResource UIRightOrient}" Grid.Column="2"/>
+                <TextBox Margin="5,5,0,5" Grid.Column="3" HorizontalAlignment="Left" Width="45" Text="{Binding Path=Detail.NPV_MetodAnswers}" Height="26"/>
+                <TextBlock Text="НПВ (материалы)" Style="{StaticResource UIRightOrient}" Grid.Row="1" Grid.Column="2"/>
+                <TextBox Margin="5,5,0,5" Grid.Column="3" Grid.Row="1" HorizontalAlignment="Left" Width="45" Text="{Binding Path=Detail.NPV_MaterialAnswers}" Height="26"/>
+                <TextBlock Text="НПВ (компетенция)" Style="{StaticResource UIRightOrient}" Grid.Row="2" Grid.Column="2"/>
+                <TextBox Margin="5,5,0,5" Grid.Column="3" Grid.Row="2" HorizontalAlignment="Left" Width="45" Text="{Binding Path=Detail.NPV_CompAnswers}" Height="26"/>
+                <TextBlock Text="НПВ (другое)" Style="{StaticResource UIRightOrient}" Grid.Row="3" Grid.Column="2"/>
+                <TextBox Margin="5,5,0,5" Grid.Column="3" Grid.Row="3" HorizontalAlignment="Left" Width="45" Text="{Binding Path=Detail.NPV_OtherAnswers}" Height="26"/>
+            </Grid>
+        </GroupBox>
+        <TextBlock Grid.Row="6" Grid.Column="2" VerticalAlignment="Center" Margin="5" Text="Общее количество выводов 3"/>
+        <TextBlock Grid.Row="7" Style="{StaticResource UIRightOrient}" Text="Комментарий к экспертизе"/>
+        <TextBox Grid.Row="8" Grid.ColumnSpan="2" MinLines="5" Margin="5,0,0,5" MinHeight="90" Text="{Binding Path=Detail.Comment}"/>
+        <TextBlock Text="Субъективная оценка заключения" Style="{StaticResource UIRightOrient}" Grid.Row="9" Grid.ColumnSpan="3" HorizontalAlignment="Center"/>
+        <StackPanel Orientation="Horizontal" Margin="5,0" Grid.Row="10" Grid.ColumnSpan="3" HorizontalAlignment="Center">
+            <Path Fill="{Binding ElementName=p2, Path=Fill}"/>
+            <Path Name="p2" Fill="{Binding ElementName=p3, Path=Fill}"/>
+            <Path Name="p3" Fill="{Binding ElementName=p4, Path=Fill}"/>
+            <Path Name="p4" Fill="{Binding ElementName=p5, Path=Fill}"/>
+            <Path Name="p5" Fill="{Binding ElementName=p6, Path=Fill}"/>
+            <Path Name="p6"/>
+            <Path Name="p7"/>
+            <Path Name="p8"/>
+            <Path Name="p9"/>
+            <Path Name="p10"/>
+        </StackPanel>
+        <Button Grid.Row="11" Style="{StaticResource BaseUIButton}" Content="Сохранить" Foreground="{StaticResource PositiveGreenColor}" Grid.ColumnSpan="3" Margin="0,20,0,5"
+                Width="85"/>
+    </Grid>
+</Window>

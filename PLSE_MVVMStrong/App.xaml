@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:PLSE_MVVMStrong"
              xmlns:system="clr-namespace:System;assembly=mscorlib"
-             StartupUri="MainWindow.xaml" ShutdownMode="OnLastWindowClose">
+             StartupUri="View/FinishExpertise.xaml" ShutdownMode="OnLastWindowClose">
     <Application.Resources>
         <local:TextConverter x:Key="TextConverter" />
         <local:FocusColor x:Key="RemainToColor"/>
@@ -576,6 +576,11 @@
                                 </DataGridDetailsPresenter>
                                 <ToggleButton Name="tb" Grid.RowSpan="2" Style="{StaticResource ArrowToggle}" IsChecked="False" Height="25" Margin="5,5,2,5" 
                                                       Foreground="GreenYellow"/>
+                                <!--<StackPanel Orientation="Vertical" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" Background="White">
+                                    <Ellipse Width="7" Height="7" Margin="2" Fill="Blue"/>
+                                    <Ellipse Width="7" Height="7" Margin="2" Fill="Blue"/>
+                                    <Ellipse Width="7" Height="7" Margin="2" Fill="Blue"/>
+                                </StackPanel>-->
                             </SelectiveScrollingGrid>
                         </Border>
                         <ControlTemplate.Triggers>

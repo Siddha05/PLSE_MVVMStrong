@@ -69,7 +69,7 @@ namespace PLSE_MVVMStrong.ViewModel
         }
         public async void Proceed()
         {
-            var cr = new DocsCreater(_resol);
+            var cr = new DocsCreater();
             var bd = new RuningTask("Сохранение в базу данных");
             Tasks.Add(bd);
             try
@@ -85,12 +85,12 @@ namespace PLSE_MVVMStrong.ViewModel
             Application word = new Application();
             var not = new RuningTask("");
             Tasks.Add(not);
-            var t = cr.CreateNotifyAsync(not, word);
+            var t = cr.CreateNotifyAsync(_resol,not, word);
             await t;
             if (t.IsFaulted) not.Status = RuningTaskStatus.Error;
             var pod = new RuningTask("");
             Tasks.Add(pod);
-            var t1 = cr.CreateSubscribeAsync(pod);
+            var t1 = cr.CreateSubscribeAsync(_resol,pod);
             await t1;
             word.Quit(SaveChanges: WdSaveOptions.wdDoNotSaveChanges);
             if (t1.IsFaulted) pod.Status = RuningTaskStatus.Error;

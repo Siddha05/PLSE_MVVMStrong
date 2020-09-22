@@ -5678,7 +5678,10 @@ namespace PLSE_MVVMStrong.Model
             _nnmet = nnmet; _nnmat = nnmat; _nncom = nncom; _nnother = nnother;
             _comment = comment; _eval = eval;
         }
+        public ExpertiseDetail()
+        {
 
+        }
         private void EditToDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
@@ -5828,7 +5831,11 @@ namespace PLSE_MVVMStrong.Model
         }
         public string ExpertiseResult
         {
-            get => _result;
+            get
+            {
+                if (EndDate.HasValue) return _result;
+                return null;
+            }
             set
             {
                 if (value != _result)
