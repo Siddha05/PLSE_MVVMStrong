@@ -1,18 +1,39 @@
 ﻿using PLSE_MVVMStrong.Model;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace PLSE_MVVMStrong.ViewModel
 {
-    class FinishExpertiseVM
+    class FinishExpertiseVM : INotifyPropertyChanged
     {
-        #region Propertise
+ #region Fields
+        private static SolidBrush _transp = new SolidBrush(Color.Transparent);
+        private static SolidBrush _red = new SolidBrush(Color.Red);
+        private RelayCommand _starclick;
+        #endregion
+ #region Propertise
         public Expertise Expertise { get; set; }
         public ExpertiseDetail Detail { get; }
-        public IReadOnlyList<string> ExpertiseResultList { get; } = CommonInfo.ExpertiseResult;
+        public IReadOnlyList<string> ExpertiseResultList { get; }= CommonInfo.ExpertiseResult;
+        public Brush[] StarsArray { get; } = new Brush[] { _transp, _transp, _transp, _transp, _transp, _transp, _transp, _transp, _transp, _transp };
+        #endregion
+#region Commands
+        public RelayCommand StarClick
+        {
+            get
+            {
+                return _starclick != null ? _starclick : new RelayCommand(n =>
+                                                                {
+                                                                    MessageBox.Show("Stars!");
+                                                                });
+            }
+        }
         #endregion
         public FinishExpertiseVM(Expertise expertise)
         {
@@ -53,6 +74,19 @@ namespace PLSE_MVVMStrong.ViewModel
             res.Expertisies.Add(e1);
             Expertise = e1;
             Detail = new ExpertiseDetail();
+        }
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void SetEvaluation (uint eval)
+        {
+            if (eval < 11)
+            {
+                for (int i = 0; i < StarsArray.Length; i++)
+                {
+                    if (i <= eval) StarsArray[i] = _red;
+                    else StarsArray[i] = _transp;
+                }
+            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(StarsArray)));
         }
     }
 }
