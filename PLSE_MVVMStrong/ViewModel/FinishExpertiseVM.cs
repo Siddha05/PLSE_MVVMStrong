@@ -2,26 +2,26 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 
 namespace PLSE_MVVMStrong.ViewModel
 {
     class FinishExpertiseVM : INotifyPropertyChanged
     {
  #region Fields
-        private static SolidBrush _transp = new SolidBrush(Color.Transparent);
-        private static SolidBrush _red = new SolidBrush(Color.Red);
+        private static SolidColorBrush _transp = new SolidColorBrush(Colors.Transparent);
+        private static SolidColorBrush _red = new SolidColorBrush(Colors.Red);
         private RelayCommand _starclick;
         #endregion
- #region Propertise
+        #region Propertise
         public Expertise Expertise { get; set; }
         public ExpertiseDetail Detail { get; }
         public IReadOnlyList<string> ExpertiseResultList { get; }= CommonInfo.ExpertiseResult;
-        public Brush[] StarsArray { get; } = new Brush[] { _transp, _transp, _transp, _transp, _transp, _transp, _transp, _transp, _transp, _transp };
+        public  SolidColorBrush[] StarsArray { get; } = new SolidColorBrush[] { _transp, _transp, _transp, _transp, _transp, _transp, _transp, _transp, _transp, _transp };
         #endregion
 #region Commands
         public RelayCommand StarClick
@@ -30,8 +30,34 @@ namespace PLSE_MVVMStrong.ViewModel
             {
                 return _starclick != null ? _starclick : new RelayCommand(n =>
                                                                 {
-                                                                    MessageBox.Show("Stars!");
+                                                                    if (Int32.TryParse(n.ToString(), out int r))
+                                                                    {
+                                                                        if (StarsArray[r] == _transp)
+                                                                        {
+                                                                            SetEvaluation(r);
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            SetEvaluation(r-1);
+                                                                        }
+                                                                    }
+                                                                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(StarsArray)));
                                                                 });
+            }
+        }
+        public RelayCommand Save
+        {
+            get
+            {
+                return new RelayCommand(n =>
+                {
+                    StringBuilder sb = new StringBuilder(100);
+                    foreach (var item in StarsArray)
+                    {
+                        sb.AppendLine(item.Color.ToString());
+                    }
+                    MessageBox.Show(sb.ToString());
+                });
             }
         }
         #endregion
@@ -75,18 +101,14 @@ namespace PLSE_MVVMStrong.ViewModel
             Expertise = e1;
             Detail = new ExpertiseDetail();
         }
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void SetEvaluation (uint eval)
+        private void SetEvaluation (int eval)
         {
-            if (eval < 11)
-            {
-                for (int i = 0; i < StarsArray.Length; i++)
-                {
-                    if (i <= eval) StarsArray[i] = _red;
-                    else StarsArray[i] = _transp;
-                }
+           for (int i = 0; i < StarsArray.Length; i++)
+           {
+                if (i <= eval) StarsArray[i] = _red;
+                else StarsArray[i] = _transp;
             }
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(StarsArray)));
         }
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }
