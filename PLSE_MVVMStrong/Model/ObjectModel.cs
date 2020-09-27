@@ -83,6 +83,12 @@ namespace PLSE_MVVMStrong.Model
         Mixed,
         Adjective
     }
+    public enum ExpertiseResults
+    {
+        None,
+        Conclusion,
+        Inability
+    }
     internal sealed class Adjective
     {
         public string Value { get; }
@@ -5526,199 +5532,6 @@ namespace PLSE_MVVMStrong.Model
             throw new NotImplementedException();
         }
     }
-    public class ExpertiseDetail : NotifyBase
-    {
-        private short? _nobj;
-        private short? _ncat;
-        private short? _nver;
-        private short? _nalt;
-        private short? _nnmet;
-        private short? _nnmat;
-        private short? _nncom;
-        private short? _nnother;
-        private string _comment;
-        private short? _eval;
-        private int _id;
-
-        public int ExpertiseID => _id;
-        public short? ObjectsCount
-        {
-            get => _nobj;
-            set
-            {
-                if (value != _nobj)
-                {
-                    if (value < 1) throw new ArgumentException("Количество должно быть больше 0");
-                    _nobj = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-        public short? CategoricalAnswers
-        {
-            get => _ncat;
-            set
-            {
-                if (value != _ncat)
-                {
-                    if (value < 1) throw new ArgumentException("Количество должно быть больше 0");
-                    _ncat = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-        public short? ProbabilityAnswers
-        {
-            get => _nver;
-            set
-            {
-                if (value != _nver)
-                {
-                    if (value < 1) throw new ArgumentException("Количество должно быть больше 0");
-                    _nver = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-        public short? AlternativeAnswers
-        {
-            get => _nalt;
-            set
-            {
-                if (value != _nalt)
-                {
-                    if (value < 1) throw new ArgumentException("Количество должно быть больше 0");
-                    _nalt = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-        public short? NPV_MetodAnswers
-        {
-            get => _nnmet;
-            set
-            {
-                if (value != _nnmet)
-                {
-                    if (value < 1) throw new ArgumentException("Количество должно быть больше 0");
-                    _nnmet = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-        public short? NPV_MaterialAnswers
-        {
-            get => _nnmat;
-            set
-            {
-                if (value != _nnmat)
-                {
-                    if (value < 1) throw new ArgumentException("Количество должно быть больше 0");
-                    _nnmat = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-        public short? NPV_CompAnswers
-        {
-            get => _nncom;
-            set
-            {
-                if (value != _nncom)
-                {
-                    if (value < 1) throw new ArgumentException("Количество должно быть больше 0");
-                    _nncom = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-        public short? NPV_OtherAnswers
-        {
-            get => _nnother;
-            set
-            {
-                if (value != _nnother)
-                {
-                    if (value < 1) throw new ArgumentException("Количество должно быть больше 0");
-                    _nnother = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-        public string Comment
-        {
-            get => _comment;
-            set
-            {
-                if (value != _comment)
-                {
-                    _comment = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-        public short? Evaluation
-        {
-            get => _eval;
-            set
-            {
-                if (value != _eval)
-                {
-                    if (value < 1 || value > 10) throw new ArgumentException("Оценка должна быть от 1 до 10");
-                    _eval = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public ExpertiseDetail(int id, short? nobj, short? ncat, short? nver, short? nalt, short? nnmet, short? nnmat, short? nncom, short? nnother, string comment, short? eval, Version vr)
-            : base(vr)
-        {
-            _id = id; _nobj = nobj; _ncat = ncat; _nver = nver; _nalt = nalt;
-            _nnmet = nnmet; _nnmat = nnmat; _nncom = nncom; _nnother = nnother;
-            _comment = comment; _eval = eval;
-        }
-        public ExpertiseDetail()
-        {
-
-        }
-        private void EditToDB(SqlConnection con)
-        {
-            SqlCommand cmd = con.CreateCommand();
-            cmd.CommandType = CommandType.StoredProcedure;
-            cmd.CommandText = "Activity.prEditExpDetail";
-            cmd.Parameters.Add("@NObject", SqlDbType.SmallInt).Value = ConvertToDBNull(_nobj);
-            cmd.Parameters.Add("@NCat", SqlDbType.TinyInt).Value = ConvertToDBNull(_ncat);
-            cmd.Parameters.Add("@NVer", SqlDbType.TinyInt).Value = ConvertToDBNull(_nver);
-            cmd.Parameters.Add("@NAlt", SqlDbType.TinyInt).Value = ConvertToDBNull(_nalt);
-            cmd.Parameters.Add("@NNPV_Metod", SqlDbType.TinyInt).Value = ConvertToDBNull(_nnmet);
-            cmd.Parameters.Add("@NNPV_Mater", SqlDbType.TinyInt).Value = ConvertToDBNull(_nnmat);
-            cmd.Parameters.Add("@NNPV_Comp", SqlDbType.TinyInt).Value = ConvertToDBNull(_nncom);
-            cmd.Parameters.Add("@NNPV_Other", SqlDbType.TinyInt).Value = ConvertToDBNull(_nnother);
-            cmd.Parameters.Add("@Comment", SqlDbType.NVarChar, 500).Value = ConvertToDBNull(_comment);
-            cmd.Parameters.Add("@Evaluation", SqlDbType.TinyInt).Value = ConvertToDBNull(_eval);
-            cmd.Parameters.Add("@ExpertiseID", SqlDbType.Int).Value = ExpertiseID;
-            try
-            {
-                cmd.Connection.Open();
-                cmd.ExecuteNonQuery();
-                Version = Version.Original;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-            finally
-            {
-                cmd.Connection.Close();
-            }
-        }
-        public override void SaveChanges(SqlConnection con)
-        {
-            EditToDB(con);
-        }
-    }
-
     public sealed class Expertise : NotifyBase
     {
         public enum FocusLevel
@@ -5728,7 +5541,7 @@ namespace PLSE_MVVMStrong.Model
             Attention,
             Extreme
         }
- #region Fields
+#region Fields
         private string _number;
         private Expert _expert;
         private Resolution _resolution;
@@ -5739,7 +5552,16 @@ namespace PLSE_MVVMStrong.Model
         private string _type;
         private int? _prevexp;
         private short? _spendhours;
-        ExpertiseDetail _detail;
+        private short? _nobj;
+        private short? _ncat;
+        private short? _nver;
+        private short? _nalt;
+        private short? _nnmet;
+        private short? _nnmat;
+        private short? _nncom;
+        private short? _nnother;
+        private string _comment;
+        private short? _eval;
         private int _id;
         private ObservableCollection<Request> _requests = new ObservableCollection<Request>();
         private ObservableCollection<Report> _raports = new ObservableCollection<Report>();
@@ -5758,6 +5580,7 @@ namespace PLSE_MVVMStrong.Model
                     if (value < 1) throw new ArgumentException("Количество часов должно быть больше 0");
                     _spendhours = value;
                     OnPropertyChanged();
+                    OnPropertyChanged("Category");
                 }
             }
         }
@@ -5814,6 +5637,9 @@ namespace PLSE_MVVMStrong.Model
                     if (value < _startdate) throw new ArgumentException("Неверная дата окончания");
                     _enddate = value;
                     OnPropertyChanged();
+                    OnPropertyChanged(nameof(Inwork));
+                    OnPropertyChanged(nameof(Remain2));
+                    OnPropertyChanged(nameof(RequestSummary));
                 }
             }
         }
@@ -5870,15 +5696,176 @@ namespace PLSE_MVVMStrong.Model
                 }
             }
         }
-        public ExpertiseDetail ExpertiseDetail
+        public short? ObjectsCount
         {
-            get => _detail;
+            get
+            {
+                if (EndDate.HasValue) return _nobj;
+                else return null;
+            }
             set
             {
-                _detail = value;
-                OnPropertyChanged();
+                if (value != _nobj)
+                {
+                    if (value < 1) throw new ArgumentException("Количество должно быть больше 0");
+                    _nobj = value;
+                    OnPropertyChanged();
+                }
             }
         }
+        public short? CategoricalAnswers
+        {
+            get
+            {
+                if (ExpertiseResult != "заключение эксперта") return null;
+                else return _ncat;
+            }
+            set
+            {
+                if (value != _ncat)
+                {
+                    if (value < 1) throw new ArgumentException("Количество должно быть больше 0");
+                    _ncat = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(TotalAnswers));
+                }
+            }
+        }
+        public short? ProbabilityAnswers
+        {
+            get
+            {
+                if (ExpertiseResult != "заключение эксперта") return null;
+                else return _nver;
+            }
+            set
+            {
+                if (value != _nver)
+                {
+                    if (value < 1) throw new ArgumentException("Количество должно быть больше 0");
+                    _nver = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(TotalAnswers));
+                }
+            }
+        }
+        public short? AlternativeAnswers
+        {
+            get
+            {
+                if (ExpertiseResult != "заключение эксперта") return null;
+                else return _nalt;
+            }
+            set
+            {
+                if (value != _nalt)
+                {
+                    if (value < 1) throw new ArgumentException("Количество должно быть больше 0");
+                    _nalt = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(TotalAnswers));
+                }
+            }
+        }
+        public short? NPV_MetodAnswers
+        {
+            get
+            {
+                if (ExpertiseResult != "заключение эксперта") return null;
+                else return _nnmet;
+            }
+            set
+            {
+                if (value != _nnmet)
+                {
+                    if (value < 1) throw new ArgumentException("Количество должно быть больше 0");
+                    _nnmet = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(TotalAnswers));
+                }
+            }
+        }
+        public short? NPV_MaterialAnswers
+        {
+            get
+            {
+                if (ExpertiseResult != "заключение эксперта") return null;
+                else return _nnmat;
+            }
+            set
+            {
+                if (value != _nnmat)
+                {
+                    if (value < 1) throw new ArgumentException("Количество должно быть больше 0");
+                    _nnmat = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(TotalAnswers));
+                }
+            }
+        }
+        public short? NPV_CompAnswers
+        {
+            get
+            {
+                if (ExpertiseResult != "заключение эксперта") return null;
+                else return _nncom;
+            }
+            set
+            {
+                if (value != _nncom)
+                {
+                    if (value < 1) throw new ArgumentException("Количество должно быть больше 0");
+                    _nncom = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(TotalAnswers));
+                }
+            }
+        }
+        public short? NPV_OtherAnswers
+        {
+            get
+            {
+                if (ExpertiseResult != "заключение эксперта") return null;
+                else return _nnother;
+            }
+            set
+            {
+                if (value != _nnother)
+                {
+                    if (value < 1) throw new ArgumentException("Количество должно быть больше 0");
+                    _nnother = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(TotalAnswers));
+                }
+            }
+        }
+        public string Comment
+        {
+            get => _comment;
+            set
+            {
+                if (value != _comment)
+                {
+                    _comment = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public short? Evaluation
+        {
+            get => _eval;
+            set
+            {
+                if (value != _eval)
+                {
+                    if (value < 1 || value > 10) _eval = null;
+                    else _eval = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public int TotalAnswers => (CategoricalAnswers ?? 0) + (ProbabilityAnswers ?? 0) + (AlternativeAnswers ?? 0) + (NPV_MetodAnswers ?? 0) +
+                                    (NPV_MaterialAnswers ?? 0) + (NPV_CompAnswers ?? 0) + (NPV_OtherAnswers ?? 0);
         public string FullNumber
         {
             get
@@ -5938,7 +5925,7 @@ namespace PLSE_MVVMStrong.Model
         {
             get
             {
-                if (_result == null)
+                if (!EndDate.HasValue)
                 {
                     if (_raports.Count > 0)
                     {
@@ -6005,7 +5992,22 @@ namespace PLSE_MVVMStrong.Model
                 else return "Выполненные";
             }
         }
+        public string Category
+        {
+            get
+            {
+                if (SpendHours.HasValue)
+                {
+                    if (SpendHours.Value > Expert.Speciality.Category_3) return "3+";
+                    if (SpendHours.Value <= Expert.Speciality.Category_3 && SpendHours.Value > Expert.Speciality.Category_2) return "3";
+                    if (SpendHours.Value <= Expert.Speciality.Category_2 && SpendHours.Value > Expert.Speciality.Category_1) return "2";
+                    return "1";
+                }
+                else return null;
+            }
+        }
         public int Inwork => EndDate == null ? (DateTime.Now - StartDate).Days : (EndDate.Value - StartDate).Days;
+       
         public int LinkedExpertiseCount => (_resolution?.Expertisies.Count - 1) ?? 0;
         /// <summary>
         /// Обзорная строка на счета экспертизы
@@ -6022,9 +6024,9 @@ namespace PLSE_MVVMStrong.Model
                         sb.AppendLine();
                         sb.Append(_bills[i].Number);
                         sb.Append("\t");
-                        sb.Append(_bills[i].Paid);
+                        sb.Append(_bills[i].Paid.ToString("c"));
                         sb.Append("/");
-                        sb.Append(_bills[i].Hours * _bills[i].HourPrice);
+                        sb.Append((_bills[i].Hours * _bills[i].HourPrice).ToString("c"));
                     }
                     sb.Remove(0, 2);
                     return sb.ToString();
@@ -6063,20 +6065,6 @@ namespace PLSE_MVVMStrong.Model
             _startdate = DateTime.Now,
             _timelimit = 30
         };
-
-        [Browsable(false)]
-        public string BillSummary
-        {
-            get
-            {
-                StringBuilder sb = new StringBuilder();
-                foreach (var item in _bills)
-                {
-                    sb.Append("№ "); sb.Append(item.Number); sb.Append("\tЗадолжность: "); sb.AppendLine(item.Balance.ToString());
-                }
-                return sb.ToString();
-            }
-        }
         [Browsable(false)]
         public string RequestSummary
         {
@@ -6210,6 +6198,7 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@Resol", SqlDbType.Int).Value = _resolution.ResolutionID;
             cmd.Parameters.Add("@Type", SqlDbType.NVarChar, 50).Value = _type;
             cmd.Parameters.Add("@PreviousExpertise", SqlDbType.Int).Value = ConvertToDBNull(_prevexp);
+            cmd.Parameters.Add("@SpendHours", SqlDbType.SmallInt).Value = ConvertToDBNull(SpendHours);
             var par = cmd.Parameters.Add("@InsertedID", SqlDbType.Int);
             par.Direction = ParameterDirection.Output;
             try
@@ -6242,6 +6231,17 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@Resol", SqlDbType.Int).Value = _resolution.ResolutionID;
             cmd.Parameters.Add("@Type", SqlDbType.NVarChar, 50).Value = _type;
             cmd.Parameters.Add("@PreviousExpertise", SqlDbType.Int).Value = ConvertToDBNull(_prevexp);
+            cmd.Parameters.Add("@SpendHours", SqlDbType.SmallInt).Value = ConvertToDBNull(SpendHours);
+            cmd.Parameters.Add("@NObject", SqlDbType.SmallInt).Value = ConvertToDBNull(ObjectsCount);
+            cmd.Parameters.Add("@NCat", SqlDbType.TinyInt).Value = ConvertToDBNull(CategoricalAnswers);
+            cmd.Parameters.Add("@NVer", SqlDbType.TinyInt).Value = ConvertToDBNull(ProbabilityAnswers);
+            cmd.Parameters.Add("@NAlt", SqlDbType.TinyInt).Value = ConvertToDBNull(AlternativeAnswers);
+            cmd.Parameters.Add("@NNPV_Metod", SqlDbType.TinyInt).Value = ConvertToDBNull(NPV_MetodAnswers);
+            cmd.Parameters.Add("@NNPV_Mater", SqlDbType.TinyInt).Value = ConvertToDBNull(NPV_MaterialAnswers);
+            cmd.Parameters.Add("@NNPV_Comp", SqlDbType.TinyInt).Value = ConvertToDBNull(NPV_CompAnswers);
+            cmd.Parameters.Add("@NNPV_Other", SqlDbType.TinyInt).Value = ConvertToDBNull(NPV_OtherAnswers);
+            cmd.Parameters.Add("@Comment", SqlDbType.NVarChar, 500).Value = ConvertToDBNull(Comment);
+            cmd.Parameters.Add("@Evaluation", SqlDbType.TinyInt).Value = ConvertToDBNull(Evaluation);
             cmd.Parameters.Add("@ExpIden", SqlDbType.Int).Value = ExpertiseID;
             try
             {

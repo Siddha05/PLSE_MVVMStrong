@@ -126,7 +126,10 @@ namespace PLSE_MVVMStrong.ViewModel
             {
                 return _finishexp != null ? _finishexp : _finishexp = new RelayCommand(n =>
                                                                 {
-                                                                    MessageBox.Show("Finish clicked");
+                                                                    var ex = ExpertiseList.CurrentItem as Expertise;
+                                                                    var wnd = new FinishExpertise();
+                                                                    wnd.DataContext = new FinishExpertiseVM(ex);
+                                                                    wnd.ShowDialog();
                                                                 },
                                                                     e =>
                                                                     {

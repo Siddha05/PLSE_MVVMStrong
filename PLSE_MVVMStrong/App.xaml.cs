@@ -289,4 +289,76 @@ namespace PLSE_MVVMStrong
             throw new NotImplementedException();
         }
     }
+    public class BoolToVisibleConverter : IValueConverter
+    {
+        Visibility _truestate = Visibility.Visible;
+        Visibility _falsestate = Visibility.Collapsed;
+        public BoolToVisibleConverter() { }
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            string s = parameter as string;
+            if (s != null)
+            {
+                switch (s)
+                {
+                    case "vc":
+                        _truestate = Visibility.Visible;
+                        _falsestate = Visibility.Collapsed;
+                        break;
+                    case "vh":
+                        _truestate = Visibility.Visible;
+                        _falsestate = Visibility.Hidden;
+                        break;
+                    case "cv":
+                        _truestate = Visibility.Collapsed;
+                        _falsestate = Visibility.Visible;
+                        break;
+                    case "ch":
+                        _truestate = Visibility.Collapsed;
+                        _falsestate = Visibility.Hidden;
+                        break;
+                    case "hc":
+                        _truestate = Visibility.Hidden;
+                        _falsestate = Visibility.Collapsed;
+                        break;
+                    case "hv":
+                        _truestate = Visibility.Hidden;
+                        _falsestate = Visibility.Visible;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            bool r = (bool)value;
+            if (r) return _truestate;
+            return _falsestate;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class ParamToHideConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var s = parameter as string;
+            if (s != null)
+            {
+                string v = value as string;
+                if ( String.Equals(v,s, StringComparison.OrdinalIgnoreCase))
+                {
+                    return Visibility.Collapsed;
+                }
+                return Visibility.Visible;
+            }
+            else return Visibility.Visible;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
