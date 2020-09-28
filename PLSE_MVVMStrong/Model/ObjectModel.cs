@@ -33,8 +33,7 @@ namespace PLSE_MVVMStrong.Model
     {
         Original = 0x0001,
         New = 0x0002,
-        Edited = 0x0004,
-        ContentEdited = 0x008
+        Edited = 0x0004
     }
     public enum DBAction : byte
     {
@@ -1995,32 +1994,17 @@ namespace PLSE_MVVMStrong.Model
         public event PropertyChangedEventHandler PropertyChanged;
 
         public abstract void SaveChanges(SqlConnection con);
-        protected void OnPropertyChanged([CallerMemberName]string prop = null, bool contentAdd = false)
+        protected void OnPropertyChanged([CallerMemberName]string prop = null)
         {
-            switch (_version)
+            if (prop != "Version")
             {
-                case Version.Original:
-                    if (prop != "Version")
-                    {
-                        if (contentAdd) Version = Version.ContentEdited;
-                        else Version = Version.Edited;
-                    }
-                    break;
-                case Version.ContentEdited:
-                    if (prop != "Version")
-                    {
-                        if (!contentAdd) Version = Version.Edited;
-                    }
-                    break;
-                default:
-                    break;
+                if (_version == Version.Original) _version = Version.Edited;
             }
             _updatedate = DateTime.Now;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
 #if DEBUG
             Debug.WriteLine($"Property changed {prop} ({Version})", "NotifyBase delegate");
-#endif
-           
+#endif         
         }
         protected object ConvertToDBNull<T>(T obj)
         {
@@ -5025,7 +5009,7 @@ namespace PLSE_MVVMStrong.Model
         }
         private void ExpertiseStatusChanged(object o, PropertyChangedEventArgs e)//CHECK!!!!
         {
-            OnPropertyChanged("Expertisies", true);
+            OnPropertyChanged("Expertisies");
             if (e.PropertyName == "ExpertiseStatus")
             {
                 foreach (var item in _expertisies)
@@ -5046,7 +5030,7 @@ namespace PLSE_MVVMStrong.Model
                         item.FromResolution = this;
                         if (item.EndDate == null) ResolutionStatus = "в работе";
                     }
-                    OnPropertyChanged("Expertisies", true);
+                    OnPropertyChanged("Expertisies");
                     break;
                 case NotifyCollectionChangedAction.Remove:
                     try
@@ -5236,9 +5220,6 @@ namespace PLSE_MVVMStrong.Model
                     break;
                 case Version.Edited:
                     EditToDB(con);
-                    ContentToDB(con);
-                    break;
-                case Version.ContentEdited:
                     ContentToDB(con);
                     break;
             }
@@ -6134,7 +6115,7 @@ namespace PLSE_MVVMStrong.Model
                     {
                         item.FromExpertise = this;
                     }
-                    OnPropertyChanged("Bills", true);
+                    OnPropertyChanged("Bills");
                     break;
             }
         }
@@ -6147,7 +6128,7 @@ namespace PLSE_MVVMStrong.Model
                     {
                         item.FromExpertise = this;
                     }
-                    OnPropertyChanged("Requests", true);
+                    OnPropertyChanged("Requests");
                     break;
             }
         }
@@ -6160,8 +6141,8 @@ namespace PLSE_MVVMStrong.Model
                     {
                         item.FromExpertise = this;
                     }
-                    OnPropertyChanged("Reports", true);
-                    OnPropertyChanged("RequestSummary", true);
+                    OnPropertyChanged("Reports");
+                    OnPropertyChanged("RequestSummary");
                     break;
             }
         }
@@ -6174,21 +6155,13 @@ namespace PLSE_MVVMStrong.Model
                     {
                         item.FromExpertise = this;
                     }
-                    OnPropertyChanged("Equipments", true);
+                    OnPropertyChanged("Equipments");
                     break;
             }
         }
 
-        public Expertise() : base()
+        private Expertise() : base()
         {
-            _bills.CollectionChanged +=OnBillListChanged;
-            ((INotifyPropertyChanged)_bills).PropertyChanged += (n, e) => OnPropertyChanged(nameof(Bills), true);
-            _requests.CollectionChanged += OnRequestListChanged;
-            ((INotifyPropertyChanged)_requests).PropertyChanged += (n, e) => OnPropertyChanged(nameof(Requests), true);
-            _raports.CollectionChanged += OnReportListChanged;
-            ((INotifyPropertyChanged)_raports).PropertyChanged += (n, e) => OnPropertyChanged(nameof(Reports), true);
-            _equipmentusage.CollectionChanged += OnEquipmenUsageListChanged;
-            ((INotifyPropertyChanged)_equipmentusage).PropertyChanged += (n, e) => OnPropertyChanged(nameof(EquipmentUsage), true);
         }
         public Expertise(int id, string number, Expert expert, string status, DateTime start, DateTime? end, byte timelimit, string type, int? previous,
                         short? spendhours, Version vr)
@@ -6204,14 +6177,14 @@ namespace PLSE_MVVMStrong.Model
             _type = type;
             _prevexp = previous;
             _spendhours = spendhours;
-            _bills.CollectionChanged += OnBillListChanged;
-            ((INotifyPropertyChanged)_bills).PropertyChanged += (n, e) => OnPropertyChanged(nameof(Bills), true);
-            _requests.CollectionChanged += OnRequestListChanged;
-            ((INotifyPropertyChanged)_requests).PropertyChanged += (n, e) => OnPropertyChanged(nameof(Requests), true);
-            _raports.CollectionChanged += OnReportListChanged;
-            ((INotifyPropertyChanged)_raports).PropertyChanged += (n, e) => OnPropertyChanged(nameof(Reports), true);
-            _equipmentusage.CollectionChanged += OnEquipmenUsageListChanged;
-            ((INotifyPropertyChanged)_equipmentusage).PropertyChanged += (n, e) => OnPropertyChanged(nameof(EquipmentUsage), true);
+            //_bills.CollectionChanged += OnBillListChanged;
+            //((INotifyPropertyChanged)_bills).PropertyChanged += (n, e) => OnPropertyChanged(nameof(Bills));
+            //_requests.CollectionChanged += OnRequestListChanged;
+            //((INotifyPropertyChanged)_requests).PropertyChanged += (n, e) => OnPropertyChanged(nameof(Requests));
+            //_raports.CollectionChanged += OnReportListChanged;
+            //((INotifyPropertyChanged)_raports).PropertyChanged += (n, e) => OnPropertyChanged(nameof(Reports));
+            //_equipmentusage.CollectionChanged += OnEquipmenUsageListChanged;
+            //((INotifyPropertyChanged)_equipmentusage).PropertyChanged += (n, e) => OnPropertyChanged(nameof(EquipmentUsage));
         }
 
         public override string ToString()
@@ -6338,7 +6311,6 @@ namespace PLSE_MVVMStrong.Model
             {
                 item.SaveChanges(con);
             }
-            Version = Version.Original;
         }
         private bool IsValidNumber(string num)
         {
@@ -6357,9 +6329,6 @@ namespace PLSE_MVVMStrong.Model
                     break;
                 case Version.Edited:
                     EditToDB(con);
-                    ContentToDB(con);
-                    break;
-                case Version.ContentEdited:
                     ContentToDB(con);
                     break;
                 default:
