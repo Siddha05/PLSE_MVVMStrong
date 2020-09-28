@@ -146,14 +146,25 @@ namespace PLSE_MVVMStrong.ViewModel
             {
                 return _report != null ? _report : _report = new RelayCommand(n =>
                                                                 {
-                                                                    MessageBox.Show("Report clicked");
+                                                                    var exp = ExpertiseList.CurrentItem as Expertise;
+                                                                    if (exp != null)
+                                                                    {
+                                                                        var wnd = new AddReport();
+                                                                        var vm = new AddReportVM(exp);
+                                                                        wnd.DataContext = vm;
+                                                                        if (wnd.ShowDialog() ?? false)
+                                                                        {
+                                                                                exp.Reports.Add(vm.Rept);
+                                                                        }
+                                                                    }
+                                                                    
                                                                 },
                                                                 e =>
-                                                                {
-                                                                    var ex = ExpertiseList.CurrentItem as Expertise;
-                                                                    if (ex != null && !ex.EndDate.HasValue) return true;
-                                                                    return false;
-                                                                }
+                                                                    {
+                                                                        var ex = ExpertiseList.CurrentItem as Expertise;
+                                                                        if (ex != null && !ex.EndDate.HasValue) return true;
+                                                                        return false;
+                                                                    }
                                                                 );
             }
         }

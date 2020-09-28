@@ -23,7 +23,6 @@ namespace PLSE_MVVMStrong.View
         {
             InitializeComponent();
         }
-
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.D1 || e.Key == Key.D0 || e.Key == Key.D2 || e.Key == Key.D3 || e.Key == Key.D4 || e.Key == Key.D5 || e.Key == Key.D6
@@ -31,10 +30,6 @@ namespace PLSE_MVVMStrong.View
             {
             }
             else e.Handled = true;
-        }
-        private void Comment_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            e.Handled = true;
         }
     }
 }

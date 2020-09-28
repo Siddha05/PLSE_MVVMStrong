@@ -60,7 +60,12 @@ namespace PLSE_MVVMStrong.ViewModel
                     }
                     var wnd = n as Window;
                     wnd.Close();
-                });
+                },
+                e =>
+                {
+                    return Expertise.ExpertiseFinishValidState;
+                }
+                );
             }
         }
         #endregion

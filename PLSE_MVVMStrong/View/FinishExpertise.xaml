@@ -8,10 +8,7 @@
         xmlns:viewmodel="clr-namespace:PLSE_MVVMStrong.ViewModel"
         xmlns:cmn ="clr-namespace:PLSE_MVVMStrong"
         mc:Ignorable="d"
-        Title="{Binding Path=Expertise.FullNumber, StringFormat='Экспертиза {0}'}" Height="650" Width="800" PreviewKeyDown="Window_PreviewKeyDown" Name="wnd">
-    <!--<Window.DataContext>
-        <viewmodel:FinishExpertiseVM/>
-    </Window.DataContext>-->
+        Title="{Binding Path=Expertise.FullNumber, StringFormat='Экспертиза {0}'}" Height="650" Width="800" Name="wnd">
     <Window.Resources>
         <Style TargetType="{x:Type Path}">
             <Setter Property="Margin" Value="2,1"/>
@@ -28,7 +25,7 @@
         <cmn:BoolToVisibleConverter x:Key="BollToVisibleConv"/>
         <cmn:ParamToHideConverter x:Key="ParToHideConv"/>
     </Window.Resources>
-    <Grid Margin="2,5" ShowGridLines="False">
+    <Grid Margin="2,5">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto"/>
                 <RowDefinition  Height="auto"/>
@@ -48,23 +45,26 @@
                 <ColumnDefinition/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <TextBlock Text="Дата сдачи" Style="{StaticResource UIRightOrient}"/>
-            <DatePicker Grid.Row="1" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Expertise.EndDate}" Margin="5,0,0,5"/>
-            <TextBlock Grid.Column="1" Grid.Row="1" Margin="10,0,0,5" Foreground="#FF1700FF" FontSize="{StaticResource UIFontSize}" VerticalAlignment="Center"
+        <TextBlock Text="Дата сдачи" Style="{StaticResource UIRightOrient}"/>
+        <DatePicker Grid.Row="1" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Expertise.EndDate}" Margin="5,0,0,5"/>
+        <TextBlock Grid.Column="1" Grid.Row="1" Margin="10,0,0,5" Foreground="#FF1700FF" FontSize="{StaticResource UIFontSize}" VerticalAlignment="Center"
                    Text="{Binding Path=Expertise.Inwork, StringFormat='Дней в работе {0}'}"/>
-            <TextBlock Text="Результат" Style="{StaticResource UIRightOrient}" Grid.Row="2"/>
-            <ComboBox Grid.Row="3" Style="{StaticResource UIComboBox}" Margin="5,0,0,5" ItemsSource="{Binding Path=ExpertiseResultList}"
+        <TextBlock Text="Результат" Style="{StaticResource UIRightOrient}" Grid.Row="2"/>
+        <ComboBox Grid.Row="3" Style="{StaticResource UIComboBox}" Margin="5,0,0,5" ItemsSource="{Binding Path=ExpertiseResultList}"
                   SelectedItem="{Binding Path=Expertise.ExpertiseResult}" Name="cbResult"/>
-            <StackPanel Orientation="Horizontal" Grid.Row="4">
+        <TextBlock Text="Исспользованное оборудование" Grid.Column="1" Grid.Row="2" Style="{StaticResource UIRightOrient}"/>
+        <ComboBox Grid.Row="3" Grid.Column="1" Style="{StaticResource UIComboBox}" Grid.ColumnSpan="2" Margin="5,0,0,5" Width="400"/>
+        <StackPanel Orientation="Horizontal" Grid.Row="4">
                 <TextBlock Text="Затрачено часов" Style="{StaticResource UIRightOrient}"/>
-                <TextBox x:Name="tbSpend" Style="{StaticResource NumericTextBox}" Text="{Binding Path=Expertise.SpendHours, ValidatesOnExceptions=True}"/>
+                <TextBox x:Name="tbSpend" Style="{StaticResource NumericTextBox}" Text="{Binding Path=Expertise.SpendHours, ValidatesOnExceptions=True}"
+                         PreviewKeyDown="Window_PreviewKeyDown"/>
             </StackPanel>
             <TextBlock Grid.Column="1" Grid.Row="4" VerticalAlignment="Center" Margin="10,5" Foreground="#FF1700FF" FontSize="{StaticResource UIFontSize}"
                    Text="{Binding Path=Expertise.Category, StringFormat='Категория сложности: {0}', TargetNullValue=''}"
                    Visibility="{Binding ElementName=tbSpend, Path=(Validation.HasError), Converter={StaticResource BollToVisibleConv}, ConverterParameter='cv'}"/>
             <StackPanel Orientation="Horizontal" Grid.Row="5" Grid.ColumnSpan="2">
                 <TextBlock Text="Количество объектов" Style="{StaticResource UIRightOrient}"/>
-                <TextBox Style="{StaticResource NumericTextBox}" Text="{Binding Path=Expertise.ObjectsCount}"/>
+                <TextBox Style="{StaticResource NumericTextBox}" Text="{Binding Path=Expertise.ObjectsCount}" PreviewKeyDown="Window_PreviewKeyDown"/>
             </StackPanel>
             <GroupBox Name="gbAnswers" Grid.Row="6" Grid.ColumnSpan="2" Header="Выводы" BorderThickness="2" BorderBrush="LightGray" FontWeight="DemiBold" FontSize="{StaticResource UIFontSize}"
                   Visibility="{Binding ElementName=cbResult, Path=SelectedValue, Converter={StaticResource ParToHideConv}, ConverterParameter='сондз'}">
@@ -82,19 +82,26 @@
                         <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
                     <TextBlock Text="Категорические" Style="{StaticResource UIRightOrient}"/>
-                    <TextBox Style="{StaticResource NumericTextBox}" Grid.Column="1" HorizontalAlignment="Left" Text="{Binding Path=Expertise.CategoricalAnswers}"/>
+                    <TextBox Style="{StaticResource NumericTextBox}" Grid.Column="1" HorizontalAlignment="Left" Text="{Binding Path=Expertise.CategoricalAnswers}"
+                             PreviewKeyDown="Window_PreviewKeyDown"/>
                     <TextBlock Text="Вероятные" Style="{StaticResource UIRightOrient}" Grid.Row="1"/>
-                <TextBox Style="{StaticResource NumericTextBox}" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" Text="{Binding Path=Expertise.ProbabilityAnswers}"/>
+                <TextBox Style="{StaticResource NumericTextBox}" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" Text="{Binding Path=Expertise.ProbabilityAnswers}"
+                         PreviewKeyDown="Window_PreviewKeyDown"/>
                     <TextBlock Text="Альтернативные" Style="{StaticResource UIRightOrient}" Grid.Row="2"/>
-                <TextBox Style="{StaticResource NumericTextBox}" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" Text="{Binding Path=Expertise.AlternativeAnswers}"/>
+                <TextBox Style="{StaticResource NumericTextBox}" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" Text="{Binding Path=Expertise.AlternativeAnswers}"
+                         PreviewKeyDown="Window_PreviewKeyDown"/>
                     <TextBlock Text="НПВ (методика)" Style="{StaticResource UIRightOrient}" Grid.Column="2"/>
-                <TextBox Style="{StaticResource NumericTextBox}" Grid.Column="3" HorizontalAlignment="Left" Text="{Binding Path=Expertise.NPV_MetodAnswers}"/>
+                <TextBox Style="{StaticResource NumericTextBox}" Grid.Column="3" HorizontalAlignment="Left" Text="{Binding Path=Expertise.NPV_MetodAnswers}"
+                         PreviewKeyDown="Window_PreviewKeyDown"/>
                     <TextBlock Text="НПВ (материалы)" Style="{StaticResource UIRightOrient}" Grid.Row="1" Grid.Column="2"/>
-                <TextBox Style="{StaticResource NumericTextBox}" Grid.Column="3" Grid.Row="1" HorizontalAlignment="Left" Text="{Binding Path=Expertise.NPV_MaterialAnswers}"/>
+                <TextBox Style="{StaticResource NumericTextBox}" Grid.Column="3" Grid.Row="1" HorizontalAlignment="Left" Text="{Binding Path=Expertise.NPV_MaterialAnswers}"
+                         PreviewKeyDown="Window_PreviewKeyDown"/>
                     <TextBlock Text="НПВ (компетенция)" Style="{StaticResource UIRightOrient}" Grid.Row="2" Grid.Column="2"/>
-                <TextBox Style="{StaticResource NumericTextBox}" Grid.Column="3" Grid.Row="2" HorizontalAlignment="Left" Text="{Binding Path=Expertise.NPV_CompAnswers}"/>
+                <TextBox Style="{StaticResource NumericTextBox}" Grid.Column="3" Grid.Row="2" HorizontalAlignment="Left" Text="{Binding Path=Expertise.NPV_CompAnswers}"
+                         PreviewKeyDown="Window_PreviewKeyDown"/>
                     <TextBlock Text="НПВ (другое)" Style="{StaticResource UIRightOrient}" Grid.Row="3" Grid.Column="2"/>
-                <TextBox Style="{StaticResource NumericTextBox}" Grid.Column="3" Grid.Row="3" HorizontalAlignment="Left" Text="{Binding Path=Expertise.NPV_OtherAnswers}"/>
+                <TextBox Style="{StaticResource NumericTextBox}" Grid.Column="3" Grid.Row="3" HorizontalAlignment="Left" Text="{Binding Path=Expertise.NPV_OtherAnswers}"
+                         PreviewKeyDown="Window_PreviewKeyDown"/>
                 </Grid>
             </GroupBox>
             <TextBlock Grid.Row="6" Grid.Column="2" VerticalAlignment="Center" Margin="10,5" Foreground="#FF1700FF" FontSize="{StaticResource UIFontSize}"
@@ -103,7 +110,7 @@
             <TextBlock Grid.Row="7" Style="{StaticResource UIRightOrient}" Text="Комментарий к экспертизе"/>
         <TextBox Grid.Row="8" Grid.ColumnSpan="2" MinLines="5" Margin="5,0,0,5" MinHeight="90" Text="{Binding Path=Expertise.Comment}" Width="470" HorizontalAlignment="Left"/>
             <TextBlock Text="Ваша субъективная оценка заключения" Style="{StaticResource UIRightOrient}" Grid.Row="9" Grid.ColumnSpan="3" HorizontalAlignment="Center" Margin="0,8,0,0"/>
-            <StackPanel Orientation="Horizontal" Margin="5,0" Grid.Row="10" Grid.ColumnSpan="3" HorizontalAlignment="Center" PreviewKeyDown="Comment_PreviewKeyDown">
+            <StackPanel Orientation="Horizontal" Margin="5,0" Grid.Row="10" Grid.ColumnSpan="3" HorizontalAlignment="Center">
                 <Path Fill="{Binding Path=StarsArray[0]}">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="MouseDown">

@@ -99,6 +99,8 @@
                             <Run Text="{Binding Path=EndDate, StringFormat='Дата сдачи: {0:d}', ConverterCulture='ru-RU', Mode=OneWay}"/>
                             <LineBreak/>
                             <Run Text="{Binding Path=ExpertiseType, StringFormat='Тип: {0}', Mode=OneWay}"/>
+                            <LineBreak/>
+                            <Run Text="{Binding Path=Version}"/>
                         </TextBlock>
                         <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" Margin="0,7,0,0" Grid.RowSpan="2">
                             <TextBlock Text="Движение экспертизы:" FontSize="{StaticResource UIFontSize}" FontWeight="DemiBold" HorizontalAlignment="Center"/>
@@ -199,7 +201,7 @@
                         <MenuItem Header="Подписку экспетра" />
                         <MenuItem Header="Заключение" Command="{Binding Path=CreateConclusion}"/>
                         <MenuItem Header="Сопроводительное письмо" Command="{Binding Path=CreateAccompanying}"/>
-                        <MenuItem Header="Уведомление (по уг.)"/>
+                        <MenuItem Header="Уведомление (по уг. делу)"/>
                     </MenuItem>
                     <MenuItem Header="Добавить">
                         <MenuItem Header="Уведомление и рапорт" Command="{Binding Path=CreateReport}"/>

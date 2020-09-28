@@ -2018,7 +2018,7 @@ namespace PLSE_MVVMStrong.Model
             _updatedate = DateTime.Now;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
 #if DEBUG
-            //Debug.WriteLine($"Property changed {prop} ({Version})", "NotifyBase delegate");
+            Debug.WriteLine($"Property changed {prop} ({Version})", "NotifyBase delegate");
 #endif
            
         }
@@ -5339,7 +5339,7 @@ namespace PLSE_MVVMStrong.Model
         #endregion  
     }
 
-    public class Equipment : NotifyBase // todo load from db
+    public class Equipment : NotifyBase
     {
         private string _eqname;
         private string _descr;
@@ -5504,14 +5504,53 @@ namespace PLSE_MVVMStrong.Model
     // NOT COMPLEATED
     public class EquipmentUsage : NotifyBase
     {
-        #region Fields
+#region Fields
         private Expertise _expertise;
+        private DateTime _usagedate;
+        private sbyte _duration;
+        private Equipment _equip;     
         #endregion
 #region Properties
         public Expertise FromExpertise
         {
             get => _expertise;
             set { _expertise = value; }
+        }
+        public Equipment UsedEquipment
+        {
+            get { return _equip; }
+            set 
+            { 
+                if (value != _equip)
+                {
+                    _equip = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public sbyte Duration
+        {
+            get { return _duration; }
+            set
+            { 
+                if (value != _duration)
+                {
+                    _duration = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public DateTime UsageDate
+        {
+            get { return _usagedate; }
+            set 
+            { 
+                if (value != _usagedate)
+                {
+                    _usagedate = value;
+                    OnPropertyChanged();
+                }
+            }
         }
 #endregion
 
@@ -6053,6 +6092,7 @@ namespace PLSE_MVVMStrong.Model
                 else return null;
             }
         }
+        public bool ExpertiseFinishValidState => EndDate.HasValue && !String.IsNullOrEmpty(ExpertiseResult);
         public ObservableCollection<Request> Requests => _requests;
         public ObservableCollection<Report> Reports => _raports;
         public ObservableCollection<Bill> Bills => _bills;
@@ -6121,6 +6161,7 @@ namespace PLSE_MVVMStrong.Model
                         item.FromExpertise = this;
                     }
                     OnPropertyChanged("Reports", true);
+                    OnPropertyChanged("RequestSummary", true);
                     break;
             }
         }
@@ -6728,15 +6769,14 @@ namespace PLSE_MVVMStrong.Model
     }
     public sealed class Report : NotifyBase
     {
-        #region Fields
+ #region Fields
         private Expertise _expertise;
         private DateTime _repdate;
         private DateTime _delay;
         private string _reason;
         private int _id;
         #endregion
-
-        #region Properties
+ #region Properties
         public int ReportID => _id;
         public Expertise FromExpertise
         {
@@ -6776,16 +6816,15 @@ namespace PLSE_MVVMStrong.Model
                 }
             }
         }
+        public bool ReportValidState => DelayDate != default(DateTime) && ReportDate != default(DateTime);
         #endregion
         
-
         public Report() : base() { }
         public Report(int id, DateTime repdate, DateTime delay, string reason, Version vr)
             : base (vr)
         {
             _id = id; _repdate = repdate; _delay = delay; _reason = reason; Version = vr;
         }
-
         public override string ToString()
         {
             return _reason;

@@ -93,6 +93,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="ViewModel\AboutVM.cs" />
+    <Compile Include="ViewModel\AddReportVM.cs" />
     <Compile Include="ViewModel\CustomerAddVM.cs" />
     <Compile Include="ViewModel\EmployeesVM.cs" />
     <Compile Include="ViewModel\ExpertiseViewerVM.cs" />
@@ -110,6 +111,9 @@
     <Compile Include="ViewModel\SpecialityVM.cs" />
     <Compile Include="View\About.xaml.cs">
       <DependentUpon>About.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\AddReport.xaml.cs">
+      <DependentUpon>AddReport.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\CustomerAdd.xaml.cs">
       <DependentUpon>CustomerAdd.xaml</DependentUpon>
@@ -166,6 +170,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="View\About.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\AddReport.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
