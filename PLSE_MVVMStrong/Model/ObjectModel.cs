@@ -1994,9 +1994,9 @@ namespace PLSE_MVVMStrong.Model
         public event PropertyChangedEventHandler PropertyChanged;
 
         public abstract void SaveChanges(SqlConnection con);
-        protected void OnPropertyChanged([CallerMemberName]string prop = null)
+        protected void OnPropertyChanged([CallerMemberName]string prop = null, bool supressversionchanging = false)
         {
-            if (prop != "Version")
+            if (prop != "Version" && !supressversionchanging)
             {
                 if (_version == Version.Original) _version = Version.Edited;
             }
@@ -2582,7 +2582,6 @@ namespace PLSE_MVVMStrong.Model
         protected void OnAdressPropertyChanged([CallerMemberName]string prop = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
-            //Debug.WriteLine("Property changed " + prop, "Adress delegate");
         }
 
         public Adress() { }
@@ -4871,8 +4870,7 @@ namespace PLSE_MVVMStrong.Model
                     _typecase = value;
                     if (_typecase == "исследование")
                     {
-                        ResolutionType = "договор";
-                        Plaintiff = Respondent = CaseNumber = null;
+                        if (ResolutionType != "договор") ResolutionType = "договор";
                     } 
                     OnPropertyChanged();
                 }
@@ -4912,7 +4910,11 @@ namespace PLSE_MVVMStrong.Model
         }
         public string CaseNumber
         {
-            get => _casenumber;
+            get
+            {
+                if (TypeCase == "исследование" || TypeCase == "административное правонарушение") return null;
+                else return _casenumber;
+            }
             set
             {
                 if (value != _casenumber)
@@ -4925,13 +4927,13 @@ namespace PLSE_MVVMStrong.Model
         public string Essense => AnnotateBuilder();
         #endregion
 
-        public Resolution() : base()
+        private Resolution() : base()
         {
-            _expertisies.CollectionChanged += ExpertiseListChanged;
-            ((INotifyPropertyChanged)_expertisies).PropertyChanged += ExpertiseStatusChanged;
             _quest.CollectionChanged += _quest_CollectionChanged;
             _objects.CollectionChanged += _quest_CollectionChanged;
+            _expertisies.CollectionChanged += ExpertiseListChanged;
         }
+        public static Resolution New => new Resolution() {ResolutionType = "постановление", RegistrationDate = DateTime.Now, ResolutionStatus = "рассмотрение" };
         public Resolution(int id, DateTime registrationdate, DateTime? resolutiondate, string resolutiontype, Customer customer, 
                             string obj, string prescribe, string quest, bool nativenumeration, string status, string casenumber, string respondent, string plaintiff,
                             string typecase, string annotate,string comment, DateTime? dispatchdate, Version vr, DateTime updatedate) : base(vr, updatedate)
@@ -4954,43 +4956,12 @@ namespace PLSE_MVVMStrong.Model
             _comment = comment;
             _dispatchdate = dispatchdate;
             _expertisies.CollectionChanged += ExpertiseListChanged;
-            ((INotifyPropertyChanged)_expertisies).PropertyChanged += ExpertiseStatusChanged;
             _quest.CollectionChanged += _quest_CollectionChanged;
             _objects.CollectionChanged += _quest_CollectionChanged;
         }
         #region Methods
         private void _quest_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            //    switch (e.Action)
-            //    {
-            //        case NotifyCollectionChangedAction.Add:
-            //        case NotifyCollectionChangedAction.Replace:
-            //            var c = sender as ObservableCollection<ContentWrapper>;
-            //            int i = e.NewStartingIndex;
-            //            foreach (var item in c.Skip(i))
-            //            {
-            //                item.Number = ++i;
-            //            }
-            //            break;
-            //        case NotifyCollectionChangedAction.Remove:
-            //            var c1 = sender as ObservableCollection<ContentWrapper>;
-            //            int i1 = e.OldStartingIndex;
-            //            foreach (var item in c1.Skip(i1))
-            //            {
-            //                item.Number = ++i1;
-            //            }
-            //            break;
-            //        case NotifyCollectionChangedAction.Move:
-            //            var c2 = sender as ObservableCollection<ContentWrapper>;
-            //            int i2 = Math.Min(e.NewStartingIndex, e.OldStartingIndex);
-            //            foreach (var item in c2.Skip(i2))
-            //            {
-            //                item.Number = ++i2;
-            //            }
-            //            break;
-            //        default:
-            //            break;
-            //    }
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
@@ -5007,42 +4978,34 @@ namespace PLSE_MVVMStrong.Model
                     break;
             }
         }
-        private void ExpertiseStatusChanged(object o, PropertyChangedEventArgs e)//CHECK!!!!
+        private void ExpertiseStatusChanged(object o, PropertyChangedEventArgs e)
         {
-            OnPropertyChanged("Expertisies");
+            var ex = o as Expertise;
             if (e.PropertyName == "ExpertiseStatus")
             {
-                foreach (var item in _expertisies)
-                {
-                    if (item.EndDate == null) ResolutionStatus = "в работе";
+                    if (ex.EndDate == null) ResolutionStatus = "в работе";
                     return;
-                }
-                ResolutionStatus = "выполнено";
             }
+            ResolutionStatus = "выполнено";            
         }
         private void ExpertiseListChanged(object o, NotifyCollectionChangedEventArgs e) 
         {
             switch (e.Action)
             {
+                case NotifyCollectionChangedAction.Replace:
                 case NotifyCollectionChangedAction.Add:
                     foreach (Expertise item in e.NewItems)
                     {
                         item.FromResolution = this;
                         if (item.EndDate == null) ResolutionStatus = "в работе";
+                        item.PropertyChanged += ExpertiseStatusChanged;
                     }
-                    OnPropertyChanged("Expertisies");
                     break;
+                case NotifyCollectionChangedAction.Reset: 
                 case NotifyCollectionChangedAction.Remove:
-                    try
+                    foreach (Expertise item in e.OldItems)
                     {
-                        foreach (Expertise item in e.OldItems)
-                        {
-                            item.DeleteFromDB(CommonInfo.connection);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Windows.MessageBox.Show(ex.Message);
+                        item.PropertyChanged -= ExpertiseStatusChanged;
                     }
                     if (_expertisies.Count > 0)
                     {
@@ -5053,20 +5016,6 @@ namespace PLSE_MVVMStrong.Model
                         }
                     }
                     else ResolutionStatus = "рассмотрение";
-                    break;
-                case NotifyCollectionChangedAction.Reset:   
-                    try
-                    {
-                        foreach (Expertise item in e.OldItems)
-                        {
-                            item.DeleteFromDB(CommonInfo.connection);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Windows.MessageBox.Show(ex.Message);
-                    }
-                    ResolutionStatus = "рассмотрение";
                     break;
             }
         }
@@ -5207,7 +5156,6 @@ namespace PLSE_MVVMStrong.Model
             {
                 item.SaveChanges(con);
             }
-            Version = Version.Original;
         }
         public override void SaveChanges(SqlConnection con)
         {
@@ -5537,11 +5485,23 @@ namespace PLSE_MVVMStrong.Model
 
         public override void SaveChanges(SqlConnection con)
         {
-            throw new NotImplementedException();
+            switch (Version)
+            {
+                case Version.New:
+                    AddToDB(con);
+                    break;
+                case Version.Edited:
+                    EditToDB(con);
+                    break;
+                default:
+                    break;
+            }
         }     
         private void AddToDB(SqlConnection con)
         {
-            throw new NotImplementedException();
+            SqlCommand com = con.CreateCommand();
+            com.CommandType = CommandType.StoredProcedure;
+            com.CommandText = ""
         }
         public void DeleteFromDB(SqlConnection con)
         {
@@ -5589,7 +5549,7 @@ namespace PLSE_MVVMStrong.Model
         private ObservableCollection<EquipmentUsage> _equipmentusage = new ObservableCollection<EquipmentUsage>();
         #endregion
 
- #region Properties
+#region Properties
         public short? SpendHours
         {
             get => _spendhours;
@@ -5600,7 +5560,7 @@ namespace PLSE_MVVMStrong.Model
                     if (value < 1) throw new ArgumentException("Количество часов должно быть больше 0");
                     _spendhours = value;
                     OnPropertyChanged();
-                    OnPropertyChanged("Category");
+                    OnPropertyChanged("Category", true);
                 }
             }
         }
@@ -6080,12 +6040,7 @@ namespace PLSE_MVVMStrong.Model
         public ObservableCollection<EquipmentUsage> EquipmentUsage => _equipmentusage;
 #endregion
 
-        public static Expertise New => new Expertise()
-        {
-            Version = Version.New,
-            _startdate = DateTime.Now,
-            _timelimit = 30
-        };
+        public static Expertise New => new Expertise() {_startdate = DateTime.Now, _timelimit = 30};
         [Browsable(false)]
         public string RequestSummary
         {
@@ -6110,12 +6065,12 @@ namespace PLSE_MVVMStrong.Model
         {
             switch (e.Action)
             {
-                case NotifyCollectionChangedAction.Add:
+                case NotifyCollectionChangedAction.Add:          
+                case NotifyCollectionChangedAction.Replace:
                     foreach (Bill item in e.NewItems)
                     {
                         item.FromExpertise = this;
                     }
-                    OnPropertyChanged("Bills");
                     break;
             }
         }
@@ -6124,33 +6079,35 @@ namespace PLSE_MVVMStrong.Model
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
+                case NotifyCollectionChangedAction.Replace:
                     foreach (Request item in e.NewItems)
                     {
                         item.FromExpertise = this;
                     }
-                    OnPropertyChanged("Requests");
                     break;
             }
+            OnPropertyChanged(nameof(RequestSummary), true);
         }
         private void OnReportListChanged(object o, NotifyCollectionChangedEventArgs e)
         {
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
+                case NotifyCollectionChangedAction.Replace:
                     foreach (Report item in e.NewItems)
                     {
                         item.FromExpertise = this;
                     }
-                    OnPropertyChanged("Reports");
-                    OnPropertyChanged("RequestSummary");
                     break;
             }
+            OnPropertyChanged(nameof(RequestSummary), true);
         }
         private void OnEquipmenUsageListChanged(object o, NotifyCollectionChangedEventArgs e)
         {
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
+                case NotifyCollectionChangedAction.Replace:
                     foreach (EquipmentUsage item in e.NewItems)
                     {
                         item.FromExpertise = this;
@@ -6162,6 +6119,10 @@ namespace PLSE_MVVMStrong.Model
 
         private Expertise() : base()
         {
+            _bills.CollectionChanged += OnBillListChanged;
+            _requests.CollectionChanged += OnRequestListChanged;
+            _raports.CollectionChanged += OnReportListChanged;
+            _equipmentusage.CollectionChanged += OnEquipmenUsageListChanged;
         }
         public Expertise(int id, string number, Expert expert, string status, DateTime start, DateTime? end, byte timelimit, string type, int? previous,
                         short? spendhours, Version vr)
@@ -6177,14 +6138,10 @@ namespace PLSE_MVVMStrong.Model
             _type = type;
             _prevexp = previous;
             _spendhours = spendhours;
-            //_bills.CollectionChanged += OnBillListChanged;
-            //((INotifyPropertyChanged)_bills).PropertyChanged += (n, e) => OnPropertyChanged(nameof(Bills));
-            //_requests.CollectionChanged += OnRequestListChanged;
-            //((INotifyPropertyChanged)_requests).PropertyChanged += (n, e) => OnPropertyChanged(nameof(Requests));
-            //_raports.CollectionChanged += OnReportListChanged;
-            //((INotifyPropertyChanged)_raports).PropertyChanged += (n, e) => OnPropertyChanged(nameof(Reports));
-            //_equipmentusage.CollectionChanged += OnEquipmenUsageListChanged;
-            //((INotifyPropertyChanged)_equipmentusage).PropertyChanged += (n, e) => OnPropertyChanged(nameof(EquipmentUsage));
+            _bills.CollectionChanged += OnBillListChanged;        
+            _requests.CollectionChanged += OnRequestListChanged;
+            _raports.CollectionChanged += OnReportListChanged;        
+            _equipmentusage.CollectionChanged += OnEquipmenUsageListChanged;
         }
 
         public override string ToString()
