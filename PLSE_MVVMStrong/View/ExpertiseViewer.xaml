@@ -5,259 +5,514 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PLSE_MVVMStrong.View"
         xmlns:viewmodel="clr-namespace:PLSE_MVVMStrong.ViewModel"
+        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:plse_mvvmstrong="clr-namespace:PLSE_MVVMStrong"
         mc:Ignorable="d"
-        Title="ExpertiseViewer" Height="750" Width="1280">
+        Title="ExpertiseViewer" Height="1000" Width="1480" WindowState="Maximized">
     <Window.DataContext>
         <viewmodel:ExpertiseViewerVM/>
     </Window.DataContext>
     <Window.Resources>
         <plse_mvvmstrong:ZeroToVisibilityConverter x:Key="IntToVisibConv"/>
+        <Style TargetType="{x:Type Path}">
+            <Setter Property="Margin" Value="2,1"/>
+            <Setter Property="Data" Value="M 0 15 H 10 l 3 -12 l 3 12 h 10 l -8 5 l 2 10 l -7 -8 l -7 8 l 2 -10 z"/>
+            <Setter Property="Stroke" Value="Red"/>
+        </Style>
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <ScrollViewer>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <ScrollViewer Grid.RowSpan="2">
             <GroupBox Header="Основание для производства" Margin="5" BorderBrush="Gray" FontSize="{StaticResource HeaderFontSize}" FontStyle="Italic" FontWeight="DemiBold">
-            <Grid Margin="2,5,2,5">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                </Grid.RowDefinitions>
-                <TextBlock Style="{StaticResource UIRightOrient}" Text="Основание*"/>
-                <ComboBox Grid.Row="1" Style="{StaticResource UIComboBox}" SelectedItem="{Binding Path=Expertise.FromResolution.ResolutionType}" ItemsSource="{Binding Path=ResolutionTypes}"
+                <Grid Margin="2,5,2,5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Style="{StaticResource UIRightOrient}" Text="Основание*"/>
+                    <ComboBox Grid.Row="1" Style="{StaticResource UIComboBox}" SelectedItem="{Binding Path=Expertise.FromResolution.ResolutionType}" ItemsSource="{Binding Path=ResolutionTypes}"
                           Margin="5,0,0,5"/>
-                <TextBlock Grid.Column="1" Style="{StaticResource UIRightOrient}" Text="Статус"/>
-                <ComboBox Grid.Row="1" Grid.Column="1" Margin="5,0,0,5" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=ResolutionStatus}"
+                    <TextBlock Grid.Column="1" Style="{StaticResource UIRightOrient}" Text="Статус"/>
+                    <ComboBox Grid.Row="1" Grid.Column="1" Margin="5,0,0,5" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=ResolutionStatus}"
                           SelectedItem="{Binding Path=Expertise.FromResolution.ResolutionStatus}"/>
-                <TextBlock Grid.Row="2" Grid.Column="2" Style="{StaticResource UIRightOrient}" Text="Дата регистрации*"/>
-                <DatePicker Grid.Row="3" Grid.Column="2" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Expertise.FromResolution.RegistrationDate}"
+                    <TextBlock Grid.Row="2" Grid.Column="2" Style="{StaticResource UIRightOrient}" Text="Дата регистрации*"/>
+                    <DatePicker Grid.Row="3" Grid.Column="2" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Expertise.FromResolution.RegistrationDate}"
                            Margin="5,0,0,5"/>
-                <TextBlock Grid.Column="2" Style="{StaticResource UIRightOrient}" Text="Дата документа"/>
-                <DatePicker Grid.Column="21" Grid.Row="1" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Expertise.FromResolution.ResolutionDate}"
+                    <TextBlock Grid.Column="2" Style="{StaticResource UIRightOrient}" Text="Дата документа"/>
+                    <DatePicker Grid.Column="21" Grid.Row="1" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Expertise.FromResolution.ResolutionDate}"
                             Margin="5,0,0,5"/>
-                <TextBlock Grid.Row="4" Style="{StaticResource UIRightOrient}" Text="Заказчик*"/>
-                <StackPanel Orientation="Horizontal" Grid.Row="5" Margin="5,0,0,5" Grid.ColumnSpan="2">
-                    <TextBox Style="{StaticResource SearchTextBox}" Name="tbCustomer" Width="180" Tag="Введите фамилию" 
+                    <TextBlock Grid.Row="4" Style="{StaticResource UIRightOrient}" Text="Заказчик*"/>
+                    <StackPanel Orientation="Horizontal" Grid.Row="5" Margin="5,0,0,5" Grid.ColumnSpan="2">
+                        <TextBox Style="{StaticResource SearchTextBox}" Name="tbCustomer" Width="180" Tag="Введите фамилию" 
                              Text="{Binding Path=CustomerSearchText, UpdateSourceTrigger=PropertyChanged}"/>
-                    <TextBlock ToolTip="{Binding Path=Resolution.Customer.Requisite}" 
+                        <TextBlock Text="{Binding Path=Expertise.FromResolution.Customer.Requisite}" 
                                FontSize="{StaticResource UIFontSize}" FontWeight="DemiBold" VerticalAlignment="Center" Height="auto" Margin="5,0,0,0">
                         <Run Text="{Binding Path=Resolution.Customer.Office, Mode=OneWay}"/>
                         <Run Text="{Binding Path=Resolution.Customer.Fio, Mode=OneWay}"/>
-                    </TextBlock>
-                </StackPanel>
-                <TextBlock Grid.Row="6" Style="{StaticResource UIRightOrient}" Text="Нативный вид"/>
-                <TextBox Grid.Row="7" Grid.ColumnSpan="3" Text="{Binding Path=Expertise.FromResolution.PrescribeType}" 
+                        </TextBlock>
+                    </StackPanel>
+                    <TextBlock Grid.Row="6" Style="{StaticResource UIRightOrient}" Text="Нативный вид"/>
+                    <TextBox Grid.Row="7" Grid.ColumnSpan="3" Text="{Binding Path=Expertise.FromResolution.PrescribeType}" 
                           Style="{StaticResource UITextBox}" Margin="5,0,0,5" Width="550"/>
-                 <TextBlock Grid.Row="8" Style="{StaticResource UIRightOrient}" Text="Номер дела*"/>
-                <TextBox Grid.Row="9" Style="{StaticResource UITextBox}"
+                    <TextBlock Grid.Row="8" Style="{StaticResource UIRightOrient}" Text="Номер дела*"/>
+                    <TextBox Grid.Row="9" Style="{StaticResource UITextBox}"
                          Text="{Binding Path=Expertise.FromResolution.CaseNumber}" MinWidth="180" Margin="5,0,0,5"/>
-                <TextBlock Grid.Row="8" Grid.Column="1" Style="{StaticResource UIRightOrient}" Text="Вид дела"/>
-                <ComboBox Grid.Row="9" Grid.Column="1" Style="{StaticResource UIComboBox}" Margin="5,0,0,5"/>
-                <TextBlock Style="{StaticResource UIRightOrient}" Grid.Row="8" Grid.Column="2" Text="Дата дела"/>
-                <DatePicker Style="{StaticResource UIDatePicker}" Grid.Row="9" Grid.Column="2" Margin="5,0,0,5" 
+                    <TextBlock Grid.Row="8" Grid.Column="1" Style="{StaticResource UIRightOrient}" Text="Вид дела"/>
+                    <ComboBox Grid.Row="9" Grid.Column="1" Style="{StaticResource UIComboBox}" Margin="5,0,0,5" ItemsSource="{Binding Path=CaseTypes}"/>
+                    <TextBlock Style="{StaticResource UIRightOrient}" Grid.Row="8" Grid.Column="2" Text="Дата дела"/>
+                    <DatePicker Style="{StaticResource UIDatePicker}" Grid.Row="9" Grid.Column="2" Margin="5,0,0,5" 
                             SelectedDate="{Binding Path=Expertise.FromResolution.DispatchDate}"/>
-                <TextBlock Grid.Row="10" Style="{StaticResource UIRightOrient}" Text="Истец*"/>
-                <TextBox Grid.Row="11" Style="{StaticResource UITextBox}"
+                    <TextBlock Grid.Row="10" Style="{StaticResource UIRightOrient}" Text="Истец*"/>
+                    <TextBox Grid.Row="11" Style="{StaticResource UITextBox}"
                          Text="{Binding Path=Expertise.FromResolution.Plaintiff}" Grid.ColumnSpan="2" Margin="5,0,0,5"/>
-                <TextBlock Grid.Row="12" Style="{StaticResource UIRightOrient}" Text="Ответчик*"/>
-                <TextBox Grid.Row="13" Style="{StaticResource UITextBox}" Grid.ColumnSpan="2" Margin="5,0,0,5"
+                    <TextBlock Grid.Row="12" Style="{StaticResource UIRightOrient}" Text="Ответчик*"/>
+                    <TextBox Grid.Row="13" Style="{StaticResource UITextBox}" Grid.ColumnSpan="2" Margin="5,0,0,5"
                          Text="{Binding Path=Expertise.FromResolution.Respondent}"/>
-                 <TextBlock Grid.Row="14" Style="{StaticResource UIRightOrient}" Text="Аннотация"/>
-                <TextBox Grid.Row="15" Grid.ColumnSpan="3" MinLines="3" TextWrapping="Wrap" Margin="5,0,0,5"
+                    <TextBlock Grid.Row="14" Style="{StaticResource UIRightOrient}" Text="Аннотация"/>
+                    <TextBox Grid.Row="15" Grid.ColumnSpan="3" MinLines="3" TextWrapping="Wrap" Margin="5,0,0,5"
                          Text="{Binding Path=Expertise.FromResolution.CaseAnnotate}" FontSize="{StaticResource UIFontSize}" FontWeight="Normal"/>
-                <TextBlock Grid.Row="16" Style="{StaticResource UIRightOrient}" Text="Комментарий"/>
-                <TextBox Grid.Row="17" Grid.ColumnSpan="3" MinLines="3"  TextWrapping="Wrap" Margin="5,0,0,5" FontWeight="Normal"
+                    <TextBlock Grid.Row="16" Style="{StaticResource UIRightOrient}" Text="Комментарий"/>
+                    <TextBox Grid.Row="17" Grid.ColumnSpan="3" MinLines="3"  TextWrapping="Wrap" Margin="5,0,0,5" FontWeight="Normal"
                          Text="{Binding Path=Expertise.FromResolution.Comment}" FontSize="{StaticResource UIFontSize}" />
-                <Expander Grid.Row="18" BorderBrush="Black" BorderThickness="0" Margin="5" MinHeight="30" Grid.ColumnSpan="3">
-                    <Expander.Header>
-                        <TextBlock Foreground="DarkBlue" Text="{Binding Path= Expertise.FromResolution.Objects.Count, StringFormat='Предоставленные объекты: {0}', Mode=OneWay}" FontSize="{StaticResource UIFontSize}"
+                    <Expander Grid.Row="18" BorderBrush="Black" BorderThickness="0" Margin="5" MinHeight="30" Grid.ColumnSpan="3" FontSize="10">
+                        <Expander.Header>
+                            <TextBlock Foreground="DarkBlue" Text="{Binding Path= Expertise.FromResolution.Objects.Count, StringFormat='Предоставленные объекты: {0}', Mode=OneWay}" FontSize="{StaticResource UIFontSize}"
                                    FontWeight="Bold"/>
-                    </Expander.Header>
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition/>
-                            <RowDefinition Height="auto"/>
-                            <RowDefinition Height="auto"/>
-                            <RowDefinition Height="auto"/>
-                        </Grid.RowDefinitions>
-                        <DataGrid ItemsSource="{Binding Path=Expertise.FromResolution.Objects}" AutoGenerateColumns="False"  GridLinesVisibility="None" 
+                        </Expander.Header>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <DataGrid ItemsSource="{Binding Path=Expertise.FromResolution.Objects}" AutoGenerateColumns="False"  GridLinesVisibility="None" 
                               HorizontalScrollBarVisibility="Disabled" FontSize="{StaticResource RegularFontSize}" BorderThickness="0" Margin="2" Background="White"
                               RowStyle="{StaticResource DataGridSimpleRow}" ColumnHeaderStyle="{StaticResource DataGridNoHeaders}" CanUserAddRows="False"
                               CellStyle="{StaticResource DataGridSimpleCell}" Name="dgObjects">
-                            <DataGrid.Columns>
-                                <DataGridTemplateColumn Width="30">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <Grid>
-                                                <TextBlock FontWeight="Bold" Text="{Binding Path=Number}" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                <DataGrid.Columns>
+                                    <DataGridTemplateColumn Width="30">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Grid>
+                                                    <TextBlock FontWeight="Bold" Text="{Binding Path=Number}" VerticalAlignment="Center" HorizontalAlignment="Center"
                                                    FontSize="{StaticResource HeaderFontSize}" Foreground="#FF1263D8" Focusable="False" />
-                                            </Grid>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                                <DataGridTemplateColumn Width="*">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <TextBlock FontSize="{StaticResource UIFontSize}" Text="{Binding Path=Content}" TextWrapping="Wrap" VerticalAlignment="Center"/>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                    <DataGridTemplateColumn.CellEditingTemplate>
-                                        <DataTemplate>
-                                            <TextBox FontSize="{StaticResource UIFontSize}" Text="{Binding Path=Content}" TextWrapping="Wrap" AcceptsReturn="False"
+                                                </Grid>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Width="*">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock FontSize="{StaticResource UIFontSize}" Text="{Binding Path=Content}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                        <DataGridTemplateColumn.CellEditingTemplate>
+                                            <DataTemplate>
+                                                <TextBox FontSize="{StaticResource UIFontSize}" Text="{Binding Path=Content}" TextWrapping="Wrap" AcceptsReturn="False"
                                                      Margin="0,0,5,0"/>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellEditingTemplate>
-                                </DataGridTemplateColumn>
-                            </DataGrid.Columns>
-                        </DataGrid>
-                        <TextBlock Grid.Row="1" HorizontalAlignment="Right" Foreground="Gray" FontStyle="Italic" 
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellEditingTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <TextBlock Grid.Row="1" HorizontalAlignment="Right" Foreground="Gray" FontStyle="Italic" 
                                    Visibility="{Binding Path=Resolution.Objects.Count , Converter={StaticResource IntToVisibConv}, ConverterParameter='2'}"
                                    Text="Нажмите 'Delete' для удаления выбранного объекта или 'MouseDoubleClick' для редактирования"/>
-                        <TextBox Grid.Row="2" Style="{StaticResource SearchTextBox}" Tag="Введите объект" Margin="5,7,0,3" TextWrapping="Wrap" Height="auto" Width="770"
+                            <TextBox Grid.Row="2" Style="{StaticResource SearchTextBox}" Tag="Введите объект" Margin="5,7,0,3" TextWrapping="Wrap" Height="auto" Width="770"
                                  HorizontalAlignment="Left" Text="{Binding Path=ObjectText, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True">
-                        </TextBox>
-                        <TextBlock Grid.Row="3" HorizontalAlignment="Right" Foreground="Gray" FontStyle="Italic"
+                            </TextBox>
+                            <TextBlock Grid.Row="3" HorizontalAlignment="Right" Foreground="Gray" FontStyle="Italic"
                                    Text="Нажмите 'Enter' для добавления объекта"/>
-                    </Grid>
-                </Expander>
-                <Expander Grid.Row="19" BorderBrush="Black" BorderThickness="0" Margin="5" Grid.ColumnSpan="3">
-                    <Expander.Header>
-                        <TextBlock Foreground="DarkBlue" FontSize="{StaticResource UIFontSize}" FontWeight="Bold"
+                        </Grid>
+                    </Expander>
+                    <Expander Grid.Row="19" BorderBrush="Black" BorderThickness="0" Margin="5" Grid.ColumnSpan="3" FontSize="10">
+                        <Expander.Header>
+                            <TextBlock Foreground="DarkBlue" FontSize="{StaticResource UIFontSize}" FontWeight="Bold"
                             Text="{Binding Path=Expertise.FromResolution.Questions.Count, StringFormat='Поставленные вопросы: {0}'}"  />
-                    </Expander.Header>
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="auto"/>
-                            <RowDefinition/>
-                            <RowDefinition Height="auto"/>
-                            <RowDefinition Height="auto"/>
-                            <RowDefinition Height="auto"/>
-                        </Grid.RowDefinitions>
-                        <CheckBox Style="{StaticResource GreenCheck}" Content="Нумерация согласно постановления" Margin="10,0" IsChecked="{Binding Path=Expertise.FromResolution.NativeQuestionNumeration}"/>
-                        <DataGrid ItemsSource="{Binding Path=Expertise.FromResolution.Questions}" AutoGenerateColumns="False"  GridLinesVisibility="None" Grid.Row="1"
+                        </Expander.Header>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <CheckBox Style="{StaticResource GreenCheck}" Content="Нумерация согласно постановления" Margin="10,0" IsChecked="{Binding Path=Expertise.FromResolution.NativeQuestionNumeration}"/>
+                            <DataGrid ItemsSource="{Binding Path=Expertise.FromResolution.Questions}" AutoGenerateColumns="False"  GridLinesVisibility="None" Grid.Row="1"
                               HorizontalScrollBarVisibility="Disabled" FontSize="{StaticResource RegularFontSize}" BorderThickness="0" Margin="2" Background="White"
                               RowStyle="{StaticResource DataGridSimpleRow}" ColumnHeaderStyle="{StaticResource DataGridNoHeaders}" CanUserAddRows="False"
                               CellStyle="{StaticResource DataGridSimpleCell}" Name="dgQuestions">
-                            <DataGrid.Columns>
-                                <DataGridTemplateColumn Width="30">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <Grid>
-                                                <TextBlock FontWeight="Bold" Text="{Binding Path=Number}" VerticalAlignment="Center" HorizontalAlignment="Center" Name="ntb"
+                                <DataGrid.Columns>
+                                    <DataGridTemplateColumn Width="30">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Grid>
+                                                    <TextBlock FontWeight="Bold" Text="{Binding Path=Number}" VerticalAlignment="Center" HorizontalAlignment="Center" Name="ntb"
                                                    FontSize="{StaticResource HeaderFontSize}" Foreground="#FF1263D8" Focusable="False" />
-                                            </Grid>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                                <DataGridTemplateColumn Width="*">
+                                                </Grid>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Width="*">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock FontSize="{StaticResource UIFontSize}" Text="{Binding Path=Content}" TextWrapping="Wrap" Name="bcnt" VerticalAlignment="Center"
+                                                       />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                        <DataGridTemplateColumn.CellEditingTemplate>
+                                            <DataTemplate>
+                                                <TextBox FontSize="{StaticResource UIFontSize}" Text="{Binding Path=Content}" TextWrapping="Wrap" AcceptsReturn="False"
+                                                     Margin="0,0,5,0"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellEditingTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <TextBlock Grid.Row="2" HorizontalAlignment="Right" Foreground="Gray" FontStyle="Italic" 
+                                   Visibility="{Binding Path=Resolution.Questions.Count, Converter={StaticResource IntToVisibConv}, ConverterParameter='2'}"
+                                   Text="Нажмите 'Delete' для удаления выбранного вопроса или 'MouseDoubleClick' для редактирования"
+                                  />
+                            <TextBox Grid.Row="3" Style="{StaticResource SearchTextBox}" Tag="Введите вопрос" Margin="5,7,0,3" TextWrapping="Wrap" Height="auto" Width="770"
+                                 HorizontalAlignment="Left" Text="{Binding Path=QuestionText, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" >
+                            </TextBox>
+                            <TextBlock Grid.Row="4" HorizontalAlignment="Right" Foreground="Gray" FontStyle="Italic"
+                                   Text="Нажмите 'Enter' для добавления вопроса"/>
+                        </Grid>
+                    </Expander>
+                </Grid>
+            </GroupBox>
+        </ScrollViewer>
+        <GroupBox Header="Экспертиза" Grid.Column="1" Margin="5" BorderBrush="Gray" FontSize="{StaticResource HeaderFontSize}" FontStyle="Italic" FontWeight="DemiBold">
+            <ScrollViewer>
+                <Grid Margin="2,5,2,5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Style="{StaticResource UIRightOrient}" Text="Type" Grid.Column="1"/>
+                    <ComboBox Grid.Row="1" Style="{StaticResource UIComboBox}" SelectedValue="{Binding Path=Expertise.ExpertiseType}" Grid.Column="1"
+                          ItemsSource="{Binding Path=ExpertiseTypes}" Margin="5,0,0,5"/>
+                    <TextBlock Style="{StaticResource UIRightOrient}" Text="Number"/>
+                    <TextBox Style="{StaticResource UITextBox}" Margin="5,0,0,5" Text="{Binding Path=Expertise.Number}" Grid.Row="1"  MinWidth="50"/>
+                    <TextBlock Style="{StaticResource UIRightOrient}" Text="Previous" Grid.Row="2"/>
+                    <TextBlock Grid.Row="3" Text="{Binding Path=Expertise.PreviousExpertise, TargetNullValue='not available'}"/>
+                    <TextBlock Grid.Row="4" Style="{StaticResource UIRightOrient}" Text="StartDate"/>
+                    <DatePicker Grid.Row="5" Style="{StaticResource UIDatePicker}" Margin="5,0,0,5" SelectedDate="{Binding Path=Expertise.StartDate}"/>
+                    <TextBlock Grid.Row="4" Style="{StaticResource UIRightOrient}" Text="EndDate" Grid.Column="1"/>
+                    <DatePicker Grid.Row="5" Style="{StaticResource UIDatePicker}" Margin="5,0,0,5" SelectedDate="{Binding Path=Expertise.EndDate}" Grid.Column="1"/>
+                    <TextBlock Grid.Row="6" Style="{StaticResource UIRightOrient}" Text="Result"/>
+                    <ComboBox Grid.Row="7" Style="{StaticResource UIComboBox}" SelectedValue="{Binding Path=Expertise.ExpertiseResult}" Margin="5,0,0,5"
+                          ItemsSource="{Binding Path=ExpertiseResult}"/>
+                    <TextBlock Grid.Row="6" Grid.Column="1" Style="{StaticResource UIRightOrient}" Text="Затрачено часов"/>
+                    <TextBox Grid.Row="7" Grid.Column="1" Style="{StaticResource NumericTextBox}" Margin ="5,0,0,5" HorizontalAlignment="Left"
+                         Text="{Binding Path=Expertise.SpendHours}" PreviewKeyDown="OnlyDigit_PreviewKeyDown"/>
+                    <TextBlock Text="Количество объектов" Style="{StaticResource UIRightOrient}" Grid.Row="6" Grid.Column="2"/>
+                    <TextBox Style="{StaticResource NumericTextBox}" Text="{Binding Path=Expertise.ObjectsCount}" PreviewKeyDown="OnlyDigit_PreviewKeyDown"
+                         Grid.Row="7" Grid.Column="2" HorizontalAlignment="Left" Margin="5,0,0,5"/>
+                    <TextBlock Grid.Row="8" Style="{StaticResource UIRightOrient}" Text="Эксперт"/>
+                    <ComboBox Grid.Row="9" Style="{StaticResource ResourceKey=UIComboBox}" ItemsSource="{Binding Path=Experts}" Margin="5,0,0,5" 
+                          SelectedItem="{Binding Path=Expertise.Expert, Mode=OneWay}" DisplayMemberPath="Employee.Fio" Name="cbexpert">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="SelectionChanged">
+                                <i:InvokeCommandAction Command="{Binding Path=ExpertChanged}" CommandParameter="{Binding ElementName =cbexpert, Path=SelectedItem}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </ComboBox>
+                    <TextBlock Grid.Row="10" Style="{StaticResource UIRightOrient}" Text="Спец-сть"/>
+                    <ComboBox Grid.Row="11" Grid.ColumnSpan="4" Margin="5,0,5,5" FontSize="{StaticResource UIFontSize}" FontWeight="Normal" ItemsSource="{Binding Path=Specialities}" 
+                          SelectedItem="{Binding Path=Expertise.Expert}" DisplayMemberPath= "Speciality"/>
+                    <GroupBox Name="gbAnswers" Grid.Row="12" Grid.ColumnSpan="4" BorderThickness="2" BorderBrush="LightGray" FontWeight="DemiBold"
+                          FontSize="{StaticResource UIFontSize}">
+                        <GroupBox.Header>
+                            <TextBlock Grid.Row="6" Grid.Column="2" VerticalAlignment="Center" FontSize="{StaticResource UIFontSize}"
+                            Text="{Binding Path=Expertise.TotalAnswers, StringFormat='Выводы ({0})', Mode=OneWay}"/>
+                        </GroupBox.Header>
+                        <Grid Margin="15,5,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="65"/>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="Категорические" Style="{StaticResource UIRightOrient}"/>
+                            <TextBox Style="{StaticResource NumericTextBox}" Grid.Column="1" HorizontalAlignment="Left" Text="{Binding Path=Expertise.CategoricalAnswers}"
+                             PreviewKeyDown="OnlyDigit_PreviewKeyDown"/>
+                            <TextBlock Text="Вероятные" Style="{StaticResource UIRightOrient}" Grid.Row="1"/>
+                            <TextBox Style="{StaticResource NumericTextBox}" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" Text="{Binding Path=Expertise.ProbabilityAnswers}"
+                         PreviewKeyDown="OnlyDigit_PreviewKeyDown"/>
+                            <TextBlock Text="Альтернативные" Style="{StaticResource UIRightOrient}" Grid.Row="2"/>
+                            <TextBox Style="{StaticResource NumericTextBox}" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" Text="{Binding Path=Expertise.AlternativeAnswers}"
+                         PreviewKeyDown="OnlyDigit_PreviewKeyDown"/>
+                            <TextBlock Text="НПВ (методика)" Style="{StaticResource UIRightOrient}" Grid.Column="2"/>
+                            <TextBox Style="{StaticResource NumericTextBox}" Grid.Column="3" HorizontalAlignment="Left" Text="{Binding Path=Expertise.NPV_MetodAnswers}"
+                         PreviewKeyDown="OnlyDigit_PreviewKeyDown"/>
+                            <TextBlock Text="НПВ (материалы)" Style="{StaticResource UIRightOrient}" Grid.Row="1" Grid.Column="2"/>
+                            <TextBox Style="{StaticResource NumericTextBox}" Grid.Column="3" Grid.Row="1" HorizontalAlignment="Left" Text="{Binding Path=Expertise.NPV_MaterialAnswers}"
+                         PreviewKeyDown="OnlyDigit_PreviewKeyDown"/>
+                            <TextBlock Text="НПВ (компетенция)" Style="{StaticResource UIRightOrient}" Grid.Row="2" Grid.Column="2"/>
+                            <TextBox Style="{StaticResource NumericTextBox}" Grid.Column="3" Grid.Row="2" HorizontalAlignment="Left" Text="{Binding Path=Expertise.NPV_CompAnswers}"
+                         PreviewKeyDown="OnlyDigit_PreviewKeyDown"/>
+                            <TextBlock Text="НПВ (другое)" Style="{StaticResource UIRightOrient}" Grid.Row="3" Grid.Column="2"/>
+                            <TextBox Style="{StaticResource NumericTextBox}" Grid.Column="3" Grid.Row="3" HorizontalAlignment="Left" Text="{Binding Path=Expertise.NPV_OtherAnswers}"
+                         PreviewKeyDown="OnlyDigit_PreviewKeyDown"/>
+                        </Grid>
+                    </GroupBox>
+                    <TextBlock Grid.Row="13" Style="{StaticResource UIRightOrient}" Text="Комментарий к экспертизе"/>
+                    <TextBox Grid.Row="14" Grid.ColumnSpan="4" MinLines="5" Margin="5,0,0,5" MinHeight="90" Text="{Binding Path=Expertise.Comment}" Width="470"
+                         HorizontalAlignment="Left"/>
+                    <TextBlock Text="Ваша субъективная оценка заключения" Style="{StaticResource UIRightOrient}" Grid.Row="15" Grid.ColumnSpan="4" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                    <StackPanel Orientation="Horizontal" Margin="5,0" Grid.Row="16" Grid.ColumnSpan="4" HorizontalAlignment="Center">
+                        <Path Fill="{Binding Path=StarsArray[0]}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseDown">
+                                    <i:InvokeCommandAction Command="{Binding Path=StarClick}" CommandParameter="0"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Path>
+                        <Path Fill="{Binding Path=StarsArray[1]}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseDown">
+                                    <i:InvokeCommandAction Command="{Binding Path=StarClick}" CommandParameter="1"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Path>
+                        <Path Fill="{Binding Path=StarsArray[2]}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseDown">
+                                    <i:InvokeCommandAction Command="{Binding Path=StarClick}" CommandParameter="2"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Path>
+                        <Path Fill="{Binding Path=StarsArray[3]}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseDown">
+                                    <i:InvokeCommandAction Command="{Binding Path=StarClick}" CommandParameter="3"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Path>
+                        <Path Fill="{Binding Path=StarsArray[4]}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseDown">
+                                    <i:InvokeCommandAction Command="{Binding Path=StarClick}" CommandParameter="4"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Path>
+                        <Path Fill="{Binding Path=StarsArray[5]}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseDown">
+                                    <i:InvokeCommandAction Command="{Binding Path=StarClick}" CommandParameter="5"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Path>
+                        <Path Fill="{Binding Path=StarsArray[6]}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseDown">
+                                    <i:InvokeCommandAction Command="{Binding Path=StarClick}" CommandParameter="6"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Path>
+                        <Path Fill="{Binding Path=StarsArray[7]}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseDown">
+                                    <i:InvokeCommandAction Command="{Binding Path=StarClick}" CommandParameter="7"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Path>
+                        <Path Fill="{Binding Path=StarsArray[8]}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseDown">
+                                    <i:InvokeCommandAction Command="{Binding Path=StarClick}" CommandParameter="8"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Path>
+                        <Path Fill="{Binding Path=StarsArray[9]}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseDown">
+                                    <i:InvokeCommandAction Command="{Binding Path=StarClick}" CommandParameter="9"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Path>
+                    </StackPanel>
+                    <Expander Grid.Row="17" Grid.ColumnSpan="4" Margin="5">
+                        <Expander.Header>
+                            <StackPanel Orientation="Horizontal" Height="30">
+                                <TextBlock Text="Счета"/>
+                                <Viewbox Margin="5,0">
+                                    <Image Source="pack://application:,,,/Resources/dollar.png"/>
+                                </Viewbox>
+                            </StackPanel>
+                        </Expander.Header>
+                        <DataGrid Margin="2" AutoGenerateColumns="False" BorderThickness="0" CanUserAddRows="{Binding Path=DiscartChanges}" FontSize="{StaticResource UIFontSize}"
+                              CanUserDeleteRows="{Binding Path=DiscartChanges}" ItemsSource="{Binding Path=Expertise.Bills}">
+                            <DataGrid.CellStyle>
+                                <Style TargetType="{x:Type DataGridCell}">
+                                    <Setter Property="Padding" Value="12"/>
+                                </Style>
+                            </DataGrid.CellStyle>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Номер" Binding="{Binding Path=Number}"/>
+                                <DataGridTemplateColumn Header="Дата счета">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <TextBlock FontSize="{StaticResource UIFontSize}" Text="{Binding Path=Content}" TextWrapping="Wrap" Name="bcnt" VerticalAlignment="Center"
-                                                       />
+                                            <TextBlock Text="{Binding BillDate, StringFormat='dd.MM.yyyy'}"/>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                     <DataGridTemplateColumn.CellEditingTemplate>
                                         <DataTemplate>
-                                            <TextBox FontSize="{StaticResource UIFontSize}" Text="{Binding Path=Content}" TextWrapping="Wrap" AcceptsReturn="False"
-                                                     Margin="0,0,5,0"/>
+                                            <DatePicker SelectedDate="{Binding BillDate}"/>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellEditingTemplate>
                                 </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Дата оплаты">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding PaidDate, StringFormat='dd.MM.yyyy'}"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                    <DataGridTemplateColumn.CellEditingTemplate>
+                                        <DataTemplate>
+                                            <DatePicker SelectedDate="{Binding PaidDate}"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellEditingTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="Плательщик" Binding="{Binding Path=Payer}"/>
+                                <DataGridTextColumn Header="Часы" Binding="{Binding Path=Hours}"/>
+                                <DataGridTextColumn Header="Стоимость часа" Binding="{Binding Path=HourPrice}"/>
+                                <DataGridTextColumn Header="Оплачено" Binding="{Binding Path=Paid}"/>
                             </DataGrid.Columns>
                         </DataGrid>
-                        <TextBlock Grid.Row="2" HorizontalAlignment="Right" Foreground="Gray" FontStyle="Italic" 
-                                   Visibility="{Binding Path=Resolution.Questions.Count, Converter={StaticResource IntToVisibConv}, ConverterParameter='2'}"
-                                   Text="Нажмите 'Delete' для удаления выбранного вопроса или 'MouseDoubleClick' для редактирования"
-                                  />
-                        <TextBox Grid.Row="3" Style="{StaticResource SearchTextBox}" Tag="Введите вопрос" Margin="5,7,0,3" TextWrapping="Wrap" Height="auto" Width="770"
-                                 HorizontalAlignment="Left" Text="{Binding Path=QuestionText, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" >
-                        </TextBox>
-                        <TextBlock Grid.Row="4" HorizontalAlignment="Right" Foreground="Gray" FontStyle="Italic"
-                                   Text="Нажмите 'Enter' для добавления вопроса"/>
-                    </Grid>
-                </Expander>
-            </Grid>
+                    </Expander>
+                    <Expander Grid.Row="18">
+                        <Expander.Header>
+                            <StackPanel Orientation="Horizontal" Height="30">
+                                <TextBlock Text="Уведомления"/>
+                                <Viewbox Margin="5,0">
+                                    <Image Source="pack://application:,,,/Resources/delay.png"/>
+                                </Viewbox>
+                            </StackPanel>
+                        </Expander.Header>
+                    </Expander>
+                    <Expander Grid.Row="19" Grid.ColumnSpan="4" Margin="5">
+                        <Expander.Header>
+                            <StackPanel Orientation="Horizontal" Height="30">
+                                <TextBlock Text="Запросы"/>
+                                <Viewbox Margin="5,0">
+                                    <Image Source="pack://application:,,,/Resources/request.png"/>
+                                </Viewbox>
+                            </StackPanel>
+                        </Expander.Header>
+                        <DataGrid Margin="2" AutoGenerateColumns="False" BorderThickness="0" CanUserAddRows="{Binding Path=DiscartChanges}" FontSize="{StaticResource UIFontSize}"
+                              CanUserDeleteRows="{Binding Path=DiscartChanges}" ItemsSource="{Binding Path=Expertise.Requests}" VerticalGridLinesBrush="Transparent" HorizontalGridLinesBrush="Transparent">
+                            <DataGrid.CellStyle>
+                                <Style TargetType="{x:Type DataGridCell}">
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="BorderBrush" Value="Red"/>
+                                    <Setter Property="Margin" Value="2"/>
+                                </Style>
+                            </DataGrid.CellStyle>
+                            <DataGrid.Columns>
+                                <DataGridComboBoxColumn Header="Тип"  ItemsSource="{Binding Path=RequestTypes}" SelectedItemBinding="{Binding Path=RequestType}"/>
+                                <DataGridTemplateColumn Header="Дата">
+                                    <DataGridTemplateColumn.CellStyle>
+                                        <Style TargetType="{x:Type DataGridCell}">
+                                            <Setter Property="Margin" Value="7"/>
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Setter Property="BorderBrush" Value="DarkMagenta"/>
+                                        </Style>
+                                    </DataGridTemplateColumn.CellStyle>
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Path=RequestDate, StringFormat='dd.MM.yyyy'}"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                    <DataGridTemplateColumn.CellEditingTemplate>
+                                        <DataTemplate>
+                                            <DatePicker SelectedDate="{Binding Path=RequestDate}"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellEditingTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Комментарий" Width="*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Path=Comment}" TextWrapping="Wrap"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Expander>
+                </Grid>
+            </ScrollViewer>
         </GroupBox>
-        </ScrollViewer>
-        
+        <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource BaseUIButton}" Content="СОХРАНИТЬ" Foreground="{StaticResource PositiveGreenColor}"
+                HorizontalAlignment="Right" Margin="0, 20,50,20"/>
     </Grid>
-   
-        <!--<GroupBox Header="Экспертиза" Grid.Column="1" Margin="5" BorderBrush="Black" FontSize="{StaticResource HeaderFontSize}" FontStyle="Italic" FontWeight="DemiBold">
-            <Grid Margin="2,5,2,5">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                </Grid.RowDefinitions>
-                <TextBlock Style="{StaticResource UITextBlock }" Text="Тип"/>
-                <ComboBox Grid.Column="1" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=ExpertiseTypes}" 
-                          SelectedItem="{Binding Path=Expertise.ExpertiseType}" IsEnabled="{Binding Path=DiscartChanges}"/>
-                <TextBlock Grid.Column="2" Style="{StaticResource UITextBlock}" Text="Предыдущая"/>
-                <TextBox Grid.Column="3" Style="{StaticResource UITextBox}" IsEnabled="{Binding Path=DiscartChanges}"/>
-                <TextBlock Grid.Row="1" Style="{StaticResource UITextBlock}" Text="Номер"/>
-                <TextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource UITextBox}" IsEnabled="{Binding Path=DiscartChanges}" 
-                         Text="{Binding Path=Expertise.Number}" MinWidth="70"/>
-                <TextBlock Grid.Row="2" Style="{StaticResource UITextBlock}" Text="Статус"/>
-                <TextBox Grid.Column="1" Grid.Row="2" Style="{StaticResource UITextBox}" MinWidth="180" 
-                         Text="{Binding Path=Expertise.ExpertiseStatus}" IsEnabled="{Binding Path=DiscartChanges}"/>
-                <TextBlock Grid.Row="3" Style="{StaticResource UITextBlock}" Text="Начата"/>
-                <DatePicker Grid.Row="3" Grid.Column="1" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Expertise.StartDate}" IsEnabled ="{Binding Path=DiscartChanges}"/>
-                <TextBlock Grid.Row="3" Grid.Column="2" Style="{StaticResource UITextBlock}" Text="Завершена"/>
-                <DatePicker Grid.Row="3" Grid.Column="3" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Expertise.EndDate}" IsEnabled="{Binding Path=DiscartChanges}"/>
-                <TextBlock Grid.Row="4" Style="{StaticResource UITextBlock}" Text="Эксперт"/>
-                <ComboBox Grid.Row="4" Grid.Column="1" Style="{StaticResource ResourceKey=UIComboBox}" ItemsSource="{Binding Path=Experts}" 
-                          SelectedItem="{Binding Path=Expertise.Expert}" DisplayMemberPath="Employee.Fio" IsEnabled="{Binding Path=DiscartChanges}"/>
-                <TextBlock Grid.Row="5" Style="{StaticResource UITextBlock}" Text="Спец-сть"/>
-                <ComboBox Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="3" Margin="5" FontSize="{StaticResource UIFontSize}" FontWeight="Normal" ItemsSource="{Binding Path=Specialities}" 
-                          SelectedItem="{Binding Path=Expertise.Expert}" DisplayMemberPath="Speciality.Code" IsEnabled="{Binding Path=DiscartChanges}"/>
-                <TextBlock Grid.Row="6" Style="{StaticResource UITextBlock}" Text="Срок"/>
-                <TextBox Grid.Row="6" Grid.Column="1" Style="{StaticResource UITextBox}" IsEnabled="{Binding Path=DiscartChanges}"
-                         Text="{Binding Path=Expertise.TimeLimit}" MinWidth="50"/>
-                <TextBlock Grid.Row="6" Grid.Column="2" Style="{StaticResource UITextBlock}" Text="Затрачено часов"/>
-                <TextBox Grid.Row="6" Grid.Column="3" Style="{StaticResource UITextBox}" IsEnabled="{Binding Path=DiscartChanges}"
-                         Text="{Binding Path=Expertise.SpendHours}" MinWidth="50"/>
+    <!--<GroupBox Header="Экспертиза" Grid.Column="1" Margin="5" BorderBrush="Black" FontSize="{StaticResource HeaderFontSize}" FontStyle="Italic" FontWeight="DemiBold">
+               
+                
                 <Expander Grid.Row="7" Grid.ColumnSpan="3" Margin="5">
                     <Expander.Header>
                         <StackPanel Orientation="Horizontal" Height="30">
@@ -268,55 +523,7 @@
                         </StackPanel>
                     </Expander.Header>
                 </Expander>
-                <Expander Grid.Row="8" Grid.ColumnSpan="4" Margin="5">
-                    <Expander.Header>
-                        <StackPanel Orientation="Horizontal" Height="30">
-                            <TextBlock Text="Счета"/>
-                            <Viewbox Margin="5,0">
-                                <Image Source="pack://application:,,,/Resources/dollar.png"/>
-                            </Viewbox>
-                        </StackPanel>
-                    </Expander.Header>
-                    <DataGrid Margin="2" AutoGenerateColumns="False" BorderThickness="0" CanUserAddRows="{Binding Path=DiscartChanges}" FontSize="{StaticResource UIFontSize}"
-                              CanUserDeleteRows="{Binding Path=DiscartChanges}" ItemsSource="{Binding Path=Expertise.Bills}">
-                        <DataGrid.CellStyle>
-                            <Style TargetType="{x:Type DataGridCell}">
-                                <Setter Property="Padding" Value="12"/>
-                            </Style>
-                        </DataGrid.CellStyle>
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="Номер" Binding="{Binding Path=Number}"/>
-                            <DataGridTemplateColumn Header="Дата счета">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding BillDate, StringFormat='dd.MM.yyyy'}"/>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                                <DataGridTemplateColumn.CellEditingTemplate>
-                                    <DataTemplate>
-                                        <DatePicker SelectedDate="{Binding BillDate}"/>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellEditingTemplate>
-                            </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="Дата оплаты">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding PaidDate, StringFormat='dd.MM.yyyy'}"/>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                                <DataGridTemplateColumn.CellEditingTemplate>
-                                    <DataTemplate>
-                                        <DatePicker SelectedDate="{Binding PaidDate}"/>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellEditingTemplate>
-                            </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="Плательщик" Binding="{Binding Path=Payer}"/>
-                            <DataGridTextColumn Header="Часы" Binding="{Binding Path=Hours}"/>
-                            <DataGridTextColumn Header="Стоимость часа" Binding="{Binding Path=HourPrice}"/>
-                            <DataGridTextColumn Header="Оплачено" Binding="{Binding Path=Paid}"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
-                </Expander>
+                
                 <Expander Grid.Row="9" Grid.ColumnSpan="3" Margin="5">
                     <Expander.Header>
                         <StackPanel Orientation="Horizontal" Height="30">

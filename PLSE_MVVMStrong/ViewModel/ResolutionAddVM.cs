@@ -23,7 +23,6 @@ namespace PLSE_MVVMStrong.ViewModel
         private RelayCommand _addexpertise;
         private RelayCommand _addquestion;
         #endregion Fields
-
 #region Properties
         public IReadOnlyList<string> ResolutionTypes => CommonInfo.ResolutionTypes;
         public IReadOnlyList<string> ResolutionStatus => CommonInfo.ResolutionStatus;
@@ -304,12 +303,7 @@ namespace PLSE_MVVMStrong.ViewModel
 
         private Resolution InicialState()
         {
-            var r = new Resolution()
-            {
-                RegistrationDate = DateTime.Now,
-                ResolutionType = "постановление",
-                ResolutionStatus = "рассмотрение",
-            };
+            var r = Resolution.New;
             r.TypeCase = "уголовное";
             //r.Objects.Objects.Add(new ContentWrapper("материалы гражданского дела № 22541"));
             //r.Objects.Objects.Add(new ContentWrapper("руководство по эксплуатации"));

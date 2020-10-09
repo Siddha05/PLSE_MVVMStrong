@@ -1,0 +1,60 @@
+﻿<Window x:Class="PLSE_MVVMStrong.View.BillAdd"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PLSE_MVVMStrong.View" xmlns:viewmodel="clr-namespace:PLSE_MVVMStrong.ViewModel"
+        mc:Ignorable="d"
+        Title="Новый счет" Height="350" Width="500" Name="wnd" SizeToContent="Height" WindowStartupLocation="CenterScreen">
+    <Window.DataContext>
+        <viewmodel:BillAddVM/>
+    </Window.DataContext>
+    <Window.Resources>
+        <local:PriceConverter x:Key="PriceConv"/>
+    </Window.Resources>
+    <Grid Margin="5,5,2,2">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <TextBlock Style="{StaticResource UIRightOrient}" Text="Номер счета"/>
+        <TextBox Grid.Row="1" Style="{StaticResource NumericTextBox}" HorizontalAlignment="Left" Margin="5,0,0,5" Text="{Binding Path=NewBill.Number}" Width="55"/>
+        <TextBlock Style="{StaticResource UIRightOrient}" Text="Дата счета" Grid.Column="1"/>
+        <DatePicker Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=NewBill.BillDate}" Margin="5,0,0,5"/>
+        <TextBlock Style="{StaticResource UIRightOrient}" Grid.Row="2" Text="Плательщик"/>
+        <ComboBox Grid.Row="3" Style="{StaticResource UIComboBox}" SelectedValue="{Binding Path=NewBill.Payer}" ItemsSource="{Binding Path=PayerList}"
+                  Margin="5,0,0,5" Grid.ColumnSpan="2"/>
+        <TextBlock Grid.Row="4" Style="{StaticResource UIRightOrient}" Text="Часов"/>
+        <TextBox Grid.Row="5" Style="{StaticResource NumericTextBox}" Text="{Binding Path=NewBill.Hours}" Margin="5,0,0,5" HorizontalAlignment="Left"/>
+        <TextBlock Grid.Row="4" Grid.Column="1" Style="{StaticResource UIRightOrient}" Text="Цена часа"/>
+        <TextBox Grid.Row="5" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=NewBill.HourPrice, StringFormat='{}{0:C}', ConverterCulture='ru-RU'}"
+                 Margin="5,0,0,5" Width="100"/>
+        <TextBlock Grid.Row="5" Grid.Column="2" Style="{StaticResource InfoTextBlock}" VerticalAlignment="Center" Margin="10,0,0,5">
+            <TextBlock.Text>
+                <MultiBinding Converter="{StaticResource PriceConv}" StringFormat="Сумма счета {0:C}" ConverterCulture="ru-RU">
+                    <Binding Path="NewBill.Hours"/>
+                    <Binding Path="NewBill.HourPrice"/>
+                </MultiBinding>
+            </TextBlock.Text>
+        </TextBlock>
+        <TextBlock Grid.Row="6" Style="{StaticResource UIRightOrient}" Text="Дата оплаты"/>
+        <DatePicker Grid.Row="7" Grid.ColumnSpan="2" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=NewBill.PaidDate}" Margin="5,0,0,5"/>
+        <TextBlock Grid.Row="6" Grid.Column="2" Style="{StaticResource UIRightOrient}" Text="Оплачено"/>
+        <TextBox Grid.Row="7" Grid.Column="2" Style="{StaticResource UITextBox}" Text="{Binding Path=NewBill.Paid, StringFormat='{}{0:C}', ConverterCulture='ru-RU'}"
+                 Margin="5,0,0,5" Width="100"/>
+        <Button Grid.Row="8" Grid.ColumnSpan="4" Style="{StaticResource BaseUIButton}" Content="СОХРАНИТЬ" Foreground="{StaticResource PositiveGreenColor}"
+                Command="{Binding Path=Save}" CommandParameter="{Binding ElementName=wnd}" HorizontalAlignment="Right" Margin="0, 15,40,10"/>
+    </Grid>
+</Window>

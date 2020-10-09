@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace PLSE_MVVMStrong.ViewModel
@@ -16,9 +17,22 @@ namespace PLSE_MVVMStrong.ViewModel
         private static SolidColorBrush _transp = new SolidColorBrush(Colors.Transparent);
         private static SolidColorBrush _red = new SolidColorBrush(Colors.Red);
         private RelayCommand _starclick;
+        private RelayCommand _addEquip;
+        private RelayCommand _delEquip;
+        private EquipmentUsage _usedequip = new EquipmentUsage();
         #endregion
-        #region Propertise
+        #region Properties
         public Expertise Expertise { get; set; }
+        public EquipmentUsage UsedEquipment
+        {
+            get => _usedequip;
+            private set
+            {
+                _usedequip = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(UsedEquipment)));
+            }
+        }
+        public IReadOnlyList<Equipment> Equipments { get; } = CommonInfo.Equipments.Value;
         public IReadOnlyList<string> ExpertiseResultList { get; }= CommonInfo.ExpertiseResult;
         public  SolidColorBrush[] StarsArray { get; } = new SolidColorBrush[] { _transp, _transp, _transp, _transp, _transp, _transp, _transp, _transp, _transp, _transp };
         #endregion
@@ -63,9 +77,65 @@ namespace PLSE_MVVMStrong.ViewModel
                 },
                 e =>
                 {
-                    return Expertise.ExpertiseFinishValidState;
+                    return Expertise.ExpertiseFinishValidState();
                 }
                 );
+            }
+        }
+        public RelayCommand AddEquipment
+        {
+            get
+            {
+                return _addEquip != null ? _addEquip : _addEquip = new RelayCommand(n =>
+                                                                             {
+                                                                                 
+                                                                                 Expertise.EquipmentUsage.Add(UsedEquipment);
+                                                                                 UsedEquipment = new EquipmentUsage();
+                                                                             },
+                                                                             e =>
+                                                                             {
+                                                                                 return UsedEquipment.InstanceValidState();
+                                                                                 
+                                                                             });
+            }
+        }
+        public RelayCommand DeleteEquipment
+        {
+            get
+            {
+                return _delEquip != null ? _delEquip : _delEquip = new RelayCommand(n =>
+                                                                         {
+                                                                             ListBox lb = n as ListBox;
+                                                                             if (lb != null)
+                                                                             {
+                                                                                 var eu = lb.SelectedItem as EquipmentUsage;
+                                                                                 if (eu == null) return;
+                                                                                 if (eu.Version == Model.Version.New)
+                                                                                 {
+                                                                                    Expertise.EquipmentUsage.Remove(eu);
+                                                                                 }
+                                                                                 else
+                                                                                 {
+                                                                                     if (MessageBox.Show("Удалить из базы данных?", "", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                                                                                     {
+                                                                                         try
+                                                                                         {
+                                                                                            eu.DeleteFromDB(CommonInfo.connection);
+                                                                                            Expertise.EquipmentUsage.Remove(eu);
+                                                                                         }
+                                                                                         catch (Exception)
+                                                                                         {
+                                                                                             MessageBox.Show("Ошибка при удалении в базе данных", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                                                                                         }
+                                                                                         
+                                                                                     }
+                                                                                 }
+                                                                             }
+                                                                         },
+                                                                         e =>
+                                                                         {
+                                                                             return Expertise.EquipmentUsage.Count > 0;
+                                                                         });
             }
         }
         #endregion
@@ -106,8 +176,9 @@ namespace PLSE_MVVMStrong.ViewModel
         //                                        null,
         //                                        Model.Version.Original);
         //    res.Expertisies.Add(e1);
+        //    e1.EquipmentUsage.Add(new EquipmentUsage() { UsedEquipment = CommonInfo.Equipments.Value[1], Duration = 1, FromExpertise = null,
+        //                                                UsageDate = new DateTime(2020, 08, 24), UpdateDate = DateTime.Now, Version = Model.Version.Original});
         //    Expertise = e1;
-        //    Detail = new ExpertiseDetail(e1.ExpertiseID);
         //}
         private void SetEvaluation (int eval)
         {

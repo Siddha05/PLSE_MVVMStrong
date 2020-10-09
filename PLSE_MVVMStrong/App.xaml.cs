@@ -325,8 +325,6 @@ namespace PLSE_MVVMStrong
                         _truestate = Visibility.Hidden;
                         _falsestate = Visibility.Visible;
                         break;
-                    default:
-                        break;
                 }
             }
             bool r = (bool)value;

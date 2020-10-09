@@ -872,7 +872,8 @@ namespace PLSE_MVVMStrong.Model
         public static IReadOnlyList<string> Genders => _genders;
         public static IReadOnlyList<string> Status => _status;
         public static IReadOnlyList<string> RequestTypes => _typerequest;
-
+        public static Lazy<List<Equipment>> Equipments { get; } = new Lazy<List<Equipment>>(FetchEquipments, true);
+        public static Lazy<List<string>> Payers { get; } = new Lazy<List<string>>(FetchPayers, true);
         public static ObservableCollection<Settlement> Settlements
         {
             get => _settlements;
@@ -953,6 +954,88 @@ namespace PLSE_MVVMStrong.Model
             {
                 throw;
             }
+        }
+        private static List<Equipment> FetchEquipments()
+        {
+            List<Equipment> lst = new List<Equipment>(20);
+            SqlCommand cmd = connection.CreateCommand();
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.CommandText = "InnResources.prEquipments";
+            try
+            {
+                connection.Open();
+                SqlDataReader rd = cmd.ExecuteReader();
+                if (rd.HasRows)
+                {
+                    int colId = rd.GetOrdinal("EquipmentID");
+                    int colEquipmentName = rd.GetOrdinal("EquipmentName");
+                    int colDesc = rd.GetOrdinal("Descript");
+                    int colCommDate = rd.GetOrdinal("CommissionDate");
+                    int colLastCheckDate = rd.GetOrdinal("LastCheckDate");
+                    int colStatus = rd.GetOrdinal("StatusID");
+                    int colLastUpdate = rd.GetOrdinal("UpdateDate");
+                    while (rd.Read())
+                    {
+
+                        lst.Add(new Equipment(id: rd.GetInt16(colId),
+                                                name: rd.GetString(colEquipmentName),
+                                                description: rd[colDesc] != DBNull.Value ? rd.GetString(colDesc) : null,
+                                                commisiondate: rd[colCommDate] != DBNull.Value ? new DateTime?(rd.GetDateTime(colCommDate)) : null,
+                                                check: rd[colLastCheckDate] != DBNull.Value ? new DateTime? (rd.GetDateTime(colLastCheckDate)) : null,
+                                                status: rd.GetBoolean(colStatus),
+                                                vr: Version.Original,
+                                                updatedate: rd.GetDateTime(colLastUpdate)
+                                                ));
+                    }
+                }
+                rd.Close();
+
+            }
+            catch (Exception e)
+            {
+#if DEBUG
+                Debug.Print("----------------------------Error while fetch Equipments from DB");
+                Debug.Print(e.Message);
+#endif                
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return lst;
+        }
+        private static List<string> FetchPayers()
+        {
+            List<string> p = new List<string>(4);
+            SqlCommand cmd = connection.CreateCommand();
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.CommandText = "DomainTables.prPayers";
+            try
+            {
+                connection.Open();
+                SqlDataReader rd = cmd.ExecuteReader();
+                if (rd.HasRows)
+                {
+                    while (rd.Read())
+                    {
+                        p.Add(rd.GetString(0));
+                    }
+                }
+                rd.Close();
+
+            }
+            catch (Exception e)
+            {
+#if DEBUG
+                Debug.Print("----------------------------Error while fetch Equipments from DB");
+                Debug.Print(e.Message);
+#endif                
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return p;
         }
         private static void LoadInitialInfo(SqlConnection connection)
         {
@@ -5075,11 +5158,10 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@NativeQNumeration", SqlDbType.Bit).Value = NativeQuestionNumeration;
             var par = cmd.Parameters.Add("@InsertedID", SqlDbType.Int);
             par.Direction = ParameterDirection.Output;
-            cmd.Connection.Open();
             try
             {
+                cmd.Connection.Open();
                 cmd.ExecuteNonQuery();
-                cmd.Connection.Close();
                 _id = (int)cmd.Parameters["@InsertedID"].Value;
                 Version = Version.Original;
             }
@@ -5272,7 +5354,7 @@ namespace PLSE_MVVMStrong.Model
     {
         private string _eqname;
         private string _descr;
-        private DateTime _commisiondate;
+        private DateTime? _commisiondate;
         private bool _status;
         private int _id;
         private DateTime? _checkdate;
@@ -5290,7 +5372,7 @@ namespace PLSE_MVVMStrong.Model
                 }
             }
         }
-        public DateTime CommisionDate
+        public DateTime? CommisionDate
         {
             get => _commisiondate;
             set
@@ -5329,7 +5411,7 @@ namespace PLSE_MVVMStrong.Model
         public string EquipmentName => _eqname;
 
         public Equipment() : base() { }
-        public Equipment(int id, string name, string description, DateTime commisiondate, DateTime check, bool status, Version vr, DateTime updatedate)
+        public Equipment(int id, string name, string description, DateTime? commisiondate, DateTime? check, bool status, Version vr, DateTime updatedate)
             : base(vr, updatedate)
         {
             _id = id;
@@ -5430,14 +5512,14 @@ namespace PLSE_MVVMStrong.Model
             }
         }
     }
-    // NOT COMPLEATED
     public class EquipmentUsage : NotifyBase
     {
 #region Fields
         private Expertise _expertise;
-        private DateTime _usagedate;
-        private sbyte _duration;
-        private Equipment _equip;     
+        private DateTime? _usagedate;
+        private sbyte _duration = 1;
+        private Equipment _equip;
+        private int _id;
         #endregion
 #region Properties
         public Expertise FromExpertise
@@ -5464,12 +5546,13 @@ namespace PLSE_MVVMStrong.Model
             { 
                 if (value != _duration)
                 {
+                    if (value > 8 || value < 1) throw new ArgumentException("Длительность должна быть в интервале 1-8");
                     _duration = value;
                     OnPropertyChanged();
                 }
             }
         }
-        public DateTime UsageDate
+        public DateTime? UsageDate
         {
             get { return _usagedate; }
             set 
@@ -5481,6 +5564,7 @@ namespace PLSE_MVVMStrong.Model
                 }
             }
         }
+        public int EquipmentUsageID => _id;
 #endregion
 
         public override void SaveChanges(SqlConnection con)
@@ -5499,17 +5583,83 @@ namespace PLSE_MVVMStrong.Model
         }     
         private void AddToDB(SqlConnection con)
         {
-            SqlCommand com = con.CreateCommand();
-            com.CommandType = CommandType.StoredProcedure;
-            com.CommandText = ""
+            SqlCommand cmd = con.CreateCommand();
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.CommandText = "Activity.prAddEquipmentUsage";
+            cmd.Parameters.Add("@EquipmentID", SqlDbType.SmallInt).Value = UsedEquipment.EquipmentID;
+            cmd.Parameters.Add("@ExpertiseID", SqlDbType.Int).Value = FromExpertise.ExpertiseID;
+            cmd.Parameters.Add("@UsageDate", SqlDbType.Date).Value = UsageDate;
+            cmd.Parameters.Add("@Duration", SqlDbType.TinyInt).Value = Duration;
+            var par = cmd.Parameters.Add("@InsertedID", SqlDbType.Int);
+            par.Direction = ParameterDirection.Output;
+            cmd.Connection.Open();
+            try
+            {
+                cmd.ExecuteNonQuery();
+                _id = (int)cmd.Parameters["@InsertedID"].Value;
+                Version = Version.Original;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                cmd.Connection.Close();
+            }
         }
         public void DeleteFromDB(SqlConnection con)
         {
-            throw new NotImplementedException();
+            SqlCommand cmd = con.CreateCommand();
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.CommandText = "Activity.prDeleteEquipmentUsage";
+            cmd.Parameters.Add("@UsageID", SqlDbType.Int).Value = EquipmentUsageID;
+            cmd.Connection.Open();
+            try
+            {
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                cmd.Connection.Close();
+            }
         }
         private void EditToDB(SqlConnection con)
         {
-            throw new NotImplementedException();
+            SqlCommand cmd = con.CreateCommand();
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.CommandText = "Activity.prEditEquipmentUsage";
+            cmd.Parameters.Add("@EquipmentID", SqlDbType.SmallInt).Value = UsedEquipment.EquipmentID;
+            cmd.Parameters.Add("@ExpertiseID", SqlDbType.Int).Value = FromExpertise.ExpertiseID;
+            cmd.Parameters.Add("@UsageDate", SqlDbType.Date).Value = UsageDate;
+            cmd.Parameters.Add("@Duration", SqlDbType.TinyInt).Value = Duration;
+            cmd.Parameters.Add("@UsageID", SqlDbType.Int).Value = EquipmentUsageID;
+            cmd.Connection.Open();
+            try
+            {
+                cmd.ExecuteNonQuery();
+                Version = Version.Original;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                cmd.Connection.Close();
+            }
+        }
+        public bool InstanceValidState()
+        {
+            return UsedEquipment != null && UsageDate.HasValue && Duration > 0;
+        }
+        public override string ToString()
+        {
+            return $"{UsedEquipment.EquipmentName}\t {Duration}";
         }
     }
     public sealed class Expertise : NotifyBase
@@ -6033,7 +6183,9 @@ namespace PLSE_MVVMStrong.Model
                 else return null;
             }
         }
-        public bool ExpertiseFinishValidState => EndDate.HasValue && !String.IsNullOrEmpty(ExpertiseResult);
+        public bool ExpertiseFinishWeakValidState => !String.IsNullOrEmpty(ExpertiseResult);
+            //EndDate.HasValue; //&& 
+        public bool ExpertiseFinishValidState() => ExpertiseFinishWeakValidState && TotalAnswers > 0;
         public ObservableCollection<Request> Requests => _requests;
         public ObservableCollection<Report> Reports => _raports;
         public ObservableCollection<Bill> Bills => _bills;

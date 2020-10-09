@@ -24,5 +24,14 @@ namespace PLSE_MVVMStrong.View
         {
             InitializeComponent();
         }
+
+        private void OnlyDigit_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.D1 || e.Key == Key.D0 || e.Key == Key.D2 || e.Key == Key.D3 || e.Key == Key.D4 || e.Key == Key.D5 || e.Key == Key.D6
+                || e.Key == Key.D7 || e.Key == Key.D8 || e.Key == Key.D9 || e.Key == Key.Back)
+            {
+            }
+            else e.Handled = true;
+        }
     }
 }
