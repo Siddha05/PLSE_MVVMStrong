@@ -149,12 +149,20 @@ namespace PLSE_MVVMStrong.ViewModel
                                                                     var exp = ExpertiseList.CurrentItem as Expertise;
                                                                     if (exp != null)
                                                                     {
-                                                                        var wnd = new AddReport();
-                                                                        var vm = new AddReportVM(exp);
+                                                                        var wnd = new ReportAdd();
+                                                                        var vm = new ReportAddVM(exp);
                                                                         wnd.DataContext = vm;
                                                                         if (wnd.ShowDialog() ?? false)
                                                                         {
-                                                                                exp.Reports.Add(vm.Rept);
+                                                                            try
+                                                                            {
+                                                                                vm.NewReport.SaveChanges(CommonInfo.connection);
+                                                                                exp.Reports.Add(vm.NewReport);
+                                                                            }
+                                                                            catch (Exception ex)
+                                                                            {
+                                                                                MessageBox.Show(ex.Message);
+                                                                            }
                                                                         }
                                                                     }
                                                                     
@@ -191,7 +199,23 @@ namespace PLSE_MVVMStrong.ViewModel
             {
                 return _addbill != null ? _addbill : _addbill = new RelayCommand(n =>
                 {
-                    MessageBox.Show("Bill clicked");
+                    var wnd = new BillAdd();
+                    var ex = ExpertiseList.CurrentItem as Expertise;
+                    var vm = new BillAddVM(ex);
+                    wnd.DataContext = vm;
+                    if (wnd.ShowDialog() ?? false == true)
+                    {
+                        try
+                        {
+                            vm.NewBill.SaveChanges(CommonInfo.connection);
+                            ex.Bills.Add(vm.NewBill);
+                        }
+                        catch (Exception exc)
+                        {
+                            MessageBox.Show(exc.Message);
+                        }
+                    }
+
                 },
                 e =>
                 {

@@ -35,15 +35,16 @@ namespace PLSE_MVVMStrong.ViewModel
             }
         }
         #endregion
-        public BillAddVM()
+        public BillAddVM(Expertise exp)
         {
-            _bill.BillDate = new DateTime(2020, 10, 3);
-            _bill.HourPrice = 660m;
-            _bill.Hours = 32;
-            _bill.Number = "233";
-            _bill.Paid = 15480m;
-            _bill.PaidDate = DateTime.Now;
-            _bill.Payer = "истца";
+            NewBill.FromExpertise = exp;
+            //_bill.BillDate = new DateTime(2020, 10, 3);
+            //_bill.HourPrice = 660m;
+            //_bill.Hours = 32;
+            //_bill.Number = "233";
+            //_bill.Paid = 15480m;
+            //_bill.PaidDate = DateTime.Now;
+            //_bill.Payer = "истца";
         }
     }
 }

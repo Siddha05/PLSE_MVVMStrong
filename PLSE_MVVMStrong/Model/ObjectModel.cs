@@ -819,6 +819,7 @@ namespace PLSE_MVVMStrong.Model
         private static ObservableCollection<Customer> _customers = new ObservableCollection<Customer>();
         private static ObservableCollection<Settlement> _settlements = new ObservableCollection<Settlement>();
         private static ObservableCollection<Departament> departaments = new ObservableCollection<Departament>();
+        private static ObservableCollection<Employee> _unactualemployees = new ObservableCollection<Employee>();
         private static string[] _status = { "действует", "не действует" };
         static string[] _payers = { "истца", "ответчика", "истца и ответчика", "иное" };
         static IReadOnlyList<string> _genders;
@@ -874,6 +875,8 @@ namespace PLSE_MVVMStrong.Model
         public static IReadOnlyList<string> RequestTypes => _typerequest;
         public static Lazy<List<Equipment>> Equipments { get; } = new Lazy<List<Equipment>>(FetchEquipments, true);
         public static Lazy<List<string>> Payers { get; } = new Lazy<List<string>>(FetchPayers, true);
+        public static Lazy<ObservableCollection<Employee>> UnactualEmployees { get; } = new Lazy<ObservableCollection<Employee>>(FetchEmployee, true);
+
         public static ObservableCollection<Settlement> Settlements
         {
             get => _settlements;
@@ -945,14 +948,84 @@ namespace PLSE_MVVMStrong.Model
                     }
                 }
             };
-            try
+            //try
             {
                 LoadInitialInfo(connection);
                 IsInitializated = true;
             }
-            catch (Exception)
+            //catch (Exception)
+            //{
+            //    throw;
+            //}
+        }
+        private static void EmployeeLoad(Collection<Employee> colem, SqlDataReader rd, Collection<Expert> colex = null)
+        {
+            int colEmployeeID = rd.GetOrdinal("EmployeeID");
+            int colFirstName = rd.GetOrdinal("FirstName");
+            int colMiddleName = rd.GetOrdinal("MiddleName");
+            int colSecondName = rd.GetOrdinal("SecondName");
+            int colDeclinated = rd.GetOrdinal("Declinated");
+            int colWorkPhone = rd.GetOrdinal("WorkPhone");
+            int colBirthDate = rd.GetOrdinal("BirthDate");
+            int colHireDate = rd.GetOrdinal("HireDate");
+            int colEducation1 = rd.GetOrdinal("Education_1");
+            int colEducation2 = rd.GetOrdinal("Education_2");
+            int colEducation3 = rd.GetOrdinal("Education_3");
+            int colScienceDegree = rd.GetOrdinal("ScienceDegree");
+            int colCondition = rd.GetOrdinal("EmployeeStatusID");
+            int colFoto = rd.GetOrdinal("Foto");
+            int colDepartament = rd.GetOrdinal("DepartamentID");
+            int colInnerOffice = rd.GetOrdinal("InnerOfficeID");
+            int colSettlementID = rd.GetOrdinal("SettlementID");
+            int colStreetPrefix = rd.GetOrdinal("StreetPrefix");
+            int colStreet = rd.GetOrdinal("Street");
+            int colHousing = rd.GetOrdinal("Housing");
+            int colFlat = rd.GetOrdinal("Flat");
+            int colCorpus = rd.GetOrdinal("Corpus");
+            int colGender = rd.GetOrdinal("Gender");
+            int colMobilePhone = rd.GetOrdinal("MobilePhone");
+            int colEmail = rd.GetOrdinal("Email");
+            int colPassword = rd.GetOrdinal("UserPassword");
+            int colUpdateDate = rd.GetOrdinal("UpdateDate");
+            int colStructure = rd.GetOrdinal("Structure");
+            int colProfile = rd.GetOrdinal("PermissionProfile");
+            int colPrevID = rd.GetOrdinal("PreviousID");
+            while (rd.Read())
             {
-                throw;
+                Adress adr = new Adress(settlement: rd[colSettlementID] == DBNull.Value ? null : Settlements.Single(x => x.SettlementID == rd.GetInt32(colSettlementID)),
+                                            streetprefix: rd[colStreetPrefix] == DBNull.Value ? null : rd.GetString(colStreetPrefix),
+                                            street: rd[colStreet] == DBNull.Value ? null : rd.GetString(colStreet),
+                                            housing: rd[colHousing] == DBNull.Value ? null : rd.GetString(colHousing),
+                                            flat: rd[colFlat] == DBNull.Value ? null : rd.GetString(colFlat),
+                                            corpus: rd[colCorpus] == DBNull.Value ? null : rd.GetString(colCorpus),
+                                            structure: rd[colStructure] == DBNull.Value ? null : rd.GetString(colStructure)
+                                            );
+                Employee emp = new Employee(id: rd.GetInt32(colEmployeeID),
+                                            previd: rd[colPrevID] == DBNull.Value ? null : new int?(rd.GetInt32(colPrevID)),
+                                            firstname: rd.GetString(colFirstName),
+                                            middlename: rd.GetString(colMiddleName),
+                                            secondname: rd.GetString(colSecondName),
+                                            declinated: rd.GetBoolean(colDeclinated),
+                                            workphone: rd[colWorkPhone] == DBNull.Value ? null : rd.GetString(colWorkPhone),
+                                            birthdate: rd[colBirthDate] == DBNull.Value ? null : new DateTime?(rd.GetDateTime(colBirthDate)),
+                                            hiredate: rd[colHireDate] == DBNull.Value ? null : new DateTime?(rd.GetDateTime(colHireDate)),
+                                            education1: rd[colEducation1] == DBNull.Value ? null : rd.GetString(colEducation1),
+                                            education2: rd[colEducation2] == DBNull.Value ? null : rd.GetString(colEducation2),
+                                            education3: rd[colEducation3] == DBNull.Value ? null : rd.GetString(colEducation3),
+                                            sciencedegree: rd[colScienceDegree] == DBNull.Value ? null : rd.GetString(colScienceDegree),
+                                            condition: rd.GetString(colCondition),
+                                            foto: rd[colFoto] == DBNull.Value ? null : (byte[])rd[colFoto],
+                                            departament: Departaments.Single(x => x.DepartamentID == rd.GetByte(colDepartament)),
+                                            inneroffice: rd.GetString(colInnerOffice),
+                                            adress: adr,
+                                            gender: rd.GetString(colGender),
+                                            mobilephone: rd[colMobilePhone] == DBNull.Value ? null : rd.GetString(colMobilePhone),
+                                            email: rd[colEmail] == DBNull.Value ? null : rd.GetString(colEmail),
+                                            profile: (PermissionProfile)rd.GetByte(colProfile),
+                                            password: rd[colPassword] == DBNull.Value ? null : rd.GetString(colPassword),
+                                            updatedate: rd.GetDateTime(colUpdateDate),
+                                            vr: Version.Original);
+                colem.Add(emp);
             }
         }
         private static List<Equipment> FetchEquipments()
@@ -1036,6 +1109,36 @@ namespace PLSE_MVVMStrong.Model
                 connection.Close();
             }
             return p;
+        }
+        private static ObservableCollection<Employee> FetchEmployee()
+        {
+            ObservableCollection<Employee> col = new ObservableCollection<Employee>();
+            SqlCommand cmd = connection.CreateCommand();
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.CommandText = "InnResources.prAnactualEmployees";
+            try
+            {
+                connection.Open();
+                SqlDataReader rd = cmd.ExecuteReader();
+                if (rd.HasRows)
+                {
+                    EmployeeLoad(col, rd);
+                }
+                rd.Close();
+
+            }
+            catch (Exception e)
+            {
+#if DEBUG
+                Debug.Print("----------------------------Error while fetch Employees from DB");
+                Debug.Print(e.Message);
+#endif                
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return col;
         }
         private static void LoadInitialInfo(SqlConnection connection)
         {
@@ -1184,73 +1287,9 @@ namespace PLSE_MVVMStrong.Model
             //Employees
             if (rd.NextResult())
             {
-                int colEmployeeID = rd.GetOrdinal("EmployeeID");
-                int colFirstName = rd.GetOrdinal("FirstName");
-                int colMiddleName = rd.GetOrdinal("MiddleName");
-                int colSecondName = rd.GetOrdinal("SecondName");
-                int colDeclinated = rd.GetOrdinal("Declinated");
-                int colWorkPhone = rd.GetOrdinal("WorkPhone");
-                int colBirthDate = rd.GetOrdinal("BirthDate");
-                int colHireDate = rd.GetOrdinal("HireDate");
-                int colEducation1 = rd.GetOrdinal("Education_1");
-                int colEducation2 = rd.GetOrdinal("Education_2");
-                int colEducation3 = rd.GetOrdinal("Education_3");
-                int colScienceDegree = rd.GetOrdinal("ScienceDegree");
-                int colCondition = rd.GetOrdinal("EmployeeStatusID");
-                int colFoto = rd.GetOrdinal("Foto");
-                int colDepartament = rd.GetOrdinal("DepartamentID");
-                int colInnerOffice = rd.GetOrdinal("InnerOfficeID");
-                int colSettlementID = rd.GetOrdinal("SettlementID");
-                int colStreetPrefix = rd.GetOrdinal("StreetPrefix");
-                int colStreet = rd.GetOrdinal("Street");
-                int colHousing = rd.GetOrdinal("Housing");
-                int colFlat = rd.GetOrdinal("Flat");
-                int colCorpus = rd.GetOrdinal("Corpus");
-                int colGender = rd.GetOrdinal("Gender");
-                int colMobilePhone = rd.GetOrdinal("MobilePhone");
-                int colEmail = rd.GetOrdinal("Email");
-                int colPassword = rd.GetOrdinal("UserPassword");
-                int colUpdateDate = rd.GetOrdinal("UpdateDate");
-                int colStructure = rd.GetOrdinal("Structure");
-                int colProfile = rd.GetOrdinal("PermissionProfile");
-                int colPrevID = rd.GetOrdinal("PreviousID");
-                while (rd.Read())
-                {
-                    Adress adr = new Adress(settlement: rd[colSettlementID] == DBNull.Value ? null : Settlements.Single(x => x.SettlementID == rd.GetInt32(colSettlementID)),
-                                                streetprefix: rd[colStreetPrefix] == DBNull.Value ? null : rd.GetString(colStreetPrefix),
-                                                street: rd[colStreet] == DBNull.Value ? null : rd.GetString(colStreet),
-                                                housing: rd[colHousing] == DBNull.Value ? null : rd.GetString(colHousing),
-                                                flat: rd[colFlat] == DBNull.Value ? null : rd.GetString(colFlat),
-                                                corpus: rd[colCorpus] == DBNull.Value ? null : rd.GetString(colCorpus),
-                                                structure: rd[colStructure] == DBNull.Value ? null : rd.GetString(colStructure)
-                                                );
-                    Employee emp = new Employee(id: rd.GetInt32(colEmployeeID),
-                                                previd: rd[colPrevID] == DBNull.Value ? null : new int?(rd.GetInt32(colPrevID)),
-                                                firstname: rd.GetString(colFirstName),
-                                                middlename: rd.GetString(colMiddleName),
-                                                secondname: rd.GetString(colSecondName),
-                                                declinated: rd.GetBoolean(colDeclinated),
-                                                workphone: rd[colWorkPhone] == DBNull.Value ? null : rd.GetString(colWorkPhone),
-                                                birthdate: rd[colBirthDate] == DBNull.Value ? null : new DateTime?(rd.GetDateTime(colBirthDate)),
-                                                hiredate: rd[colHireDate] == DBNull.Value ? null : new DateTime?(rd.GetDateTime(colHireDate)),
-                                                education1: rd[colEducation1] == DBNull.Value ? null : rd.GetString(colEducation1),
-                                                education2: rd[colEducation2] == DBNull.Value ? null : rd.GetString(colEducation2),
-                                                education3: rd[colEducation3] == DBNull.Value ? null : rd.GetString(colEducation3),
-                                                sciencedegree: rd[colScienceDegree] == DBNull.Value ? null : rd.GetString(colScienceDegree),
-                                                condition: rd.GetString(colCondition),
-                                                foto: rd[colFoto] == DBNull.Value ? null : (byte[])rd[colFoto],
-                                                departament: Departaments.Single(x => x.DepartamentID == rd.GetByte(colDepartament)),
-                                                inneroffice: rd.GetString(colInnerOffice),
-                                                adress: adr,
-                                                gender: rd.GetString(colGender),
-                                                mobilephone: rd[colMobilePhone] == DBNull.Value ? null : rd.GetString(colMobilePhone),
-                                                email: rd[colEmail] == DBNull.Value ? null : rd.GetString(colEmail),
-                                                profile: (PermissionProfile)rd.GetByte(colProfile),
-                                                password: rd[colPassword] == DBNull.Value ? null : rd.GetString(colPassword),
-                                                updatedate: rd.GetDateTime(colUpdateDate),
-                                                vr: Version.Original);
-                    _employees.Add(emp);
-                }
+                
+                EmployeeLoad( _employees, rd);
+                
             }
             //Experts
             if (rd.NextResult())
@@ -3548,6 +3587,10 @@ namespace PLSE_MVVMStrong.Model
         }
         #endregion
     }
+    public class Employee_Core
+    {
+
+    }
     public class Employee : Person, ICloneable
     {
         #region Fields
@@ -5769,7 +5812,6 @@ namespace PLSE_MVVMStrong.Model
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(Inwork));
                     OnPropertyChanged(nameof(Remain2));
-                    OnPropertyChanged(nameof(RequestSummary));
                 }
             }
         }
@@ -6142,28 +6184,28 @@ namespace PLSE_MVVMStrong.Model
         /// <summary>
         /// Обзорная строка на счета экспертизы
         /// </summary>
-        public string BillOverview
-        {
-            get
-            {
-                if (_bills.Count > 0)
-                {
-                    StringBuilder sb = new StringBuilder(200);
-                    for (int i = 0; i < _bills.Count; i++)
-                    {
-                        sb.AppendLine();
-                        sb.Append(_bills[i].Number);
-                        sb.Append("\t");
-                        sb.Append(_bills[i].Paid.ToString("c"));
-                        sb.Append("/");
-                        sb.Append((_bills[i].Hours * _bills[i].HourPrice).ToString("c"));
-                    }
-                    sb.Remove(0, 2);
-                    return sb.ToString();
-                }
-                else return null;
-            }
-        }
+        //public string BillOverview
+        //{
+        //    get
+        //    {
+        //        if (_bills.Count > 0)
+        //        {
+        //            StringBuilder sb = new StringBuilder(200);
+        //            for (int i = 0; i < _bills.Count; i++)
+        //            {
+        //                sb.AppendLine();
+        //                sb.Append(_bills[i].Number);
+        //                sb.Append("\t");
+        //                sb.Append(_bills[i].Paid.ToString("c"));
+        //                sb.Append("/");
+        //                sb.Append((_bills[i].Hours * _bills[i].HourPrice).ToString("c"));
+        //            }
+        //            sb.Remove(0, 2);
+        //            return sb.ToString();
+        //        }
+        //        else return null;
+        //    }
+        //}
         public string LinkedExpertiseOverview
         {
             get
@@ -6183,8 +6225,7 @@ namespace PLSE_MVVMStrong.Model
                 else return null;
             }
         }
-        public bool ExpertiseFinishWeakValidState => !String.IsNullOrEmpty(ExpertiseResult);
-            //EndDate.HasValue; //&& 
+        public bool ExpertiseFinishWeakValidState => !String.IsNullOrEmpty(ExpertiseResult) && EndDate.HasValue;
         public bool ExpertiseFinishValidState() => ExpertiseFinishWeakValidState && TotalAnswers > 0;
         public ObservableCollection<Request> Requests => _requests;
         public ObservableCollection<Report> Reports => _raports;
@@ -6194,25 +6235,25 @@ namespace PLSE_MVVMStrong.Model
 
         public static Expertise New => new Expertise() {_startdate = DateTime.Now, _timelimit = 30};
         [Browsable(false)]
-        public string RequestSummary
-        {
-            get
-            {
-                StringBuilder sb = new StringBuilder();
-                sb.Append(StartDate.ToString("d")); sb.AppendLine(" начало производства");
-                var rqs = _requests.Select(n => new { D = n.RequestDate, T = n.RequestType });
-                var rp = _raports.Select(n => new { D = n.ReportDate, T = $"продлена до {n.DelayDate.ToString("d")}" });
-                foreach (var item in rqs.Concat(rp).OrderBy(n => n.D))
-                {
-                    sb.Append(item.D.ToString("d")); sb.Append(" "); sb.AppendLine(item.T);
-                }
-                if (EndDate != null)
-                {
-                    sb.Append(EndDate.Value.ToString("d")); sb.AppendLine(" сдана");
-                }
-                return sb.ToString();
-            }
-        }
+        //public string RequestSummary
+        //{
+        //    get
+        //    {
+        //        StringBuilder sb = new StringBuilder();
+        //        sb.Append(StartDate.ToString("d")); sb.AppendLine(" начало производства");
+        //        var rqs = _requests.Select(n => new { D = n.RequestDate, T = n.RequestType });
+        //        var rp = _raports.Select(n => new { D = n.ReportDate, T = $"продлена до {n.DelayDate.ToString("d")}" });
+        //        foreach (var item in rqs.Concat(rp).OrderBy(n => n.D))
+        //        {
+        //            sb.Append(item.D.ToString("d")); sb.Append(" "); sb.AppendLine(item.T);
+        //        }
+        //        if (EndDate != null)
+        //        {
+        //            sb.Append(EndDate.Value.ToString("d")); sb.AppendLine(" сдана");
+        //        }
+        //        return sb.ToString();
+        //    }
+        //}
         private void OnBillListChanged(object o, NotifyCollectionChangedEventArgs e)
         {
             switch (e.Action)
@@ -6225,6 +6266,7 @@ namespace PLSE_MVVMStrong.Model
                     }
                     break;
             }
+            OnPropertyChanged(nameof(Bills));
         }
         private void OnRequestListChanged(object o, NotifyCollectionChangedEventArgs e)
         {
@@ -6238,7 +6280,7 @@ namespace PLSE_MVVMStrong.Model
                     }
                     break;
             }
-            OnPropertyChanged(nameof(RequestSummary), true);
+            OnPropertyChanged(nameof(Request), true);
         }
         private void OnReportListChanged(object o, NotifyCollectionChangedEventArgs e)
         {
@@ -6252,7 +6294,7 @@ namespace PLSE_MVVMStrong.Model
                     }
                     break;
             }
-            OnPropertyChanged(nameof(RequestSummary), true);
+            OnPropertyChanged(nameof(Reports), true);
         }
         private void OnEquipmenUsageListChanged(object o, NotifyCollectionChangedEventArgs e)
         {
@@ -6905,7 +6947,7 @@ namespace PLSE_MVVMStrong.Model
         }
         public override string ToString()
         {
-            return _reason;
+            return $"Report {ReportDate.ToString("d")} untill {DelayDate:d} ({Reason})";
         }
         private void AddToDB(SqlConnection con)
         {
@@ -6922,7 +6964,7 @@ namespace PLSE_MVVMStrong.Model
             {
                 cmd.Connection.Open();
                 cmd.ExecuteNonQuery();
-                _id = (int)cmd.Parameters["InsertedID"].Value;
+                _id = (int)cmd.Parameters["@InsertedID"].Value;
                 Version = Version.Original;
             }
             catch

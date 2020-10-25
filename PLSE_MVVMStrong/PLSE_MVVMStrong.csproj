@@ -93,7 +93,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="ViewModel\AboutVM.cs" />
-    <Compile Include="ViewModel\AddReportVM.cs" />
     <Compile Include="ViewModel\BillAddVM.cs" />
     <Compile Include="ViewModel\CustomerAddVM.cs" />
     <Compile Include="ViewModel\EmployeesVM.cs" />
@@ -106,15 +105,13 @@
     <Compile Include="ViewModel\LoginVM.cs" />
     <Compile Include="ViewModel\MainVM.cs" />
     <Compile Include="ViewModel\OrganizationAddVM.cs" />
+    <Compile Include="ViewModel\ReportAddVM.cs" />
     <Compile Include="ViewModel\ResolutionAddInfoVM.cs" />
     <Compile Include="ViewModel\ResolutionAddVM.cs" />
     <Compile Include="ViewModel\SpecialityAddVM.cs" />
     <Compile Include="ViewModel\SpecialityVM.cs" />
     <Compile Include="View\About.xaml.cs">
       <DependentUpon>About.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\AddReport.xaml.cs">
-      <DependentUpon>AddReport.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\BillAdd.xaml.cs">
       <DependentUpon>BillAdd.xaml</DependentUpon>
@@ -149,6 +146,9 @@
     <Compile Include="View\OrganizationAdd.xaml.cs">
       <DependentUpon>OrganizationAdd.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\ReportAdd.xaml.cs">
+      <DependentUpon>ReportAdd.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\ResolutionAdd.xaml.cs">
       <DependentUpon>ResolutionAdd.xaml</DependentUpon>
     </Compile>
@@ -174,10 +174,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="View\About.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\AddReport.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -222,6 +218,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\OrganizationAdd.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\ReportAdd.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

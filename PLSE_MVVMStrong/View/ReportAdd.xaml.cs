@@ -15,11 +15,11 @@ using System.Windows.Shapes;
 namespace PLSE_MVVMStrong.View
 {
     /// <summary>
-    /// Interaction logic for AddReport.xaml
+    /// Interaction logic for ReportAdd.xaml
     /// </summary>
-    public partial class AddReport : Window
+    public partial class ReportAdd : Window
     {
-        public AddReport()
+        public ReportAdd()
         {
             InitializeComponent();
         }

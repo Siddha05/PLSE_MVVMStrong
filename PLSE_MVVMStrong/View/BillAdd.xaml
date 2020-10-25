@@ -6,9 +6,9 @@
         xmlns:local="clr-namespace:PLSE_MVVMStrong.View" xmlns:viewmodel="clr-namespace:PLSE_MVVMStrong.ViewModel"
         mc:Ignorable="d"
         Title="Новый счет" Height="350" Width="500" Name="wnd" SizeToContent="Height" WindowStartupLocation="CenterScreen">
-    <Window.DataContext>
+    <!--<Window.DataContext>
         <viewmodel:BillAddVM/>
-    </Window.DataContext>
+    </Window.DataContext>-->
     <Window.Resources>
         <local:PriceConverter x:Key="PriceConv"/>
     </Window.Resources>
@@ -29,19 +29,19 @@
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-        <TextBlock Style="{StaticResource UIRightOrient}" Text="Номер счета"/>
+        <TextBlock Style="{StaticResource UIRightOrient}" Text="Номер"/>
         <TextBox Grid.Row="1" Style="{StaticResource NumericTextBox}" HorizontalAlignment="Left" Margin="5,0,0,5" Text="{Binding Path=NewBill.Number}" Width="55"/>
         <TextBlock Style="{StaticResource UIRightOrient}" Text="Дата счета" Grid.Column="1"/>
         <DatePicker Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=NewBill.BillDate}" Margin="5,0,0,5"/>
-        <TextBlock Style="{StaticResource UIRightOrient}" Grid.Row="2" Text="Плательщик"/>
-        <ComboBox Grid.Row="3" Style="{StaticResource UIComboBox}" SelectedValue="{Binding Path=NewBill.Payer}" ItemsSource="{Binding Path=PayerList}"
+        <TextBlock Style="{StaticResource UIRightOrient}" Grid.Row="4" Text="Оплата возложена на" Grid.ColumnSpan="2"/>
+        <ComboBox Grid.Row="5" Style="{StaticResource UIComboBox}" SelectedValue="{Binding Path=NewBill.Payer}" ItemsSource="{Binding Path=PayerList}"
                   Margin="5,0,0,5" Grid.ColumnSpan="2"/>
-        <TextBlock Grid.Row="4" Style="{StaticResource UIRightOrient}" Text="Часов"/>
-        <TextBox Grid.Row="5" Style="{StaticResource NumericTextBox}" Text="{Binding Path=NewBill.Hours}" Margin="5,0,0,5" HorizontalAlignment="Left"/>
-        <TextBlock Grid.Row="4" Grid.Column="1" Style="{StaticResource UIRightOrient}" Text="Цена часа"/>
-        <TextBox Grid.Row="5" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=NewBill.HourPrice, StringFormat='{}{0:C}', ConverterCulture='ru-RU'}"
-                 Margin="5,0,0,5" Width="100"/>
-        <TextBlock Grid.Row="5" Grid.Column="2" Style="{StaticResource InfoTextBlock}" VerticalAlignment="Center" Margin="10,0,0,5">
+        <TextBlock Grid.Row="2" Style="{StaticResource UIRightOrient}" Text="Часов"/>
+        <TextBox Grid.Row="3" Style="{StaticResource NumericTextBox}" Text="{Binding Path=NewBill.Hours}" Margin="5,0,0,5" HorizontalAlignment="Left" Width="55"/>
+        <TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource UIRightOrient}" Text="Цена часа"/>
+        <TextBox Grid.Row="3" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=NewBill.HourPrice, StringFormat='{}{0:C}', ConverterCulture='ru-RU'}"
+                 Margin="5,0,0,5" Width="100" IsEnabled="False"/>
+        <TextBlock Grid.Row="3" Grid.Column="2" Style="{StaticResource InfoTextBlock}" VerticalAlignment="Center" Margin="10,0,0,5">
             <TextBlock.Text>
                 <MultiBinding Converter="{StaticResource PriceConv}" StringFormat="Сумма счета {0:C}" ConverterCulture="ru-RU">
                     <Binding Path="NewBill.Hours"/>
@@ -49,7 +49,7 @@
                 </MultiBinding>
             </TextBlock.Text>
         </TextBlock>
-        <TextBlock Grid.Row="6" Style="{StaticResource UIRightOrient}" Text="Дата оплаты"/>
+        <TextBlock Grid.Row="6" Style="{StaticResource UIRightOrient}" Text="Дата оплаты" Grid.ColumnSpan="2"/>
         <DatePicker Grid.Row="7" Grid.ColumnSpan="2" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=NewBill.PaidDate}" Margin="5,0,0,5"/>
         <TextBlock Grid.Row="6" Grid.Column="2" Style="{StaticResource UIRightOrient}" Text="Оплачено"/>
         <TextBox Grid.Row="7" Grid.Column="2" Style="{StaticResource UITextBox}" Text="{Binding Path=NewBill.Paid, StringFormat='{}{0:C}', ConverterCulture='ru-RU'}"

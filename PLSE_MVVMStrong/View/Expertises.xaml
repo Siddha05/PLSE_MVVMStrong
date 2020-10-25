@@ -59,6 +59,9 @@
         </Style>
         <plse_mvvmstrong:FocusColor x:Key="FocusToColorConv"/>
         <plse_mvvmstrong:ZeroToVisibilityConverter x:Key="GridCountToVisiblity"/>
+        <plse_mvvmstrong:BiilOverViewConverter x:Key="BillOverviewConv"/>
+        <plse_mvvmstrong:ExpertiseMotionConverter x:Key="ExpMotionConv"/>
+        <!--<plse_mvvmstrong:ListConverter x:Key="ListConv"/>-->
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -105,7 +108,19 @@
                         <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" Margin="0,7,0,0" Grid.RowSpan="2">
                             <TextBlock Text="Движение экспертизы:" FontSize="{StaticResource UIFontSize}" FontWeight="DemiBold" HorizontalAlignment="Center"/>
                             <ScrollViewer  VerticalScrollBarVisibility="Auto" Margin="0,3,0,0"  VerticalAlignment="Center">
-                                <TextBlock Style="{x:Null}" FontSize="14" FontWeight="Normal" Text="{Binding Path=RequestSummary}"/>
+                                <TextBlock Style="{x:Null}" FontSize="14" FontWeight="Normal">
+                                    <Run>
+                                        <Run.Text>
+                                            <MultiBinding Converter="{StaticResource ExpMotionConv}" Mode="OneWay">
+                                            <Binding />
+                                            <Binding Path="Reports"/>
+                                            <Binding Path="Requests"/>
+                                        </MultiBinding>
+                                        </Run.Text>
+                                    </Run>
+                                    <!--<LineBreak/>-->
+                                    <!--<Run Text="{Binding Path=Reports, Mode=OneWay, Converter={StaticResource ListConv}}"/>-->
+                                </TextBlock>
                             </ScrollViewer>
                         </StackPanel>
                         <StackPanel Orientation="Vertical" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Stretch" Margin="0,7,0,0" Grid.RowSpan="2">
@@ -118,7 +133,7 @@
                             <TextBlock Name="tbLink" FontSize="{StaticResource HeaderFontSize}" VerticalAlignment="Center" Text="{Binding Path=LinkedExpertiseCount, Mode=OneWay}"
                                        FontWeight="Bold"/>
                             <Image Grid.Row="1" Source="pack://application:,,,/Resources/dollar.png" RenderTransformOrigin=".5,.5" Height="40" Width="40" Margin="10,0,0,0"
-                                   ToolTip="{Binding Path=BillOverview, Mode=OneWay, TargetNullValue='счета отсутствуют'}">
+                                   ToolTip="{Binding Path = Bills, Mode=OneWay, Converter={StaticResource BillOverviewConv}}">
                                 <Image.RenderTransform>
                                     <ScaleTransform ScaleX=".8" ScaleY=".8"/>
                                 </Image.RenderTransform>
@@ -204,7 +219,7 @@
                         <MenuItem Header="Уведомление (по уг. делу)"/>
                     </MenuItem>
                     <MenuItem Header="Добавить">
-                        <MenuItem Header="Уведомление и рапорт" Command="{Binding Path=CreateReport}"/>
+                        <MenuItem Header="Продление" Command="{Binding Path=CreateReport}"/>
                         <MenuItem Header="Ходатайство" Command="{ Binding Path=CreateRequest}"/>
                         <MenuItem Header="Счет" Command="{Binding Path=AddBill}"/>
                     </MenuItem>

@@ -2,11 +2,13 @@
 using PLSE_MVVMStrong.View;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -352,6 +354,113 @@ namespace PLSE_MVVMStrong
                 return Visibility.Visible;
             }
             else return Visibility.Visible;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    [ValueConversion(typeof(Collection<Bill>), typeof(string))]
+    public class BiilOverViewConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var _bills = value as Collection<Bill>;
+            if (_bills != null)
+            {
+                if (_bills.Count > 0)
+                {
+                    StringBuilder sb = new StringBuilder(200);
+                    for (int i = 0; i < _bills.Count; i++)
+                    {
+                        sb.AppendLine();
+                        sb.Append(_bills[i].Number);
+                        sb.Append("\t");
+                        sb.Append(_bills[i].Paid.ToString("c"));
+                        sb.Append("/");
+                        sb.Append((_bills[i].Hours * _bills[i].HourPrice).ToString("c"));
+                    }
+                    sb.Remove(0, 2);
+                    return sb.ToString();
+                }
+                else return "счета отсутствуют";
+            }
+            else return "Error!";
+            
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class ExpertiseMotionConverter : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            Expertise ex = values[0] as Expertise;
+            Collection<Report> _raports = values[1] as Collection<Report>;
+            Collection<Request> _requests = values[2] as Collection<Request>;
+            if (_raports != null && _requests != null)
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.Append(ex.StartDate.ToString("d")); sb.AppendLine(" начало производства");
+                var rqs = _requests.Select(n => new { D = n.RequestDate, T = n.RequestType });
+                var rp = _raports.Select(n => new { D = n.ReportDate, T = $"продлена до {n.DelayDate.ToString("d")}" });
+                foreach (var item in rqs.Concat(rp).OrderBy(n => n.D))
+                {
+                    sb.Append(item.D.ToString("d")); sb.Append(" "); sb.AppendLine(item.T);
+                }
+                if (ex.EndDate != null)
+                {
+                    sb.Append(ex.EndDate.Value.ToString("d")); sb.AppendLine(" сдана");
+                }
+                return sb.ToString();
+            }
+            else return "Error";
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    /// <summary>
+    /// Вычисляет количество дней между <paramref name="value"/> и <paramref name="parameter"/>
+    /// <para>Если parametr = null берется текущая дата</para>
+    /// </summary>
+    [ValueConversion(typeof(DateTime?), typeof(string))]
+    public class DaysFromNowConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            DateTime to = parameter != null ? (DateTime)parameter : DateTime.Now;
+            if (value == null) return null;
+            else return $"+ {((DateTime)value - to).Days} дн.";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class ListConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var l = value as Collection<Report>;
+            if (l != null)
+            {
+                string s = string.Empty;
+                foreach (var item in l)
+                {
+                    s += $"rep: {item.ReportDate} - {item.DelayDate}";
+                    s += Environment.NewLine;
+                }
+                return s;
+            }
+            else return "Error";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
