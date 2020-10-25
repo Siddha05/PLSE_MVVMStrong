@@ -2828,16 +2828,10 @@ namespace PLSE_MVVMStrong.Model
         protected bool _declinated;
         protected string _mname;
         protected string _sname;
-        protected string _mobilephone;
-        protected string _workphone;
         protected string _gender;
-        protected string _email;
-        protected Adress _adress = new Adress();
-        protected int _id;
         #endregion
 
 #region Properties
-        public int PersonID => _id;
         public string Fname
         {
             get => _fname;
@@ -2874,23 +2868,7 @@ namespace PLSE_MVVMStrong.Model
                 OnPropertyChanged("Fio");
             }
         }
-        public string Mobilephone
-        {
-            get => MobilePnoneStandartNumber(_mobilephone);
-            set
-            {
-                if (_mobilephone == value) return;
-                var trim = Regex.Replace(value, "[-() ]", "");
-                if (Regex.IsMatch(trim, @"^\+7|8[1-9]\d{9}$")) 
-                {
-                    StringBuilder sb = new StringBuilder(trim);
-                    if (trim.Length == 11) sb.Replace("8", "+7", 0, 1);
-                    _mobilephone = sb.ToString();
-                }
-                else throw new ArgumentException("Неверный формат мобильного номера");
-                OnPropertyChanged();
-            }
-        }
+        
         public string Gender
         {
             get => _gender;
@@ -2899,44 +2877,6 @@ namespace PLSE_MVVMStrong.Model
                 if (_gender == value) return;
                 if (String.IsNullOrWhiteSpace(value)) throw new ArgumentException("Поле <пол> не может быть пустым");
                 _gender = value;
-                OnPropertyChanged();
-            }
-        }
-        public string Email
-        {
-            get => _email;
-            set
-            {
-                if (_email != value)
-                {
-                    if (!isValidEmail(value)) throw new ArgumentException("Неверный фoрмат Email");
-                    _email = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-        public Adress Adress
-        {
-            get => _adress;
-            set
-            {
-                if (_adress == value) return;
-                _adress = value;
-                OnPropertyChanged();
-            }
-        }
-        public string Workphone
-        {
-            get => WorkPnoneStandartNumber(_workphone);
-            set
-            {
-                if (_workphone == value) return;
-                var trim = Regex.Replace(value, "[-() ]", "");
-                if (Regex.IsMatch(trim, @"^[1-9]\d{3,6}$"))
-                {
-                    _workphone = trim;
-                }
-                else throw new ArgumentException("Неверный формат номера");
                 OnPropertyChanged();
             }
         }
@@ -2955,23 +2895,13 @@ namespace PLSE_MVVMStrong.Model
                                             && !String.IsNullOrWhiteSpace(_gender);
         #endregion
 
-        public Person() : base()
-        {
-            _adress.PropertyChanged += AdressChanged;
-        }
-        public Person(int id,string firstname, string middlename, string secondname, string mobilephone, string workphone, string gender, string email, Adress adress, bool declinated, Version vr, DateTime updatedate)
+        public Person(string firstname, string middlename, string secondname, string gender, bool declinated, Version vr, DateTime updatedate)
             : base(vr, updatedate)
         {
-            _id = id;
             _fname = firstname;
             _mname = middlename;
             _sname = secondname;
-            _mobilephone = mobilephone;
-            _workphone = workphone;
             _gender = gender;
-            _email = email;
-            _adress = adress ?? new Adress();
-            _adress.PropertyChanged += AdressChanged;
             _declinated = declinated;
         }
 
@@ -3531,12 +3461,8 @@ namespace PLSE_MVVMStrong.Model
                 Fname = _fname,
                 Sname = _sname,
                 Mname = _mname,
-                Declinated = _declinated,
-                Mobilephone = _mobilephone,
-                Workphone = _workphone,
+                Declinated = _declinated,            
                 Gender = _gender,
-                Email = _email,
-                Adress = _adress.Clone(),
                 Version = this.Version,
                 UpdateDate = this.UpdateDate
             };
@@ -3548,27 +3474,83 @@ namespace PLSE_MVVMStrong.Model
         }
         #endregion
     }
-    public class Employee : Person, ICloneable
+    public class Employee_Core : Person, ICloneable
+    {
+#region Fields
+        private string _inneroffice;
+        private Departament _departament;
+        private int? _previous;
+        private bool _actual;
+        private DateTime _modificated;
+        private int _id;
+        #endregion
+        #region Properties
+        public string Inneroffice
+        {
+            get => _inneroffice;
+            set
+            {
+                if (_inneroffice == value) return;
+                _inneroffice = value;
+                OnPropertyChanged("InnerOffice");
+            }
+        }
+        public Departament Departament
+        {
+            get => _departament;
+            set
+            {
+                if (_departament == value) return;
+                _departament = value;
+                OnPropertyChanged("Departament");
+            }
+        }
+        public DateTime ModificationDate => _modificated;
+        public bool Actual => _actual;
+        public int EmployeeID => _id;
+        public int? PreviousID => _previous;
+        #endregion
+
+        public Employee_Core(int id, Departament departament, string office, int? previous, bool actual, DateTime modify, 
+            string firstname, string middlename, string secondname, string gender, bool declinated, Version vr, DateTime updatedate)
+            : base(firstname: firstname, middlename: middlename, secondname: secondname, gender: gender, declinated: declinated, vr: vr, updatedate: updatedate)
+        {
+            _id = id;
+            _departament = departament;
+            _inneroffice = office;
+            _previous = previous;
+            _actual = actual;
+            _modificated = modify;
+        }
+    }
+    public class Employee : Employee_Core, ICloneable
     {
         #region Fields
         private string _education1;
         private string _education2;
         private string _education3;
         private string _sciencedegree;
-        private string _inneroffice;
-        private Departament _departament;
         private string _employeeStaus;
         private DateTime? _birthdate;
         private DateTime? _hiredate;
         private PermissionProfile _profile;
         private string _password;
         private byte[] _foto;
-        private int? _previd;
-
+        private string _mobilephone;
+        private string _workphone;
+        private string _email;
+        private Adress _adress;
+        private List<Expert> _experts = new List<Expert>(16);
+        private List<Employee_Core> _prev_data = new List<Employee_Core>();
         #endregion
         #region Properties
-        public int EmployeeID => PersonID;
-        public int? PreviousID => _previd;
+        public Employee_Core this[int id]
+        {
+            get
+            {
+                return _prev_data.SingleOrDefault(n => n.EmployeeID == id);
+            }
+        }
         public string Education1
         {
             get => _education1;
@@ -3605,26 +3587,6 @@ namespace PLSE_MVVMStrong.Model
                 OnPropertyChanged("ScienceDegree");
             }
         }
-        public string Inneroffice
-        {
-            get => _inneroffice;
-            set
-            {
-                if (_inneroffice == value) return;
-                _inneroffice = value;
-                OnPropertyChanged("InnerOffice");
-            }
-        }
-        public Departament Departament
-        {
-            get => _departament;
-            set
-            {
-                if (_departament == value) return;
-                _departament = value;
-                OnPropertyChanged("Departament");
-            }
-        }
         public string EmployeeStatus
         {
             get => _employeeStaus;
@@ -3657,6 +3619,52 @@ namespace PLSE_MVVMStrong.Model
                 }
             }
         }
+        public string Mobilephone
+        {
+            get => MobilePnoneStandartNumber(_mobilephone);
+            set
+            {
+                if (_mobilephone == value) return;
+                var trim = Regex.Replace(value, "[-() ]", "");
+                if (Regex.IsMatch(trim, @"^\+7|8[1-9]\d{9}$"))
+                {
+                    StringBuilder sb = new StringBuilder(trim);
+                    if (trim.Length == 11) sb.Replace("8", "+7", 0, 1);
+                    _mobilephone = sb.ToString();
+                }
+                else throw new ArgumentException("Неверный формат мобильного номера");
+                OnPropertyChanged();
+            }
+        }
+        public string Email
+        {
+            get => _email;
+            set
+            {
+                if (_email != value)
+                {
+                    if (!isValidEmail(value)) throw new ArgumentException("Неверный фoрмат Email");
+                    _email = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public Adress Adress => _adress;
+        public string Workphone
+        {
+            get => WorkPnoneStandartNumber(_workphone);
+            set
+            {
+                if (_workphone == value) return;
+                var trim = Regex.Replace(value, "[-() ]", "");
+                if (Regex.IsMatch(trim, @"^[1-9]\d{3,6}$"))
+                {
+                    _workphone = trim;
+                }
+                else throw new ArgumentException("Неверный формат номера");
+                OnPropertyChanged();
+            }
+        }
         public PermissionProfile Profile
         {
             get => _profile;
@@ -3674,8 +3682,11 @@ namespace PLSE_MVVMStrong.Model
             get => _password;
             set
             {
-                _password = value;
-                OnPropertyChanged("PassWord");
+                if (value != _password)
+                {
+                    _password = value;
+                    OnPropertyChanged("PassWord");
+                }
             }
         }
         public byte[] Foto
@@ -3724,35 +3735,38 @@ namespace PLSE_MVVMStrong.Model
             }
         }
         public int FullAge => (int)Age();
-        public new bool IsInstanceValidState => base.IsInstanceValidState && _inneroffice != null && _departament != null && _employeeStaus != null;
+        public new bool IsInstanceValidState => base.IsInstanceValidState && Inneroffice != null && Departament != null && _employeeStaus != null;
         [Obsolete]
         public string Summary => DisplayInfo();
         #endregion
-        public Employee() : base() { }
-        public Employee(string firstname, string middlename, string secondname, string mobilephone, string workphone, string gender, string email, Adress adress, bool declinated, Version vr, DateTime updatedate,
-                        int id, string education1, string education2, string education3, string sciencedegree, string inneroffice, Departament departament, string condition,
-                        DateTime? birthdate, DateTime? hiredate, PermissionProfile profile, string password, byte[] foto, int? previd)
-            : base(id, firstname, middlename, secondname, mobilephone, workphone, gender, email, adress, declinated, vr, updatedate)
+        public Employee(string firstname, string middlename, string secondname, bool declinated, string gender,
+                            int id, string inneroffice, Departament departament, int? previd, bool actual, DateTime emp_modify,
+                                string mobilephone, string workphone, string email, Adress adress, Version vr, DateTime updatedate,
+                                string education1, string education2, string education3, string sciencedegree, string condition,
+                                DateTime? birthdate, DateTime? hiredate, PermissionProfile profile, string password, byte[] foto, DateTime empst_modify)
+            : base(id: id, departament: departament, office: inneroffice, previous: previd, actual: actual, modify: emp_modify,
+                    firstname: firstname, middlename: middlename, secondname: secondname, gender: gender, declinated: declinated, vr: vr, updatedate: updatedate)
         {
             _education1 = education1;
             _education2 = education2;
             _education3 = education3;
             _sciencedegree = sciencedegree;
-            _inneroffice = inneroffice;
-            _departament = departament;
+            _mobilephone = mobilephone;
+            _workphone = workphone;
+            _email = email;
+            _adress = adress;
             _employeeStaus = condition;
             _birthdate = birthdate;
             _hiredate = hiredate;
             _profile = profile;
             _password = password;
             _foto = foto;
-            _previd = previd;
         }
 
 #region Methods
         public override string ToString()
         {
-            return base.ToString("n");
+            return ToString("n");
         }
         public double Age()
         {
