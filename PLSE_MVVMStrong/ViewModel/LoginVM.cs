@@ -24,31 +24,59 @@ namespace PLSE_MVVMStrong.ViewModel
 
         #endregion
         #region Commands
-        public RelayCommand Inter { get; }
-        public RelayCommand Exit { get; }
+        public RelayCommand Inter
+        { 
+            get
+            {
+                return new RelayCommand(n =>
+                                        {
+                                            var em = CommonInfo.Employees.FirstOrDefault(e => e.Actual == true && e.Sname == Login && e.EmployeeCore.Password == Pass);
+                                            if (em != null)
+                                            {
+                                                (Application.Current as App).LogedEmployee = em;
+                                                var wnd = new MainWindow();
+                                                (n as Window).Close();
+                                                
+                                                wnd.Show();
+                                            }
+                                            else Error = true;
+                                        });
+            }
+        }
+        public RelayCommand Exit
+        {
+            get
+            {
+                return new RelayCommand(n =>
+                                    {
+                                        var wnd = n as View.Login;
+                                        wnd.Close();
+                                    });
+            }
+        }
         public RelayCommand PassChanged { get; }
         public RelayCommand TextChanged { get; }
+        public RelayCommand WindowLoaded
+        {
+            get
+            {
+                return new RelayCommand(n =>
+                {
+                    if (!CommonInfo.IsInitializated)
+                    {
+                       MessageBox.Show("Ошибка при подключении к базе данных. Приложение будет закрыто");
+                       (n as Window).Close();
+                    }
+                });
+            }
+        }
         #endregion
         public LoginVM()
         {
 #if DEBUG
-            Login = "Кожаева";
-            Pass = "Кожаева";
+            //Login = "Кожаева";
+            //Pass = "Кожаева";
 #endif
-            Exit = new RelayCommand(n =>
-            {
-                var wnd = n as View.Login;
-                wnd.Close();
-            });
-            Inter = new RelayCommand(n =>
-            {
-                var em = CommonInfo.Employees.FirstOrDefault(e => e.Sname == Login && e.Password == Pass);
-                if (em != null)
-                {
-                    (n as Window).Close(); 
-                }
-                else Error = true;
-            });
             PassChanged = new RelayCommand(n =>
             {
                 Pass = (n as System.Windows.Controls.PasswordBox).Password;

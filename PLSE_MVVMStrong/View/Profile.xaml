@@ -28,7 +28,7 @@
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
         <Viewbox Margin="5" Stretch="Uniform">
-            <Image Source="{Binding Path=Employee.Image, Mode=OneWay}" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+            <Image Source="{Binding Path=Employee.EmployeeCore.Image, Mode=OneWay}" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="MouseLeftButtonDown">
                     <i:InvokeCommandAction Command="{Binding Path=ImageSelect}"/>
@@ -92,9 +92,9 @@
                         <ComboBox Grid.Row="3" Grid.Column="1" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=Genders}" 
                                   Text="{Binding Path=Employee.Gender}"/>
                         <TextBlock Grid.Row="4" Text="Дата рождения" Style="{StaticResource UITextBlock}"/>
-                        <DatePicker Grid.Row="4" Grid.Column="1" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Employee.Birthdate, ValidatesOnExceptions=True}"/>
+                        <DatePicker Grid.Row="4" Grid.Column="1" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Employee.EmployeeCore.Birthdate, ValidatesOnExceptions=True}"/>
                         <TextBlock Grid.Row="4" Grid.Column="2" Text="Дата найма" Style="{StaticResource UITextBlock}"/>
-                        <DatePicker Grid.Row="4" Grid.Column="3" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Employee.Hiredate, ValidatesOnExceptions=True}"/>
+                        <DatePicker Grid.Row="4" Grid.Column="3" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Employee.EmployeeCore.Hiredate, ValidatesOnExceptions=True}"/>
                         <TextBlock Grid.Row="5" Text="Отдел*" Style="{StaticResource UITextBlock}"/>
                         <ComboBox Grid.Row="5" Grid.Column="1" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=Departaments}" 
                                   Text="{Binding Path=Employee.Departament.Acronym}"/>
@@ -103,22 +103,22 @@
                                   Text="{Binding Path=Employee.Inneroffice}" MinWidth="300"/>
                         <TextBlock Grid.Row="6" Text="Статус*" Style="{StaticResource UITextBlock}"/>
                         <ComboBox Grid.Row="6" Grid.Column="1" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=EmployeeStatus}"
-                                  Text="{Binding Path=Employee.EmployeeStatus}"/>
+                                  Text="{Binding Path=Employee.EmployeeCore.EmployeeStatus}"/>
                         <TextBlock Grid.Row="6" Grid.Column="2" Text="Пароль" Style="{StaticResource UITextBlock}"/>
-                        <PasswordBox Grid.Row="6" Grid.Column="3" Margin="5" Password="pass" VerticalContentAlignment="Center"/>
+                        <PasswordBox Grid.Row="6" Grid.Column="3" Margin="5" Password="pass" VerticalContentAlignment="Center" Width="200" HorizontalAlignment="Left"/>
                         <TextBlock Grid.Row="7" Text="Образование 1" Style="{StaticResource UITextBlock}"/>
                         
-                        <TextBox Grid.Row="7" Grid.Column="1"  Text="{Binding Path=Employee.Education1}" Margin="5" TextWrapping="Wrap" 
+                        <TextBox Grid.Row="7" Grid.Column="1"  Text="{Binding Path=Employee.EmployeeCore.Education1}" Margin="5" TextWrapping="Wrap" 
                                  FontSize="{StaticResource UIFontSize}" Grid.ColumnSpan="3" VerticalContentAlignment="Center"/>
                         <TextBlock Grid.Row="8" Text="Образование 2" Style="{StaticResource UITextBlock}"/>
                         <TextBox Grid.Row="8" Grid.ColumnSpan="3" Grid.Column="1" Margin="5"  TextWrapping="Wrap" FontSize="{StaticResource UIFontSize}" 
-                                 Text="{Binding Path=Employee.Education2}" VerticalContentAlignment="Center"/>
+                                 Text="{Binding Path=Employee.EmployeeCore.Education2}" VerticalContentAlignment="Center"/>
                         <TextBlock Grid.Row="9" Text="Образование 3" Style="{StaticResource UITextBlock}"/>
                         <TextBox Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="3" Margin="5"  TextWrapping="Wrap" FontSize="{StaticResource UIFontSize}" 
-                                 Text="{Binding Path=Employee.Education3}" VerticalContentAlignment="Center"/>
+                                 Text="{Binding Path=Employee.EmployeeCore.Education3}" VerticalContentAlignment="Center"/>
                         <TextBlock Grid.Row="10" Text="Ученая степень" Style="{StaticResource UITextBlock}"/>
                         <TextBox Grid.Row="10" Grid.Column="1" Grid.ColumnSpan="3" Margin="5"  TextWrapping="Wrap" FontSize="{StaticResource UIFontSize}"
-                                 Text="{Binding Path=Employee.Sciencedegree}" VerticalContentAlignment="Center"/>
+                                 Text="{Binding Path=Employee.EmployeeCore.Sciencedegree}" VerticalContentAlignment="Center"/>
                     </Grid>
                 </ScrollViewer>
             </TabItem>
@@ -141,16 +141,16 @@
                         <RowDefinition/>
                     </Grid.RowDefinitions>
                     <TextBlock Text="Мобильный телефон" Style="{StaticResource UITextBlock}"/>
-                    <TextBox Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.Mobilephone, ValidatesOnExceptions=True}"></TextBox>
+                    <TextBox Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.EmployeeCore.Mobilephone, ValidatesOnExceptions=True}"></TextBox>
                     <TextBlock Grid.Row="1" Text="Рабочий телефон" Style="{StaticResource UITextBlock}"/>
-                    <TextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.Workphone,ValidatesOnExceptions=True}"/>
+                    <TextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.EmployeeCore.Workphone,ValidatesOnExceptions=True}"/>
                     <TextBlock Grid.Row="2" Text="Email" Style="{StaticResource UITextBlock}"/>
-                    <TextBox Grid.Row="2" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.Email}"/>
+                    <TextBox Grid.Row="2" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.EmployeeCore.Email}"/>
                     <!--<TextBlock Grid.Row="3" Text="Пароль" Style="{StaticResource UITextBlock}"/>-->
                     <!--<PasswordBox Grid.Row="3" Grid.Column="1" Margin="5" Password="2254" PasswordChar="*" FontSize="{StaticResource UIFontSize}"
                                  HorizontalAlignment="Left" Height="auto" VerticalContentAlignment="Center" MinWidth="270"/>-->
                     <TextBlock Text="Населенный пункт" Style="{StaticResource UITextBlock}" Grid.Row="3"/>
-                    <TextBox Grid.Row="3" Grid.Column="1" Style="{StaticResource UITextBox}" Width="370" Text="{Binding Path=Employee.Adress.Settlement.Title, Mode=OneWay}"
+                    <TextBox Grid.Row="3" Grid.Column="1" Style="{StaticResource UITextBox}" Width="370" Text="{Binding Path=Employee.EmployeeCore.Adress.Settlement.Title, Mode=OneWay}"
                              Name="tbSettlement">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="TextChanged">
@@ -159,16 +159,16 @@
                         </i:Interaction.Triggers>
                     </TextBox>
                     <ComboBox Grid.Row="4" Style="{StaticResource UIComboBox}" MinWidth="50" HorizontalAlignment="Right" ItemsSource="{Binding Path=StreetTypeList}"
-                              Text="{Binding Path=Employee.Adress.Streetprefix}"/>
-                    <TextBox Grid.Row="4" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.Adress.Street}"/>
+                              Text="{Binding Path=Employee.EmployeeCore.Adress.Streetprefix}"/>
+                    <TextBox Grid.Row="4" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.EmployeeCore.Adress.Street}"/>
                     <TextBlock Grid.Row="5" Text="Дом" Style="{StaticResource UITextBlock}"/>
-                    <TextBox Grid.Column="1" Grid.Row="5" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.Adress.Housing}"/>
+                    <TextBox Grid.Column="1" Grid.Row="5" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.EmployeeCore.Adress.Housing}"/>
                     <TextBlock Grid.Row="6" Text="Квартира" Style="{StaticResource UITextBlock}"/>
-                    <TextBox Grid.Column="1" Grid.Row="6" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.Adress.Flat}"/>
+                    <TextBox Grid.Column="1" Grid.Row="6" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.EmployeeCore.Adress.Flat}"/>
                     <TextBlock Grid.Row="7" Text="Корпус" Style="{StaticResource UITextBlock}"/>
-                    <TextBox Grid.Column="1" Grid.Row="7" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.Adress.Corpus}"/>
+                    <TextBox Grid.Column="1" Grid.Row="7" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.EmployeeCore.Adress.Corpus}"/>
                     <TextBlock Grid.Row="8" Text="Строение" Style="{StaticResource UITextBlock}"/>
-                    <TextBox Grid.Column="1" Grid.Row="8" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.Adress.Structure}"/>
+                    <TextBox Grid.Column="1" Grid.Row="8" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.EmployeeCore.Adress.Structure}"/>
                     <Popup Grid.Column="1" PopupAnimation="Scroll" AllowsTransparency="True" Width="{Binding ElementName=tbSettlement, Path=Width}" Placement="Bottom"
                            PlacementTarget="{x:Reference tbSettlement}" MaxHeight="300" IsOpen="{Binding Path =SettlementPopupVisibility, Mode=OneWay}" VerticalOffset="2">
                         <Border Background="White" BorderBrush="Black" BorderThickness="1">
@@ -206,7 +206,7 @@
                                 <Setter Property="Template">
                                     <Setter.Value>
                                         <ControlTemplate TargetType="{x:Type ListBoxItem}">
-                                            <Border BorderThickness="1" BorderBrush="#FF010ABB" CornerRadius="5" Name="brd" Margin="1,2,1,2" MinHeight="70">
+                                            <Border BorderThickness="1" BorderBrush="#FF010ABB" CornerRadius="5" Background="Transparent" Name="brd" Margin="1,2,1,2" MinHeight="70">
                                                 <ContentPresenter x:Name="prs" TextBlock.Foreground="#FF010ABB"/>
                                             </Border>
                                             <ControlTemplate.Triggers>
@@ -227,14 +227,14 @@
                                         <ColumnDefinition Width="3*"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Style="{x:Null}" FontSize="18" HorizontalAlignment="Left" Text="{Binding Path=Speciality.Code}"
+                                    <TextBlock Style="{x:Null}" FontSize="18" HorizontalAlignment="Left" Text="{Binding Path=ExpertCore.Speciality.Code}"
                                                Name="tbm" TextWrapping="Wrap" MaxWidth="400" Margin="10,0,0,0" VerticalAlignment="Center"/>
                                     <TextBlock Style="{x:Null}" FontSize="16" HorizontalAlignment="Center" Grid.Column="1" VerticalAlignment="Center" Margin="5,0,10,0">
                                                
-                                        <Run Text="{Binding Path=ReceiptDate, StringFormat='Дата получения: {0:d}', ConverterCulture='ru-ru', Mode=OneWay}"/>
-                                        <Run Text="{Binding Path=Experience, StringFormat='({0})', Mode=OneWay}"/>
+                                        <Run Text="{Binding Path=ExpertCore.ReceiptDate, StringFormat='Дата получения: {0:d}', ConverterCulture='ru-ru', Mode=OneWay}"/>
+                                        <Run Text="{Binding Path=ExpertCore.Experience, StringFormat='({0})', Mode=OneWay}"/>
                                         <LineBreak/>
-                                        <Run Name="ratt" Text="{Binding Path=LastAttestationDate, StringFormat='Посл. аттестация: {0:d}', ConverterCulture='ru-ru', Mode=OneWay}"/>
+                                        <Run Name="ratt" Text="{Binding Path=ExpertCore.LastAttestationDate, StringFormat='Посл. аттестация: {0:d}', ConverterCulture='ru-ru', Mode=OneWay}"/>
                                     </TextBlock>
                                 </Grid>
                                 <DataTemplate.Triggers>
@@ -257,7 +257,7 @@
                     CommandParameter="{Binding ElementName=wnd}"/>
         <Popup Grid.Column="1" PopupAnimation="Scroll" Width="580" AllowsTransparency="True" PlacementTarget="{x:Reference bSpec}" StaysOpen="False"
                  Placement="Bottom" VerticalOffset="5" HorizontalOffset="10" MaxHeight="300" IsOpen="{Binding Path=PopupVisibility}">
-            <Border BorderThickness="1" BorderBrush="Black" Background="White">
+            <Border BorderThickness="1" BorderBrush="Black" Background="#F2FFFFFF">
                 <Grid  Margin="5">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="auto"/>
@@ -268,15 +268,18 @@
                         <RowDefinition/>
                         <RowDefinition/>
                         <RowDefinition/>
+                        <RowDefinition/>
                     </Grid.RowDefinitions>
                     <TextBlock Text="Специальность*" Style="{StaticResource UITextBlock}"/>
                     <ComboBox Grid.Column="1" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=SpecialitiesList}" Width="430"
-                          SelectedItem="{Binding Path=SelectedExpert.Speciality}" DisplayMemberPath="Code"/>
-                    <TextBlock Grid.Row="1" Text="Дата получения*" Style="{StaticResource UITextBlock}"/>
-                    <DatePicker Grid.Row="1" Grid.Column="1" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=SelectedExpert.ReceiptDate}"/>
-                    <TextBlock Grid.Row="2" Text="Посл. аттестация" Style="{StaticResource UITextBlock}"/>
-                    <DatePicker Grid.Row="2" Grid.Column="1" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=SelectedExpert.LastAttestationDate}"/>
-                    <Button Style="{StaticResource BaseUIButton}" Grid.Row="3" Grid.ColumnSpan="2" Content="Сохранить" Foreground="GreenYellow" Margin="10" 
+                          SelectedItem="{Binding Path=Expert.ExpertCore.Speciality}" DisplayMemberPath="Code"/>
+                    <CheckBox Grid.Row="1" Grid.Column="1" Style="{StaticResource GreenCheck}" Content="ЗАКРЫТА" FontWeight="DemiBold"
+                              IsChecked="{Binding Path=Expert.ExpertCore.Closed}"/>
+                    <TextBlock Grid.Row="2" Text="Дата получения*" Style="{StaticResource UITextBlock}"/>
+                    <DatePicker Grid.Row="2" Grid.Column="1" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Expert.ExpertCore.ReceiptDate}"/>
+                    <TextBlock Grid.Row="3" Text="Посл. аттестация" Style="{StaticResource UITextBlock}"/>
+                    <DatePicker Grid.Row="3" Grid.Column="1" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Expert.ExpertCore.LastAttestationDate}"/>
+                    <Button Style="{StaticResource BaseUIButton}" Grid.Row="4" Grid.ColumnSpan="2" Content="СОХРАНИТЬ" Foreground="GreenYellow" Margin="10" 
                             Command="{Binding Path=SaveSpeciality}"/>
                 </Grid>
             </Border>

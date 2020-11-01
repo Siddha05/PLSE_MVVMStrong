@@ -29,7 +29,7 @@ namespace PLSE_MVVMStrong.ViewModel
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public IEnumerable<Expert> Experts { get; } = CommonInfo.Experts.Where(n => n.Employee.EmployeeStatus != "не работает")
+        public IEnumerable<Expert> Experts { get; } = CommonInfo.Experts.Where(n => n.Employee.EmployeeCore.EmployeeStatus != "не работает")
                                                                                     .GroupBy(keySelector: n => n.Employee.EmployeeID)
                                                                                     .Select(n => n.First())
                                                                                     .OrderBy(n => n.Employee.Sname);

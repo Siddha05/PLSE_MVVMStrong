@@ -7,8 +7,13 @@
         xmlns:viewmodel="clr-namespace:PLSE_MVVMStrong.ViewModel"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         mc:Ignorable="d"
-        Title="Login" Height="400" Width="500" WindowStartupLocation="CenterScreen" WindowStyle="None" ResizeMode="NoResize"
+        Title="Login" Height="380" Width="450" WindowStartupLocation="CenterScreen" WindowStyle="None" ResizeMode="NoResize"
         FontSize="{StaticResource UIFontSize}" FontWeight="DemiBold" Name="wnd">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding Path=WindowLoaded}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
     <Window.DataContext>
         <viewmodel:LoginVM/>
     </Window.DataContext>
@@ -19,7 +24,8 @@
         <Grid.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                 <GradientStop Color="#FF4141FF" Offset="0"/>
-                <GradientStop Color="#FF89BCF9" Offset="0.7"/>
+                <GradientStop Color="#FF89BCF9" Offset="0.5"/>
+                <GradientStop Color="#FFC5DEFB" Offset="0.7"/>
             </LinearGradientBrush>
         </Grid.Background>
         <Grid.RowDefinitions>
@@ -32,8 +38,8 @@
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
         <Image Source="/PLSE_MVVMStrong;component/Resources/МииЮст.png" Margin="10"/>
-        <TextBlock Grid.Row="1" Style="{x:Null}" Text="Логин" HorizontalAlignment="Center" Margin="5, 15,5,4" Foreground="White"/>
-        <TextBox Grid.Row="2" HorizontalAlignment="Center" Margin="4" Width="250" 
+        <TextBlock Grid.Row="1" Style="{x:Null}" Text="Логин" HorizontalAlignment="Center" Margin="5,15,5,1" Foreground="White"/>
+        <TextBox Grid.Row="2" HorizontalAlignment="Center" Margin="4,1,4,6" Width="230" TabIndex="1"
                  Text="{Binding Login, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="TextChanged">
@@ -41,8 +47,8 @@
                 </i:EventTrigger>
             </i:Interaction.Triggers>
         </TextBox>
-        <TextBlock Grid.Row="3" Style="{x:Null}" Text="Пароль" HorizontalAlignment="Center" Margin="4" Foreground="White"/>
-        <PasswordBox Name="passbox" Grid.Row="4" HorizontalAlignment="Center" Margin="5" Width="250" PasswordChar="*"  MaxLength ="30" >
+        <TextBlock Grid.Row="3" Style="{x:Null}" Text="Пароль" HorizontalAlignment="Center" Margin="4,4,4,1" Foreground="White"/>
+        <PasswordBox Name="passbox" Grid.Row="4" HorizontalAlignment="Center" Margin="5,1,5,5" Width="230" PasswordChar="*"  MaxLength ="30" TabIndex="2">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="PasswordChanged">
                     <i:InvokeCommandAction Command="{Binding Path=PassChanged, UpdateSourceTrigger=PropertyChanged}" CommandParameter="{Binding ElementName=passbox}"/>
@@ -51,10 +57,10 @@
         </PasswordBox>
         <TextBlock Grid.Row="5" Text="Неверный логин или пароль" Foreground="Red" Style="{x:Null}" HorizontalAlignment="Center" 
                    Visibility="{Binding Path=Error, Converter={StaticResource BTVConv}}"/>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="6" VerticalAlignment="Center" Margin="5, 10,5,8">
-            <Button Style="{StaticResource BaseUIButton}" Foreground="{StaticResource SaveEnterColor}" Content="Войти" Margin="5" IsDefault="True"
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="6" VerticalAlignment="Center" Margin="5,10,5,8">
+            <Button Style="{StaticResource BaseUIButton}" Foreground="{StaticResource PositiveGreenColor}" Content="ВОЙТИ" Margin="5" Background="Transparent"
                     Command="{Binding Path=Inter}" CommandParameter="{Binding ElementName=wnd}"/>
-            <Button Style="{StaticResource BaseUIButton}" Foreground="{StaticResource ExitColor}" Content="Выход" Margin="5" IsCancel="True"
+            <Button Style="{StaticResource BaseUIButton}" Foreground="{StaticResource ExitColor}" Content="ВЫХОД" Margin="5" Background="Transparent"
                     Command="{Binding Path=Exit}" CommandParameter="{Binding ElementName=wnd}"/>
         </StackPanel>
     </Grid>

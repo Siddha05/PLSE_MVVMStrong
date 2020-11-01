@@ -26,7 +26,7 @@ namespace PLSE_MVVMStrong.ViewModel
         #endregion
         public ExpertiseAddVM()
         {         
-            Experts = CommonInfo.Experts.Where(n => n.Employee.EmployeeStatus != "не работает")
+            Experts = CommonInfo.Experts.Where(n => n.Employee.EmployeeCore.EmployeeStatus != "не работает")
                                                 .GroupBy(keySelector: n => n.Employee.EmployeeID)
                                                 .Select(n => n.First().Employee)
                                                 .OrderBy(n => n.Sname);

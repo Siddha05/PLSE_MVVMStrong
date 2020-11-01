@@ -114,12 +114,13 @@
                 </i:EventTrigger>
             </i:Interaction.Triggers>
         </ListBox>
+        <TextBlock Grid.Row="3" Text="{Binding Path=Employee.EmployeeCore.Profile}" Foreground="White" Panel.ZIndex="3"/>
         <TextBlock Grid.Column="2" Grid.ColumnSpan="2" Grid.Row="3" HorizontalAlignment="Left" Text="{Binding Path=Date, Mode=OneWay}"
                    FontSize="16" TextAlignment="Center" Margin="190, 2,2,2" VerticalAlignment="Center" Height="auto"/>
         <StackPanel Orientation="Vertical" Grid.Column="3" Grid.RowSpan="2" Panel.ZIndex="4" Margin="4,0,4,0">
             <Ellipse Width="70" Height="70" VerticalAlignment="Top" Margin="2, 10,2,2">
                 <Ellipse.Fill>
-                    <ImageBrush ImageSource="{Binding Path=Employee.Image, Mode=OneWay}" Stretch="UniformToFill"/>
+                    <ImageBrush ImageSource="{Binding Path=Employee.EmployeeCore.Image, Mode=OneWay}" Stretch="UniformToFill"/>
                 </Ellipse.Fill>
                 <Ellipse.ToolTip>
                     <TextBlock Style="{x:Null}" Text="Открыть профиль"/>
@@ -132,7 +133,7 @@
             </Ellipse>
             <TextBlock Style="{x:Null}" Text="{Binding Path=Employee.Fio, Mode=OneWay}" FontSize="16" HorizontalAlignment="Center" Foreground="White">
                 <TextBlock.ToolTip>
-                    <TextBlock Style="{x:Null}" FontSize="12" Text="{Binding Path=Employee.Summary}"/>
+                    <TextBlock Style="{x:Null}" FontSize="12" Text="Нажмите для редактирования профиля"/>
                 </TextBlock.ToolTip>
             </TextBlock>
         </StackPanel>

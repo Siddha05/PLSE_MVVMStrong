@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:PLSE_MVVMStrong"
              xmlns:system="clr-namespace:System;assembly=mscorlib"
-             StartupUri="View\BillAdd.xaml" ShutdownMode="OnLastWindowClose">
+             StartupUri="View\Profile.xaml" ShutdownMode="OnLastWindowClose">
     <Application.Resources>
         <local:TextConverter x:Key="TextConverter" />
         <local:FocusColor x:Key="RemainToColor"/>
@@ -18,7 +18,7 @@
         <SolidColorBrush x:Key="MouseOverControl" Color="#FFD6F8FD"/>
         <SolidColorBrush x:Key="ExitColor" Color="#FFDA7B1D"/>
         <SolidColorBrush x:Key="SaveEnterColor" Color="#FF89C330"/>
-        <SolidColorBrush x:Key="PositiveGreenColor" Color="#FF92D825"/>
+        <SolidColorBrush x:Key="PositiveGreenColor" Color="#FF2CD12C"/>
         <BitmapImage x:Key="lens" UriSource="Resources\lens.jpg" SourceRect="210 10 480 480"/>
         
 
@@ -71,7 +71,7 @@
             <Setter Property="Margin" Value="5" />
             <Setter Property="FontSize" Value="{StaticResource UIFontSize}" />
             <Setter Property="FontWeight" Value="Normal" />
-            <!--<Setter Property="MinWidth" Value="270" />-->
+            <Setter Property="MinWidth" Value="270" />
             <Setter Property="Height" Value="auto" />
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="BorderThickness" Value="1" />

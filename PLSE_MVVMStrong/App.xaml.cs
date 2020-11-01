@@ -19,7 +19,7 @@ namespace PLSE_MVVMStrong
     /// </summary>
     public partial class App : Application, INotifyPropertyChanged
     {
-        #region Fields
+#region Fields
         private static string[] aphorism =
         {
             "Начинающий видит много возможностей, эксперт — лишь несколько.",
@@ -58,7 +58,7 @@ namespace PLSE_MVVMStrong
         private int _empindex;
         public event PropertyChangedEventHandler PropertyChanged;
         #endregion
-        #region Properties
+#region Properties
         public Employee LogedEmployee
         {
             get => _logempl;
@@ -93,12 +93,12 @@ namespace PLSE_MVVMStrong
         public App()
         {
 #if DEBUG
-            Random rnd = new Random();
-            int i = rnd.Next(1, 50);
-            Debug.Print("Random: " + i.ToString());
-            Debug.Print(CommonInfo.IsInitializated.ToString());
-            var e = CommonInfo.Employees.First(n => n.EmployeeID == i);
-            LogedEmployee = e; 
+            //Random rnd = new Random();
+            //int i = rnd.Next(1, 50);
+            //Debug.Print("Random: " + i.ToString());
+            //Debug.Print(CommonInfo.IsInitializated.ToString());
+            //var e = CommonInfo.Employees.First(n => n.EmployeeID == i);
+            //LogedEmployee = e; 
 #endif      
         }
         private void E_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -179,7 +179,6 @@ namespace PLSE_MVVMStrong
             throw new NotImplementedException();
         }
     }
-
     /// <summary>
     /// Конвертер перевода числа в свойство Visibility.
     /// <para>

@@ -175,7 +175,49 @@ namespace PLSE_MVVMStrong.Model
         
        
     }
-
+    public static class Standarts
+    {
+        public static string MobilePnoneStandartNumber(string mobilephone)
+        {
+            if (mobilephone == null) return null;
+            StringBuilder sb = new StringBuilder(mobilephone);
+            sb.Insert(10, "-");
+            sb.Insert(8, "-");
+            sb.Insert(5, " ");
+            sb.Insert(2, " ");
+            return sb.ToString();
+        }
+        public static string WorkPnoneStandartNumber(string workphone)
+        {
+            if (workphone == null) return null;
+            StringBuilder sb = new StringBuilder(workphone);
+            var x = workphone.Length;
+            sb.Insert(x - 2, "-");
+            if (x > 4) sb.Insert(x - 4, "-");
+            return sb.ToString();
+        }
+        public static bool isValidName(string name)
+        {
+            Regex regex = new Regex(@"^\p{IsCyrillic}{2,25}$", RegexOptions.IgnoreCase);
+            return regex.IsMatch(name);
+        }
+        public static bool isValidMiddleName(string mname)
+        {
+            Regex regex = new Regex(@"^\p{IsCyrillic}{2,25}$", RegexOptions.IgnoreCase);
+            return regex.IsMatch(mname);
+        }
+        public static bool isValidSecondName(string sname)
+        {
+            Regex regex = new Regex(@"^\p{IsCyrillic}{2,15}(?:-\p{IsCyrillic}{2,15})?$", RegexOptions.IgnoreCase);
+            return regex.IsMatch(sname);
+        }
+        public static bool isValidEmail(string mail)
+        {
+            Regex regex = new Regex(@"\A[^@]+@([^@\.]+\.)+[^@\.]+\z", RegexOptions.Compiled);
+            if (regex.IsMatch(mail)) return true;
+            else return false;
+        }
+    }
     public static class DateUtil
     {
         public static bool IsAnnualDate(DateTime? date)

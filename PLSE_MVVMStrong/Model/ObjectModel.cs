@@ -82,6 +82,19 @@ namespace PLSE_MVVMStrong.Model
         Mixed,
         Adjective
     }
+    public class ExpertComparerByCoreID : IEqualityComparer<Expert_Core>
+    {
+        public bool Equals(Expert_Core x, Expert_Core y)
+        {
+            return x.ExpertCoreID == y.ExpertCoreID;
+        }
+
+        public int GetHashCode(Expert_Core obj)
+        {
+            return obj.ExpertCoreID.GetHashCode();
+        }
+    }
+
     public enum ExpertiseResults
     {
         None,
@@ -815,12 +828,13 @@ namespace PLSE_MVVMStrong.Model
         private static ObservableCollection<Speciality> _specialities = new ObservableCollection<Speciality>();
         private static ObservableCollection<Organization> _organizations = new ObservableCollection<Organization>();
         private static ObservableCollection<Employee> _employees = new ObservableCollection<Employee>();
+        private static List<Employee> _employee_inactive = new List<Employee>(1000);
+        private static List<Expert_Core> _expcore = new List<Expert_Core>(200);
         private static ObservableCollection<Expert> _experts = new ObservableCollection<Expert>();
         private static ObservableCollection<Customer> _customers = new ObservableCollection<Customer>();
         private static ObservableCollection<Settlement> _settlements = new ObservableCollection<Settlement>();
         private static ObservableCollection<Departament> departaments = new ObservableCollection<Departament>();
         private static string[] _status = { "действует", "не действует" };
-        static string[] _payers = { "истца", "ответчика", "истца и ответчика", "иное" };
         static IReadOnlyList<string> _genders;
         static IReadOnlyList<string> _streettypes;
         static IReadOnlyList<string> _inneroffices;
@@ -884,11 +898,7 @@ namespace PLSE_MVVMStrong.Model
             get => _specialities;
             set => _specialities = value;
         }
-        public static ObservableCollection<Employee> Employees
-        {
-            get => _employees;
-            set => _employees = value;
-        }
+        public static ObservableCollection<Employee> Employees => _employees;
         public static ObservableCollection<Expert> Experts
         {
             get => _experts;
@@ -949,6 +959,9 @@ namespace PLSE_MVVMStrong.Model
             {
                 LoadInitialInfo(connection);
                 IsInitializated = true;
+#if DEBUG
+                Debug.Print("CommonInfoLoaded");
+#endif               
             }
             catch (Exception)
             {
@@ -1181,42 +1194,59 @@ namespace PLSE_MVVMStrong.Model
                     _settlements.Add(setl);
                 }
             }
-            //Employees
+            //Employees, Experts
             if (rd.NextResult())
             {
-                int colEmployeeID = rd.GetOrdinal("EmployeeID");
                 int colFirstName = rd.GetOrdinal("FirstName");
                 int colMiddleName = rd.GetOrdinal("MiddleName");
                 int colSecondName = rd.GetOrdinal("SecondName");
+                int colActual = rd.GetOrdinal("EmployeeActual");
                 int colDeclinated = rd.GetOrdinal("Declinated");
-                int colWorkPhone = rd.GetOrdinal("WorkPhone");
+                int colDepartament = rd.GetOrdinal("DepartamentID");
+                int colEmployeeID = rd.GetOrdinal("EmployeeID");
+                int colEmployeeCoreID = rd.GetOrdinal("EmployeeCoreID");
+                int colGender = rd.GetOrdinal("Gender");
+                int colInnerOffice = rd.GetOrdinal("InnerOfficeID");
+                int colPrevID = rd.GetOrdinal("PreviousID");
+                int colModified = rd.GetOrdinal("EmployeeModify");
                 int colBirthDate = rd.GetOrdinal("BirthDate");
-                int colHireDate = rd.GetOrdinal("HireDate");
+                int colCorpus = rd.GetOrdinal("Corpus"); 
                 int colEducation1 = rd.GetOrdinal("Education_1");
                 int colEducation2 = rd.GetOrdinal("Education_2");
                 int colEducation3 = rd.GetOrdinal("Education_3");
-                int colScienceDegree = rd.GetOrdinal("ScienceDegree");
+                int colEmail = rd.GetOrdinal("Email");
                 int colCondition = rd.GetOrdinal("EmployeeStatusID");
+                int colFlat = rd.GetOrdinal("Flat");
                 int colFoto = rd.GetOrdinal("Foto");
-                int colDepartament = rd.GetOrdinal("DepartamentID");
-                int colInnerOffice = rd.GetOrdinal("InnerOfficeID");
+                int colHireDate = rd.GetOrdinal("HireDate");
+                int colHousing = rd.GetOrdinal("Housing");
+                int colMobilePhone = rd.GetOrdinal("MobilePhone");
+                int colProfile = rd.GetOrdinal("PermissionProfile");
+                int colScienceDegree = rd.GetOrdinal("ScienceDegree");
                 int colSettlementID = rd.GetOrdinal("SettlementID");
                 int colStreetPrefix = rd.GetOrdinal("StreetPrefix");
                 int colStreet = rd.GetOrdinal("Street");
-                int colHousing = rd.GetOrdinal("Housing");
-                int colFlat = rd.GetOrdinal("Flat");
-                int colCorpus = rd.GetOrdinal("Corpus");
-                int colGender = rd.GetOrdinal("Gender");
-                int colMobilePhone = rd.GetOrdinal("MobilePhone");
-                int colEmail = rd.GetOrdinal("Email");
-                int colPassword = rd.GetOrdinal("UserPassword");
-                int colUpdateDate = rd.GetOrdinal("UpdateDate");
                 int colStructure = rd.GetOrdinal("Structure");
-                int colProfile = rd.GetOrdinal("PermissionProfile");
-                int colPrevID = rd.GetOrdinal("PreviousID");
+                int colPassword = rd.GetOrdinal("UserPassword");
+                int colWorkPhone = rd.GetOrdinal("WorkPhone");              
+                int colExpertID = rd.GetOrdinal("ExpertID");
+                int colExpertCoreID = rd.GetOrdinal("ExpertCoreID");
+                int colSpecialityID = rd.GetOrdinal("SpecialityID");
+                int colExperience = rd.GetOrdinal("Experience");
+                int colLastAtt = rd.GetOrdinal("LastAttestation");
+                int colClosed = rd.GetOrdinal("Closed");
+                int colExpertModify = rd.GetOrdinal("ExpertModify");
+                int colRowNumber = rd.GetOrdinal("CoreRowNumber");
+                int colTrackRowNumber = rd.GetOrdinal("TrackRowNumber");
+                Employee_Core core = null;
+                Employee track = null;
+                Expert_Core expcore = null;
+                Adress adr = null;
                 while (rd.Read())
-                {
-                    Adress adr = new Adress(settlement: rd[colSettlementID] == DBNull.Value ? null : Settlements.Single(x => x.SettlementID == rd.GetInt32(colSettlementID)),
+                {    
+                    if (rd.GetInt64(colRowNumber) == 1)
+                    {
+                        adr = new Adress(settlement: rd[colSettlementID] == DBNull.Value ? null : Settlements.Single(x => x.SettlementID == rd.GetInt32(colSettlementID)),
                                                 streetprefix: rd[colStreetPrefix] == DBNull.Value ? null : rd.GetString(colStreetPrefix),
                                                 street: rd[colStreet] == DBNull.Value ? null : rd.GetString(colStreet),
                                                 housing: rd[colHousing] == DBNull.Value ? null : rd.GetString(colHousing),
@@ -1224,60 +1254,68 @@ namespace PLSE_MVVMStrong.Model
                                                 corpus: rd[colCorpus] == DBNull.Value ? null : rd.GetString(colCorpus),
                                                 structure: rd[colStructure] == DBNull.Value ? null : rd.GetString(colStructure)
                                                 );
-                    Employee emp = new Employee(id: rd.GetInt32(colEmployeeID),
-                                                previd: rd[colPrevID] == DBNull.Value ? null : new int?(rd.GetInt32(colPrevID)),
+                        core = new Employee_Core(id: rd.GetInt32(colEmployeeCoreID),
+                                                    mobilephone: rd[colMobilePhone] == DBNull.Value ? null : rd.GetString(colMobilePhone),
+                                                    workphone: rd[colWorkPhone] == DBNull.Value ? null : rd.GetString(colWorkPhone),
+                                                    email: rd[colEmail] == DBNull.Value ? null : rd.GetString(colEmail),
+                                                    adress: adr,
+                                                    education1: rd[colEducation1] == DBNull.Value ? null : rd.GetString(colEducation1),
+                                                    education2: rd[colEducation2] == DBNull.Value ? null : rd.GetString(colEducation2),
+                                                    education3: rd[colEducation3] == DBNull.Value ? null : rd.GetString(colEducation3),
+                                                    sciencedegree: rd[colScienceDegree] == DBNull.Value ? null : rd.GetString(colScienceDegree),
+                                                    condition: rd.GetString(colCondition),
+                                                    birthdate: rd[colBirthDate] == DBNull.Value ? null : new DateTime?(rd.GetDateTime(colBirthDate)),
+                                                    hiredate: rd[colHireDate] == DBNull.Value ? null : new DateTime?(rd.GetDateTime(colHireDate)),
+                                                    profile: (PermissionProfile)rd.GetByte(colProfile),
+                                                    password: rd[colPassword] == DBNull.Value ? null : rd.GetString(colPassword),
+                                                    foto: rd[colFoto] == DBNull.Value ? null : (byte[])rd[colFoto],
+                                                    empst_modify: default(DateTime),
+                                                    vr: Version.Original,
+                                                    updatedate: DateTime.Now);
+                    }
+                    if (rd.GetInt64(colTrackRowNumber) == 1)
+                    {
+                        track = new Employee(id: rd.GetInt32(colEmployeeID),
+                                                core: core,
+                                                departament: Departaments.Single(x => x.DepartamentID == rd.GetByte(colDepartament)),
+                                                office: rd.GetString(colInnerOffice),
+                                                previous: rd[colPrevID] == DBNull.Value ? null : new int?(rd.GetInt32(colPrevID)),
+                                                actual: rd.GetBoolean(colActual),
+                                                modify: rd.GetDateTime(colModified),
                                                 firstname: rd.GetString(colFirstName),
                                                 middlename: rd.GetString(colMiddleName),
                                                 secondname: rd.GetString(colSecondName),
-                                                declinated: rd.GetBoolean(colDeclinated),
-                                                workphone: rd[colWorkPhone] == DBNull.Value ? null : rd.GetString(colWorkPhone),
-                                                birthdate: rd[colBirthDate] == DBNull.Value ? null : new DateTime?(rd.GetDateTime(colBirthDate)),
-                                                hiredate: rd[colHireDate] == DBNull.Value ? null : new DateTime?(rd.GetDateTime(colHireDate)),
-                                                education1: rd[colEducation1] == DBNull.Value ? null : rd.GetString(colEducation1),
-                                                education2: rd[colEducation2] == DBNull.Value ? null : rd.GetString(colEducation2),
-                                                education3: rd[colEducation3] == DBNull.Value ? null : rd.GetString(colEducation3),
-                                                sciencedegree: rd[colScienceDegree] == DBNull.Value ? null : rd.GetString(colScienceDegree),
-                                                condition: rd.GetString(colCondition),
-                                                foto: rd[colFoto] == DBNull.Value ? null : (byte[])rd[colFoto],
-                                                departament: Departaments.Single(x => x.DepartamentID == rd.GetByte(colDepartament)),
-                                                inneroffice: rd.GetString(colInnerOffice),
-                                                adress: adr,
                                                 gender: rd.GetString(colGender),
-                                                mobilephone: rd[colMobilePhone] == DBNull.Value ? null : rd.GetString(colMobilePhone),
-                                                email: rd[colEmail] == DBNull.Value ? null : rd.GetString(colEmail),
-                                                profile: (PermissionProfile)rd.GetByte(colProfile),
-                                                password: rd[colPassword] == DBNull.Value ? null : rd.GetString(colPassword),
-                                                updatedate: rd.GetDateTime(colUpdateDate),
-                                                vr: Version.Original);
-                    _employees.Add(emp);
-                }
-            }
-            //Experts
-            if (rd.NextResult())
-            {
-                int colExpertID = rd.GetOrdinal("ExpertID");
-                int colEmployeeID = rd.GetOrdinal("EmployeeID");
-                int colSpecialityID = rd.GetOrdinal("SpecialityID");
-                int colExperience = rd.GetOrdinal("Experience");
-                int colLastAtt = rd.GetOrdinal("LastAttestation");
-                int colClosed = rd.GetOrdinal("Closed");
-                int colUpdateDate = rd.GetOrdinal("UpdateDate");
-                while (rd.Read())
-                {
-                    DateTime? lastatt = null;
-                    if (!rd.IsDBNull(colLastAtt)) lastatt = rd.GetDateTime(colLastAtt);
-                    Expert expert = new Expert(id: rd.GetInt32(colExpertID),
-                                                employee: Employees.Single(x => x.EmployeeID == rd.GetInt32(colEmployeeID)),
-                                                speciality: Specialities.Single(x => x.SpecialityID == rd.GetInt16(colSpecialityID)),
+                                                declinated: rd.GetBoolean(colDeclinated),
+                                                vr: Version.Original,
+                                                updatedate: DateTime.Now
+                                                );
+                        _employees.Add(track);
+                    }
+                    
+                    if (rd[colExpertID] != DBNull.Value)
+                    {
+                        expcore = _expcore.FirstOrDefault(n => n.ExpertCoreID == rd.GetInt32(colExpertID));
+                        if (expcore == null)
+                        {
+                            DateTime? lastatt = null;
+                            if (!rd.IsDBNull(colLastAtt)) lastatt = rd.GetDateTime(colLastAtt);
+                            expcore = new Expert_Core(id: rd.GetInt32(colExpertCoreID),
+                                                speciality: Specialities.FirstOrDefault(x => x.SpecialityID == rd.GetInt16(colSpecialityID)),
                                                 receiptdate: rd.GetDateTime(colExperience),
                                                 lastattestationdate: lastatt,
                                                 closed: rd.GetBoolean(colClosed),
-                                                updatedate: rd.GetDateTime(colUpdateDate),
+                                                updatedate: rd.GetDateTime(colExpertModify),
                                                 vr: Version.Original
-                                                );
-                    _experts.Add(expert);
+                                            );
+                            _expcore.Add(expcore);
+                        }
+                        _experts.Add(new Expert(id: rd.GetInt32(colExpertID),
+                                                expcore: expcore,
+                                                employee: track));
+                    }
                 }
-            }
+            }        
             //TypeCase
             if (rd.NextResult())
             {
@@ -2605,7 +2643,7 @@ namespace PLSE_MVVMStrong.Model
     }
     public class Adress : IEquatable<Adress>, INotifyPropertyChanged, ICloneable
     {
-        #region Fields
+#region Fields
 
         private Settlement _settlement;
         private string _street;
@@ -2616,36 +2654,36 @@ namespace PLSE_MVVMStrong.Model
         private string _structure;
 
         #endregion Fields
-        #region Properties
+#region Properties
         public string Structure
         {
             get => _structure;
-            set { _structure = value; OnAdressPropertyChanged("Structure"); }
+            set { _structure = value; OnAdressPropertyChanged(); }
         }
         public string Streetprefix
         {
             get => _streetprefix;
-            set { _streetprefix = value; OnAdressPropertyChanged("Streetprefix"); }
+            set { _streetprefix = value; OnAdressPropertyChanged(); }
         }
         public string Street
         {
             get => _street;
-            set { _street = value; OnAdressPropertyChanged("Street"); }
+            set { _street = value; OnAdressPropertyChanged(); }
         }
         public string Flat
         {
             get => _flat;
-            set { _flat = value; OnAdressPropertyChanged("Flat"); }
+            set { _flat = value; OnAdressPropertyChanged(); }
         }
         public string Corpus
         {
             get => _corpus;
-            set { _corpus = value; OnAdressPropertyChanged("Corpus"); }
+            set { _corpus = value; OnAdressPropertyChanged(); }
         }
         public string Housing
         {
             get => _housing;
-            set { _housing = value; OnAdressPropertyChanged("Housing"); }
+            set { _housing = value; OnAdressPropertyChanged(); }
         }
         public Settlement Settlement
         {
@@ -2654,7 +2692,7 @@ namespace PLSE_MVVMStrong.Model
             {
                 if (_settlement == value) return;
                 _settlement = value;
-                OnAdressPropertyChanged("Settlement");
+                OnAdressPropertyChanged();
             }
         }
         public bool IsInstanceValidState => _settlement != null && !String.IsNullOrWhiteSpace(_streetprefix) && !String.IsNullOrWhiteSpace(_street)
@@ -2823,14 +2861,13 @@ namespace PLSE_MVVMStrong.Model
     }
     public class Person : NotifyBase, IFormattable, ICloneable
     {
- #region Fields
+#region Fields
         protected string _fname;
         protected bool _declinated;
         protected string _mname;
         protected string _sname;
         protected string _gender;
         #endregion
-
 #region Properties
         public string Fname
         {
@@ -2838,7 +2875,7 @@ namespace PLSE_MVVMStrong.Model
             set
             {
                 if (_fname == value) return;
-                if (!isValidName(value)) throw new ArgumentException("Неверный формат имени");
+                if (!Standarts.isValidName(value)) throw new ArgumentException("Неверный формат имени");
                 _fname = value.ToUpperFirstLetter();
                 OnPropertyChanged();
                 OnPropertyChanged("Fio");
@@ -2850,7 +2887,7 @@ namespace PLSE_MVVMStrong.Model
             set
             {
                 if (_mname == value) return;
-                if (!isValidMiddleName(value)) throw new ArgumentException("Неверный формат отчества");
+                if (!Standarts.isValidMiddleName(value)) throw new ArgumentException("Неверный формат отчества");
                 _mname = value.ToUpperFirstLetter();
                 OnPropertyChanged();
                 OnPropertyChanged("Fio");
@@ -2862,13 +2899,12 @@ namespace PLSE_MVVMStrong.Model
             set
             {
                 if (_sname == value) return;
-                if (!isValidSecondName(value)) throw new ArgumentException("Неверный формат фамилии. Допускаются буквы русского алфавита и одиночный '-'");
+                if (!Standarts.isValidSecondName(value)) throw new ArgumentException("Неверный формат фамилии. Допускаются только буквы русского алфавита и одиночный '-'");
                 _sname = value.ToLower().ToUpperFirstLetter();
                 OnPropertyChanged();
                 OnPropertyChanged("Fio");
             }
-        }
-        
+        }     
         public string Gender
         {
             get => _gender;
@@ -2891,7 +2927,7 @@ namespace PLSE_MVVMStrong.Model
             }
         }
         public string Fio => Sname + " " + Fname[0] + "." + Mname[0] + ".";
-        public bool IsInstanceValidState => isValidName(_fname) && isValidMiddleName(_mname) && isValidSecondName(_sname)
+        public bool IsInstanceValidState => Standarts.isValidName(_fname) && Standarts.isValidMiddleName(_mname) && Standarts.isValidSecondName(_sname)
                                             && !String.IsNullOrWhiteSpace(_gender);
         #endregion
 
@@ -2904,52 +2940,8 @@ namespace PLSE_MVVMStrong.Model
             _gender = gender;
             _declinated = declinated;
         }
-
+        public Person() { }
         #region Methods
-        private string MobilePnoneStandartNumber(string mobilephone)
-        {
-            if (mobilephone == null) return null;
-            StringBuilder sb = new StringBuilder(mobilephone);
-            sb.Insert(10, "-");
-            sb.Insert(8, "-");
-            sb.Insert(5, " ");
-            sb.Insert(2, " ");
-            return sb.ToString();
-        }
-        private string WorkPnoneStandartNumber(string workphone)
-        {
-            if (workphone == null) return null;
-            StringBuilder sb = new StringBuilder(workphone);
-            var x = workphone.Length;
-            sb.Insert(x - 2, "-");
-            if (x > 4) sb.Insert(x - 4, "-");
-            return sb.ToString();
-        }
-        private void AdressChanged(object sender, PropertyChangedEventArgs e)
-        {
-            OnPropertyChanged(e.PropertyName);
-        }
-        public bool isValidName(string name)
-        {
-            Regex regex = new Regex(@"^\p{IsCyrillic}{2,25}$", RegexOptions.IgnoreCase);
-            return regex.IsMatch(name);
-        }
-        public bool isValidMiddleName(string mname)
-        {
-            Regex regex = new Regex(@"^\p{IsCyrillic}{2,25}$", RegexOptions.IgnoreCase);
-            return regex.IsMatch(mname);
-        }
-        public bool isValidSecondName(string sname)
-        {
-            Regex regex = new Regex(@"^\p{IsCyrillic}{2,15}(?:-\p{IsCyrillic}{2,15})?$", RegexOptions.IgnoreCase);
-            return regex.IsMatch(sname);
-        }
-        public bool isValidEmail(string mail)
-        {
-            Regex regex = new Regex(@"\A[^@]+@([^@\.]+\.)+[^@\.]+\z", RegexOptions.Compiled);
-            if (regex.IsMatch(mail)) return true;
-            else return false;
-        }
         /// <summary>
         /// Склоняет фамилию в указанном параметром падеже.
         /// </summary>
@@ -3454,18 +3446,9 @@ namespace PLSE_MVVMStrong.Model
             }
             return res;
         }
-        public Person Clone()
+        private Person Clone()
         {
-            return new Person
-            {
-                Fname = _fname,
-                Sname = _sname,
-                Mname = _mname,
-                Declinated = _declinated,            
-                Gender = _gender,
-                Version = this.Version,
-                UpdateDate = this.UpdateDate
-            };
+            return new Person(_fname, _sname,_mname, _gender, _declinated, this.Version,this.UpdateDate);
         }
         object ICloneable.Clone() => Clone();
         public override void SaveChanges(SqlConnection con)
@@ -3474,58 +3457,10 @@ namespace PLSE_MVVMStrong.Model
         }
         #endregion
     }
-    public class Employee_Core : Person, ICloneable
+    public class Employee_Core : NotifyBase, ICloneable
     {
 #region Fields
-        private string _inneroffice;
-        private Departament _departament;
-        private int? _previous;
-        private bool _actual;
-        private DateTime _modificated;
         private int _id;
-        #endregion
-        #region Properties
-        public string Inneroffice
-        {
-            get => _inneroffice;
-            set
-            {
-                if (_inneroffice == value) return;
-                _inneroffice = value;
-                OnPropertyChanged("InnerOffice");
-            }
-        }
-        public Departament Departament
-        {
-            get => _departament;
-            set
-            {
-                if (_departament == value) return;
-                _departament = value;
-                OnPropertyChanged("Departament");
-            }
-        }
-        public DateTime ModificationDate => _modificated;
-        public bool Actual => _actual;
-        public int EmployeeID => _id;
-        public int? PreviousID => _previous;
-        #endregion
-
-        public Employee_Core(int id, Departament departament, string office, int? previous, bool actual, DateTime modify, 
-            string firstname, string middlename, string secondname, string gender, bool declinated, Version vr, DateTime updatedate)
-            : base(firstname: firstname, middlename: middlename, secondname: secondname, gender: gender, declinated: declinated, vr: vr, updatedate: updatedate)
-        {
-            _id = id;
-            _departament = departament;
-            _inneroffice = office;
-            _previous = previous;
-            _actual = actual;
-            _modificated = modify;
-        }
-    }
-    public class Employee : Employee_Core, ICloneable
-    {
-        #region Fields
         private string _education1;
         private string _education2;
         private string _education3;
@@ -3540,24 +3475,17 @@ namespace PLSE_MVVMStrong.Model
         private string _workphone;
         private string _email;
         private Adress _adress;
-        private List<Expert> _experts = new List<Expert>(16);
-        private List<Employee_Core> _prev_data = new List<Employee_Core>();
+        private DateTime _modified;
         #endregion
-        #region Properties
-        public Employee_Core this[int id]
-        {
-            get
-            {
-                return _prev_data.SingleOrDefault(n => n.EmployeeID == id);
-            }
-        }
+#region Properties
+        public int EmployeeCoreID => _id;
         public string Education1
         {
             get => _education1;
             set
             {
                 _education1 = value;
-                OnPropertyChanged("Education1");
+                OnPropertyChanged();
             }
         }
         public string Education2
@@ -3602,8 +3530,9 @@ namespace PLSE_MVVMStrong.Model
             get => _birthdate;
             set
             {
+                if (_hiredate.HasValue && _birthdate.HasValue && _birthdate.Value < _hiredate.Value) throw new ArgumentException("Дата найма сотрудника не может быть ранее даты рождения");
                 _birthdate = value;
-                OnPropertyChanged("BirthDate");
+                OnPropertyChanged();
             }
         }
         public DateTime? Hiredate
@@ -3613,15 +3542,15 @@ namespace PLSE_MVVMStrong.Model
             {
                 if (value != _hiredate)
                 {
-                    if (_birthdate != null && _hiredate != null && _birthdate.Value >= _hiredate.Value) throw new ArgumentException("Дата найма сотрудника не может быть ранее даты рождения");
+                    if (_birthdate.HasValue && _hiredate != null && _birthdate.Value >= _hiredate.Value) throw new ArgumentException("Дата найма сотрудника не может быть ранее даты рождения");
                     _hiredate = value;
-                    OnPropertyChanged("HireDate");
+                    OnPropertyChanged();
                 }
             }
         }
         public string Mobilephone
         {
-            get => MobilePnoneStandartNumber(_mobilephone);
+            get => Standarts.MobilePnoneStandartNumber(_mobilephone);
             set
             {
                 if (_mobilephone == value) return;
@@ -3643,7 +3572,7 @@ namespace PLSE_MVVMStrong.Model
             {
                 if (_email != value)
                 {
-                    if (!isValidEmail(value)) throw new ArgumentException("Неверный фoрмат Email");
+                    if (!Standarts.isValidEmail(value)) throw new ArgumentException("Неверный фoрмат Email");
                     _email = value;
                     OnPropertyChanged();
                 }
@@ -3652,7 +3581,7 @@ namespace PLSE_MVVMStrong.Model
         public Adress Adress => _adress;
         public string Workphone
         {
-            get => WorkPnoneStandartNumber(_workphone);
+            get => Standarts.WorkPnoneStandartNumber(_workphone);
             set
             {
                 if (_workphone == value) return;
@@ -3712,41 +3641,24 @@ namespace PLSE_MVVMStrong.Model
                 }
                 else
                 {
-                    switch (Gender)
-                    {
-                        case "женский":
-                            image.BeginInit();
-                            image.UriSource = new Uri(@"pack://application:,,,/Resources/UnknownFemale.jpg");
-                            image.EndInit();
-                            break;
-                        case "мужской":
-                            image.BeginInit();
-                            image.UriSource = new Uri(@"pack://application:,,,/Resources/UnknownMale.jpg");
-                            image.EndInit();
-                            break;
-                        default:
                             image.BeginInit();
                             image.UriSource = new Uri(@"pack://application:,,,/Resources/Unknown.jpg");
                             image.EndInit();
-                            break;
-                    }
                 }
                 return image;
             }
         }
         public int FullAge => (int)Age();
-        public new bool IsInstanceValidState => base.IsInstanceValidState && Inneroffice != null && Departament != null && _employeeStaus != null;
-        [Obsolete]
-        public string Summary => DisplayInfo();
+        public bool IsInstanceValidState => _employeeStaus != null;
+
         #endregion
-        public Employee(string firstname, string middlename, string secondname, bool declinated, string gender,
-                            int id, string inneroffice, Departament departament, int? previd, bool actual, DateTime emp_modify,
-                                string mobilephone, string workphone, string email, Adress adress, Version vr, DateTime updatedate,
-                                string education1, string education2, string education3, string sciencedegree, string condition,
-                                DateTime? birthdate, DateTime? hiredate, PermissionProfile profile, string password, byte[] foto, DateTime empst_modify)
-            : base(id: id, departament: departament, office: inneroffice, previous: previd, actual: actual, modify: emp_modify,
-                    firstname: firstname, middlename: middlename, secondname: secondname, gender: gender, declinated: declinated, vr: vr, updatedate: updatedate)
+        public static Employee_Core New => new Employee_Core() { Version = Version.New };
+        public Employee_Core(int id, string mobilephone, string workphone, string email, Adress adress,string education1, string education2,string education3, string sciencedegree,
+                             string condition, DateTime? birthdate, DateTime? hiredate, PermissionProfile profile,string password, byte[] foto, DateTime empst_modify,
+                             Version vr, DateTime updatedate)
+            : base(vr, updatedate)
         {
+            _id = id;
             _education1 = education1;
             _education2 = education2;
             _education3 = education3;
@@ -3761,12 +3673,14 @@ namespace PLSE_MVVMStrong.Model
             _profile = profile;
             _password = password;
             _foto = foto;
+            _modified = empst_modify;
+            _adress.PropertyChanged += _adress_PropertyChanged;
         }
-
-#region Methods
+        private Employee_Core() { }
+        #region Methods
         public override string ToString()
         {
-            return ToString("n");
+            return _id.ToString();
         }
         public double Age()
         {
@@ -3774,41 +3688,32 @@ namespace PLSE_MVVMStrong.Model
             TimeSpan diff = DateTime.Today - Birthdate.Value.Date;
             return diff.Days / 365.25;
         }
-        public string DisplayInfo()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine(ToString());
-            sb.AppendLine("ID:  " + EmployeeID.ToString());
-            sb.AppendLine("Birthdate:  " + Birthdate);
-            sb.AppendLine("Hiredate:  " + Hiredate);
-            sb.AppendLine("Gender:  " + Gender);
-            sb.AppendLine("Declinated:  " + Declinated);
-            sb.AppendLine("WorkPhone:  " + Workphone);
-            sb.AppendLine("Mobile:  " + Mobilephone); sb.AppendLine("Email:" + Email);
-            sb.AppendLine("InnerOffice:  " + Inneroffice);
-            sb.AppendLine("Dep:  " + Departament.Acronym);
-            sb.AppendLine("Profile: " + Profile.ToString());
-            sb.AppendLine("Status:  " + EmployeeStatus);
-            sb.AppendLine("Adress:  " + Adress?.ToString());
-            sb.AppendLine(Version + "\t" + UpdateDate);
-            return sb.ToString();
-        }
+        //public string DisplayInfo()
+        //{
+        //    StringBuilder sb = new StringBuilder();
+        //    sb.AppendLine(ToString());
+        //    sb.AppendLine("ID:  " + EmployeeID.ToString());
+        //    sb.AppendLine("Birthdate:  " + Birthdate);
+        //    sb.AppendLine("Hiredate:  " + Hiredate);
+        //    sb.AppendLine("Gender:  " + Gender);
+        //    sb.AppendLine("Declinated:  " + Declinated);
+        //    sb.AppendLine("WorkPhone:  " + Workphone);
+        //    sb.AppendLine("Mobile:  " + Mobilephone); sb.AppendLine("Email:" + Email);
+        //    sb.AppendLine("InnerOffice:  " + Inneroffice);
+        //    sb.AppendLine("Dep:  " + Departament.Acronym);
+        //    sb.AppendLine("Profile: " + Profile.ToString());
+        //    sb.AppendLine("Status:  " + EmployeeStatus);
+        //    sb.AppendLine("Adress:  " + Adress?.ToString());
+        //    sb.AppendLine(Version + "\t" + UpdateDate);
+        //    return sb.ToString();
+        //}
         public bool IsBirthDate() => DateTime.Today.Day == Birthdate?.Day && DateTime.Today.Month == Birthdate?.Month;
-        public bool IsOperate()
-        {
-            return EmployeeStatus != "не работает" && (Inneroffice == "начальник" || Inneroffice == "заместитель начальника" ||
-                Inneroffice == "государственный судебный эксперт" || Inneroffice == "старший государственный судебный эксперт"
-                || Inneroffice == "ведущий государственный судебный эксперт" || Inneroffice == "начальник отдела");
-        }
+        
         private void AddToDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
-            cmd.CommandText = "InnResources.prAddEmployee";
-            cmd.Parameters.Add("@FN", SqlDbType.NVarChar, 25).Value = Fname;
-            cmd.Parameters.Add("@SN", SqlDbType.NVarChar, 25).Value = Sname;
-            cmd.Parameters.Add("@MN", SqlDbType.NVarChar, 25).Value = Mname;
-            cmd.Parameters.Add("@Declinated", SqlDbType.Bit).Value = Declinated;
+            cmd.CommandText = "InnResources.prAddEmployee_Core";
             cmd.Parameters.Add("@WPhone", SqlDbType.VarChar, 20).Value = ConvertToDBNull(_workphone);
             cmd.Parameters.Add("@Birth", SqlDbType.Date).Value = ConvertToDBNull(Birthdate);
             cmd.Parameters.Add("@Hire", SqlDbType.Date).Value = ConvertToDBNull(Hiredate);
@@ -3818,8 +3723,6 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@Science", SqlDbType.NVarChar, 250).Value = ConvertToDBNull(Sciencedegree);
             cmd.Parameters.Add("@EmployeeStatusID", SqlDbType.NVarChar, 30).Value = EmployeeStatus;
             cmd.Parameters.Add("@foto", SqlDbType.VarBinary).Value = ConvertToDBNull(_foto); // check it
-            cmd.Parameters.Add("@Departament", SqlDbType.TinyInt).Value = ConvertToDBNull(Departament.DepartamentID);
-            cmd.Parameters.Add("@InnerOffice", SqlDbType.NVarChar, 60).Value = Inneroffice;
             cmd.Parameters.Add("@SettlementID", SqlDbType.Int).Value = ConvertToDBNull(Adress.Settlement?.SettlementID);
             cmd.Parameters.Add("@StreetPrefix", SqlDbType.NVarChar, 20).Value = ConvertToDBNull(Adress.Streetprefix);
             cmd.Parameters.Add("@Street", SqlDbType.NVarChar, 40).Value = ConvertToDBNull(Adress.Street);
@@ -3827,7 +3730,6 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@Flat", SqlDbType.NVarChar, 8).Value = ConvertToDBNull(Adress.Flat);
             cmd.Parameters.Add("@Corpus", SqlDbType.NVarChar, 12).Value = ConvertToDBNull(Adress.Corpus);
             cmd.Parameters.Add("@Structure", SqlDbType.NVarChar, 12).Value = ConvertToDBNull(Adress.Structure);
-            cmd.Parameters.Add("@Gend", SqlDbType.NVarChar, 15).Value = Gender;
             cmd.Parameters.Add("@Mphone", SqlDbType.VarChar, 20).Value = ConvertToDBNull(_mobilephone);
             cmd.Parameters.Add("@Email", SqlDbType.NVarChar, 50).Value = ConvertToDBNull(_email);
             cmd.Parameters.Add("@Profile", SqlDbType.TinyInt).Value = (byte)Profile;
@@ -3853,11 +3755,7 @@ namespace PLSE_MVVMStrong.Model
         {
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
-            cmd.CommandText = "InnResources.prEditEmployee";
-            cmd.Parameters.Add("@FN", SqlDbType.NVarChar, 25).Value = Fname;
-            cmd.Parameters.Add("@SN", SqlDbType.NVarChar, 25).Value = Sname;
-            cmd.Parameters.Add("@MN", SqlDbType.NVarChar, 25).Value = Mname;
-            cmd.Parameters.Add("@Declinated", SqlDbType.Bit).Value = Declinated;
+            cmd.CommandText = "InnResources.prEditEmployee_Core";  
             cmd.Parameters.Add("@WPhone", SqlDbType.VarChar, 20).Value = ConvertToDBNull(_workphone);
             cmd.Parameters.Add("@Birth", SqlDbType.Date).Value = ConvertToDBNull(Birthdate);
             cmd.Parameters.Add("@Hire", SqlDbType.Date).Value = ConvertToDBNull(Hiredate);
@@ -3867,8 +3765,6 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@Science", SqlDbType.NVarChar, 250).Value = ConvertToDBNull(Sciencedegree);
             cmd.Parameters.Add("@EmployeeStatusID", SqlDbType.NVarChar, 30).Value = EmployeeStatus;
             cmd.Parameters.Add("@foto", SqlDbType.VarBinary).Value = ConvertToDBNull(_foto);
-            cmd.Parameters.Add("@Departament", SqlDbType.TinyInt).Value = ConvertToDBNull(Departament.DepartamentID);
-            cmd.Parameters.Add("@InnerOffice", SqlDbType.NVarChar, 60).Value = Inneroffice;
             cmd.Parameters.Add("@SettlementID", SqlDbType.Int).Value = ConvertToDBNull(Adress.Settlement?.SettlementID);
             cmd.Parameters.Add("@StreetPrefix", SqlDbType.NVarChar, 20).Value = ConvertToDBNull(Adress.Streetprefix);
             cmd.Parameters.Add("@Street", SqlDbType.NVarChar, 40).Value = ConvertToDBNull(Adress.Street);
@@ -3876,18 +3772,14 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@Flat", SqlDbType.NVarChar, 8).Value = ConvertToDBNull(Adress.Flat);
             cmd.Parameters.Add("@Corpus", SqlDbType.NVarChar, 12).Value = ConvertToDBNull(Adress.Corpus);
             cmd.Parameters.Add("@Structure", SqlDbType.NVarChar, 12).Value = ConvertToDBNull(Adress.Structure);
-            cmd.Parameters.Add("@Gend", SqlDbType.NVarChar, 15).Value = Gender;
             cmd.Parameters.Add("@Mphone", SqlDbType.VarChar, 20).Value = ConvertToDBNull(_mobilephone);
             cmd.Parameters.Add("@Email", SqlDbType.NVarChar, 50).Value = ConvertToDBNull(_email);
             cmd.Parameters.Add("@Profile", SqlDbType.TinyInt).Value = (byte)Profile;
-            cmd.Parameters.Add("@EmployeeID", SqlDbType.Int).Value = EmployeeID;
-            var par = cmd.Parameters.Add("@NewID", SqlDbType.Int);
-            par.Direction = ParameterDirection.Output;
+            cmd.Parameters.Add("@EmployeeCoreID", SqlDbType.Int).Value = _id;
             try
             {
                 cmd.Connection.Open();
                 cmd.ExecuteNonQuery();
-                if (cmd.Parameters["@NewID"].Value != DBNull.Value) _id = (int)cmd.Parameters["NewID"].Value;
                 Version = Version.Original;
             }
             catch (Exception)
@@ -3903,8 +3795,8 @@ namespace PLSE_MVVMStrong.Model
         {
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
-            cmd.CommandText = "InnResources.prDeleteEmployee";
-            cmd.Parameters.Add("@id", SqlDbType.Int).Value = EmployeeID;
+            cmd.CommandText = "InnResources.prDeleteEmployee_Core";
+            cmd.Parameters.Add("@EmployeeCoreID", SqlDbType.Int).Value = _id;
             try
             {
                 cmd.Connection.Open();
@@ -3932,63 +3824,228 @@ namespace PLSE_MVVMStrong.Model
                     break;
             }
         }
-        public new Employee Clone()
+        public Employee_Core Clone()
         {
-            return new Employee(_fname, _mname, _sname, _mobilephone, _workphone, Gender, _email, Adress.Clone(), _declinated, this.Version, this.UpdateDate, EmployeeID,
-                                _education1, _education2, _education3, _sciencedegree, _inneroffice, new Departament(_departament), _employeeStaus, _birthdate,
-                                _hiredate, _profile, _password, (byte[])Foto?.Clone(), _previd);
+            return new Employee_Core(_id, _mobilephone, _workphone,  _email, Adress.Clone(),_education1, _education2, _education3, _sciencedegree,  _employeeStaus, _birthdate,
+                                _hiredate, _profile, _password, (byte[])Foto?.Clone(), _modified, this.Version, this.UpdateDate);
         }
         object ICloneable.Clone() => Clone();
-        public void Copy (Employee em)
+        //public void Copy (Employee_Core em)
+        //{          
+        //    Mobilephone = em._mobilephone;
+        //    Workphone = em._workphone;
+        //    Email = em._email;
+        //    Adress = em._adress;
+        //    Education1 = em._education1;
+        //    Education2 = em._education2;
+        //    Education3 = em._education3;
+        //    Sciencedegree = em._sciencedegree;
+        //    EmployeeStatus = em._employeeStaus;
+        //    Birthdate = em._birthdate;
+        //    Hiredate = em._hiredate;
+        //    Profile = em._profile;
+        //    Password = em._password;
+        //    Foto = em._foto;
+        //    _id = em._id;
+        //}
+        private void _adress_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            Fname = em._fname;
-            Declinated = em._declinated;
-            Mname = em._mname;
-            Sname = em._sname;
-            Mobilephone = em._mobilephone;
-            Workphone = em._workphone;
-            Gender = em._gender;
-            Email = em._email;
-            Adress = em._adress;
-            Education1 = em._education1;
-            Education2 = em._education2;
-            Education3 = em._education3;
-            Sciencedegree = em._sciencedegree;
-            Inneroffice = em._inneroffice;
-            Departament = em._departament;
-            EmployeeStatus = em._employeeStaus;
-            Birthdate = em._birthdate;
-            Hiredate = em._hiredate;
-            Profile = em._profile;
-            Password = em._password;
-            Foto = em._foto;
-            _previd = em._previd;
-            _id = em._id;
+            OnPropertyChanged(nameof(Adress));
         }
-#endregion
+        #endregion
     }
-    public class Expert : NotifyBase, ICloneable
+    public class Employee : Person, ICloneable
     {
-        #region Fields
-        private Employee _employee;
+#region Fields
+        private string _inneroffice;
+        private Departament _departament;
+        private int? _previous;
+        private bool _actual;
+        private DateTime _modified;
+        private int _id;
+        private Employee_Core _core;
+        #endregion
+#region Properties
+        public string Inneroffice
+        {
+            get => _inneroffice;
+            set
+            {
+                if (_inneroffice == value) return;
+                _inneroffice = value;
+                OnPropertyChanged();
+            }
+        }
+        public Departament Departament
+        {
+            get => _departament;
+            set
+            {
+                if (_departament == value) return;
+                _departament = value;
+                OnPropertyChanged("Departament");
+            }
+        }
+        public DateTime ModificationDate => _modified;
+        public bool Actual => _actual;
+        public int EmployeeID => _id;
+        public Employee_Core EmployeeCore => _core;
+        public int? PreviousID => _previous;
+        #endregion
+
+        public static Employee New => new Employee() { Version = Version.New };
+        private Employee() : base() { }
+        public Employee(int id, Employee_Core core, Departament departament, string office, int? previous, bool actual, DateTime modify, 
+            string firstname, string middlename, string secondname, string gender, bool declinated, Version vr, DateTime updatedate)
+            : base(firstname: firstname, middlename: middlename, secondname: secondname, gender: gender, declinated: declinated, vr: vr, updatedate: updatedate)
+        {
+            _id = id;
+            _core = core;
+            _departament = departament;
+            _inneroffice = office;
+            _previous = previous;
+            _actual = actual;
+            _modified = modify;
+        }
+
+        private void AddToDB(SqlConnection con)
+        {
+            SqlCommand cmd = con.CreateCommand();
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.CommandText = "InnResources.prAddEmployee";
+            cmd.Parameters.Add("@FN", SqlDbType.NVarChar, 25).Value = Fname;
+            cmd.Parameters.Add("@SN", SqlDbType.NVarChar, 25).Value = Sname;
+            cmd.Parameters.Add("@MN", SqlDbType.NVarChar, 25).Value = Mname;
+            cmd.Parameters.Add("@Declinated", SqlDbType.Bit).Value = Declinated;
+            cmd.Parameters.Add("@Departament", SqlDbType.TinyInt).Value = ConvertToDBNull(Departament.DepartamentID);
+            cmd.Parameters.Add("@InnerOffice", SqlDbType.NVarChar, 60).Value = Inneroffice;
+            cmd.Parameters.Add("@Gend", SqlDbType.NVarChar, 15).Value = Gender;
+            cmd.Parameters.Add("@EmployeeCoreID", SqlDbType.Int).Value = EmployeeCore.EmployeeCoreID;
+            var par = cmd.Parameters.Add("@InsertedID", SqlDbType.Int);
+            par.Direction = ParameterDirection.Output;
+            try
+            {
+                cmd.Connection.Open();
+                cmd.ExecuteNonQuery();
+                _id = (int)cmd.Parameters["@InsertedID"].Value;
+                Version = Version.Original;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                cmd.Connection.Close();
+            }
+        }
+        private void EditToDB(SqlConnection con)
+        {
+            
+            SqlCommand cmd = con.CreateCommand();
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.CommandText = "InnResources.prEditEmployee";
+            cmd.Parameters.Add("@FN", SqlDbType.NVarChar, 25).Value = Fname;
+            cmd.Parameters.Add("@SN", SqlDbType.NVarChar, 25).Value = Sname;
+            cmd.Parameters.Add("@MN", SqlDbType.NVarChar, 25).Value = Mname;
+            cmd.Parameters.Add("@Declinated", SqlDbType.Bit).Value = Declinated;
+            cmd.Parameters.Add("@Departament", SqlDbType.TinyInt).Value = ConvertToDBNull(Departament.DepartamentID);
+            cmd.Parameters.Add("@InnerOffice", SqlDbType.NVarChar, 60).Value = Inneroffice;
+            cmd.Parameters.Add("@Gend", SqlDbType.NVarChar, 15).Value = Gender;
+            cmd.Parameters.Add("@EmployeeID", SqlDbType.Int).Value = _id;
+            var par = cmd.Parameters.Add("@NewID", SqlDbType.Int);
+            par.Direction = ParameterDirection.Output;
+            try
+            {
+                if (CommonInfo.Employees.Contains(this)) throw new InvalidOperationException("Недопустимая операция сохранения. Используйте копию");
+                cmd.Connection.Open();
+                cmd.ExecuteNonQuery();
+                if (cmd.Parameters["@NewID"].Value != DBNull.Value)
+                {
+                    SetPreviousID(_id);
+                    _id = (int)cmd.Parameters["NewID"].Value;
+                    CommonInfo.Employees.Add(this);
+                    
+                } 
+                Version = Version.Original;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                cmd.Connection.Close();
+            }
+        }
+        public void DeleteFromDB(SqlConnection con)
+        {
+            SqlCommand cmd = con.CreateCommand();
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.CommandText = "InnResources.prDeleteEmployee";
+            cmd.Parameters.Add("@id", SqlDbType.Int).Value = _id;
+            try
+            {
+                cmd.Connection.Open();
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                cmd.Connection.Close();
+            }
+        }
+        public override void SaveChanges(SqlConnection con)
+        {
+            EmployeeCore.SaveChanges(con);
+            switch (Version)
+            {
+                case Version.New:
+                    AddToDB(con);
+                    break;
+                case Version.Edited:
+                    EditToDB(con);
+                    break;
+            }
+        }
+        public bool IsOperate()
+        {
+            return (Inneroffice == "начальник" || Inneroffice == "заместитель начальника" ||
+                Inneroffice == "государственный судебный эксперт" || Inneroffice == "старший государственный судебный эксперт"
+                || Inneroffice == "ведущий государственный судебный эксперт" || Inneroffice == "начальник отдела");
+        }
+        public Employee Clone()
+        {
+            return new Employee(_id, _core.Clone(), _departament, _inneroffice, _previous, _actual, _modified,
+                                    Fname, Mname, Sname, Gender, Declinated, this.Version, this.UpdateDate);
+        }
+        object ICloneable.Clone() => Clone();
+        private bool SetPreviousID(int pid)
+        {
+            var e = CommonInfo.Employees.FirstOrDefault(n => n.EmployeeID == pid);
+            if (e != null)
+            {
+                e._actual = false;
+                _previous = pid;
+                return true;
+            }
+            else return false;
+        }
+    }
+    public class Expert_Core : NotifyBase, ICloneable
+    {
+#region Fields     
         private Speciality _speciality;
-        private DateTime _receiptdate;
+        private DateTime? _receiptdate;
         private DateTime? _lastattestationdate;
         private bool _closed;
         private int _id;
         #endregion
-        #region Properties
-        public Employee Employee
-        {
-            get => _employee;
-            set
-            {
-                if (_employee == value) return;
-                _employee = value;
-                OnPropertyChanged("Employee");
-            }
-        }
-        public int ExpertID => _id;
+#region Properties
+        public int ExpertCoreID => _id;
         public Speciality Speciality
         {
             get => _speciality;
@@ -3999,7 +4056,7 @@ namespace PLSE_MVVMStrong.Model
                 OnPropertyChanged("Speciality");
             }
         }
-        public DateTime ReceiptDate
+        public DateTime? ReceiptDate
         {
             get => _receiptdate;
             set
@@ -4031,36 +4088,34 @@ namespace PLSE_MVVMStrong.Model
                 }
             }
         }
-        public bool IsInstanceValidState => _employee != null && _speciality != null;
-        public int Experience => DateTime.Now.Year - ReceiptDate.Year;
-        public bool ValidAttestation => (DateTime.Now - (LastAttestationDate ?? ReceiptDate)).Days /365.25 <= 5.0;
+        public bool IsInstanceValidState => _speciality != null;
+        public int? Experience => ReceiptDate.HasValue ? DateTime.Now.Year - ReceiptDate.Value.Year : new int?();
+        //public bool ValidAttestation => (DateTime.Now - (LastAttestationDate ?? ReceiptDate ?? )).Days /365.25 <= 5.0;
         #endregion
-        public Expert() : base() { }
-        public Expert(int id, Employee employee, Speciality speciality, DateTime receiptdate, DateTime? lastattestationdate, Version vr, DateTime updatedate, bool closed = false)
+        public Expert_Core() : base() { }
+        public Expert_Core(int id, Speciality speciality, DateTime? receiptdate, DateTime? lastattestationdate, Version vr, DateTime updatedate, bool closed = false)
             : base(vr, updatedate)
         {
             _id = id;
-            _employee = employee;
             _closed = closed;
             _speciality = speciality;
             _receiptdate = receiptdate;
             _lastattestationdate = lastattestationdate;
         }
 
-        public string SpecialityExperience() => ReceiptDate.Year.ToString();
+        //public string SpecialityExperience() => ReceiptDate ?? .Year.ToString();
         public string Requisite()
         {
-            return $"квалификацию судебного эксперта по специальности {Speciality.Code}, стаж экспертной работы по которой с {ReceiptDate.Year} года";
+            return $"квалификацию судебного эксперта по специальности {Speciality.Code}, стаж экспертной работы по которой с {ReceiptDate.Value.Year} года";
         }
         private void AddToDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
-            cmd.CommandText = "InnResources.prAddExpert";
-            cmd.Parameters.Add("@EmployeeID", SqlDbType.Int).Value = Employee.EmployeeID;
+            cmd.CommandText = "InnResources.prAddExpertCore";
             cmd.Parameters.Add("@SpecialityID", SqlDbType.SmallInt).Value = Speciality.SpecialityID;
             cmd.Parameters.Add("@Experience", SqlDbType.Date).Value = ReceiptDate;
-            cmd.Parameters.Add("@LastAtt", SqlDbType.Date).Value = ConvertToDBNull(LastAttestationDate);
+            cmd.Parameters.Add("@LastAttestation", SqlDbType.Date).Value = ConvertToDBNull(LastAttestationDate);
             cmd.Parameters.Add("@Closed", SqlDbType.Bit).Value = Closed;
             var par = cmd.Parameters.Add("@InsertedID", SqlDbType.Int);
             par.Direction = ParameterDirection.Output;
@@ -4084,13 +4139,12 @@ namespace PLSE_MVVMStrong.Model
         {
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
-            cmd.CommandText = "InnResources.prEditExpert";
-            cmd.Parameters.Add("@EmployeeID", SqlDbType.Int).Value = Employee.EmployeeID;
+            cmd.CommandText = "InnResources.prEditExpertCore";
             cmd.Parameters.Add("@SpecialityID", SqlDbType.SmallInt).Value = Speciality.SpecialityID;
             cmd.Parameters.Add("@Experience", SqlDbType.Date).Value = ReceiptDate;
-            cmd.Parameters.Add("@LastAtt", SqlDbType.Date).Value = ConvertToDBNull(LastAttestationDate);
+            cmd.Parameters.Add("@LastAttestation", SqlDbType.Date).Value = ConvertToDBNull(LastAttestationDate);
             cmd.Parameters.Add("@Closed", SqlDbType.Bit).Value = Closed;
-            cmd.Parameters.Add("@ExpertID", SqlDbType.Int).Value = ExpertID;
+            cmd.Parameters.Add("@ExpertCoreID", SqlDbType.Int).Value = ExpertCoreID;
             try
             {
                 cmd.Connection.Open();
@@ -4110,8 +4164,8 @@ namespace PLSE_MVVMStrong.Model
         {
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
-            cmd.CommandText = "InnResources.prDeleteExpert";
-            cmd.Parameters.Add("@id", SqlDbType.Int).Value = ExpertID;
+            cmd.CommandText = "InnResources.prDeleteExpertCore";
+            cmd.Parameters.Add("@id", SqlDbType.Int).Value = ExpertCoreID;
             try
             {
                 cmd.Connection.Open();
@@ -4134,7 +4188,6 @@ namespace PLSE_MVVMStrong.Model
         /// <exception cref="System.Data.SqlClient.SqlException"></exception>
         public override void SaveChanges(SqlConnection con)
         {
-            Employee.SaveChanges(con);
             Speciality.SaveChanges(con);
             switch (Version)
             {
@@ -4146,14 +4199,9 @@ namespace PLSE_MVVMStrong.Model
                     break;
             }
         }
-        public override string ToString()
+        public Expert_Core Clone()
         {
-            return Employee.ToString() + Environment.NewLine + Speciality.Code;
-        }
-        public Expert Clone()
-        {
-            return new Expert(id: ExpertID,
-                                employee: Employee.Clone(),
+            return new Expert_Core(id: ExpertCoreID,
                                 speciality: Speciality.Clone(),
                                 receiptdate: ReceiptDate,
                                 lastattestationdate: LastAttestationDate,
@@ -4162,6 +4210,95 @@ namespace PLSE_MVVMStrong.Model
                                 closed: Closed);
         }
         object ICloneable.Clone() => Clone();
+    }
+    public class Expert : NotifyBase, ICloneable
+    {
+        #region Fields
+        private Expert_Core _expertcore;
+        private Employee _employee;
+        private int _id;
+        #endregion
+        #region Properties
+        public Expert_Core ExpertCore => _expertcore;
+        public Employee Employee => _employee;
+        public int ExpertID => _id;
+
+        #endregion
+        public Expert(int id, Expert_Core expcore, Employee employee)
+        {
+            _expertcore = expcore;
+            _employee = employee;
+            _id = id;
+        }
+        public Expert(Expert_Core expcore, Employee employee) : this (0, expcore, employee) { }
+        public Expert(Employee employee) : this (new Expert_Core(), employee) { }
+        private void AddToDB(SqlConnection con)
+        {
+            SqlCommand cmd = con.CreateCommand();
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.CommandText = "InnResources.prAddExpert";
+            cmd.Parameters.Add("@EmployeeID", SqlDbType.Int).Value = Employee.EmployeeID;
+            cmd.Parameters.Add("@ExpertCoreID", SqlDbType.Int).Value = ExpertCore.ExpertCoreID;
+            var par = cmd.Parameters.Add("@InsertedID", SqlDbType.Int);
+            par.Direction = ParameterDirection.Output;
+            try
+            {
+                cmd.Connection.Open();
+                cmd.ExecuteNonQuery();
+                _id = (int)cmd.Parameters["@InsertedID"].Value;
+                Version = Version.Original;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                cmd.Connection.Close();
+            }
+        }
+        private void EditToDB(SqlConnection con)
+        {
+            throw new NotImplementedException();
+        }
+        public void DeleteFromDB(SqlConnection con)
+        {
+            SqlCommand cmd = con.CreateCommand();
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.CommandText = "InnResources.prDeleteExpert";
+            cmd.Parameters.Add("@id", SqlDbType.Int).Value = ExpertID;
+            try
+            {
+                cmd.Connection.Open();
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                cmd.Connection.Close();
+            }
+        }
+        public override void SaveChanges(SqlConnection con)
+        {
+            switch (Version)
+            {
+                case Version.New:
+                    AddToDB(con);
+                    break;
+                case Version.Edited:
+                    EditToDB(con);
+                    break;
+            }
+        }
+
+        object ICloneable.Clone() => Clone();
+        public Expert Clone()
+        {
+            return new Expert(id: _id, expcore: _expertcore, employee: _employee);
+        }
     }
     public class Organization : NotifyBase, IFormattable, ICloneable
     {
@@ -4519,13 +4656,20 @@ namespace PLSE_MVVMStrong.Model
     }
     public class Customer : Person, ICloneable
     {
+#region Fields
         private string _rank;
         private string _office;
         private Organization _organization;
         private bool _status;
         private string _departament;
         private int? _previd;
-
+        private int _id;
+        private string _mobilephone;
+        private string _workphone;
+        private string _email;
+        private bool _actual;
+        #endregion
+        #region Properties
         public int? PreviousID => _previd;
         public string Departament
         {
@@ -4577,13 +4721,60 @@ namespace PLSE_MVVMStrong.Model
             }
         }
         public int CustomerID => _id;
+        public string Mobilephone
+        {
+            get => Standarts.MobilePnoneStandartNumber(_mobilephone);
+            set
+            {
+                if (_mobilephone == value) return;
+                var trim = Regex.Replace(value, "[-() ]", "");
+                if (Regex.IsMatch(trim, @"^\+7|8[1-9]\d{9}$"))
+                {
+                    StringBuilder sb = new StringBuilder(trim);
+                    if (trim.Length == 11) sb.Replace("8", "+7", 0, 1);
+                    _mobilephone = sb.ToString();
+                }
+                else throw new ArgumentException("Неверный формат мобильного номера");
+                OnPropertyChanged();
+            }
+        }
+        public string Email
+        {
+            get => _email;
+            set
+            {
+                if (_email != value)
+                {
+                    if (!Standarts.isValidEmail(value)) throw new ArgumentException("Неверный фoрмат Email");
+                    _email = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public string Workphone
+        {
+            get => Standarts.WorkPnoneStandartNumber(_workphone);
+            set
+            {
+                if (_workphone == value) return;
+                var trim = Regex.Replace(value, "[-() ]", "");
+                if (Regex.IsMatch(trim, @"^[1-9]\d{3,6}$"))
+                {
+                    _workphone = trim;
+                }
+                else throw new ArgumentException("Неверный формат номера");
+                OnPropertyChanged();
+            }
+        }
+        #endregion
+
         public string Requisite => ToString();
         public new bool IsInstanceValidState => !String.IsNullOrEmpty(Office); // check base valid state
 
         public Customer() : base() {}
         public Customer(string firstname, string middlename, string secondname, string mobilephone, string workphone, string gender, string email, bool declinated, Version vr, DateTime updatedate,
                         int id, int? previd, string rank, string office, Organization organization, string departament, bool status)
-            : base(id, firstname, middlename, secondname, mobilephone, workphone, gender, email, null, declinated, vr, updatedate)
+            : base(firstname, middlename, secondname, gender, declinated, vr, updatedate)
         {
             _rank = rank;
             _office = office;
@@ -4591,6 +4782,10 @@ namespace PLSE_MVVMStrong.Model
             _departament = departament;
             _status = status;
             _previd = previd;
+            _id = id;
+            _workphone = workphone;
+            _mobilephone = mobilephone;
+            _email = email;
         }
 
         public override string ToString()
@@ -4674,9 +4869,16 @@ namespace PLSE_MVVMStrong.Model
             par.Direction = ParameterDirection.Output;
             try
             {
+                if (CommonInfo.Customers.Contains(this)) throw new InvalidOperationException("Недопустимая операция сохранения. Используйте копию");
                 cmd.Connection.Open();
                 cmd.ExecuteNonQuery();
-                if (cmd.Parameters["@NewID"].Value != DBNull.Value) _id = (int)cmd.Parameters["NewID"].Value;
+                if (cmd.Parameters["@NewID"].Value != DBNull.Value)
+                {
+                    SetPreviousID(_id);
+                    _id = (int)cmd.Parameters["NewID"].Value;
+                    CommonInfo.Customers.Add(this);
+                }
+                    
                 Version = Version.Original;
             }
             catch (Exception)
@@ -4721,7 +4923,7 @@ namespace PLSE_MVVMStrong.Model
                     break;
             }
         }
-        public new Customer Clone()
+        public Customer Clone()
         {
             return new Customer(firstname: Fname,
                                   middlename: Mname,
@@ -4742,6 +4944,17 @@ namespace PLSE_MVVMStrong.Model
                                   previd: _previd);
         }
         object ICloneable.Clone() => Clone();
+        private bool SetPreviousID(int pid)
+        {
+            var c = CommonInfo.Customers.FirstOrDefault(n => n.CustomerID == pid);
+            if (c != null)
+            {
+                c._actual = false;
+                _previd = pid;
+                return true;
+            }
+            else return false;
+        }
     }
     /// <summary>
     /// The main <c>Resolution</c> class. Contains all another linked entities, like expertise, customers, ect.
@@ -5363,7 +5576,6 @@ namespace PLSE_MVVMStrong.Model
         }
         #endregion  
     }
-
     public class Equipment : NotifyBase
     {
         private string _eqname;
@@ -6142,9 +6354,9 @@ namespace PLSE_MVVMStrong.Model
             {
                 if (SpendHours.HasValue)
                 {
-                    if (SpendHours.Value > Expert.Speciality.Category_3) return "3+";
-                    if (SpendHours.Value <= Expert.Speciality.Category_3 && SpendHours.Value > Expert.Speciality.Category_2) return "3";
-                    if (SpendHours.Value <= Expert.Speciality.Category_2 && SpendHours.Value > Expert.Speciality.Category_1) return "2";
+                    if (SpendHours.Value > Expert.ExpertCore.Speciality.Category_3) return "3+";
+                    if (SpendHours.Value <= Expert.ExpertCore.Speciality.Category_3 && SpendHours.Value > Expert.ExpertCore.Speciality.Category_2) return "3";
+                    if (SpendHours.Value <= Expert.ExpertCore.Speciality.Category_2 && SpendHours.Value > Expert.ExpertCore.Speciality.Category_1) return "2";
                     return "1";
                 }
                 else return null;
@@ -6312,7 +6524,7 @@ namespace PLSE_MVVMStrong.Model
 
         public override string ToString()
         {
-            return Number + " " + Expert.Employee.ToString() + " (" + Expert.Speciality.ToString() + ")";
+            return Number + " " + Expert.Employee.ToString() + " (" + Expert.ExpertCore.Speciality.ToString() + ")";
         }
         /// <summary>
         /// Сохраняет новую экспертизу в базу данных
@@ -7142,26 +7354,26 @@ namespace PLSE_MVVMStrong.Model
                 default:
                     throw new NotSupportedException("Неопределенный пол сотрудника");
             }
-            sb.Append(group.Key.Education1);
-            if(group.Key.Education2 != null)
+            sb.Append(group.Key.EmployeeCore.Education1);
+            if(group.Key.EmployeeCore.Education2 != null)
             {
                 sb.Append(", ");
-                sb.Append(group.Key.Education2);
+                sb.Append(group.Key.EmployeeCore.Education2);
             }
-            if (group.Key.Education3 != null)
+            if (group.Key.EmployeeCore.Education3 != null)
             {
                 sb.Append(", ");
-                sb.Append(group.Key.Education3);
+                sb.Append(group.Key.EmployeeCore.Education3);
             }
-            if (group.Key.Sciencedegree != null)
+            if (group.Key.EmployeeCore.Sciencedegree != null)
             {
                 sb.Append(", ");
-                sb.Append(group.Key.Sciencedegree);
+                sb.Append(group.Key.EmployeeCore.Sciencedegree);
             }
             sb.Append(", ");
             foreach (var item in group)
             {
-                sb.Append(item.Expert.Requisite());
+                sb.Append(item.Expert.ExpertCore.Requisite());
                 sb.Append(", ");
             }
             bmarks["expert"].Range.Text = sb.ToString();
@@ -7234,7 +7446,7 @@ namespace PLSE_MVVMStrong.Model
             sb.Append(resolution.Customer.ToString("d"));
             bmarks["recipient"].Range.Text = bmarks["recipient2"].Range.Text = sb.ToString();
             string spec = String.Empty; 
-            var sp = group.Select(n => n.Expert.Speciality).Distinct(new SpecialityCompererBySpecies());
+            var sp = group.Select(n => n.Expert.ExpertCore.Speciality).Distinct(new SpecialityCompererBySpecies());
             foreach (var item in sp)
             {
                 string dec = null;
@@ -7316,27 +7528,27 @@ namespace PLSE_MVVMStrong.Model
                     default:
                         throw new NotSupportedException("Неопределенный пол сотрудника");
                 }
-                sb.Append(emp.Key.Education1);
-                if (emp.Key.Education2 != null)
+                sb.Append(emp.Key.EmployeeCore.Education1);
+                if (emp.Key.EmployeeCore.Education2 != null)
                 {
                     sb.Append(", ");
-                    sb.Append(emp.Key.Education2);
+                    sb.Append(emp.Key.EmployeeCore.Education2);
                 }
-                if (emp.Key.Education3 != null)
+                if (emp.Key.EmployeeCore.Education3 != null)
                 {
                     sb.Append(", ");
-                    sb.Append(emp.Key.Education3);
+                    sb.Append(emp.Key.EmployeeCore.Education3);
                 }
-                if (emp.Key.Sciencedegree != null)
+                if (emp.Key.EmployeeCore.Sciencedegree != null)
                 {
                     sb.Append(", ");
-                    sb.Append(emp.Key.Sciencedegree);
+                    sb.Append(emp.Key.EmployeeCore.Sciencedegree);
                 }
                 sb.Append(", ");
                 foreach (var item in emp)
                 {
-                    sb.Append("квалификацию судебного эксперта по специальности "); sb.Append(item.Expert.Speciality.Code);
-                    sb.Append(", стаж экспертной работы по которой с "); sb.Append(item.Expert.ReceiptDate.Year);
+                    sb.Append("квалификацию судебного эксперта по специальности "); sb.Append(item.Expert.ExpertCore.Speciality.Code);
+                    sb.Append(", стаж экспертной работы по которой с "); sb.Append(item.Expert.ExpertCore.ReceiptDate.Value.Year);
                     sb.Append(", ");
                 }
                 sb.Append("должность - "); sb.Append(emp.Key.Inneroffice);

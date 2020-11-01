@@ -34,7 +34,6 @@ namespace PLSE_MVVMStrong.ViewModel
         private int SpecialityIndex { get; set; }
         public ListCollectionView ExpertList { get; }
         public Employee Employee { get; }
-        public Expert Expert { get; private set; }
         public ListCollectionView SettlementsList { get; } = new ListCollectionView(CommonInfo.Settlements);
         public IReadOnlyCollection<string> StreetTypeList { get; } = CommonInfo.StreetTypes;
         public IReadOnlyCollection<string> EmployeeStatus { get; } = CommonInfo.EmployeeStatus;
@@ -42,6 +41,16 @@ namespace PLSE_MVVMStrong.ViewModel
         public IReadOnlyCollection<string> InnerOffice { get; } = CommonInfo.InnerOfficies;
         public ObservableCollection<Departament> Departaments { get; } = CommonInfo.Departaments;
         public IEnumerable<Speciality> SpecialitiesList { get; } = CommonInfo.Specialities;
+
+
+        public Expert Expert
+        {
+            get { return (Expert)GetValue(ExpertProperty); }
+            set { SetValue(ExpertProperty, value); }
+        }
+        public static readonly DependencyProperty ExpertProperty =
+            DependencyProperty.Register("Expert", typeof(Expert), typeof(ProfileVM), new PropertyMetadata(null));
+
 
         public object SelectedExpert
         {
@@ -86,7 +95,7 @@ namespace PLSE_MVVMStrong.ViewModel
                         FileInfo fileInfo = new FileInfo(openFile.FileName);
                         FileStream fs = new FileStream(openFile.FileName, FileMode.Open, FileAccess.Read);
                         BinaryReader br = new BinaryReader(fs);
-                        Employee.Foto = br.ReadBytes((int)fileInfo.Length);
+                        Employee.EmployeeCore.Foto = br.ReadBytes((int)fileInfo.Length);
                     }
                 });
             }
@@ -119,7 +128,7 @@ namespace PLSE_MVVMStrong.ViewModel
                 {
                     var sel = n as Settlement;
                     if (n == null) return;
-                    Employee.Adress.Settlement = sel;
+                    Employee.EmployeeCore.Adress.Settlement = sel;
                     SettlementPopupVisibility = false;
                 });
             }
@@ -129,15 +138,10 @@ namespace PLSE_MVVMStrong.ViewModel
         {
             get
             {
-                return _addspec ?? new RelayCommand(n =>
+                return _addspec != null ? _addspec : _addspec = new RelayCommand(n =>
                 {
                     PopupVisibility = true;
-                    SelectedExpert = new Expert()
-                    {
-                        Employee = this.Employee,
-                        Closed = false,
-                        ReceiptDate = DateTime.Now
-                    };
+                    Expert = new Expert(Employee);
                 });
             }
         }
@@ -147,7 +151,7 @@ namespace PLSE_MVVMStrong.ViewModel
             {
                 return _deletespec ?? new RelayCommand(n =>
                 {
-                    var result = MessageBox.Show($"Удалить выбранную специальность\n {(SelectedExpert as Expert).Speciality.Code}?", "Удаление", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    var result = MessageBox.Show($"Удалить выбранную специальность\n {(SelectedExpert as Expert).ExpertCore.Speciality.Code}?", "Удаление", MessageBoxButton.YesNo, MessageBoxImage.Question);
                     if (result == MessageBoxResult.Yes)
                     {
                         var exp = SelectedExpert as Expert;
@@ -178,14 +182,14 @@ namespace PLSE_MVVMStrong.ViewModel
         {
             get
             {
-                return _editspec ?? new RelayCommand(n =>
-                {
-                    var exp = SelectedExpert as Expert;
-                    if (exp == null) return;
-                    SpecialityIndex = CommonInfo.Experts.IndexOf(exp);
-                    SelectedExpert = exp.Clone();
-                    PopupVisibility = true;
-                },
+                return _editspec != null ? _editspec : new RelayCommand(n =>
+                                                            {
+                                                                var exp = SelectedExpert as Expert;
+                                                                if (exp == null) return;
+                                                                SpecialityIndex = CommonInfo.Experts.IndexOf(exp);
+                                                                Expert = exp.Clone();
+                                                                PopupVisibility = true;
+                                                            },
                 o =>
                 {
                     return SelectedExpert != null;
@@ -229,7 +233,7 @@ namespace PLSE_MVVMStrong.ViewModel
                 },
              o =>
              {
-                 return (SelectedExpert as Expert)?.IsInstanceValidState ?? false;
+                 return Expert?.IsInstanceValidState ?? false;
              }
             );
             }
@@ -237,7 +241,8 @@ namespace PLSE_MVVMStrong.ViewModel
         #endregion
         public ProfileVM()
         {
-            this.Employee = (Application.Current as App).LogedEmployee.Clone();
+            //this.Employee = (Application.Current as App).LogedEmployee.Clone();
+            this.Employee = CommonInfo.Employees.First(n => n.EmployeeID == 7);
             ExpertList = new ListCollectionView(CommonInfo.Experts);
             ExpertList.Filter = n => (n as Expert).Employee.EmployeeID == this.Employee.EmployeeID;
             Save = new RelayCommand(n =>
@@ -251,9 +256,8 @@ namespace PLSE_MVVMStrong.ViewModel
 
         private static void SelectedExpertChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var obj = d as ProfileVM;
-            if (d == null) return;
-            obj.Expert = obj.SelectedExpert as Expert;
+            //var ex = e.NewValue as Expert;
+            //MessageBox.Show(ex.ExpertCore.Speciality.Code);
         }
     }
 }

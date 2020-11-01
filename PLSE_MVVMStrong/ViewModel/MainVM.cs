@@ -15,6 +15,7 @@ namespace PLSE_MVVMStrong.ViewModel
 {
     internal class MainVM : DependencyObject
     {
+#region Fields
         private DispatcherTimer timer;
         private Progress<Message> informer;
         private App app = Application.Current as App;
@@ -25,6 +26,9 @@ namespace PLSE_MVVMStrong.ViewModel
         private RelayCommand _openabout;
         private RelayCommand _openaddresol;
         private RelayCommand _openexpertise;
+        private RelayCommand _message2click;
+        #endregion
+        
 #region Properties
         public string Date
         {
@@ -53,7 +57,14 @@ namespace PLSE_MVVMStrong.ViewModel
 #endregion Properties
 
 #region Commands
-        public RelayCommand Exit { get; }
+        public RelayCommand Exit
+        {
+            get => new RelayCommand(o =>
+                                    {
+                                        var w = o as MainWindow;
+                                        if (w != null) w.Close();
+                                    });
+        }
         public RelayCommand OpenSpeciality
         {
             get
@@ -118,7 +129,7 @@ namespace PLSE_MVVMStrong.ViewModel
                                                         var vm = wnd.DataContext as ProfileVM;
                                                         if (vm == null) return;
                                                         vm.Employee.SaveChanges(CommonInfo.connection);
-                                                        CommonInfo.Employees[app.LogedEmployeeIndex].Copy(vm.Employee);
+                                                        //CommonInfo.Employees[app.LogedEmployeeIndex].Copy(vm.Employee);
                                                     }
                                                     catch (Exception ex)
                                                     {
@@ -142,7 +153,16 @@ namespace PLSE_MVVMStrong.ViewModel
             }
         }
         public RelayCommand WindowLoaded { get; }
-        public RelayCommand MessageListDoubleClick { get; }
+        public RelayCommand MessageListDoubleClick 
+        { 
+            get
+            {
+                return _message2click != null ? _message2click : _message2click = new RelayCommand(n =>
+                                                                                    {
+                                                                                        Messages.Remove(n as Message);
+                                                                                    });
+            }
+        }
         public RelayCommand OpenAbout
         {
             get
@@ -160,11 +180,6 @@ namespace PLSE_MVVMStrong.ViewModel
         {
             informer = new Progress<Message>(n => messages.Add(n));
             app.PropertyChanged += App_PropertyChanged;
-            Exit = new RelayCommand(o =>
-                                        {
-                                            var w = o as MainWindow;
-                                            if (w != null) w.Close();
-                                        });
             timer = new DispatcherTimer()
             {
                 Interval = TimeSpan.FromSeconds(1)
@@ -174,10 +189,6 @@ namespace PLSE_MVVMStrong.ViewModel
                 ScanAnnualDate(informer);
                 ScanExpertises(informer);
                 //TestInfo(informer);
-            });
-            MessageListDoubleClick = new RelayCommand(n =>
-            {
-                Messages.Remove(n as Message);
             });
             timer.Tick += Timer_Tick;
             timer.Start();
@@ -223,14 +234,14 @@ namespace PLSE_MVVMStrong.ViewModel
                     DateTime today = DateTime.Now;
                     foreach (var item in CommonInfo.Employees)
                     {
-                        if (item.Birthdate.HasValue && item.Birthdate.Value.Day == today.Day && item.Birthdate.Value.Month == today.Month)
+                        if (item.EmployeeCore.Birthdate.HasValue && item.EmployeeCore.Birthdate.Value.Day == today.Day && item.EmployeeCore.Birthdate.Value.Month == today.Month)
                         {
-                            int years = today.Year - item.Birthdate.Value.Year;
+                            int years = today.Year - item.EmployeeCore.Birthdate.Value.Year;
                             progress.Report(new Message(item.ToString() + " празднует день рождения!!! (" + years.ToString() + ")", MsgType.Congratulation));
                         }
-                        if (item.Hiredate.HasValue && item.Hiredate.Value.Day == today.Day && item.Hiredate.Value.Month == today.Month)
+                        if (item.EmployeeCore.Hiredate.HasValue && item.EmployeeCore.Hiredate.Value.Day == today.Day && item.EmployeeCore.Hiredate.Value.Month == today.Month)
                         {
-                            int years = today.Year - item.Hiredate.Value.Year;
+                            int years = today.Year - item.EmployeeCore.Hiredate.Value.Year;
                             progress.Report(new Message(item.ToString() + " выслуга лет!!! (" + years.ToString() + ")", MsgType.Congratulation));
                         }
                     }

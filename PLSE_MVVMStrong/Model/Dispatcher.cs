@@ -190,7 +190,7 @@ namespace PLSE_MVVMStrong.Model
         }
         public Permission(Employee employee) : this()
         {
-            switch (employee.Profile)
+            switch (employee.EmployeeCore.Profile)
             {
                 case PermissionProfile.Admin:
                     _command = _command.ToDictionary(k => k.Key, v => true);
