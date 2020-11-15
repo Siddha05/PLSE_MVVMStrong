@@ -11,6 +11,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 
 
@@ -26,12 +27,14 @@ namespace PLSE_MVVMStrong.ViewModel
         private RelayCommand _save;
         private RelayCommand _settlementselect;
         private RelayCommand _editspec;
+        private RelayCommand _genderchaecked;
         #endregion
         #region Properties
         /// <summary>
         /// Сохраняет индекс выбранной специальности для замены в <c>CommonInfo.Specialities</c>
         /// </summary>
-        private int SpecialityIndex { get; set; }
+        private int ExpertIndex { get; set; } = -1;
+        private int EmployeeIndex { get; set; } = -1;
         public ListCollectionView ExpertList { get; }
         public Employee Employee { get; }
         public ListCollectionView SettlementsList { get; } = new ListCollectionView(CommonInfo.Settlements);
@@ -41,8 +44,6 @@ namespace PLSE_MVVMStrong.ViewModel
         public IReadOnlyCollection<string> InnerOffice { get; } = CommonInfo.InnerOfficies;
         public ObservableCollection<Departament> Departaments { get; } = CommonInfo.Departaments;
         public IEnumerable<Speciality> SpecialitiesList { get; } = CommonInfo.Specialities;
-
-
         public Expert Expert
         {
             get { return (Expert)GetValue(ExpertProperty); }
@@ -50,16 +51,13 @@ namespace PLSE_MVVMStrong.ViewModel
         }
         public static readonly DependencyProperty ExpertProperty =
             DependencyProperty.Register("Expert", typeof(Expert), typeof(ProfileVM), new PropertyMetadata(null));
-
-
         public object SelectedExpert
         {
             get { return (object)GetValue(SelectedExpertProperty); }
             set { SetValue(SelectedExpertProperty, value); }
         }
         public static readonly DependencyProperty SelectedExpertProperty =
-            DependencyProperty.Register("SelectedExpert", typeof(object), typeof(ProfileVM), new PropertyMetadata(null, SelectedExpertChanged));
-
+            DependencyProperty.Register("SelectedExpert", typeof(object), typeof(ProfileVM), new PropertyMetadata(null));
         public bool PopupVisibility
         {
             get { return (bool)GetValue(PopupVisibilityProperty); }
@@ -67,7 +65,6 @@ namespace PLSE_MVVMStrong.ViewModel
         }
         public static readonly DependencyProperty PopupVisibilityProperty =
             DependencyProperty.Register("PopupVisibility", typeof(bool), typeof(ProfileVM), new PropertyMetadata(false));
-
         public bool SettlementPopupVisibility
         {
             get { return (bool)GetValue(SettlementPopupVisibilityProperty); }
@@ -133,7 +130,37 @@ namespace PLSE_MVVMStrong.ViewModel
                 });
             }
         }
-        public RelayCommand Save { get; }
+        public RelayCommand Save
+        { 
+            get
+            {
+                return new RelayCommand(n =>
+                {
+                    var wnd = n as Profile;
+                    if (wnd == null) return;
+                    try
+                    {
+                        int oldid = Employee.EmployeeID;
+                        Employee.SaveChanges(CommonInfo.connection);
+                        if (oldid != Employee.EmployeeID)
+                        {
+                            CommonInfo.Employees.Add(Employee);
+                            //CommonInfo.Employees.First(n => n.EmployeeID == Employee.PreviousID).Actual = false;
+                        }
+                        else
+                        {
+                            CommonInfo.Employees[EmployeeIndex] = Employee;
+                        }
+                        (Application.Current as App).LogedEmployee = Employee;
+                    }
+                        catch (Exception exc)
+                    {
+                        MessageBox.Show(exc.Message);
+                    }
+                    wnd.Close();
+                });
+            }
+        }
         public RelayCommand AddSpeciality
         {
             get
@@ -186,7 +213,7 @@ namespace PLSE_MVVMStrong.ViewModel
                                                             {
                                                                 var exp = SelectedExpert as Expert;
                                                                 if (exp == null) return;
-                                                                SpecialityIndex = CommonInfo.Experts.IndexOf(exp);
+                                                                ExpertIndex = CommonInfo.Experts.IndexOf(exp);
                                                                 Expert = exp.Clone();
                                                                 PopupVisibility = true;
                                                             },
@@ -205,17 +232,17 @@ namespace PLSE_MVVMStrong.ViewModel
                 {
                     try
                     {
-                        var exp = SelectedExpert as Expert;
-                        if (exp == null) return;
-                        var vr = exp.Version;
-                        exp.SaveChanges(CommonInfo.connection);
-                        switch (vr)
+                        var v = Expert.Version;
+                        Expert.SaveChanges(CommonInfo.connection);
+                        switch (v)
                         {
                             case Model.Version.New:
-                                CommonInfo.Experts.Add(exp);
+                                CommonInfo.Experts.Add(Expert);
                                 break;
                             case Model.Version.Edited:
-                                CommonInfo.Experts[SpecialityIndex] = exp;
+                                CommonInfo.Experts.RemoveAt(ExpertIndex);
+                                CommonInfo.Experts.Add(Expert);
+                                ExpertIndex = -1;
                                 break;
                             default:
                                 break;
@@ -238,26 +265,28 @@ namespace PLSE_MVVMStrong.ViewModel
             );
             }
         }
+        public RelayCommand GenderChecked
+        {
+            get
+            {
+                return _genderchaecked != null ? _genderchaecked : _genderchaecked = new RelayCommand(n =>
+                {
+                    if (n != null)
+                    {
+                        Employee.Gender = n.ToString();
+                    }
+                });
+            }
+        }
         #endregion
         public ProfileVM()
         {
-            //this.Employee = (Application.Current as App).LogedEmployee.Clone();
-            this.Employee = CommonInfo.Employees.First(n => n.EmployeeID == 7);
+            this.Employee = (Application.Current as App).LogedEmployee.Clone();
+            EmployeeIndex = CommonInfo.Employees.IndexOf((Application.Current as App).LogedEmployee);
+            //this.Employee = CommonInfo.Employees.First(n => n.EmployeeID == 7);
             ExpertList = new ListCollectionView(CommonInfo.Experts);
             ExpertList.Filter = n => (n as Expert).Employee.EmployeeID == this.Employee.EmployeeID;
-            Save = new RelayCommand(n =>
-            {
-                var wnd = n as Profile;
-                if (wnd == null) return;
-                wnd.DialogResult = true;
-                wnd.Close();
-            });
-        }
-
-        private static void SelectedExpertChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            //var ex = e.NewValue as Expert;
-            //MessageBox.Show(ex.ExpertCore.Speciality.Code);
+            ExpertList.SortDescriptions.Add(new System.ComponentModel.SortDescription("ExpertCore.Closed", System.ComponentModel.ListSortDirection.Ascending));
         }
     }
 }

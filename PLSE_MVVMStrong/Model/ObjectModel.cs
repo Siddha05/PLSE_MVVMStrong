@@ -922,14 +922,7 @@ namespace PLSE_MVVMStrong.Model
         
         static CommonInfo()
         {
-            SqlConnectionStringBuilder sb = new SqlConnectionStringBuilder()
-            {
-                DataSource = Environment.UserName != "Богатов" ? @".\SIRSERVER" : @".\SQLEXPRESS",
-                IntegratedSecurity = true,
-                InitialCatalog = "PLSE_New",
-                ConnectTimeout = 5
-            };
-            connection = new SqlConnection(sb.ConnectionString);
+            connection = new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["PLSE"].ConnectionString);
             PLSE = new Laboratory()
             {
                 Name = "федеральное бюджетное учреждение Пензенская лаборатория судебной экспертизы Министерства юстиции Российской Федерации",
@@ -960,7 +953,8 @@ namespace PLSE_MVVMStrong.Model
                 LoadInitialInfo(connection);
                 IsInitializated = true;
 #if DEBUG
-                Debug.Print("CommonInfoLoaded");
+                Debug.Print(connection.ConnectionString);
+                
 #endif               
             }
             catch (Exception)
@@ -1209,6 +1203,7 @@ namespace PLSE_MVVMStrong.Model
                 int colInnerOffice = rd.GetOrdinal("InnerOfficeID");
                 int colPrevID = rd.GetOrdinal("PreviousID");
                 int colModified = rd.GetOrdinal("EmployeeModify");
+                int colCoreModified = rd.GetOrdinal("EmployeeCoreModify");
                 int colBirthDate = rd.GetOrdinal("BirthDate");
                 int colCorpus = rd.GetOrdinal("Corpus"); 
                 int colEducation1 = rd.GetOrdinal("Education_1");
@@ -1271,7 +1266,7 @@ namespace PLSE_MVVMStrong.Model
                                                     foto: rd[colFoto] == DBNull.Value ? null : (byte[])rd[colFoto],
                                                     empst_modify: default(DateTime),
                                                     vr: Version.Original,
-                                                    updatedate: DateTime.Now);
+                                                    updatedate: rd.GetDateTime(colCoreModified));
                     }
                     if (rd.GetInt64(colTrackRowNumber) == 1)
                     {
@@ -1288,7 +1283,7 @@ namespace PLSE_MVVMStrong.Model
                                                 gender: rd.GetString(colGender),
                                                 declinated: rd.GetBoolean(colDeclinated),
                                                 vr: Version.Original,
-                                                updatedate: DateTime.Now
+                                                updatedate: rd.GetDateTime(colModified)
                                                 );
                         _employees.Add(track);
                     }
@@ -1312,7 +1307,9 @@ namespace PLSE_MVVMStrong.Model
                         }
                         _experts.Add(new Expert(id: rd.GetInt32(colExpertID),
                                                 expcore: expcore,
-                                                employee: track));
+                                                employee: track,
+                                                vr: Version.Original,
+                                                updatedate: DateTime.Now));
                     }
                 }
             }        
@@ -3957,15 +3954,12 @@ namespace PLSE_MVVMStrong.Model
             par.Direction = ParameterDirection.Output;
             try
             {
-                if (CommonInfo.Employees.Contains(this)) throw new InvalidOperationException("Недопустимая операция сохранения. Используйте копию");
                 cmd.Connection.Open();
                 cmd.ExecuteNonQuery();
                 if (cmd.Parameters["@NewID"].Value != DBNull.Value)
                 {
-                    SetPreviousID(_id);
-                    _id = (int)cmd.Parameters["NewID"].Value;
-                    CommonInfo.Employees.Add(this);
-                    
+                    _previous = _id;
+                    _id = (int)cmd.Parameters["@NewID"].Value;
                 } 
                 Version = Version.Original;
             }
@@ -4023,17 +4017,6 @@ namespace PLSE_MVVMStrong.Model
                                     Fname, Mname, Sname, Gender, Declinated, this.Version, this.UpdateDate);
         }
         object ICloneable.Clone() => Clone();
-        private bool SetPreviousID(int pid)
-        {
-            var e = CommonInfo.Employees.FirstOrDefault(n => n.EmployeeID == pid);
-            if (e != null)
-            {
-                e._actual = false;
-                _previous = pid;
-                return true;
-            }
-            else return false;
-        }
     }
     public class Expert_Core : NotifyBase, ICloneable
     {
@@ -4088,9 +4071,19 @@ namespace PLSE_MVVMStrong.Model
                 }
             }
         }
-        public bool IsInstanceValidState => _speciality != null;
+        public bool IsInstanceValidState => _speciality != null && _receiptdate != null;
         public int? Experience => ReceiptDate.HasValue ? DateTime.Now.Year - ReceiptDate.Value.Year : new int?();
-        //public bool ValidAttestation => (DateTime.Now - (LastAttestationDate ?? ReceiptDate ?? )).Days /365.25 <= 5.0;
+        public bool ValidAttestation
+        {
+            get
+            {
+                if (ReceiptDate.HasValue && !Closed)
+                {
+                    return (DateTime.Now - (LastAttestationDate ?? ReceiptDate.Value)).Days / 365.5 <= 5.0;
+                }
+                else return true;
+            }
+        }
         #endregion
         public Expert_Core() : base() { }
         public Expert_Core(int id, Speciality speciality, DateTime? receiptdate, DateTime? lastattestationdate, Version vr, DateTime updatedate, bool closed = false)
@@ -4199,10 +4192,14 @@ namespace PLSE_MVVMStrong.Model
                     break;
             }
         }
+        /// <summary>
+        /// Shallow copy
+        /// </summary>
+        /// <returns></returns>
         public Expert_Core Clone()
         {
             return new Expert_Core(id: ExpertCoreID,
-                                speciality: Speciality.Clone(),
+                                speciality: Speciality,
                                 receiptdate: ReceiptDate,
                                 lastattestationdate: LastAttestationDate,
                                 vr: this.Version,
@@ -4222,15 +4219,20 @@ namespace PLSE_MVVMStrong.Model
         public Expert_Core ExpertCore => _expertcore;
         public Employee Employee => _employee;
         public int ExpertID => _id;
+        public bool IsInstanceValidState => ExpertCore.IsInstanceValidState && Employee.IsInstanceValidState;
 
         #endregion
-        public Expert(int id, Expert_Core expcore, Employee employee)
+        public Expert(int id, Expert_Core expcore, Employee employee, Version vr, DateTime updatedate)
         {
             _expertcore = expcore;
             _employee = employee;
             _id = id;
+            Version = vr;
+            UpdateDate = updatedate;
+            _expertcore.PropertyChanged += _expertcore_PropertyChanged;
+            _employee.PropertyChanged += _employee_PropertyChanged;
         }
-        public Expert(Expert_Core expcore, Employee employee) : this (0, expcore, employee) { }
+        public Expert(Expert_Core expcore, Employee employee) : this (0, expcore, employee, Version.New, DateTime.Now) { }
         public Expert(Employee employee) : this (new Expert_Core(), employee) { }
         private void AddToDB(SqlConnection con)
         {
@@ -4259,7 +4261,8 @@ namespace PLSE_MVVMStrong.Model
         }
         private void EditToDB(SqlConnection con)
         {
-            throw new NotImplementedException();
+            Employee.SaveChanges(con);
+            ExpertCore.SaveChanges(con);
         }
         public void DeleteFromDB(SqlConnection con)
         {
@@ -4283,6 +4286,8 @@ namespace PLSE_MVVMStrong.Model
         }
         public override void SaveChanges(SqlConnection con)
         {
+            Employee.SaveChanges(con);
+            ExpertCore.SaveChanges(con);
             switch (Version)
             {
                 case Version.New:
@@ -4297,7 +4302,15 @@ namespace PLSE_MVVMStrong.Model
         object ICloneable.Clone() => Clone();
         public Expert Clone()
         {
-            return new Expert(id: _id, expcore: _expertcore, employee: _employee);
+            return new Expert(id: _id, expcore: _expertcore.Clone(), employee: _employee.Clone(), vr: this.Version, updatedate: DateTime.Now);
+        }
+        private void _employee_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged(nameof(Employee));
+        }
+        private void _expertcore_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged(nameof(ExpertCore));
         }
     }
     public class Organization : NotifyBase, IFormattable, ICloneable

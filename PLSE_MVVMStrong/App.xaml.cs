@@ -19,7 +19,7 @@ namespace PLSE_MVVMStrong
     /// </summary>
     public partial class App : Application, INotifyPropertyChanged
     {
-#region Fields
+        #region Fields
         private static string[] aphorism =
         {
             "Начинающий видит много возможностей, эксперт — лишь несколько.",
@@ -58,7 +58,7 @@ namespace PLSE_MVVMStrong
         private int _empindex;
         public event PropertyChangedEventHandler PropertyChanged;
         #endregion
-#region Properties
+        #region Properties
         public Employee LogedEmployee
         {
             get => _logempl;
@@ -86,7 +86,7 @@ namespace PLSE_MVVMStrong
         {
             Permissions = new Permission(_logempl);
         }
-        private void OnPropertyChanged([CallerMemberName]string prop = null)
+        private void OnPropertyChanged([CallerMemberName] string prop = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
         }
@@ -148,7 +148,7 @@ namespace PLSE_MVVMStrong
             var s = value as string;
             if (s != null)
             {
-                 return s.Length == 0 ? 1 : 0;
+                return s.Length == 0 ? 1 : 0;
             }
             else return 0;
         }
@@ -344,7 +344,7 @@ namespace PLSE_MVVMStrong
             if (s != null)
             {
                 string v = value as string;
-                if ( String.Equals(v,s, StringComparison.OrdinalIgnoreCase))
+                if (String.Equals(v, s, StringComparison.OrdinalIgnoreCase))
                 {
                     return Visibility.Collapsed;
                 }
@@ -354,6 +354,37 @@ namespace PLSE_MVVMStrong
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class GenderToBoolConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value.ToString() == parameter.ToString()) return true;
+            else return false;
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if ((bool)value) return parameter.ToString();
+            else return "";
+        }
+    }
+    /// <summary>
+    /// Конвертер выбора из двух дат наибольшей
+    /// </summary>
+    public class MaxDateConverter : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            DateTime d1 = (DateTime)values[0];
+            DateTime d2 = (DateTime)values[1];
+            if (d1 > d2) return d1;
+            else return d2;
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

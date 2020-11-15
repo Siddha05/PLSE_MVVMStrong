@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using PLSE_MVVMStrong.Properties;
 
 namespace PLSE_MVVMStrong.ViewModel
 {
@@ -20,8 +21,6 @@ namespace PLSE_MVVMStrong.ViewModel
         }
         public static readonly DependencyProperty ErrorProperty =
             DependencyProperty.Register("Error", typeof(bool), typeof(LoginVM), new PropertyMetadata(false));
-
-
         #endregion
         #region Commands
         public RelayCommand Inter
@@ -35,6 +34,8 @@ namespace PLSE_MVVMStrong.ViewModel
                                             {
                                                 (Application.Current as App).LogedEmployee = em;
                                                 var wnd = new MainWindow();
+                                                Settings.Default.InitLogin = Login;
+                                                Settings.Default.Save();
                                                 (n as Window).Close();
                                                 
                                                 wnd.Show();
@@ -49,6 +50,7 @@ namespace PLSE_MVVMStrong.ViewModel
             {
                 return new RelayCommand(n =>
                                     {
+                                        
                                         var wnd = n as View.Login;
                                         wnd.Close();
                                     });
@@ -77,6 +79,7 @@ namespace PLSE_MVVMStrong.ViewModel
             //Login = "Кожаева";
             //Pass = "Кожаева";
 #endif
+            Login = Settings.Default.InitLogin;
             PassChanged = new RelayCommand(n =>
             {
                 Pass = (n as System.Windows.Controls.PasswordBox).Password;

@@ -7,7 +7,7 @@
         xmlns:viewmodel="clr-namespace:PLSE_MVVMStrong.ViewModel"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         mc:Ignorable="d"
-        Title="Новая экспертиза" Height="370" Width="800" Name="wnd" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize">
+        Title="Новая экспертиза" Height="470" Width="880" Name="wnd" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize">
     <Window.DataContext>
         <viewmodel:ExpertiseAddVM/>
     </Window.DataContext>
@@ -16,45 +16,76 @@
             <ColumnDefinition Width="auto"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
-        </Grid.RowDefinitions>
-        <TextBlock Text="Тип экспертизы*" Style="{StaticResource UIRightOrient}"/>
-        <ComboBox Style="{StaticResource UIComboBox}" Grid.Row="1" Text="{Binding Path=Expertise.ExpertiseType}" ItemsSource="{Binding Path=ExpertiseType}" Margin="5,0,0,5"
-                  TabIndex="1"/>
-        <TextBlock Text="Номер*" Grid.Column="1" Style="{StaticResource UIRightOrient}" Margin="15,0,0,0"/>
-        <TextBox Style="{StaticResource UITextBox}" Grid.Row="1" Grid.Column="1" MinWidth="180" Margin="15,0,0,5" TabIndex="2"
+        <StackPanel Orientation="Vertical">
+            <GroupBox  Header="Тип экспертизы*" Foreground="{StaticResource InactiveGrayColor}" Margin="2,0,5,0" FontSize="{StaticResource UIFontSize}">
+                <StackPanel Orientation="Horizontal">
+                    <RadioButton Content="первичная" Margin="5" IsChecked="True" GroupName="Type" Name="primary">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Checked">
+                                <i:InvokeCommandAction Command="{Binding Path =TypeChanged}" CommandParameter="{Binding ElementName=primary}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </RadioButton>
+                    <RadioButton Content="дополнительная" Margin="7,5,5,5" GroupName="Type" Name="secondary">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Checked">
+                                <i:InvokeCommandAction Command="{Binding Path =TypeChanged}" CommandParameter="{Binding ElementName=secondary}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </RadioButton>
+                    <RadioButton Content="повторная" Margin="7,5,5,5" GroupName="Type" Name="repeat">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Checked">
+                                <i:InvokeCommandAction Command="{Binding Path =TypeChanged}" CommandParameter="{Binding ElementName=repeat}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </RadioButton>
+                </StackPanel>
+            </GroupBox>
+            <TextBlock Text="Номер*" Style="{StaticResource UIRightOrient}" Margin="2,10,0,0"/>
+            <TextBox Style="{StaticResource UITextBox}" Grid.Row="2" MinWidth="100" Margin="2,0,0,5" TabIndex="2" Padding="2"
                      Text="{Binding Path=Expertise.Number, ValidatesOnExceptions=True, ValidatesOnDataErrors=True}" />
-        <TextBlock Text="Дата начала*" Grid.Row="2" Style="{StaticResource UIRightOrient}"/>
-        <DatePicker Grid.Row="3" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Expertise.StartDate}" Margin="5,0,0,5" TabIndex="3"/>
-        <TextBlock Text="Срок, дней*" Grid.Row="2" Grid.Column="1" Style="{StaticResource UIRightOrient}" Margin="15,0,0,0"/>
-         <StackPanel Orientation="Horizontal" Grid.Row="3" Grid.Column="1" Margin="15,0,0,0">
-                <Slider Name="slider" Maximum="30" Minimum="1" VerticalAlignment="Center" Margin="5,0" Width="350" HorizontalAlignment="Left" IsTabStop="False"
+            <TextBlock Text="Дата начала*" Style="{StaticResource UIRightOrient}" Margin="2,10,0,0"/>
+            <DatePicker Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Expertise.StartDate}" Margin="2,0,0,5" TabIndex="3"/>
+            <TextBlock Text="Срок, дней*" Grid.Row="6" Style="{StaticResource UIRightOrient}" Margin="2,10,0,0"/>
+            <StackPanel Orientation="Horizontal" Margin="2,0,5,0">
+                <Slider Name="slider" Maximum="30" Minimum="1" VerticalAlignment="Center" Margin="0,0" Width="320" HorizontalAlignment="Left" IsTabStop="False"
                     TickPlacement="BottomRight" Ticks="5 10 15 20 25 30" TickFrequency="5" Value="{Binding Path=Expertise.TimeLimit}" Foreground="Black"/>
                 <TextBlock Text="{Binding ElementName=slider, Path=Value, Mode=OneWay}" Width="auto" FontSize="20" Margin="3,0,0,0" Foreground="#FF0A46AE" 
                           FontWeight="Bold" Height="auto"/>
+            </StackPanel>
         </StackPanel>
-        <TextBlock Text="Эксперт*" Grid.Row="4" Style="{StaticResource UIRightOrient}"/>
-            <ComboBox Name="cbexpert" Style="{StaticResource UIComboBox}" Grid.Row="5" ItemsSource="{Binding Path=Experts}" DisplayMemberPath="Fio" Margin="5,0,0,5"
+        <!--<TextBlock Text="Тип экспертизы*" Style="{StaticResource UIRightOrient}"/>
+        <ComboBox Style="{StaticResource UIComboBox}" Grid.Row="1" Text="{Binding Path=Expertise.ExpertiseType}" ItemsSource="{Binding Path=ExpertiseType}" Margin="5,0,0,5"
+                  TabIndex="1"/>-->
+        <StackPanel Orientation="Vertical" Grid.Column="1">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <TextBlock Text="Эксперт*" Grid.Column="2" Style="{StaticResource UIRightOrient}" Margin="5,4,0,10"/>
+                <ComboBox Name="cbexpert" Style="{StaticResource UIComboBox}" Grid.Row="5" ItemsSource="{Binding Path=Experts}" DisplayMemberPath="Fio" Margin="5,4,0,10"
                       TabIndex="4">
-                <i:Interaction.Triggers>
-                    <i:EventTrigger EventName="SelectionChanged">
-                        <i:InvokeCommandAction Command="{Binding Path=ExpertChanged}" CommandParameter="{Binding ElementName =cbexpert, Path=SelectedItem}"/>
-                    </i:EventTrigger>
-                </i:Interaction.Triggers>
-            </ComboBox>
-        <TextBlock Text="Специальность*" Grid.Row="6" Style="{StaticResource UIRightOrient}"/>
-        <ComboBox Style="{StaticResource UIComboBox}" Grid.Row="7" Grid.ColumnSpan="2" ItemsSource="{Binding Path=Specialities}" DisplayMemberPath="Speciality"
-                      SelectedItem="{Binding Path=Expertise.Expert}" HorizontalContentAlignment="Left" Width="740" Margin="5,0,0,5"/>
-        <Button Grid.Row="8" Grid.ColumnSpan="2" Style="{StaticResource BaseUIButton}" Foreground="GreenYellow" Content="ДОБАВИТЬ" Margin="0,65,20,5"
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectionChanged">
+                            <i:InvokeCommandAction Command="{Binding Path=ExpertChanged}" CommandParameter="{Binding ElementName =cbexpert, Path=SelectedItem}"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </ComboBox>
+            </StackPanel>
+            <TextBlock Text="Специальность*" Grid.Row="1" Grid.Column="2" Style="{StaticResource UIRightOrient}" HorizontalAlignment="Center"/>
+            <ListBox Grid.Row="2" BorderThickness="0" ItemsSource="{Binding Path=Specialities}" Margin="5,1,0,0" Height="300"
+                 SelectedItem="{Binding Path=Expertise.Expert}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="Expert">
+                        <TextBlock FontSize="{StaticResource UIFontSize}" TextWrapping="Wrap" Text="{Binding Path=ExpertCore.Speciality.Code}"/>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="{x:Type ListBoxItem}">
+                        <Setter Property="Margin" Value="0,2,0,2"/>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+            </ListBox>
+            <Button Style="{StaticResource BaseUIButton}" Foreground="GreenYellow" Content="ДОБАВИТЬ" Margin="0,20,20,0" VerticalAlignment="Bottom"
                 HorizontalAlignment="Right" Command="{Binding Path=Select}" CommandParameter="{Binding ElementName=wnd}"/>
+        </StackPanel>
     </Grid>
 </Window>

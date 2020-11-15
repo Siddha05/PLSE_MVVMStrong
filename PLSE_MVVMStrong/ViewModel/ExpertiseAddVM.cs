@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 
 namespace PLSE_MVVMStrong.ViewModel
@@ -20,23 +21,17 @@ namespace PLSE_MVVMStrong.ViewModel
         #endregion
 
         #region Commands
-        public RelayCommand Cancel { get; }
+        public RelayCommand TypeChanged { get; }
         public RelayCommand Select { get; }
         public RelayCommand ExpertChanged { get; }
         #endregion
         public ExpertiseAddVM()
         {         
-            Experts = CommonInfo.Experts.Where(n => n.Employee.EmployeeCore.EmployeeStatus != "не работает")
+            Experts = CommonInfo.Experts.Where(n => n.Employee.Actual)
                                                 .GroupBy(keySelector: n => n.Employee.EmployeeID)
                                                 .Select(n => n.First().Employee)
                                                 .OrderBy(n => n.Sname);
-            Cancel = new RelayCommand(n =>
-            {
-                var wnd = n as ExpertiseAdd;
-                if (wnd == null) return;
-                wnd.DialogResult = false;
-                wnd.Close();
-            });
+           
             Select = new RelayCommand(n =>
             {
                 var wnd = n as ExpertiseAdd;
@@ -50,10 +45,15 @@ namespace PLSE_MVVMStrong.ViewModel
                     else return false;
                 }
             );
+            TypeChanged = new RelayCommand(n =>
+            {
+                var b = n as RadioButton;
+                Expertise.ExpertiseType = b.Content.ToString();
+            });
             Specialities.Filter = n => false;
             ExpertChanged = new RelayCommand(n =>
             {
-                Specialities.Filter = x => (x as Expert).Employee.EmployeeID == (n as Employee).EmployeeID;  
+                Specialities.Filter = x => (x as Expert).Employee.EmployeeID == (n as Employee).EmployeeID && !(x as Expert).ExpertCore.Closed;  
             });
         }
     }

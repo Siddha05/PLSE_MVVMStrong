@@ -15,6 +15,8 @@
     </Window.DataContext>
     <Window.Resources>
         <b:ZeroToVisibilityConverter x:Key="ZeroToVisibleConv"/>
+        <b:GenderToBoolConverter x:Key="genderConv"/>
+        <b:MaxDateConverter x:Key="DateConverter"/>
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -27,7 +29,7 @@
             <RowDefinition/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-        <Viewbox Margin="5" Stretch="Uniform">
+        <Viewbox Margin="5,10,3,5" Stretch="Uniform">
             <Image Source="{Binding Path=Employee.EmployeeCore.Image, Mode=OneWay}" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="MouseLeftButtonDown">
@@ -35,8 +37,15 @@
                 </i:EventTrigger>
             </i:Interaction.Triggers>
         </Viewbox>
-        <TextBlock Grid.Row="1" Style="{x:Null}" FontSize="16" FontWeight="Medium" HorizontalAlignment="Center" 
-                   Text="{Binding Path=Employee.UpdateDate, StringFormat=Обновлено: {0:d}, ConverterCulture='ru-ru'}"/>
+        <TextBlock Grid.Row="1" Style="{x:Null}" FontSize="16" FontWeight="Medium" HorizontalAlignment="Center" Foreground="{StaticResource InactiveGrayColor}">
+            <TextBlock.Text>
+                <MultiBinding Converter="{StaticResource DateConverter}" StringFormat="Последние изменения: {0:d}" ConverterCulture="ru-ru">
+                    <Binding Path="Employee.UpdateDate"/>
+                    <Binding Path="Employee.EmployeeCore.UpdateDate"/>
+                </MultiBinding>
+            </TextBlock.Text>
+        </TextBlock>
+                   <!--Text="{Binding Path=Employee.UpdateDate, StringFormat=Последние изменения: {0:d}, ConverterCulture='ru-ru'}"/>-->
         <TabControl Grid.Column="1" Margin="5,20,25,20" Grid.RowSpan="2" Grid.ColumnSpan="2" BorderThickness="0">
             <TabControl.Resources>
                 <Style TargetType="{x:Type TabItem}">
@@ -45,12 +54,12 @@
                             <ControlTemplate TargetType="{x:Type TabItem}">
                                 <Grid Name="grd">
                                     <TextBlock x:Name="tst" VerticalAlignment="Center" HorizontalAlignment="Center" Text="{TemplateBinding Header}"
-                                               Foreground="#FF718CC7" Margin="5,2" FontWeight="DemiBold" FontSize="18"/>
+                                               Foreground="#FF22AABF" Margin="5,2" FontWeight="DemiBold" FontSize="22"/>
                                 </Grid>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsSelected" Value="True">
                                         <Setter TargetName="tst" Property="TextBlock.TextDecorations" Value="Underline"/>
-                                        <Setter TargetName="tst" Property="TextBlock.Foreground" Value="Blue"/>
+                                        <Setter TargetName="tst" Property="TextBlock.Foreground" Value="{StaticResource SelectedControl}"/>
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
@@ -62,6 +71,7 @@
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <Grid Margin="0,10,0,0">
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
                             <ColumnDefinition Width="auto"/>
                             <ColumnDefinition Width="auto"/>
                             <ColumnDefinition Width="auto"/>
@@ -81,43 +91,53 @@
                             <RowDefinition/>
                         </Grid.RowDefinitions>
                         <TextBlock Text="Фамилия*" Style="{StaticResource UITextBlock}"/>
-                        <TextBox Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.Sname, ValidatesOnExceptions=True}" />
-                        <CheckBox Grid.Column="2" IsChecked="{Binding Path=Employee.Declinated}" Content="Склонять" Style="{StaticResource GreenCheck}" FontSize="{StaticResource UIFontSize}"
-                                      FontWeight="DemiBold"/>
+                        <TextBox Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.Sname, ValidatesOnExceptions=True}" Grid.ColumnSpan="2"/>
+                        <CheckBox Grid.Column="3" IsChecked="{Binding Path=Employee.Declinated}" Content="Склонять" Style="{StaticResource GreenCheck}" FontSize="{StaticResource UIFontSize}"
+                                      FontWeight="DemiBold" Grid.ColumnSpan="2"/>
                         <TextBlock Text="Имя*" Grid.Row="1" Style="{StaticResource UITextBlock}"/>
-                        <TextBox Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.Fname, ValidatesOnExceptions=True}" Grid.Row="1" Grid.Column="1"/>
+                        <TextBox Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.Fname, ValidatesOnExceptions=True}" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"/>
                         <TextBlock Grid.Row="2" Text="Отчество*" Style="{StaticResource UITextBlock}"/>
-                        <TextBox Grid.Row="2" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.Mname, ValidatesOnExceptions=True}"/>
-                        <TextBlock Grid.Row="3" Text="Пол*" Style="{StaticResource UITextBlock}"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.Mname, ValidatesOnExceptions=True}" Grid.ColumnSpan="2"/>
+                        <GroupBox Foreground="{StaticResource InactiveGrayColor}" FontSize="{StaticResource UIFontSize}" FontWeight="DemiBold" Width="220" HorizontalAlignment="Left"
+                                  Header="Пол*" Grid.Column="3" Grid.ColumnSpan="2" Grid.Row="1" Grid.RowSpan="2" BorderBrush="LightGray" BorderThickness="1">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
+                                <RadioButton Content="мужской" Margin="20,0,15,0" GroupName="gender"
+                                             IsChecked="{Binding Path=Employee.Gender, Converter={StaticResource genderConv}, ConverterParameter='мужской'}"/>
+                                <RadioButton Content="женский" Margin="0,0,0,0" GroupName="gender"
+                                    IsChecked="{Binding Path=Employee.Gender, Converter={StaticResource genderConv}, ConverterParameter='женский'}"/>
+                            </StackPanel>
+                        </GroupBox>
+                        <!--<TextBlock Grid.Row="3" Text="Пол*" Style="{StaticResource UITextBlock}"/>
                         <ComboBox Grid.Row="3" Grid.Column="1" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=Genders}" 
-                                  Text="{Binding Path=Employee.Gender}"/>
+                                  Text="{Binding Path=Employee.Gender}"/>-->
                         <TextBlock Grid.Row="4" Text="Дата рождения" Style="{StaticResource UITextBlock}"/>
-                        <DatePicker Grid.Row="4" Grid.Column="1" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Employee.EmployeeCore.Birthdate, ValidatesOnExceptions=True}"/>
-                        <TextBlock Grid.Row="4" Grid.Column="2" Text="Дата найма" Style="{StaticResource UITextBlock}"/>
-                        <DatePicker Grid.Row="4" Grid.Column="3" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Employee.EmployeeCore.Hiredate, ValidatesOnExceptions=True}"/>
-                        <TextBlock Grid.Row="5" Text="Отдел*" Style="{StaticResource UITextBlock}"/>
-                        <ComboBox Grid.Row="5" Grid.Column="1" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=Departaments}" 
+                        <DatePicker Grid.Row="4" Grid.Column="1" Style="{StaticResource UIDatePicker}" Grid.ColumnSpan="2"
+                                    SelectedDate="{Binding Path=Employee.EmployeeCore.Birthdate, ValidatesOnExceptions=True}"/>
+                        <TextBlock Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="2" Text="Дата найма" Style="{StaticResource UITextBlock}" />
+                        <DatePicker Grid.Row="4" Grid.Column="4" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Employee.EmployeeCore.Hiredate, ValidatesOnExceptions=True}"/>
+                        <TextBlock Grid.Row="6" Text="Отдел*" Style="{StaticResource UITextBlock}"/>
+                        <ComboBox Grid.Row="6" Grid.Column="1" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=Departaments}" 
                                   Text="{Binding Path=Employee.Departament.Acronym}"/>
-                        <TextBlock Grid.Row="5" Grid.Column="2" Text="Должность*" Style="{StaticResource UITextBlock}"/>
-                        <ComboBox Grid.Row="5" Grid.Column="3" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=InnerOffice}"
-                                  Text="{Binding Path=Employee.Inneroffice}" MinWidth="300"/>
-                        <TextBlock Grid.Row="6" Text="Статус*" Style="{StaticResource UITextBlock}"/>
-                        <ComboBox Grid.Row="6" Grid.Column="1" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=EmployeeStatus}"
-                                  Text="{Binding Path=Employee.EmployeeCore.EmployeeStatus}"/>
-                        <TextBlock Grid.Row="6" Grid.Column="2" Text="Пароль" Style="{StaticResource UITextBlock}"/>
-                        <PasswordBox Grid.Row="6" Grid.Column="3" Margin="5" Password="pass" VerticalContentAlignment="Center" Width="200" HorizontalAlignment="Left"/>
+                        <TextBlock Grid.Row="5" Text="Должность*" Style="{StaticResource UITextBlock}"/>
+                        <ComboBox Grid.Row="5" Grid.Column="1" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=InnerOffice}" Grid.ColumnSpan="4"
+                                  Text="{Binding Path=Employee.Inneroffice}" MinWidth="280"/>
+                        <TextBlock Grid.Row="3" Text="Статус*" Style="{StaticResource UITextBlock}"/>
+                        <ComboBox Grid.Row="3" Grid.Column="1" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=EmployeeStatus}"
+                                  Text="{Binding Path=Employee.EmployeeCore.EmployeeStatus}" Grid.ColumnSpan="2"/>
+                        <!--<TextBlock Grid.Row="6" Text="Пароль" Style="{StaticResource UITextBlock}"/>
+                        <PasswordBox Grid.Row="6" Grid.Column="1" Margin="5" Password="pass" VerticalContentAlignment="Center" Width="200" HorizontalAlignment="Left"/>
+                        <TextBlock Grid.Row="6" Grid.Column="2" Grid.ColumnSpan="2" Text="Подтв. пароль" Style="{StaticResource UITextBlock}" HorizontalAlignment="Left"/>-->
                         <TextBlock Grid.Row="7" Text="Образование 1" Style="{StaticResource UITextBlock}"/>
-                        
                         <TextBox Grid.Row="7" Grid.Column="1"  Text="{Binding Path=Employee.EmployeeCore.Education1}" Margin="5" TextWrapping="Wrap" 
-                                 FontSize="{StaticResource UIFontSize}" Grid.ColumnSpan="3" VerticalContentAlignment="Center"/>
+                                 FontSize="{StaticResource UIFontSize}" Grid.ColumnSpan="4" VerticalContentAlignment="Center"/>
                         <TextBlock Grid.Row="8" Text="Образование 2" Style="{StaticResource UITextBlock}"/>
-                        <TextBox Grid.Row="8" Grid.ColumnSpan="3" Grid.Column="1" Margin="5"  TextWrapping="Wrap" FontSize="{StaticResource UIFontSize}" 
+                        <TextBox Grid.Row="8" Grid.ColumnSpan="4" Grid.Column="1" Margin="5"  TextWrapping="Wrap" FontSize="{StaticResource UIFontSize}" 
                                  Text="{Binding Path=Employee.EmployeeCore.Education2}" VerticalContentAlignment="Center"/>
                         <TextBlock Grid.Row="9" Text="Образование 3" Style="{StaticResource UITextBlock}"/>
-                        <TextBox Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="3" Margin="5"  TextWrapping="Wrap" FontSize="{StaticResource UIFontSize}" 
+                        <TextBox Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="4" Margin="5"  TextWrapping="Wrap" FontSize="{StaticResource UIFontSize}" 
                                  Text="{Binding Path=Employee.EmployeeCore.Education3}" VerticalContentAlignment="Center"/>
                         <TextBlock Grid.Row="10" Text="Ученая степень" Style="{StaticResource UITextBlock}"/>
-                        <TextBox Grid.Row="10" Grid.Column="1" Grid.ColumnSpan="3" Margin="5"  TextWrapping="Wrap" FontSize="{StaticResource UIFontSize}"
+                        <TextBox Grid.Row="10" Grid.Column="1" Grid.ColumnSpan="4" Margin="5"  TextWrapping="Wrap" FontSize="{StaticResource UIFontSize}"
                                  Text="{Binding Path=Employee.EmployeeCore.Sciencedegree}" VerticalContentAlignment="Center"/>
                     </Grid>
                 </ScrollViewer>
@@ -146,9 +166,6 @@
                     <TextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.EmployeeCore.Workphone,ValidatesOnExceptions=True}"/>
                     <TextBlock Grid.Row="2" Text="Email" Style="{StaticResource UITextBlock}"/>
                     <TextBox Grid.Row="2" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Employee.EmployeeCore.Email}"/>
-                    <!--<TextBlock Grid.Row="3" Text="Пароль" Style="{StaticResource UITextBlock}"/>-->
-                    <!--<PasswordBox Grid.Row="3" Grid.Column="1" Margin="5" Password="2254" PasswordChar="*" FontSize="{StaticResource UIFontSize}"
-                                 HorizontalAlignment="Left" Height="auto" VerticalContentAlignment="Center" MinWidth="270"/>-->
                     <TextBlock Text="Населенный пункт" Style="{StaticResource UITextBlock}" Grid.Row="3"/>
                     <TextBox Grid.Row="3" Grid.Column="1" Style="{StaticResource UITextBox}" Width="370" Text="{Binding Path=Employee.EmployeeCore.Adress.Settlement.Title, Mode=OneWay}"
                              Name="tbSettlement">
@@ -199,7 +216,7 @@
                         <Button Style="{StaticResource DeleteButton}" Width="40" Height="40" Margin="2" Command="{Binding Path=DeleteSpeciality}"/>
                     </StackPanel>
                     <ListBox ItemsSource="{Binding Path=ExpertList}" BorderThickness="0" Name="lbExperts" SelectedItem="{Binding Path=SelectedExpert, Mode=OneWayToSource}"
-                             ScrollViewer.VerticalScrollBarVisibility="Auto" MaxHeight="400">
+                             ScrollViewer.VerticalScrollBarVisibility="Auto" MaxHeight="400" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="{x:Type ListBoxItem}">
                                 <Setter Property="OverridesDefaultStyle" Value="True"/>
@@ -227,22 +244,21 @@
                                         <ColumnDefinition Width="3*"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Style="{x:Null}" FontSize="18" HorizontalAlignment="Left" Text="{Binding Path=ExpertCore.Speciality.Code}"
-                                               Name="tbm" TextWrapping="Wrap" MaxWidth="400" Margin="10,0,0,0" VerticalAlignment="Center"/>
-                                    <TextBlock Style="{x:Null}" FontSize="16" HorizontalAlignment="Center" Grid.Column="1" VerticalAlignment="Center" Margin="5,0,10,0">
-                                               
+                                    <TextBlock Style="{x:Null}" FontSize="14" HorizontalAlignment="Left" Text="{Binding Path=ExpertCore.Speciality.Code}"
+                                               Name="tbm" TextWrapping="Wrap"  Margin="10,0,0,0" VerticalAlignment="Center"/>
+                                    <TextBlock Style="{x:Null}" FontSize="12" HorizontalAlignment="Center" Grid.Column="1" VerticalAlignment="Center" Margin="5,0,10,0">     
                                         <Run Text="{Binding Path=ExpertCore.ReceiptDate, StringFormat='Дата получения: {0:d}', ConverterCulture='ru-ru', Mode=OneWay}"/>
-                                        <Run Text="{Binding Path=ExpertCore.Experience, StringFormat='({0})', Mode=OneWay}"/>
                                         <LineBreak/>
-                                        <Run Name="ratt" Text="{Binding Path=ExpertCore.LastAttestationDate, StringFormat='Посл. аттестация: {0:d}', ConverterCulture='ru-ru', Mode=OneWay}"/>
+                                        <Run Name="ratt" Text="{Binding Path=ExpertCore.LastAttestationDate, StringFormat='Посл. аттестация: {0:d}', 
+                                            ConverterCulture='ru-ru', Mode=OneWay}"/>
                                     </TextBlock>
                                 </Grid>
                                 <DataTemplate.Triggers>
-                                    <DataTrigger Binding="{Binding Path=IsValid}" Value="false">
+                                    <DataTrigger Binding="{Binding Path=ExpertCore.Closed}" Value="true">
                                         <Setter TargetName="tbm" Property="TextDecorations" Value="Strikethrough"/>
                                         <Setter TargetName="tbm" Property="Foreground" Value="Red"/>
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding Path=ValidAttestation}" Value="false">
+                                    <DataTrigger Binding="{Binding Path=ExpertCore.ValidAttestation}" Value="false">
                                         <Setter TargetName="ratt" Property="Foreground" Value="#FFFF0202"/>
                                         <Setter TargetName="ratt" Property="ToolTip" Value="Период экспертной аттестации по специальности истек"/>
                                     </DataTrigger>
@@ -253,7 +269,7 @@
                 </StackPanel>
             </TabItem>
         </TabControl>
-        <Button Style="{StaticResource BaseUIButton}" Grid.Column="2" Grid.Row="6" Content="Сохранить" Foreground="#FFA6E840" Margin="1,10,20,10" Command="{Binding Path=Save}"
+        <Button Style="{StaticResource BaseUIButton}" Grid.Column="2" Grid.Row="6" Content="СОХРАНИТЬ" Foreground="#FFA6E840" Margin="1,5,30,15" Command="{Binding Path=Save}"
                     CommandParameter="{Binding ElementName=wnd}"/>
         <Popup Grid.Column="1" PopupAnimation="Scroll" Width="580" AllowsTransparency="True" PlacementTarget="{x:Reference bSpec}" StaysOpen="False"
                  Placement="Bottom" VerticalOffset="5" HorizontalOffset="10" MaxHeight="300" IsOpen="{Binding Path=PopupVisibility}">

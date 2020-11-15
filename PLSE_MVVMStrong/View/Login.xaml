@@ -24,8 +24,8 @@
         <Grid.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                 <GradientStop Color="#FF4141FF" Offset="0"/>
-                <GradientStop Color="#FF89BCF9" Offset="0.5"/>
-                <GradientStop Color="#FFC5DEFB" Offset="0.7"/>
+                <GradientStop Color="#FF89BCF9" Offset="0.6"/>
+                <GradientStop Color="#FFCEDEF1" Offset="0.75"/>
             </LinearGradientBrush>
         </Grid.Background>
         <Grid.RowDefinitions>
@@ -38,17 +38,18 @@
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
         <Image Source="/PLSE_MVVMStrong;component/Resources/МииЮст.png" Margin="10"/>
-        <TextBlock Grid.Row="1" Style="{x:Null}" Text="Логин" HorizontalAlignment="Center" Margin="5,15,5,1" Foreground="White"/>
-        <TextBox Grid.Row="2" HorizontalAlignment="Center" Margin="4,1,4,6" Width="230" TabIndex="1"
-                 Text="{Binding Login, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+        <TextBlock Grid.Row="1" Style="{x:Null}" Text="Логин" HorizontalAlignment="Center" Margin="5,15,5,0" Foreground="White"/>
+        <TextBox Grid.Row="2" HorizontalAlignment="Center" Margin="4,0,4,6" Width="230" TabIndex="1"
+                 Text="{Binding Login, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Height="auto" Padding="2">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="TextChanged">
                     <i:InvokeCommandAction Command="{Binding Path=TextChanged}"/>
                 </i:EventTrigger>
             </i:Interaction.Triggers>
         </TextBox>
-        <TextBlock Grid.Row="3" Style="{x:Null}" Text="Пароль" HorizontalAlignment="Center" Margin="4,4,4,1" Foreground="White"/>
-        <PasswordBox Name="passbox" Grid.Row="4" HorizontalAlignment="Center" Margin="5,1,5,5" Width="230" PasswordChar="*"  MaxLength ="30" TabIndex="2">
+        <TextBlock Grid.Row="3" Style="{x:Null}" Text="Пароль" HorizontalAlignment="Center" Margin="4,4,4,0" Foreground="White"/>
+        <PasswordBox Name="passbox" Grid.Row="4" HorizontalAlignment="Center" Margin="5,0,5,5" Width="230" PasswordChar="*"  MaxLength ="30" TabIndex="2"
+                     Height="auto" Padding="2">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="PasswordChanged">
                     <i:InvokeCommandAction Command="{Binding Path=PassChanged, UpdateSourceTrigger=PropertyChanged}" CommandParameter="{Binding ElementName=passbox}"/>

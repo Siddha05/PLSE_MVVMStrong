@@ -197,6 +197,8 @@ namespace PLSE_MVVMStrong.ViewModel
             else if (curhour >= 11 && curhour <= 16) Messages.Add(new Message($"День добрый, {Employee.Fname} {Employee.Mname}", MsgType.Temporary, TimeSpan.FromSeconds(5)));
             else if (curhour >= 17 && curhour <= 21) Messages.Add(new Message($"Добрый вечер, {Employee.Fname} {Employee.Mname}", MsgType.Temporary, TimeSpan.FromSeconds(5)));
             else Messages.Add(new Message($"Доброй ночи, {Employee.Fname} {Employee.Mname}", MsgType.Normal, TimeSpan.FromSeconds(5)));
+            messages.Add(new Message($"Connettion: {System.Configuration.ConfigurationManager.ConnectionStrings[0]}", MsgType.Temporary, TimeSpan.FromSeconds(2)));
+            messages.Add(new Message($"Connettion: {System.Configuration.ConfigurationManager.ConnectionStrings["PLSE"]}", MsgType.Temporary, TimeSpan.FromSeconds(4)));
             //app.PropertyChanged += (o, e) => Employee = app.LogedEmployee;
             //foreach (var item in CommonInfo.Employees)
             //{
@@ -213,8 +215,8 @@ namespace PLSE_MVVMStrong.ViewModel
             //    }
             //    Messages.Add(new Message(text, MsgType.Warning));
             //}
-            
-           
+
+
         }
 
         private void App_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -256,8 +258,13 @@ namespace PLSE_MVVMStrong.ViewModel
         {
             Task.Run(() =>
             {
-                Thread.Sleep(2003);
-                progress.Report(new Message($"Expertises not scanned!", MsgType.Warning));
+                foreach (var item in CommonInfo.Experts.Where(n => n.Employee.EmployeeID == app.LogedEmployee.EmployeeID))
+                {
+                    if (!item.ExpertCore.ValidAttestation)
+                    {
+                        progress.Report(new Message($"Аттестация по специальности {item.ExpertCore.Speciality.Code} просрочена", MsgType.Warning));
+                    }
+                }
             });
         }
         public void TestInfo (IProgress<Message> progress)

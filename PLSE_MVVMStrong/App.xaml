@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:PLSE_MVVMStrong"
              xmlns:system="clr-namespace:System;assembly=mscorlib"
-             StartupUri="View\Profile.xaml" ShutdownMode="OnLastWindowClose">
+             StartupUri="View\Settings.xaml" ShutdownMode="OnLastWindowClose">
     <Application.Resources>
         <local:TextConverter x:Key="TextConverter" />
         <local:FocusColor x:Key="RemainToColor"/>
@@ -19,6 +19,7 @@
         <SolidColorBrush x:Key="ExitColor" Color="#FFDA7B1D"/>
         <SolidColorBrush x:Key="SaveEnterColor" Color="#FF89C330"/>
         <SolidColorBrush x:Key="PositiveGreenColor" Color="#FF2CD12C"/>
+        <SolidColorBrush x:Key="InactiveGrayColor" Color="#FF646464"/>
         <BitmapImage x:Key="lens" UriSource="Resources\lens.jpg" SourceRect="210 10 480 480"/>
         
 
@@ -85,6 +86,25 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+        <Style TargetType="{x:Type PasswordBox}" x:Key="UIPassword">
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="Margin" Value="5" />
+            <Setter Property="FontSize" Value="{StaticResource UIFontSize}" />
+            <Setter Property="FontWeight" Value="Normal" />
+            <Setter Property="MinWidth" Value="200" />
+            <Setter Property="Height" Value="auto" />
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="BorderThickness" Value="1" />
+            <Style.Triggers>
+                <Trigger Property="Validation.HasError" Value="True">
+                    <Setter Property="ToolTip">
+                        <Setter.Value>
+                            <Binding RelativeSource="{RelativeSource Self}" Path="(Validation.Errors)[0].ErrorContent" />
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
         <Style TargetType="{x:Type TextBox}" x:Key="NumericTextBox">
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Width" Value="40"/>
@@ -110,6 +130,7 @@
             <Setter Property="FontWeight" Value="DemiBold" />
             <Setter Property="Height" Value="{StaticResource UIHeigth}" />
             <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="{StaticResource InactiveGrayColor}"/>
         </Style>
         <Style TargetType="{x:Type TextBlock}" x:Key="UIRightOrient">
             <Setter Property="HorizontalAlignment" Value="Left" />
@@ -118,6 +139,7 @@
             <Setter Property="FontWeight" Value="DemiBold" />
             <Setter Property="Height" Value="auto" />
             <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="{StaticResource InactiveGrayColor}"/>
         </Style>
         <Style TargetType="{x:Type DatePicker}" x:Key="UIDatePicker">
             <Setter Property="FontSize" Value="{StaticResource UIFontSize}" />
@@ -669,10 +691,11 @@
                                 <ColumnDefinition Width="25"/>
                                 <ColumnDefinition/>
                             </Grid.ColumnDefinitions>
-                            <Rectangle Stroke="Black" Height="20" Width="20" VerticalAlignment="Center"/>
+                            <Rectangle Stroke="Black" Height="20" Width="20" VerticalAlignment="Center" Fill="Transparent"/>
                             <Path x:Name="chk" Data="M19.949364,2.1748175 L9.3963195,16.174759 9.0430101,16.174759 0,9.2325122 2.5532038,6.2606848 8.509746,10.823652 16.666123,2.7126641E-05 19.949364,2.1748175 z" Fill="GreenYellow"
                                       Stretch="None" HorizontalAlignment="Center" VerticalAlignment="Center" Height="16" Margin="2.5,12" Width="20" Opacity="0"/>
-                            <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{TemplateBinding Content}" FontSize="{TemplateBinding FontSize}" FontWeight="{TemplateBinding FontWeight}"/>
+                            <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{TemplateBinding Content}" FontSize="{TemplateBinding FontSize}" FontWeight="{TemplateBinding FontWeight}"
+                                       IsHitTestVisible="False"/>
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">

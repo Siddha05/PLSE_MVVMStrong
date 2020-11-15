@@ -18,6 +18,9 @@
         <local:CaseTypeToVisibleConverter x:Key="CTypeConverter" />
         <plse_mvvmstrong:TextLenghtConverter x:Key="TextLenghtConv"/>
         <plse_mvvmstrong:ZeroToVisibilityConverter x:Key="IntToVisibConv"/>
+        <Style x:Key="romb" TargetType="{x:Type Path}">
+            <Setter Property="Data" Value="M 0,0 H 10 L 0,15 H -10 Z "/>
+        </Style> 
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -282,16 +285,21 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="6*"/>
                             </Grid.ColumnDefinitions>
+                            <!--<StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right">
+                                <Path Style="{StaticResource romb}" Fill="Gold" Margin="0,1,0,0"/>
+                                <Path Style="{StaticResource romb}" Fill="BlueViolet" Margin="2,1,0,0" />
+                                <Path Style="{StaticResource romb}" Fill="LimeGreen" Margin="2,1,10,0"/>
+                            </StackPanel>-->
                             <TextBlock Name="tbNumber" Text="{Binding Path=Number, Mode=OneWay}" FontWeight="ExtraBlack"  VerticalAlignment="Center"
                                            HorizontalAlignment="Center" Margin="5,0,5,0" FontSize="26" Foreground="DarkBlue" Grid.RowSpan="2"/>
                             <TextBlock Grid.Column="1" Margin="8,1,1,1" HorizontalAlignment="Left" 
                                          TextWrapping="Wrap" >
                                 <Run Text="{Binding Path=Expert.Employee, Mode=OneWay}" TextDecorations="Underline" FontSize="{StaticResource UIFontSize}" FontWeight="Bold"/>
                                 <LineBreak/>
-                                <Run FontSize="{StaticResource UIFontSize}" FontWeight="DemiBold" FontStyle="Italic" Text="{Binding Path=Expert.Speciality.Code, Mode=OneWay}"/>
+                                <Run FontSize="{StaticResource UIFontSize}" FontWeight="DemiBold" FontStyle="Italic" Text="{Binding Path=Expert.ExpertCore.Speciality.Code, Mode=OneWay}"/>
                             </TextBlock>
-                            <TextBlock Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" Margin="0,2,7,0" Panel.ZIndex="1" 
-                                       Text="{Binding Path=DeadLine, Mode=OneWay, StringFormat='до {0:d}', ConverterCulture='ru-RU'}"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" Margin="0,2,7,0" Panel.ZIndex="1" Name="tbDeadLine" 
+                                       Text="{Binding Path=DeadLine, Mode=OneWay, StringFormat='до {0:d}', TargetNullValue='выполнена', ConverterCulture='ru-RU'}"/>
                         </Grid>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
