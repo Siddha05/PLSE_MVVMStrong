@@ -110,6 +110,7 @@
     <Compile Include="ViewModel\OrganizationAddVM.cs" />
     <Compile Include="ViewModel\ResolutionAddInfoVM.cs" />
     <Compile Include="ViewModel\ResolutionAddVM.cs" />
+    <Compile Include="ViewModel\SavePasswordVM.cs" />
     <Compile Include="ViewModel\SettingsVM.cs" />
     <Compile Include="ViewModel\SpecialityAddVM.cs" />
     <Compile Include="ViewModel\SpecialityVM.cs" />
@@ -157,6 +158,9 @@
     </Compile>
     <Compile Include="View\ResolutionAddInfo.xaml.cs">
       <DependentUpon>ResolutionAddInfo.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\SavePassword.xaml.cs">
+      <DependentUpon>SavePassword.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\Settings.xaml.cs">
       <DependentUpon>Settings.xaml</DependentUpon>
@@ -236,6 +240,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\ResolutionAddInfo.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\SavePassword.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -348,6 +356,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\link.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\directory.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

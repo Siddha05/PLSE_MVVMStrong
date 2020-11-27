@@ -7,66 +7,69 @@
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:local="clr-namespace:PLSE_MVVMStrong.View"
         mc:Ignorable="d"
-        Title="Новый заказчик"  Width="620" Name="wnd" SizeToContent="WidthAndHeight" WindowStartupLocation="CenterScreen">
+        Title="Заказчик" Height="600"  Width="520" Name="wnd" WindowStartupLocation="CenterScreen">
     <Window.DataContext>
         <viewmodel:CustomerAddVM />
     </Window.DataContext>
     <Grid Margin="15,5,15,10">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto" />
-                <ColumnDefinition Width="auto" />
-                <ColumnDefinition Width="120" />
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition/>
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-            <TextBlock Text="Фамилия*" Style="{StaticResource UITextBlock}"/>
-            <TextBox Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Customer.Sname, ValidatesOnExceptions=True, NotifyOnValidationError=True}"/>
-            <CheckBox HorizontalAlignment="Left" Height="40" Width="85" Style="{StaticResource GreenCheck}" IsThreeState="False" IsChecked="{Binding Path=Customer.Declinated}"
-                      Grid.Column="2" >
-                Склонять
-            </CheckBox>
-            <TextBlock Text="Имя*" Grid.Row="1" Style="{StaticResource UITextBlock}"/>
-            <TextBox Grid.Column="1" Grid.Row="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Customer.Fname, ValidatesOnExceptions=True}"/>
-            <TextBlock Text="Отчество*" Grid.Row="2" Style="{StaticResource UITextBlock}"/>
-        <TextBox Grid.Column="1" Grid.Row="2" Style="{StaticResource UITextBox}" Text="{Binding Path=Customer.Mname,ValidatesOnExceptions=True}"/>
-        <CheckBox Grid.Row="3" FontWeight="DemiBold" Margin="5,0" Grid.Column="1" Style="{StaticResource GreenCheck}" IsChecked="{Binding Path=Customer.IsValid}">
-            Действует
-        </CheckBox>
-        <TextBlock Text="Пол*" Grid.Row="4" Style="{StaticResource UITextBlock}"/>
-            <ComboBox Grid.Column="1" Grid.Row="4" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=Genders}" 
-                      Text="{Binding Path=Customer.Gender}"/>
-            <TextBlock Text="М. телефон" Grid.Row="9" Style="{StaticResource UITextBlock}"/>
-            <TextBox Grid.Column="1" Grid.Row="9" Style="{StaticResource UITextBox}" Text="{Binding Path=Customer.Mobilephone}"/>
-            <TextBlock Text="Р. телефон" Grid.Row="8" Style="{StaticResource UITextBlock}"/>
-            <TextBox Grid.Column="1" Grid.Row="8" Style="{StaticResource UITextBox}" Text="{Binding Path=Customer.Workphone}"/>
-        <TextBlock Text="Звание" Grid.Row="7" Style="{StaticResource UITextBlock}"/>
-            <ComboBox Grid.Column="1" Grid.Row="7" Grid.ColumnSpan="2" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=Ranks}" 
-                      Text="{Binding Path=Customer.Rank}" Width="426" Margin="5,5,0,5"/>
-        <TextBlock Text="Должность*" Grid.Row="6" Style="{StaticResource UITextBlock}"/>
-            <TextBox Grid.Column="1" Grid.Row="6" Grid.ColumnSpan="2" Style="{StaticResource UITextBox}" Text="{Binding Path=Customer.Office}" Margin="5,5,0,5" Width="426"/>
-        <TextBlock Text="Организация" Grid.Row="5" Style="{StaticResource UITextBlock}"/>
-        <StackPanel Orientation="Horizontal" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,0,-41,0">
-            <TextBlock Text="{Binding Path=Customer.Organization}" FontSize="{StaticResource RegularFontSize}"
-                       FontWeight="DemiBold" MaxWidth="300" TextWrapping="Wrap" Margin="5" Foreground="Gray" VerticalAlignment="Center" Height="auto"
-                       ToolTip="{Binding Path=Customer.Organization.Requisite, TargetNullValue='выберите организацию'}"/>
-            <TextBox Style="{StaticResource SearchTextBox}" Tag="Введите название" VerticalAlignment="Center" Width="180" Name="tbOrganizationSearch" Margin="0,5"
-                     Text="{Binding Path=OrganizationSearchText, UpdateSourceTrigger=PropertyChanged}"/>
-        </StackPanel>
-        <Popup AllowsTransparency="True" IsOpen="{Binding Path=OrganizationListOpen}" PopupAnimation="Scroll" PlacementTarget="{Binding ElementName=tbOrganizationSearch}" 
-               Height="auto" Width="auto" Placement="Bottom" MaxHeight="300" VerticalOffset="3" StaysOpen="False">
+        <TextBlock Text="Фамилия*" Style="{StaticResource UIRightOrient}"/>
+        <TextBox Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource UITextBox}" Text="{Binding Path=Customer.Sname, ValidatesOnExceptions=True, NotifyOnValidationError=True}" Margin="5,0,5,5"/>
+        <CheckBox Grid.Row="1" HorizontalAlignment="Left" Height="22" Width="85" Style="{StaticResource GreenCheck}" IsThreeState="False" 
+                  IsChecked="{Binding Path=Customer.Declinated}" Grid.Column="2" Content="Склонять" Margin="0,0,0,5"/>
+        <TextBlock Text="Имя*" Grid.Row="2" Style="{StaticResource UIRightOrient}"/>
+        <TextBox Grid.ColumnSpan="2" Grid.Row="3" Style="{StaticResource UITextBox}" Text="{Binding Path=Customer.Fname, ValidatesOnExceptions=True}" Margin="5,0,5,5"/>
+        <TextBlock Text="Отчество*" Grid.Row="4" Style="{StaticResource UIRightOrient}"/>
+        <TextBox Grid.ColumnSpan="2" Grid.Row="5" Style="{StaticResource UITextBox}" Text="{Binding Path=Customer.Mname,ValidatesOnExceptions=True}" Margin="5,0,5,5"/>
+        <TextBlock Text="Пол*" Grid.Row="6" Style="{StaticResource UIRightOrient}"/>
+        <ComboBox Grid.ColumnSpan="2" Grid.Row="7" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=Genders}" Text="{Binding Path=Customer.Gender}" 
+                  Margin="5,0,55,5"/>
+        <TextBlock Text="Мобильный телефон" Grid.Row="8" Grid.ColumnSpan="2" Style="{StaticResource UIRightOrient}"/>
+        <TextBox Grid.ColumnSpan="2" Grid.Row="9" Style="{StaticResource UITextBox}" Text="{Binding Path=Customer.Mobilephone, ValidatesOnExceptions=True}" Margin="5,0,5,5"/>
+        <TextBlock Text="Рабочий телефон" Grid.Row="8" Grid.ColumnSpan="2" Grid.Column="2" Style="{StaticResource UIRightOrient}"/>
+        <TextBox Grid.Column="2" Grid.ColumnSpan="2" Grid.Row="9" Style="{StaticResource UITextBox}" Text="{Binding Path=Customer.Workphone, ValidatesOnExceptions=True}" Margin="5,0,5,5"/>
+        <TextBlock Text="Должность*" Grid.Row="10" Style="{StaticResource UIRightOrient}"/>
+        <TextBox Grid.ColumnSpan="4" Grid.Row="11" Style="{StaticResource UITextBox}" Text="{Binding Path=Customer.Office}" Margin="5,0,5,5" />
+        <TextBlock Text="Звание" Grid.Row="14" Style="{StaticResource UIRightOrient}"/>
+        <ComboBox Grid.Row="15" Grid.ColumnSpan="3" Style="{StaticResource UIComboBox}" ItemsSource="{Binding Path=Ranks}" Text="{Binding Path=Customer.Rank}" Margin="5,0,5,5"/>
+        <TextBlock Text="Организация*" Grid.Row="12" Style="{StaticResource UIRightOrient}"/>
+        <TextBox Grid.Row="13" Grid.ColumnSpan="4" Margin="5,0,5,0" Style="{StaticResource UITextBox}" Name="seachtb"
+                 Text="{Binding Path=Customer.Organization,Mode=OneWay}" TextWrapping="Wrap">
+            <i:Interaction.Triggers>
+            <i:EventTrigger EventName="TextChanged">
+                    <i:InvokeCommandAction Command="{Binding Path=SearchTextChanged}" CommandParameter="{Binding ElementName=seachtb}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </TextBox>
+        <Popup AllowsTransparency="True" IsOpen="{Binding Path=OrganizationListOpen}" PopupAnimation="Scroll" PlacementTarget="{Binding ElementName=seachtb}" 
+               Height="auto" Width="470" Placement="Bottom" MaxHeight="300" VerticalOffset="3" StaysOpen="False">
             <Border BorderBrush="Black" BorderThickness="1" CornerRadius="2" Background="White">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -79,25 +82,25 @@
                         <TextBlock Text="{Binding Path=OrganizationsList.Count, StringFormat='Найдено: {0}'}" VerticalAlignment="Center" 
                                            FontWeight="DemiBold" FontSize="{StaticResource RegularFontSize}" Margin="5,0,0,0"/>
                     </DockPanel>
-                    <ListBox Height="auto" ItemsSource="{Binding Path=OrganizationsList}" Grid.Row="1" FontSize="{StaticResource RegularFontSize}" 
+                    <ListBox Height="auto" ItemsSource="{Binding Path=OrganizationsList}" Grid.Row="1" FontSize="{StaticResource RegularFontSize}" Name="lborg"
                                      DisplayMemberPath="Requisite" SelectedItem="{Binding Path=SelectedOrganization, Mode=OneWayToSource}" BorderThickness="0">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="MouseDoubleClick">
-                                <i:InvokeCommandAction Command="{Binding Path = SelectOrganization}"/>
+                                <i:InvokeCommandAction Command="{Binding Path = SelectOrganization}" CommandParameter="{Binding ElementName=lborg, Path=SelectedItem}"/>
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </ListBox>
                 </Grid>
             </Border>
         </Popup>
-        <TextBlock Text="Отдел" Grid.Row="10" Style="{StaticResource UITextBlock}"/>
-        <TextBox Grid.Column="1" Grid.Row="10" Style="{StaticResource UITextBox}" Text="{Binding Path=Customer.Departament}"/>
-        <TextBlock Text="Email" Grid.Row="11" Style="{StaticResource UITextBlock}"/>
-        <TextBox Grid.Column="1" Grid.Row="11" Style="{StaticResource UITextBox}" Text="{Binding Path=Customer.Email}"/>
-        <Button Grid.Row="12" Grid.ColumnSpan="3" Style="{StaticResource BaseUIButton}" Content="СОХРАНИТЬ" Foreground="GreenYellow" Margin="0,25,0,5" 
+        <TextBlock Text="Отдел" Grid.Row="16" Style="{StaticResource UIRightOrient}"/>
+        <TextBox Grid.ColumnSpan="2" Grid.Row="17" Style="{StaticResource UITextBox}" Text="{Binding Path=Customer.Departament}" Margin="5,0,5,5"/>
+        <TextBlock Text="Email" Grid.Row="16" Grid.Column="2" Style="{StaticResource UIRightOrient}"/>
+        <TextBox Grid.ColumnSpan="2" Grid.Column="2" Grid.Row="17" Style="{StaticResource UITextBox}" Text="{Binding Path=Customer.Email, ValidatesOnExceptions=True}" Margin="5,0,5,5"/>
+        <CheckBox Grid.Row="18" FontWeight="DemiBold" Margin="5,15,0,0" Style="{StaticResource GreenCheck}" IsChecked="{Binding Path=Customer.IsValid}">
+            Действует
+        </CheckBox>
+        <Button Grid.Row="19" Grid.Column="3" Style="{StaticResource BaseUIButton}" Content="СОХРАНИТЬ" Foreground="GreenYellow" Margin="0,25,0,5" 
                 Command="{Binding Path=Save}" CommandParameter="{Binding ElementName=wnd}" HorizontalAlignment="Center"/>
-       
-        </Grid>
-        
-            
+    </Grid>
 </Window>

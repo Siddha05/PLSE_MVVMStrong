@@ -27,6 +27,7 @@ namespace PLSE_MVVMStrong.ViewModel
         private RelayCommand _openaddresol;
         private RelayCommand _openexpertise;
         private RelayCommand _message2click;
+        private RelayCommand _opensettings;
         #endregion
         
 #region Properties
@@ -172,6 +173,17 @@ namespace PLSE_MVVMStrong.ViewModel
                                                             About wnd = new About();
                                                             wnd.Show();
                                                         });
+            }
+        }
+        public RelayCommand OpenSettings
+        {
+            get
+            {
+                return _opensettings != null ? _opensettings : _opensettings = new RelayCommand(n =>
+                {
+                    var wnd = new View.Settings();
+                    wnd.ShowDialog();
+                });
             }
         }
 #endregion Commands

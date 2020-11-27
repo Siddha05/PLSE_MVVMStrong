@@ -217,6 +217,22 @@ namespace PLSE_MVVMStrong.Model
             if (regex.IsMatch(mail)) return true;
             else return false;
         }
+        public static bool IsValidPostCode(string post)
+        {
+            Regex regex = new Regex(@"^[12346][0-9]{5}$");
+            if (regex.IsMatch(post)) return true;
+            else return false;
+        }
+        public static bool IsValidPhoneNumber(string phone)
+        {
+            var trim = Regex.Replace(phone, "[-() ]", "");
+            return Regex.IsMatch(trim, @"^[1-9]\d{3,6}$");
+        }
+        public static bool IsValidMobilePhoneNumber(string mphone)
+        {
+            var trim = Regex.Replace(mphone, "[-() ]", "");
+            return Regex.IsMatch(trim, @"^[1-9]\d{9}$");
+        }
     }
     public static class DateUtil
     {

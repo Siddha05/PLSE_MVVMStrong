@@ -3,31 +3,19 @@ using PLSE_MVVMStrong.View;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 
 namespace PLSE_MVVMStrong.ViewModel
 {
     internal class CustomerAddVM : DependencyObject
     {
-        #region Properties
+#region Properties
 
         public IReadOnlyCollection<string> Genders => CommonInfo.Genders;
         public IReadOnlyCollection<string> Ranks { get; } = CommonInfo.Ranks;
         public ListCollectionView OrganizationsList { get; } = new ListCollectionView(CommonInfo.Organizations);
-
-        public Customer Customer { get; set; } = new Customer
-        {
-            IsValid = true,
-            Declinated = true,
-        };
-        public string OrganizationSearchText
-        {
-            get => (string)GetValue(OrganizationSearchProperty);
-            set => SetValue(OrganizationSearchProperty, value);
-        }
-        public static readonly DependencyProperty OrganizationSearchProperty =
-            DependencyProperty.Register("OrganizationSearchText", typeof(string), typeof(CustomerAddVM), new PropertyMetadata("", OrganizationSearch_Changed));
-
+        public Customer Customer { get; set; } = Customer.New;
         public bool OrganizationListOpen
         {
             get { return (bool)GetValue(OrganizationListOpenProperty); }
@@ -37,31 +25,43 @@ namespace PLSE_MVVMStrong.ViewModel
             DependencyProperty.Register("OrganizationListOpen", typeof(bool), typeof(CustomerAddVM), new PropertyMetadata(false));
         public object SelectedOrganization { get; set; }
 
-        #endregion Properties
+#endregion Properties
 
-        #region Commands
-        private RelayCommand _addnewcust;
+#region Commands
+        private RelayCommand _addneworg;
         private RelayCommand _selectorg;
         private RelayCommand _editorg;
-        private RelayCommand _save;
+        private RelayCommand _searchtext;
         public RelayCommand Save
         {
             get
             {
-                return _save != null ? _save : _save = new RelayCommand(o =>
+                return new RelayCommand(o =>
                                                     {
                                                         var w = o as View.CustomerAdd;
-                                                        w.DialogResult = true;
+                                                        try
+                                                        {
+                                                            Customer.SaveChanges(CommonInfo.connection);
+                                                            CommonInfo.Customers.Add(Customer);
+                                                            MessageBox.Show("Сохраненение в базу данных успешно", "",  MessageBoxButton.OK,  MessageBoxImage.Information);
+                                                            w.DialogResult = true;
+                                                        }
+                                                        catch (System.Exception)
+                                                        {
+                                                            MessageBox.Show("Ошибка при сохраненении в базу данных", "", MessageBoxButton.OK, MessageBoxImage.Error);
+                                                            w.DialogResult = false;
+                                                        }
                                                         w.Close();
                                                     },
-                                                        x => Customer.IsInstanceValidState ? true : false);
+                                                        x => Customer.IsInstanceValidState
+                                                    );
             }
         }
         public RelayCommand AddNewOrganization
         {
             get
             {
-                return _addnewcust != null ? _addnewcust : _addnewcust = new RelayCommand(n =>
+                return _addneworg != null ? _addneworg : _addneworg = new RelayCommand(n =>
                 {
                                                                 var wnd = new OrganizationAdd();
                                                                 OrganizationListOpen = false;
@@ -99,29 +99,34 @@ namespace PLSE_MVVMStrong.ViewModel
             {
                 return _selectorg != null ? _selectorg : _selectorg = new RelayCommand(n =>
                 {
-                                                                Customer.Organization = SelectedOrganization as Organization;
-                                                                OrganizationListOpen = false;
+                    var o = n as Organization;
+                    Customer.Organization = o;
+                    OrganizationListOpen = false;
                 });
             }
         }
-        #endregion Commands
-
-        private static void OrganizationSearch_Changed(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        public RelayCommand SearchTextChanged
         {
-            var view = d as CustomerAddVM;
-            if (view == null) return;
-            if (view.OrganizationSearchText.Length > 1)
+            get
             {
-                view.OrganizationListOpen = true;
-                view.OrganizationsList.Filter = n => (n as Organization).Name.ContainWithComparison(view.OrganizationSearchText, System.StringComparison.CurrentCultureIgnoreCase);
-            }
-            else
-            {
-                view.OrganizationListOpen = false;
-                view.OrganizationsList.Filter = null;
+                return _searchtext != null ? _searchtext : _searchtext = new RelayCommand(n =>
+                {
+                    var tbox = n as TextBox;
+                    if (n == null) return;
+                    if (tbox.Text.Length > 3)
+                    {
+                        OrganizationsList.Filter = k => (k as Organization).Name.ContainWithComparison(tbox.Text, System.StringComparison.CurrentCultureIgnoreCase);
+                        OrganizationListOpen = true;
+                    }
+                    else
+                    {
+                        OrganizationsList.Filter = null;
+                        OrganizationListOpen = false;
+                    }
+                });
             }
         }
-
+#endregion Commands
         public CustomerAddVM() { }
         public CustomerAddVM(Customer obj) : this()
         {

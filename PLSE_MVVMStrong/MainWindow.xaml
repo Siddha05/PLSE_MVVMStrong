@@ -100,6 +100,7 @@
                 <MenuItem Header="Добавить" Command="{Binding Path=OpenResolutionAdd}" CommandParameter="{Binding ElementName=mv}"/>
             </MenuItem>
             <MenuItem Header="Отчеты" Foreground="White" />
+            <MenuItem Header="Настройки" Foreground="White" Command="{Binding Path=OpenSettings}"/>
             <MenuItem Header="Выход" Foreground="White" Command="{Binding Path=Exit}" CommandParameter="{Binding ElementName=mv}" />
         </Menu>
         <Image Source="Resources/минюст.jpg" Grid.Row="1" Margin="7" Panel.ZIndex="2" />
@@ -114,9 +115,9 @@
                 </i:EventTrigger>
             </i:Interaction.Triggers>
         </ListBox>
-        <TextBlock Grid.Row="3" Text="{Binding Path=Employee.EmployeeCore.Profile}" Foreground="White" Panel.ZIndex="3"/>
-        <TextBlock Grid.Column="2" Grid.ColumnSpan="2" Grid.Row="3" HorizontalAlignment="Left" Text="{Binding Path=Date, Mode=OneWay}"
-                   FontSize="16" TextAlignment="Center" Margin="190, 2,2,2" VerticalAlignment="Center" Height="auto"/>
+        
+        <TextBlock Grid.Column="2" Grid.ColumnSpan="2" Grid.Row="3" HorizontalAlignment="Right" Text="{Binding Path=Date, Mode=OneWay}"
+                   FontSize="16" TextAlignment="Center" Margin="0, 2,15,2" VerticalAlignment="Center" Height="auto"/>
         <StackPanel Orientation="Vertical" Grid.Column="3" Grid.RowSpan="2" Panel.ZIndex="4" Margin="4,0,4,0">
             <Ellipse Width="70" Height="70" VerticalAlignment="Top" Margin="2, 10,2,2">
                 <Ellipse.Fill>

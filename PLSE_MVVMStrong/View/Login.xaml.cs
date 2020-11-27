@@ -21,7 +21,14 @@ namespace PLSE_MVVMStrong.View
     {
         public Login()
         {
+            InputLanguageManager.Current.InputLanguageChanged += Current_InputLanguageChanged;
             InitializeComponent();
+            lang.Text = InputLanguageManager.Current.CurrentInputLanguage.DisplayName;
+        }
+
+        private void Current_InputLanguageChanged(object sender, InputLanguageEventArgs e)
+        {
+            lang.Text = InputLanguageManager.Current.CurrentInputLanguage.NativeName;
         }
     }
 }

@@ -7,12 +7,14 @@
         xmlns:view ="clr-namespace:PLSE_MVVMStrong.ViewModel"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         mc:Ignorable="d"
-        Title="Организация"  Width="600" Name="wnd" SizeToContent="WidthAndHeight">
+        Title="Организация" Height="660" Width="600" Name="wnd" WindowStartupLocation="CenterScreen">
     <Window.DataContext>
         <view:OrganizationAddVM />
     </Window.DataContext>
     <Grid Margin="15,5,15,5">
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="*" />
             <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
@@ -28,32 +30,32 @@
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-        <TextBlock Text="Название*" Style="{StaticResource UITextBlock}"/>
-        <TextBox Grid.Column="1" Style="{StaticResource UITextBox}" Width="370" Text="{Binding Path=Organization.Name, ValidatesOnExceptions=True}" />
-        <TextBlock Text="Краткое название" Grid.Row="1" Style="{StaticResource UITextBlock}"/>
-        <TextBox Grid.Column="1" Grid.Row="1" Style="{StaticResource UITextBox}" Width="370" Text="{Binding Path=Organization.ShortName}" />
-        <CheckBox Grid.Row="2" Grid.Column="1" Style="{StaticResource GreenCheck}" IsChecked="{Binding Path=Organization.IsValid}" FontWeight="DemiBold" 
-                  Margin="5,0,0,0" FontSize="{StaticResource UIFontSize}" Width="auto">
-            Действует
-        </CheckBox>
-        <TextBlock Text="Телефон" Grid.Row="3" Style="{StaticResource UITextBlock}"/>
-        <TextBox Grid.Column="1" Grid.Row="3" Style="{StaticResource UITextBox}" Text="{Binding Path=Organization.Telephone}" />
-        <TextBlock Text="Телефон 2" Grid.Row="4" Style="{StaticResource UITextBlock}"/>
-        <TextBox Grid.Column="1" Grid.Row="4" Style="{StaticResource UITextBox}" Text="{Binding Path=Organization.Telephone2}" />
-        <TextBlock Text="Факс" Grid.Row="5" Style="{StaticResource UITextBlock}" />
-        <TextBox Grid.Column="1" Grid.Row="5" Style="{StaticResource UITextBox}" Text="{Binding Path=Organization.Fax}" />
-        <TextBlock Text="Email" Grid.Row="6" Style="{StaticResource UITextBlock}"/>
-        <TextBox Grid.Column="1" Grid.Row="6" Style="{StaticResource UITextBox}" Text="{Binding Path=Organization.Email}" />
-        <TextBlock Text="Сайт" Grid.Row="7" Style="{StaticResource UITextBlock}"/>
-        <TextBox Grid.Column="1" Grid.Row="7" Style="{StaticResource UITextBox}" Text="{Binding Path=Organization.WebSite}" />
-        <TextBlock Grid.Row="8" Text="Почтовый индекс*" Style="{StaticResource UITextBlock}"/>
-        <TextBox Grid.Row="8" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Organization.PostCode, ValidatesOnExceptions=True}" />
-        <GroupBox Header="Адрес" Grid.Row="9" Grid.ColumnSpan="2" Margin="15,5" BorderBrush="Black" FontSize="{StaticResource UIFontSize}" FontWeight="DemiBold">
-            <Grid Margin="0,15,0,0">
+        <TextBlock Text="Название*" Style="{StaticResource UIRightOrient}"/>
+        <TextBox Grid.Row="1" Style="{StaticResource UITextBox}"  Text="{Binding Path=Organization.Name, ValidatesOnExceptions=True}" 
+                 Grid.ColumnSpan="4" Margin="5,0,25,5"/>
+        <TextBlock Text="Краткое название" Grid.Row="2" Style="{StaticResource UIRightOrient}"/>
+        <TextBox Grid.ColumnSpan="4" Grid.Row="3" Style="{StaticResource UITextBox}"  Text="{Binding Path=Organization.ShortName}" Margin="5,0,25,5"/>
+        <TextBlock Text="Телефон" Grid.Row="5" Style="{StaticResource UIRightOrient}"/>
+        <TextBox Grid.Row="6" Style="{StaticResource UITextBox}" Text="{Binding Path=Organization.Telephone}" Grid.ColumnSpan="2" Margin="5,0,25,5"/>
+        <TextBlock Text="Телефон 2" Grid.Row="5" Grid.Column="2" Style="{StaticResource UIRightOrient}"/>
+        <TextBox Grid.Column="2" Grid.Row="6" Style="{StaticResource UITextBox}" Text="{Binding Path=Organization.Telephone2}" Grid.ColumnSpan="2" Margin="5,0,25,5"/>
+        <TextBlock Text="Факс" Grid.Row="7" Style="{StaticResource UIRightOrient}" />
+        <TextBox Grid.ColumnSpan="2" Grid.Row="8" Style="{StaticResource UITextBox}" Text="{Binding Path=Organization.Fax}" Margin="5,0,25,5"/>
+        <TextBlock Text="Email" Grid.Row="9" Style="{StaticResource UIRightOrient}"/>
+        <TextBox Grid.ColumnSpan="2" Grid.Row="10" Style="{StaticResource UITextBox}" Text="{Binding Path=Organization.Email, ValidatesOnExceptions=True}" Margin="5,0,25,5"/>
+        <TextBlock Text="Сайт" Grid.Row="9" Grid.Column="2" Style="{StaticResource UIRightOrient}"/>
+        <TextBox Grid.Column="2" Grid.ColumnSpan="2" Grid.Row="10" Style="{StaticResource UITextBox}" Text="{Binding Path=Organization.WebSite}" Margin="5,0,25,5"/>
+        <GroupBox Header="Адрес" Grid.Row="11" Grid.ColumnSpan="4" Margin="5,0,25,5" BorderBrush="{StaticResource InactiveGrayColor}" FontSize="{StaticResource UIFontSize}"
+                    FontWeight="DemiBold" Foreground="{StaticResource InactiveGrayColor}">
+            <Grid Margin="0,15,25,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition/>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="3*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto"/>
@@ -62,9 +64,10 @@
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
                 <TextBlock Text="Город*" Style="{StaticResource UITextBlock}"/>
-                <TextBox Name="tbSettlement" Grid.Column="1"  Style="{StaticResource UITextBox}" Width="370"
+                <TextBox Name="tbSettlement" Grid.Column="1"  Style="{StaticResource UITextBox}" Grid.ColumnSpan="2"
                      Text="{Binding Path=Organization.Adress.Settlement, Mode=OneWay}">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="TextChanged">
@@ -72,19 +75,22 @@
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                 </TextBox>
-                <ComboBox Grid.Row="1" ItemsSource="{Binding Path=StreetTypeList}" Width="65" MinWidth="10" HorizontalAlignment="Right"
-                      Style="{StaticResource UIComboBox}" HorizontalContentAlignment="Right" Text="{Binding Path=Organization.Adress.Streetprefix}" />
-                <TextBox Grid.Column="1" Grid.Row="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Organization.Adress.Street}" />
-                <TextBlock Grid.Row="2" Text="Дом*" Style="{StaticResource UITextBlock}"/>
-                <TextBox Grid.Row="2" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Organization.Adress.Housing, ValidatesOnExceptions=True}" />
-                <TextBlock Grid.Row="3" Text="Офис" Style="{StaticResource UITextBlock}"/>
-                <TextBox Grid.Row="3" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Organization.Adress.Flat}" />
-                <TextBlock Grid.Row="4" Text="Корпус" Style="{StaticResource UITextBlock}"/>
-                <TextBox Grid.Row="4" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Organization.Adress.Corpus}" />
-                <TextBlock Grid.Row="14" Text="Строение" Style="{StaticResource UITextBlock}"/>
-                <TextBox Grid.Row="14" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Organization.Adress.Structure}" />
-                <Popup Grid.Row="3" Grid.Column="1" PopupAnimation="Scroll" Width="{Binding ElementName=tbSettlement, Path=ActualWidth}" MinHeight="30"  AllowsTransparency="True"
-                PlacementTarget="{x:Reference tbSettlement}" Placement="Bottom"  VerticalOffset = "0" MaxHeight="300" IsOpen="{Binding Path=PopupVisibility}">
+                <TextBlock Style="{StaticResource UITextBlock}" Text="Почтовый индекс*" Grid.Row="1" Name="hsample"/>
+                <TextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Organization.PostCode, ValidatesOnExceptions=True}"/>
+                <ComboBox Grid.Row="2" ItemsSource="{Binding Path=StreetTypeList}" Width="85" MinWidth="10" HorizontalAlignment="Right"
+                      Style="{StaticResource UIComboBox}" HorizontalContentAlignment="Right" Text="{Binding Path=Organization.Adress.Streetprefix}"/>
+                <TextBox Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="2" Style="{StaticResource UITextBox}" Text="{Binding Path=Organization.Adress.Street}"
+                         VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="3" Text="Дом*" Style="{StaticResource UITextBlock}"/>
+                <TextBox Grid.Row="3" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Organization.Adress.Housing, ValidatesOnExceptions=True}" />
+                <TextBlock Grid.Row="4" Text="Офис" Style="{StaticResource UITextBlock}"/>
+                <TextBox Grid.Row="4" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Organization.Adress.Flat}" />
+                <TextBlock Grid.Row="5" Text="Корпус" Style="{StaticResource UITextBlock}"/>
+                <TextBox Grid.Row="5" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Organization.Adress.Corpus}" />
+                <TextBlock Grid.Row="6" Text="Строение" Style="{StaticResource UITextBlock}"/>
+                <TextBox Grid.Row="6" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Organization.Adress.Structure}" />
+                <Popup Grid.Row="4" Grid.Column="1" PopupAnimation="Scroll" Width="{Binding ElementName=tbSettlement, Path=ActualWidth}" MinHeight="30"  AllowsTransparency="True"
+                    PlacementTarget="{x:Reference tbSettlement}" Placement="Bottom"  VerticalOffset = "0" MaxHeight="300" IsOpen="{Binding Path=PopupVisibility}">
                     <Border Background="#FF00D1FF">
                         <ListBox Name="lbSettlements" BorderThickness="0" Margin="2" ItemsSource="{Binding Path=SettlementsList}">
                             <i:Interaction.Triggers>
@@ -97,7 +103,11 @@
                 </Popup>
             </Grid>
         </GroupBox>
-        <Button Grid.Row="10" Grid.ColumnSpan="2" Style="{StaticResource BaseUIButton}" Content="СОХРАНИТЬ" Foreground="GreenYellow" Margin="0,15,0,10" 
-                 Command="{Binding Path=Save}" CommandParameter="{Binding ElementName=wnd}" />
+        <CheckBox Grid.Row="12"  Style="{StaticResource GreenCheck}" IsChecked="{Binding Path=Organization.IsValid}" FontWeight="DemiBold" 
+                  Margin="5,0,0,0" FontSize="{StaticResource UIFontSize}" Width="auto">
+            Действует
+        </CheckBox>
+        <Button Grid.Row="13" Grid.ColumnSpan="4" Style="{StaticResource BaseUIButton}" Content="СОХРАНИТЬ" Foreground="GreenYellow" Margin="0,25,25,10" 
+                 Command="{Binding Path=Save}" CommandParameter="{Binding ElementName=wnd}" HorizontalAlignment="Right"/>
     </Grid>
 </Window>

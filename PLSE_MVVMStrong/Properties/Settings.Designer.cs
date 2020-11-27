@@ -46,5 +46,41 @@ namespace PLSE_MVVMStrong.Properties {
                 this["SavePath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool CheckExpertise {
+            get {
+                return ((bool)(this["CheckExpertise"]));
+            }
+            set {
+                this["CheckExpertise"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool SaveLogin {
+            get {
+                return ((bool)(this["SaveLogin"]));
+            }
+            set {
+                this["SaveLogin"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool GroupBySpec {
+            get {
+                return ((bool)(this["GroupBySpec"]));
+            }
+            set {
+                this["GroupBySpec"] = value;
+            }
+        }
     }
 }

@@ -14,7 +14,7 @@ namespace PLSE_MVVMStrong.ViewModel
 
         public ListCollectionView SettlementsList { get; } = new ListCollectionView(CommonInfo.Settlements);
         public IReadOnlyCollection<String> StreetTypeList { get; } = CommonInfo.StreetTypes;
-        public Organization Organization { get; } = new Organization { IsValid = true };
+        public Organization Organization { get; } = Organization.New;
 
         public bool PopupVisibility
         {
@@ -26,20 +26,30 @@ namespace PLSE_MVVMStrong.ViewModel
         #endregion Properties
 
         #region Commands
-        private RelayCommand _save;
         private RelayCommand _settlementselect;
         private RelayCommand _settlementsearch;
         public RelayCommand Save
         {
             get
             {
-                return _save != null ? _save : _save = new RelayCommand(
-                                                    n =>
+                return new RelayCommand(
+                                       n =>
                                                     {
                                                         var wnd = n as OrganizationAdd;
                                                         if (wnd != null)
                                                         {
-                                                            wnd.DialogResult = true;
+                                                            try
+                                                            {
+                                                                Organization.SaveChanges(CommonInfo.connection);
+                                                                CommonInfo.Organizations.Add(Organization);
+                                                                MessageBox.Show("Сохраненение в базу данных успешно", "", MessageBoxButton.OK, MessageBoxImage.Information);
+                                                                wnd.DialogResult = true;
+                                                            }
+                                                            catch (Exception)
+                                                            {
+                                                                MessageBox.Show("Ошибка при сохраненении в базу данных", "", MessageBoxButton.OK, MessageBoxImage.Error);
+                                                                wnd.DialogResult = false;
+                                                            }
                                                             wnd.Close();
                                                         }
                                                     },
@@ -47,7 +57,7 @@ namespace PLSE_MVVMStrong.ViewModel
                                                    {
                                                        if (Organization.IsInstanceValidState) return true;
                                                        else return false;
-                                                   });
+                                                   });             
             }
         }
         public RelayCommand SettlementSelect
@@ -86,9 +96,9 @@ namespace PLSE_MVVMStrong.ViewModel
         #endregion Commands
 
         public OrganizationAddVM() { }
-        public OrganizationAddVM(Organization obj) : this()
+        public OrganizationAddVM(Organization organization)
         {
-            this.Organization = obj;
+            this.Organization = organization.Clone();
         }
     }
 }

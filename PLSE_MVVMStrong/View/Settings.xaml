@@ -4,16 +4,21 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewmodel="clr-namespace:PLSE_MVVMStrong.ViewModel"
-        xmlns:local="clr-namespace:PLSE_MVVMStrong.View"
+        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+        xmlns:local="clr-namespace:PLSE_MVVMStrong.View" xmlns:plse_mvvmstrong="clr-namespace:PLSE_MVVMStrong"
         mc:Ignorable="d"
-        Title="Настройки" Height="450" Width="800" x:Name ="wnd">
+        Title="Настройки" Height="340" Width="570" x:Name ="wnd" WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
     <Window.DataContext>
         <viewmodel:SettingsVM/>
     </Window.DataContext>
+    <Window.Resources>
+        <plse_mvvmstrong:NumberToStringConverter x:Key="TrueFalseConv" Comp="0" FalseState="true" TrueState="false"/>
+    </Window.Resources>
     <Grid Margin="5">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto"/>
-            <ColumnDefinition/>
+            <ColumnDefinition Width="40"/>
+            <ColumnDefinition Width="auto"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
@@ -22,30 +27,45 @@
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-        <Button Grid.Column="1" Grid.Row="10" Style="{StaticResource BaseUIButton}" Content="Сохранить" Foreground="{StaticResource PositiveGreenColor}" HorizontalAlignment="Right"
-                Margin="0,5,20,5" Command="{Binding Path=Save}" CommandParameter="{Binding ElementName=wnd}"/>
+        <Button Grid.Column="2" Grid.Row="10" Style="{StaticResource BaseUIButton}" Content="СОХРАНИТЬ" Foreground="{StaticResource PositiveGreenColor}"
+                HorizontalAlignment="Right"
+                Margin="30,25,5,5" Command="{Binding Path=Save}" CommandParameter="{Binding ElementName=wnd}"/>
         <TextBlock Style="{StaticResource UIRightOrient}" Text="Папка сохранения"/>
-        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.ColumnSpan="2">
-            <TextBox Style="{StaticResource UITextBox}" Margin="5,0,0,5" Text="{Binding Path=SavePath}"/>
-            <Button Background="White" Content="..." FontSize="20" Margin="3,0,0,5" Width="25"  Command="{Binding Path=FolderSelectClick}"/>
-        </StackPanel>
-        <TextBlock Grid.Row="2" Style="{StaticResource UIRightOrient}" Text="Пароль"/>
-        <PasswordBox Grid.Row="3" Style="{StaticResource UIPassword}" Margin="5,0,0,0"/>
-        <TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource UIRightOrient}" Text="Пароль еще" Margin="25,0,0,0"/>
-        <PasswordBox Grid.Row="3" Grid.Column="1" Style="{StaticResource UIPassword}" Margin="25,0,0,0"/>
-        <GroupBox Grid.Row="4" Grid.ColumnSpan="2" BorderBrush="Gray" Header="Опции" Margin="5" FontSize="{StaticResource UIFontSize}" FontWeight="DemiBold"
-                  Foreground="{StaticResource InactiveGrayColor}">
+        <TextBox Style="{StaticResource UITextBox}" Margin="5,0,0,5" Text="{Binding Path=SavePath}" Grid.Row="1" Grid.ColumnSpan="2" Width="400"/>
+        <Button  Grid.Row="1" Grid.Column="2"  Command="{Binding Path=FolderSelectClick}" Style="{StaticResource DirectoryButton}" Width="25" HorizontalAlignment="Left"
+                 Margin="3,0,0,5"/>
+        <TextBlock Grid.Row="2" Style="{StaticResource UIRightOrient}" Text="Новый пароль"/>
+        <PasswordBox Grid.Row="3" Style="{StaticResource UIPassword}" Margin="5,0,0,0" Name="pass" MaxLength="30">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="PasswordChanged">
+                    <i:InvokeCommandAction Command="{Binding PassChange}" CommandParameter="{Binding ElementName=pass}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </PasswordBox>
+        <Button Grid.Row="3" Grid.Column="1" Style="{StaticResource BaseUIButton}" Foreground="Blue" Content="Сменить" Background="Transparent" Margin="5,0,0,0"
+                HorizontalAlignment="Left" Width="100" IsEnabled="{Binding Path=Pass.Length, Converter={StaticResource TrueFalseConv}}"
+                Command="{Binding Path=SavePassword}"/>
+        <!--<TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource UIRightOrient}" Text="Пароль еще" Margin="25,0,0,0"/>
+        <PasswordBox Grid.Row="3" Grid.Column="1" Style="{StaticResource UIPassword}" Margin="25,0,0,0" Name="rpass" 
+                     Tag="{Binding Path=rPass, UpdateSourceTrigger=PropertyChanged, ValidatesOnExceptions=True}">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="PasswordChanged">
+                    <i:InvokeCommandAction Command="{Binding Path=rPassChange}" CommandParameter="{Binding ElementName=rpass}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </PasswordBox>-->
+        <GroupBox Grid.Row="4" Grid.ColumnSpan="2" BorderBrush="{StaticResource InactiveGrayColor}" Header="Опции" Margin="5" FontSize="{StaticResource UIFontSize}" FontWeight="DemiBold"
+                  Foreground="{StaticResource InactiveGrayColor}" Width="400" HorizontalAlignment="Left">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition/>
                     <RowDefinition/>
                     <RowDefinition/>
                 </Grid.RowDefinitions>
-                <CheckBox Style="{StaticResource GreenCheck}" Content="Check expertisies"/>
-                <CheckBox Grid.Row="1" Style="{StaticResource GreenCheck}" Content="Check Anymore"/>
+                <CheckBox Style="{StaticResource GreenCheck}" Content="Проверять экспертизы при входе" IsChecked="{Binding Path=CheckExpertise}"/>
+                <CheckBox Grid.Row="1" Style="{StaticResource GreenCheck}" Content="Сохранять последний логин" IsChecked="{Binding Path=IsSaveLogin}"/>
+                <CheckBox Grid.Row="2" Style="{StaticResource GreenCheck}" Content="Группировать экспертизы по виду"/>
             </Grid>
             
         </GroupBox>

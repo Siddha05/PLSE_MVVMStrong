@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using PLSE_MVVMStrong.Properties;
+using System.Runtime.InteropServices;
 
 namespace PLSE_MVVMStrong.ViewModel
 {
@@ -14,6 +15,21 @@ namespace PLSE_MVVMStrong.ViewModel
         #region Properties
         public string Login { get; set; }
         public string Pass { get; set; }
+        public string Lang
+        {
+            get
+            {
+                switch (GetKeyboardLayout(GetWindowThreadProcessId(GetForegroundWindow(), IntPtr.Zero)))
+                {
+                    case 1049:
+                        return "RU";
+                    case 1033:
+                        return "EN";
+                    default:
+                        return null;
+                }
+            }
+        }
         public bool Error
         {
             get { return (bool)GetValue(ErrorProperty); }
@@ -75,11 +91,8 @@ namespace PLSE_MVVMStrong.ViewModel
         #endregion
         public LoginVM()
         {
-#if DEBUG
-            //Login = "Кожаева";
-            //Pass = "Кожаева";
-#endif
-            Login = Settings.Default.InitLogin;
+            if (Settings.Default.SaveLogin) Login = Settings.Default.InitLogin;
+            else Login = String.Empty;
             PassChanged = new RelayCommand(n =>
             {
                 Pass = (n as System.Windows.Controls.PasswordBox).Password;
@@ -90,5 +103,11 @@ namespace PLSE_MVVMStrong.ViewModel
                 Error = false;
             });
         }
+        [DllImport("user32.dll", SetLastError = true)]
+        static extern int GetWindowThreadProcessId([In] IntPtr hWnd,[Out, Optional] IntPtr lpdwProcessId);
+        [DllImport("user32.dll", SetLastError = true)]
+        static extern IntPtr GetForegroundWindow();
+        [DllImport("user32.dll", SetLastError = true)]
+        static extern ushort GetKeyboardLayout([In] int idThread);
     }
 }

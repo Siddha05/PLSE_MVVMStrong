@@ -389,4 +389,21 @@ namespace PLSE_MVVMStrong
             throw new NotImplementedException();
         }
     }
+    public class NumberToStringConverter : IValueConverter
+    {
+        public int Comp { get; set; }
+        public string TrueState { get; set; }
+        public string FalseState { get; set; }
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var n = (int)value;
+            if (n == Comp) return TrueState;
+            else return FalseState;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

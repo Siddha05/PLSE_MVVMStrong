@@ -94,7 +94,22 @@ namespace PLSE_MVVMStrong.Model
             return obj.ExpertCoreID.GetHashCode();
         }
     }
-
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    public class DBMappedAttribute : Attribute
+    {
+        public enum AllowedType
+        {
+            NotNULL,
+            Null,
+            Default
+        }
+        public int Lenght { get; set; }
+        public AllowedType Allowed { get; set; }
+        public DBMappedAttribute(AllowedType allowed = AllowedType.NotNULL, int lenght = 0)
+        {
+            Allowed = allowed; Lenght = lenght;
+        }
+    }
     public enum ExpertiseResults
     {
         None,
@@ -2129,7 +2144,28 @@ namespace PLSE_MVVMStrong.Model
             if (obj == null) return DBNull.Value;
             else return obj;
         }
-       
+        protected string ValidateNullable(string val, Func<string, bool> validator = null, string errormsg = "Неверный формат данных")
+        {
+            if (string.IsNullOrWhiteSpace(val)) return null;
+            if (validator(val))
+            {
+                return val;
+            }
+            else throw new ArgumentException(errormsg);
+        }
+        protected string Validate(string val, Func<string, bool> validator, string errormsg = "Неверный формат данных")
+        {
+            if (validator(val))
+            {
+                return val;
+            }
+            else throw new ArgumentException(errormsg);
+        }
+        protected string Blankless(string val, string errormsg = "Неверный формат данных")
+        {
+            if (string.IsNullOrWhiteSpace(val)) throw new ArgumentException(errormsg);
+            return val;
+        }
         public NotifyBase() : this(Version.New, DateTime.Now) {}
         public NotifyBase(Version vr) : this(vr, DateTime.Now) {}
         public NotifyBase(Version vr, DateTime updatedate)
@@ -2864,7 +2900,7 @@ namespace PLSE_MVVMStrong.Model
         protected string _mname;
         protected string _sname;
         protected string _gender;
-        #endregion
+#endregion
 #region Properties
         public string Fname
         {
@@ -2926,7 +2962,7 @@ namespace PLSE_MVVMStrong.Model
         public string Fio => Sname + " " + Fname[0] + "." + Mname[0] + ".";
         public bool IsInstanceValidState => Standarts.isValidName(_fname) && Standarts.isValidMiddleName(_mname) && Standarts.isValidSecondName(_sname)
                                             && !String.IsNullOrWhiteSpace(_gender);
-        #endregion
+#endregion
 
         public Person(string firstname, string middlename, string secondname, string gender, bool declinated, Version vr, DateTime updatedate)
             : base(vr, updatedate)
@@ -3611,7 +3647,7 @@ namespace PLSE_MVVMStrong.Model
                 if (value != _password)
                 {
                     _password = value;
-                    OnPropertyChanged("PassWord");
+                    //OnPropertyChanged();
                 }
             }
         }
@@ -3808,6 +3844,27 @@ namespace PLSE_MVVMStrong.Model
                 cmd.Connection.Close();
             }
         }
+        public void UpdatePassword(SqlConnection con)
+        {
+            SqlCommand cmd = con.CreateCommand();
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.CommandText = "InnResources.prEditEmployeePassword";
+            cmd.Parameters.Add("@password", SqlDbType.NVarChar, 30).Value = Password;
+            cmd.Parameters.Add("@EmployeeCoreID", SqlDbType.Int).Value = _id;
+            try
+            {
+                cmd.Connection.Open();
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                cmd.Connection.Close();
+            }
+        }
         public override void SaveChanges(SqlConnection con)
         {
             Adress.Settlement?.SaveChanges(con);
@@ -3888,7 +3945,7 @@ namespace PLSE_MVVMStrong.Model
         public int EmployeeID => _id;
         public Employee_Core EmployeeCore => _core;
         public int? PreviousID => _previous;
-        #endregion
+#endregion
 
         public static Employee New => new Employee() { Version = Version.New };
         private Employee() : base() { }
@@ -4330,7 +4387,7 @@ namespace PLSE_MVVMStrong.Model
                 _propertyName = prop;
             }
         }
-        #region Fields
+#region Fields
         private string _name;
         private string _shortname;
         private string _postcode;
@@ -4342,8 +4399,8 @@ namespace PLSE_MVVMStrong.Model
         private string _website;
         private bool _status;
         private int _id;
-        #endregion
-        #region Properties
+#endregion
+#region Properties
         public bool IsValid
         {
             get => _status;
@@ -4369,9 +4426,17 @@ namespace PLSE_MVVMStrong.Model
             get => _email;
             set
             {
-                if (value == _email) return;
-                _email = value;
-                OnPropertyChanged();
+                if (value != _email)
+                {
+                    if (String.IsNullOrWhiteSpace(value))
+                    {
+                        _email = value;
+                        OnPropertyChanged();
+                    }
+                    if (!Standarts.isValidEmail(value)) throw new ArgumentException("Неверный фoрмат Email");
+                    _email = value;
+                    OnPropertyChanged();
+                }
             }
         }
         public string Fax
@@ -4380,54 +4445,65 @@ namespace PLSE_MVVMStrong.Model
             set
             {
                 if (value == _fax) return;
-                _fax = value;
-                OnPropertyChanged();
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    _fax = null;
+                    OnPropertyChanged();
+                }
+                else
+                {
+                    _fax = value;
+                    OnPropertyChanged();
+                }
+                
             }
         }
         public string Telephone2
         {
-            get
-            {
-                StringBuilder sb = new StringBuilder(_telephone2);
-                if (sb.Length > 4) sb.Insert(sb.Length - 2, "-").Insert(sb.Length - 5, "-");
-                else
-                {
-                    if (sb.Length > 2) sb.Insert(sb.Length - 2, "-");
-                }
-                if (Adress?.Settlement?.Telephonecode != null && sb.Length > 0)
-                {
-                    return sb.Insert(0, "(").Insert(1, Adress?.Settlement?.Telephonecode + ") ").ToString();
-                }
-                return sb.ToString();
-            }
+            get => Standarts.WorkPnoneStandartNumber(_telephone2);
             set
             {
                 if (value == _telephone2) return;
-                _telephone2 = StringUtil.OnlyDigits(value);
-                OnPropertyChanged();
+                if (String.IsNullOrWhiteSpace(value))
+                {
+                    _telephone2 = null;
+                    OnPropertyChanged();
+                }
+                else
+                {
+                    var trim = Regex.Replace(value, "[-() ]", "");
+                    if (Regex.IsMatch(trim, @"^[1-9]\d{3,6}$"))
+                    {
+                        _telephone2 = trim;
+                    }
+                    else throw new ArgumentException("Неверный формат номера");
+                    OnPropertyChanged();
+                }
+                
             }
         }
         public string Telephone
         {
-            get
-            {
-                StringBuilder sb = new StringBuilder(_telephone);
-                if (sb.Length > 4) sb.Insert(sb.Length - 2, "-").Insert(sb.Length - 4, "-");
-                else
-                {
-                    if (sb.Length > 2) sb.Insert(sb.Length - 2, "-");
-                }
-                if (Adress?.Settlement?.Telephonecode != null && sb.Length > 0)
-                {
-                    return sb.Insert(0, "(").Insert(1, Adress?.Settlement?.Telephonecode + ") ").ToString();
-                }
-                return sb.ToString();
-            }
+            get => Standarts.WorkPnoneStandartNumber(_telephone);
             set
             {
                 if (value == _telephone) return;
-                _telephone = StringUtil.OnlyDigits(value);
-                OnPropertyChanged();
+                if (String.IsNullOrWhiteSpace(value))
+                {
+                    _telephone = null;
+                    OnPropertyChanged();
+                }
+                else
+                {
+                    var trim = Regex.Replace(value, "[-() ]", "");
+                    if (Regex.IsMatch(trim, @"^[1-9]\d{3,6}$"))
+                    {
+                        _telephone = trim;
+                    }
+                    else throw new ArgumentException("Неверный формат номера");
+                    OnPropertyChanged();
+                }
+                
             }
         }
         public Adress Adress
@@ -4440,13 +4516,14 @@ namespace PLSE_MVVMStrong.Model
                 OnPropertyChanged();
             }
         }
+        [DBMapped(Lenght = 6)]
         public string PostCode
         {
             get => _postcode;
             set
             {
                 if (value == _postcode) return;
-                if (String.IsNullOrWhiteSpace(value)) throw new ArgumentException("Поле <почтовый индекс> не может быть пустым");
+                if (!Standarts.IsValidPostCode(value)) throw new ArgumentException("Не верный формат почтового индекса");
                 _postcode = value;
                 OnPropertyChanged();
             }
@@ -4461,14 +4538,14 @@ namespace PLSE_MVVMStrong.Model
                 OnPropertyChanged();
             }
         }
+        [DBMapped(Lenght = 200)]
         public string Name
         {
             get => _name;
             set
             {
                 if (value == _name) return;
-                if (String.IsNullOrWhiteSpace(value)) throw new ArgumentException("Поле <Название> не может быть пустым");
-                _name = value;
+                _name = Blankless(value);
                 OnPropertyChanged();
             }
         }
@@ -4476,9 +4553,9 @@ namespace PLSE_MVVMStrong.Model
         public string Requisite => (ShortName ?? Name) + Environment.NewLine + Adress.ToString();
         public bool IsInstanceValidState => !String.IsNullOrWhiteSpace(_name) && !String.IsNullOrWhiteSpace(_postcode) && _adress.IsInstanceValidState;
 
-        #endregion Properties
+#endregion Properties
 
-        public Organization() : base()
+        protected Organization() : base()
         {
            _adress.PropertyChanged += AdressChanged;
         }
@@ -4499,6 +4576,7 @@ namespace PLSE_MVVMStrong.Model
             _status = status;
         }
 
+        public static Organization New => new Organization() { Version = Version.New, IsValid = true};
         public override string ToString()
         {
             return Name;
@@ -4665,7 +4743,10 @@ namespace PLSE_MVVMStrong.Model
     }
     public class Laboratory : Organization
     {
+        public Laboratory()
+        {
 
+        }
     }
     public class Customer : Person, ICloneable
     {
@@ -4681,8 +4762,8 @@ namespace PLSE_MVVMStrong.Model
         private string _workphone;
         private string _email;
         private bool _actual;
-        #endregion
-        #region Properties
+#endregion
+#region Properties
         public int? PreviousID => _previd;
         public string Departament
         {
@@ -4740,14 +4821,8 @@ namespace PLSE_MVVMStrong.Model
             set
             {
                 if (_mobilephone == value) return;
-                var trim = Regex.Replace(value, "[-() ]", "");
-                if (Regex.IsMatch(trim, @"^\+7|8[1-9]\d{9}$"))
-                {
-                    StringBuilder sb = new StringBuilder(trim);
-                    if (trim.Length == 11) sb.Replace("8", "+7", 0, 1);
-                    _mobilephone = sb.ToString();
-                }
-                else throw new ArgumentException("Неверный формат мобильного номера");
+                _mobilephone = ValidateNullable(value, Standarts.IsValidMobilePhoneNumber, "Неверный формат мобильного номера");
+                if (_mobilephone != null) _mobilephone = _mobilephone.Insert(0, "+7");
                 OnPropertyChanged();
             }
         }
@@ -4758,8 +4833,7 @@ namespace PLSE_MVVMStrong.Model
             {
                 if (_email != value)
                 {
-                    if (!Standarts.isValidEmail(value)) throw new ArgumentException("Неверный фoрмат Email");
-                    _email = value;
+                    _email = ValidateNullable(value, Standarts.isValidEmail, "Неверный формат email");
                     OnPropertyChanged();
                 }
             }
@@ -4770,21 +4844,16 @@ namespace PLSE_MVVMStrong.Model
             set
             {
                 if (_workphone == value) return;
-                var trim = Regex.Replace(value, "[-() ]", "");
-                if (Regex.IsMatch(trim, @"^[1-9]\d{3,6}$"))
-                {
-                    _workphone = trim;
-                }
-                else throw new ArgumentException("Неверный формат номера");
-                OnPropertyChanged();
+                _workphone = ValidateNullable(value, Standarts.IsValidPhoneNumber, "Неверный формат номера");
             }
         }
-        #endregion
+        public bool Actual => _actual;
+#endregion
 
         public string Requisite => ToString();
         public new bool IsInstanceValidState => !String.IsNullOrEmpty(Office); // check base valid state
 
-        public Customer() : base() {}
+        private Customer() : base() {}
         public Customer(string firstname, string middlename, string secondname, string mobilephone, string workphone, string gender, string email, bool declinated, Version vr, DateTime updatedate,
                         int id, int? previd, string rank, string office, Organization organization, string departament, bool status)
             : base(firstname, middlename, secondname, gender, declinated, vr, updatedate)
@@ -4824,6 +4893,7 @@ namespace PLSE_MVVMStrong.Model
             }       
             return stringBuilder.ToString();
         }
+        public static Customer New => new Customer() { IsValid = true, Version = Version.New, _actual = true };
         private void AddToDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();

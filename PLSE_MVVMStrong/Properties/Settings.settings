@@ -8,5 +8,14 @@
     <Setting Name="SavePath" Type="System.String" Scope="User">
       <Value Profile="(Default)">c:\Users\Asassin\</Value>
     </Setting>
+    <Setting Name="CheckExpertise" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="SaveLogin" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="GroupBySpec" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
