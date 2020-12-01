@@ -87,20 +87,26 @@
                 <DatePicker Grid.Row="2" Grid.Column="1"  Name="resDate" Style="{StaticResource UIDatePicker}"
                                     SelectedDate="{Binding Path=Resolution.ResolutionDate, ValidatesOnExceptions=True}" Margin="15,0,0,5"/>
                 <TextBlock Text="Нативный вид" Grid.Row="7" Style="{StaticResource UIRightOrient}"/>
-                <TextBox Name="resPrescribeType" Grid.Row="8" Style="{StaticResource UITextBox}" Text="{Binding Path=Resolution.PrescribeType}" Margin="5,0,0,5" Width="633"
-                         Grid.ColumnSpan="2" Height="{StaticResource UIHeigth}"/>
+                <TextBox Name="resPrescribeType" Grid.Row="8" Style="{StaticResource UITextBox}" Text="{Binding Path=Resolution.PrescribeType}" Margin="5,0,5,5"
+                         Grid.ColumnSpan="2" HorizontalAlignment="Stretch"/>
                 <TextBlock Grid.Row="9" Text="Заказчик*" Style="{StaticResource UIRightOrient}"/>
-                <StackPanel Orientation="Horizontal" Grid.Row="10" Margin="5,0,0,5" Grid.ColumnSpan="2">
-                    <TextBox Style="{StaticResource SearchTextBox}" Name="tbCustomer" Width="180" Tag="Введите фамилию" 
-                             Text="{Binding Path=CustomerSearchText, UpdateSourceTrigger=PropertyChanged}"/>
-                    <TextBlock ToolTip="{Binding Path=Resolution.Customer.Requisite}" 
-                               FontSize="{StaticResource UIFontSize}" FontWeight="DemiBold" VerticalAlignment="Center" Height="auto" Margin="5,0,0,0">
-                        <Run Text="{Binding Path=Resolution.Customer.Office, Mode=OneWay}"/>
-                        <Run Text="{Binding Path=Resolution.Customer.Fio, Mode=OneWay}"/>
-                    </TextBlock>
+                <StackPanel Orientation="Horizontal" Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="2">
+                    <TextBox Grid.Row="10" Grid.Column="1" Margin="5,0,5,5" Grid.ColumnSpan="1" Style="{StaticResource UITextBox}" Name="tbCustomer"
+                         VerticalAlignment="Center" Width="200" HorizontalAlignment="Left">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="TextChanged">
+                                <i:InvokeCommandAction Command="{Binding Path=SearchCustomerChanged}" CommandParameter="{Binding ElementName=tbCustomer}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </TextBox>
+                    <TextBlock Grid.Row="10" Name="tbcust" TextWrapping="Wrap" Foreground="{DynamicResource {x:Static SystemColors.MenuHighlightBrushKey}}" FontSize="{StaticResource UIFontSize}"
+                           Margin="5,0,5,5" Height="auto" VerticalAlignment="Center" Text="{Binding Path=Resolution.Customer.Requisite, Mode=OneWay}" FontWeight="DemiBold"/>
+                    <TextBlock Text="Введите фамилию для поиска" Foreground="{StaticResource InactiveGrayColor}" VerticalAlignment="Center" Margin="2,0,0,4"
+                               FontStyle="Italic" FontSize="{StaticResource RegularFontSize}" 
+                               Visibility="{Binding ElementName=tbcust, Path=Text.Length, Converter={StaticResource IntToVisibConv}}"/>
                 </StackPanel>
                 <Popup AllowsTransparency="True" IsOpen="{Binding Path=CustomersListOpened}" PopupAnimation="Scroll" PlacementTarget="{Binding ElementName=tbCustomer}" Height="auto" Width="auto"
-                       Placement="Bottom" MaxHeight="300" VerticalOffset="3" StaysOpen="False">
+                       Placement="Bottom" MaxHeight="300" VerticalOffset="3" StaysOpen="False" >
                     <Border BorderBrush="#FF101CD4" BorderThickness="1" CornerRadius="2" Background="White">
                         <Grid>
                             <Grid.RowDefinitions>
@@ -126,7 +132,7 @@
                 </Popup>
                 <Expander Grid.Row="11" BorderBrush="Black" BorderThickness="0" Margin="30,5" Grid.ColumnSpan="2" MinHeight="30">
                     <Expander.Header>
-                        <TextBlock Foreground="DarkBlue" Text="{Binding Path=Resolution.Objects.Count, StringFormat='Предоставленные объекты: {0}', Mode=OneWay}" FontSize="{StaticResource UIFontSize}"
+                        <TextBlock Foreground="{DynamicResource {x:Static SystemColors.MenuHighlightBrushKey}}" Text="{Binding Path=Resolution.Objects.Count, StringFormat='Предоставленные объекты: {0}', Mode=OneWay}" FontSize="{StaticResource UIFontSize}"
                                    FontWeight="Bold"/>
                     </Expander.Header>
                     <Grid>
@@ -179,7 +185,7 @@
                 </Expander>
                 <Expander Grid.Row="12" BorderBrush="Black" BorderThickness="0" Margin="30,5" Grid.ColumnSpan="2">
                     <Expander.Header>
-                        <TextBlock Foreground="DarkBlue" FontSize="{StaticResource UIFontSize}" FontWeight="Bold"
+                        <TextBlock Foreground="{DynamicResource {x:Static SystemColors.MenuHighlightBrushKey}}" FontSize="{StaticResource UIFontSize}" FontWeight="Bold"
                             Text="{Binding Path=Resolution.Questions.Count, StringFormat='Поставленные вопросы: {0}'}"  />
                     </Expander.Header>
                     <Grid>
@@ -190,7 +196,7 @@
                             <RowDefinition Height="auto"/>
                             <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
-                        <CheckBox Style="{StaticResource GreenCheck}" Content="Нумерация согласно постановления" Margin="10,0" IsChecked="{Binding Path=Resolution.NativeQuestionNumeration}"/>
+                        <CheckBox Style="{StaticResource GreenCheck}" Content="Нумерация согласно постановления" Margin="10,15,10,2" IsChecked="{Binding Path=Resolution.NativeQuestionNumeration}"/>
                         <DataGrid ItemsSource="{Binding Path=Resolution.Questions}" AutoGenerateColumns="False"  GridLinesVisibility="None" Grid.Row="1"
                               HorizontalScrollBarVisibility="Disabled" FontSize="{StaticResource RegularFontSize}" BorderThickness="0" Margin="2" Background="White"
                               RowStyle="{StaticResource DataGridSimpleRow}" ColumnHeaderStyle="{StaticResource DataGridNoHeaders}" CanUserAddRows="False"
@@ -243,17 +249,17 @@
                 <TextBlock Grid.Row="14" Text="Номер дела" Grid.Column="1" Visibility="{Binding ElementName=tbNumber, Path=Visibility}" Style="{StaticResource UIRightOrient}"
                            Margin="15,0,0,0"/>
                 <TextBox Name="tbNumber" Grid.Row="15" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Resolution.CaseNumber}"
-                                 Visibility ="{Binding Path=NumberVisible, Mode=OneWay}" Margin="15,0,0,5" Width="303"/>
+                                 Visibility ="{Binding Path=NumberVisible, Mode=OneWay}" Margin="15,0,0,5" Width="203" HorizontalAlignment="Left"/>
                 <TextBlock Grid.Row="16" Text="Дата" Style="{StaticResource UIRightOrient}"/>
                 <DatePicker Grid.Row="17" Style="{StaticResource UIDatePicker}" SelectedDate="{Binding Path=Resolution.DispatchDate}" Margin="5,0,0,5"/>
                 
                 <TextBlock  Grid.Row="18" Text="Истец" Style="{StaticResource UIRightOrient}" Visibility="{Binding ElementName=tbPlaintiff, Path=Visibility}"/>
                 <TextBox Name="tbPlaintiff" Grid.Row="19" Style="{StaticResource UITextBox}" Text="{Binding Path=Resolution.Plaintiff}"
-                                  Margin="5,0,0,5" Width="200" Height="{StaticResource UIHeigth}" Visibility="{Binding Path=RespondentVisible, Mode=OneWay}"/>
+                                  Margin="5,0,0,5" Width="200" Height="{StaticResource UIHeigth}" Visibility="{Binding Path=RespondentVisible, Mode=OneWay}" HorizontalAlignment="Left"/>
                 <TextBlock Grid.Row="18" Grid.Column="1" Text="Ответчик" Visibility="{Binding ElementName=tbPlaintiff, Path=Visibility}" 
                            Style="{StaticResource UIRightOrient}" Margin="15,0,0,0"/>
                 <TextBox Name="tbRespondent" Grid.Row="19" Grid.Column="1" Style="{StaticResource UITextBox}" Text="{Binding Path=Resolution.Respondent}"
-                                  Margin="15,0,0,5" Width="200" Height="{StaticResource UIHeigth}" Visibility="{Binding ElementName=tbPlaintiff, Path=Visibility}"/>
+                                  Margin="15,0,0,5" Width="200" Height="{StaticResource UIHeigth}" Visibility="{Binding ElementName=tbPlaintiff, Path=Visibility}" HorizontalAlignment="Left"/>
                 <TextBlock Grid.Row="20" Text="Анотация" Style="{StaticResource UIRightOrient}"/>
                 <TextBox Grid.Row="21" Grid.ColumnSpan="2" MinLines="8" AcceptsReturn="True" FontSize="{StaticResource UIFontSize}"
                                     TextWrapping="Wrap" Name="caseAnnotate" Height="100" Text="{Binding Path=Resolution.CaseAnnotate}" Margin="5,0,0,5" />
@@ -335,6 +341,37 @@
                 </ListBox.ItemContainerStyle>
             </ListBox>
         </StackPanel>
-
+        <ListBox Grid.Row="1" Background="Transparent" BorderThickness="0" MaxHeight="300" VerticalAlignment="Bottom" Margin="5,0,0,5" Width="350" HorizontalAlignment="Left"
+                 ItemsSource="{Binding Path=Messages}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch">
+            <ListBox.ItemTemplate>
+                <DataTemplate DataType="Message">
+                    <Border x:Name="brd" Background="LightGray" Height="97" Margin="0,1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="50"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                             <Image Source="Resources/Info.png" Margin="1,1,2,1"/>
+                            <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding Path=Msg}" FontSize="{StaticResource UIFontSize}" FontStyle="Italic" TextWrapping="Wrap"/>
+                        </Grid>
+                       
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+            <!--<ListBox.Style>
+                <Style TargetType="{x:Type ListBox}">
+                    <Setter Property="OverridesDefaultStyle" Value="True"/>
+                    <Setter Property="ItemTemplate">
+                        <Setter.Value>
+                            <DataTemplate DataType="Message">
+                                <Border x:Name="brd" Background="Beige">
+                                    <TextBlock Text="{Binding Path=Msg}" FontSize="{StaticResource UIFontSize}" FontStyle="Italic"/>
+                                </Border>
+                            </DataTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListBox.Style>-->
+        </ListBox>
     </Grid>
 </Window>

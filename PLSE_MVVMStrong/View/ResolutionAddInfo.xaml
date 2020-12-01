@@ -46,7 +46,7 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right" Margin="0,0,20,0">
+        <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right" Margin="0,0,20,0" Visibility="Visible">
             <Button Style="{StaticResource BaseUIButton}" Content="ВЫХОД" Margin="0,0,5,15" Command="{Binding Path=Exit}" 
                     CommandParameter="{Binding ElementName=wnd}" Foreground="#FFD83535"/>
             <Button Style="{StaticResource BaseUIButton}" Content="ПРОДОЛЖИТЬ" Margin="5,0,0,15" Command="{Binding Path=Continue}"

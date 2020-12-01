@@ -25,6 +25,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using LingvoNET;
 using Microsoft.Office.Interop.Word;
+using PLSE_MVVMStrong.Properties;
 using Xceed.Wpf.Toolkit;
 
 namespace PLSE_MVVMStrong.Model
@@ -2259,14 +2260,6 @@ namespace PLSE_MVVMStrong.Model
                 return r.ToString();
             }
         }
-        public string FullTitle
-        {
-            get
-            {
-                if (Acronym != null) return $"{Code} ({Acronym})";
-                else return Code;
-            }
-        }
         public bool IsValid
         {
             get => _status;
@@ -2288,12 +2281,12 @@ namespace PLSE_MVVMStrong.Model
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.CommandText = "InnResources.prAddSpeciality";
-            cmd.Parameters.Add("@Code", SqlDbType.NVarChar, 205).Value = Code;
-            cmd.Parameters.Add("@Cat1", SqlDbType.TinyInt).Value = ConvertToDBNull(Category_1);
-            cmd.Parameters.Add("@Cat2", SqlDbType.TinyInt).Value = ConvertToDBNull(Category_2);
-            cmd.Parameters.Add("@Cat3", SqlDbType.TinyInt).Value = ConvertToDBNull(Category_3);
-            cmd.Parameters.Add("@Species", SqlDbType.NVarChar, 75).Value = ConvertToDBNull(Species);
-            cmd.Parameters.Add("@Acronym", SqlDbType.NVarChar, 10).Value = ConvertToDBNull(Acronym);
+            cmd.Parameters.Add("@Code", SqlDbType.NVarChar, 205).Value = _code;
+            cmd.Parameters.Add("@Cat1", SqlDbType.TinyInt).Value = ConvertToDBNull(_category_1);
+            cmd.Parameters.Add("@Cat2", SqlDbType.TinyInt).Value = ConvertToDBNull(_category_2);
+            cmd.Parameters.Add("@Cat3", SqlDbType.TinyInt).Value = ConvertToDBNull(_category_3);
+            cmd.Parameters.Add("@Species", SqlDbType.NVarChar, 75).Value = ConvertToDBNull(_species);
+            cmd.Parameters.Add("@Acronym", SqlDbType.NVarChar, 10).Value = ConvertToDBNull(_acronym);
             var p = cmd.Parameters.Add("@InsertedID", SqlDbType.SmallInt);
             p.Direction = ParameterDirection.Output;
             try
@@ -2317,14 +2310,14 @@ namespace PLSE_MVVMStrong.Model
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.CommandText = "InnResources.prEditSpeciality";
-            cmd.Parameters.Add("@Code", SqlDbType.NVarChar, 205).Value = Code;
-            cmd.Parameters.Add("@Cat1", SqlDbType.TinyInt).Value = ConvertToDBNull(Category_1);
-            cmd.Parameters.Add("@Cat2", SqlDbType.TinyInt).Value = ConvertToDBNull(Category_2);
-            cmd.Parameters.Add("@Cat3", SqlDbType.TinyInt).Value = ConvertToDBNull(Category_3);
-            cmd.Parameters.Add("@Species", SqlDbType.NVarChar, 75).Value = ConvertToDBNull(Species);
-            cmd.Parameters.Add("@Acronym", SqlDbType.NVarChar, 10).Value = ConvertToDBNull(Acronym);
+            cmd.Parameters.Add("@Code", SqlDbType.NVarChar, 205).Value = _code;
+            cmd.Parameters.Add("@Cat1", SqlDbType.TinyInt).Value = ConvertToDBNull(_category_1);
+            cmd.Parameters.Add("@Cat2", SqlDbType.TinyInt).Value = ConvertToDBNull(_category_2);
+            cmd.Parameters.Add("@Cat3", SqlDbType.TinyInt).Value = ConvertToDBNull(_category_3);
+            cmd.Parameters.Add("@Species", SqlDbType.NVarChar, 75).Value = ConvertToDBNull(_species);
+            cmd.Parameters.Add("@Acronym", SqlDbType.NVarChar, 10).Value = ConvertToDBNull(_acronym);
             cmd.Parameters.Add("@Status", SqlDbType.Bit).Value = _status;
-            cmd.Parameters.Add("@SpecialityID", SqlDbType.Int).Value = SpecialityID;
+            cmd.Parameters.Add("@SpecialityID", SqlDbType.Int).Value = _id;
             try
             {
                 cmd.Connection.Open();
@@ -2345,7 +2338,7 @@ namespace PLSE_MVVMStrong.Model
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.CommandText = "InnResources.prDeleteSpeciality";
-            cmd.Parameters.Add("@SpecialityID", SqlDbType.SmallInt).Value = SpecialityID;
+            cmd.Parameters.Add("@SpecialityID", SqlDbType.SmallInt).Value = _id;
             try
             {
                 con.Open();
@@ -2470,7 +2463,11 @@ namespace PLSE_MVVMStrong.Model
         public string Postcode
         {
             get => _postcode;
-            set { _postcode = value; OnPropertyChanged(); }
+            set 
+            {
+                _postcode = value;
+                OnPropertyChanged();
+            }
         }
         public string Federallocation
         {
@@ -3741,20 +3738,19 @@ namespace PLSE_MVVMStrong.Model
         //    return sb.ToString();
         //}
         public bool IsBirthDate() => DateTime.Today.Day == Birthdate?.Day && DateTime.Today.Month == Birthdate?.Month;
-        
         private void AddToDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.CommandText = "InnResources.prAddEmployee_Core";
             cmd.Parameters.Add("@WPhone", SqlDbType.VarChar, 20).Value = ConvertToDBNull(_workphone);
-            cmd.Parameters.Add("@Birth", SqlDbType.Date).Value = ConvertToDBNull(Birthdate);
-            cmd.Parameters.Add("@Hire", SqlDbType.Date).Value = ConvertToDBNull(Hiredate);
-            cmd.Parameters.Add("@Educ_1", SqlDbType.NVarChar, 150).Value = ConvertToDBNull(Education1);
-            cmd.Parameters.Add("@Educ_2", SqlDbType.NVarChar, 150).Value = ConvertToDBNull(Education2);
-            cmd.Parameters.Add("@Educ_3", SqlDbType.NVarChar, 150).Value = ConvertToDBNull(Education3);
-            cmd.Parameters.Add("@Science", SqlDbType.NVarChar, 250).Value = ConvertToDBNull(Sciencedegree);
-            cmd.Parameters.Add("@EmployeeStatusID", SqlDbType.NVarChar, 30).Value = EmployeeStatus;
+            cmd.Parameters.Add("@Birth", SqlDbType.Date).Value = ConvertToDBNull(_birthdate);
+            cmd.Parameters.Add("@Hire", SqlDbType.Date).Value = ConvertToDBNull(_hiredate);
+            cmd.Parameters.Add("@Educ_1", SqlDbType.NVarChar, 150).Value = ConvertToDBNull(_education1);
+            cmd.Parameters.Add("@Educ_2", SqlDbType.NVarChar, 150).Value = ConvertToDBNull(_education2);
+            cmd.Parameters.Add("@Educ_3", SqlDbType.NVarChar, 150).Value = ConvertToDBNull(_education3);
+            cmd.Parameters.Add("@Science", SqlDbType.NVarChar, 250).Value = ConvertToDBNull(_sciencedegree);
+            cmd.Parameters.Add("@EmployeeStatusID", SqlDbType.NVarChar, 30).Value = _employeeStaus;
             cmd.Parameters.Add("@foto", SqlDbType.VarBinary).Value = ConvertToDBNull(_foto); // check it
             cmd.Parameters.Add("@SettlementID", SqlDbType.Int).Value = ConvertToDBNull(Adress.Settlement?.SettlementID);
             cmd.Parameters.Add("@StreetPrefix", SqlDbType.NVarChar, 20).Value = ConvertToDBNull(Adress.Streetprefix);
@@ -3790,13 +3786,13 @@ namespace PLSE_MVVMStrong.Model
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.CommandText = "InnResources.prEditEmployee_Core";  
             cmd.Parameters.Add("@WPhone", SqlDbType.VarChar, 20).Value = ConvertToDBNull(_workphone);
-            cmd.Parameters.Add("@Birth", SqlDbType.Date).Value = ConvertToDBNull(Birthdate);
-            cmd.Parameters.Add("@Hire", SqlDbType.Date).Value = ConvertToDBNull(Hiredate);
-            cmd.Parameters.Add("@Educ_1", SqlDbType.NVarChar, 150).Value = ConvertToDBNull(Education1);
-            cmd.Parameters.Add("@Educ_2", SqlDbType.NVarChar, 150).Value = ConvertToDBNull(Education2);
-            cmd.Parameters.Add("@Educ_3", SqlDbType.NVarChar, 150).Value = ConvertToDBNull(Education3);
-            cmd.Parameters.Add("@Science", SqlDbType.NVarChar, 250).Value = ConvertToDBNull(Sciencedegree);
-            cmd.Parameters.Add("@EmployeeStatusID", SqlDbType.NVarChar, 30).Value = EmployeeStatus;
+            cmd.Parameters.Add("@Birth", SqlDbType.Date).Value = ConvertToDBNull(_birthdate);
+            cmd.Parameters.Add("@Hire", SqlDbType.Date).Value = ConvertToDBNull(_hiredate);
+            cmd.Parameters.Add("@Educ_1", SqlDbType.NVarChar, 150).Value = ConvertToDBNull(_education1);
+            cmd.Parameters.Add("@Educ_2", SqlDbType.NVarChar, 150).Value = ConvertToDBNull(_education2);
+            cmd.Parameters.Add("@Educ_3", SqlDbType.NVarChar, 150).Value = ConvertToDBNull(_education3);
+            cmd.Parameters.Add("@Science", SqlDbType.NVarChar, 250).Value = ConvertToDBNull(_sciencedegree);
+            cmd.Parameters.Add("@EmployeeStatusID", SqlDbType.NVarChar, 30).Value = _employeeStaus;
             cmd.Parameters.Add("@foto", SqlDbType.VarBinary).Value = ConvertToDBNull(_foto);
             cmd.Parameters.Add("@SettlementID", SqlDbType.Int).Value = ConvertToDBNull(Adress.Settlement?.SettlementID);
             cmd.Parameters.Add("@StreetPrefix", SqlDbType.NVarChar, 20).Value = ConvertToDBNull(Adress.Streetprefix);
@@ -3967,13 +3963,13 @@ namespace PLSE_MVVMStrong.Model
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.CommandText = "InnResources.prAddEmployee";
-            cmd.Parameters.Add("@FN", SqlDbType.NVarChar, 25).Value = Fname;
-            cmd.Parameters.Add("@SN", SqlDbType.NVarChar, 25).Value = Sname;
-            cmd.Parameters.Add("@MN", SqlDbType.NVarChar, 25).Value = Mname;
-            cmd.Parameters.Add("@Declinated", SqlDbType.Bit).Value = Declinated;
+            cmd.Parameters.Add("@FN", SqlDbType.NVarChar, 25).Value = _fname;
+            cmd.Parameters.Add("@SN", SqlDbType.NVarChar, 25).Value = _sname;
+            cmd.Parameters.Add("@MN", SqlDbType.NVarChar, 25).Value = _mname;
+            cmd.Parameters.Add("@Declinated", SqlDbType.Bit).Value = _declinated;
             cmd.Parameters.Add("@Departament", SqlDbType.TinyInt).Value = ConvertToDBNull(Departament.DepartamentID);
-            cmd.Parameters.Add("@InnerOffice", SqlDbType.NVarChar, 60).Value = Inneroffice;
-            cmd.Parameters.Add("@Gend", SqlDbType.NVarChar, 15).Value = Gender;
+            cmd.Parameters.Add("@InnerOffice", SqlDbType.NVarChar, 60).Value = _inneroffice;
+            cmd.Parameters.Add("@Gend", SqlDbType.NVarChar, 15).Value = _gender;
             cmd.Parameters.Add("@EmployeeCoreID", SqlDbType.Int).Value = EmployeeCore.EmployeeCoreID;
             var par = cmd.Parameters.Add("@InsertedID", SqlDbType.Int);
             par.Direction = ParameterDirection.Output;
@@ -3999,13 +3995,13 @@ namespace PLSE_MVVMStrong.Model
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.CommandText = "InnResources.prEditEmployee";
-            cmd.Parameters.Add("@FN", SqlDbType.NVarChar, 25).Value = Fname;
-            cmd.Parameters.Add("@SN", SqlDbType.NVarChar, 25).Value = Sname;
-            cmd.Parameters.Add("@MN", SqlDbType.NVarChar, 25).Value = Mname;
+            cmd.Parameters.Add("@FN", SqlDbType.NVarChar, 25).Value = _fname;
+            cmd.Parameters.Add("@SN", SqlDbType.NVarChar, 25).Value = _sname;
+            cmd.Parameters.Add("@MN", SqlDbType.NVarChar, 25).Value = _mname;
             cmd.Parameters.Add("@Declinated", SqlDbType.Bit).Value = Declinated;
             cmd.Parameters.Add("@Departament", SqlDbType.TinyInt).Value = ConvertToDBNull(Departament.DepartamentID);
-            cmd.Parameters.Add("@InnerOffice", SqlDbType.NVarChar, 60).Value = Inneroffice;
-            cmd.Parameters.Add("@Gend", SqlDbType.NVarChar, 15).Value = Gender;
+            cmd.Parameters.Add("@InnerOffice", SqlDbType.NVarChar, 60).Value = _inneroffice;
+            cmd.Parameters.Add("@Gend", SqlDbType.NVarChar, 15).Value = _gender;
             cmd.Parameters.Add("@EmployeeID", SqlDbType.Int).Value = _id;
             var par = cmd.Parameters.Add("@NewID", SqlDbType.Int);
             par.Direction = ParameterDirection.Output;
@@ -4428,13 +4424,7 @@ namespace PLSE_MVVMStrong.Model
             {
                 if (value != _email)
                 {
-                    if (String.IsNullOrWhiteSpace(value))
-                    {
-                        _email = value;
-                        OnPropertyChanged();
-                    }
-                    if (!Standarts.isValidEmail(value)) throw new ArgumentException("Неверный фoрмат Email");
-                    _email = value;
+                    _email = ValidateNullable(value, Standarts.isValidEmail, "Неверный формат email");
                     OnPropertyChanged();
                 }
             }
@@ -4445,17 +4435,8 @@ namespace PLSE_MVVMStrong.Model
             set
             {
                 if (value == _fax) return;
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    _fax = null;
-                    OnPropertyChanged();
-                }
-                else
-                {
-                    _fax = value;
-                    OnPropertyChanged();
-                }
-                
+                _fax = ValidateNullable(value, Standarts.IsValidPhoneNumber, "Неверный формат номера");
+                OnPropertyChanged();
             }
         }
         public string Telephone2
@@ -4464,22 +4445,8 @@ namespace PLSE_MVVMStrong.Model
             set
             {
                 if (value == _telephone2) return;
-                if (String.IsNullOrWhiteSpace(value))
-                {
-                    _telephone2 = null;
-                    OnPropertyChanged();
-                }
-                else
-                {
-                    var trim = Regex.Replace(value, "[-() ]", "");
-                    if (Regex.IsMatch(trim, @"^[1-9]\d{3,6}$"))
-                    {
-                        _telephone2 = trim;
-                    }
-                    else throw new ArgumentException("Неверный формат номера");
-                    OnPropertyChanged();
-                }
-                
+                _telephone2 = ValidateNullable(value, Standarts.IsValidPhoneNumber, "Неверный формат номера");
+                OnPropertyChanged();
             }
         }
         public string Telephone
@@ -4488,22 +4455,8 @@ namespace PLSE_MVVMStrong.Model
             set
             {
                 if (value == _telephone) return;
-                if (String.IsNullOrWhiteSpace(value))
-                {
-                    _telephone = null;
-                    OnPropertyChanged();
-                }
-                else
-                {
-                    var trim = Regex.Replace(value, "[-() ]", "");
-                    if (Regex.IsMatch(trim, @"^[1-9]\d{3,6}$"))
-                    {
-                        _telephone = trim;
-                    }
-                    else throw new ArgumentException("Неверный формат номера");
-                    OnPropertyChanged();
-                }
-                
+                _telephone = ValidateNullable(value, Standarts.IsValidPhoneNumber, "Неверный формат номера");
+                OnPropertyChanged();
             }
         }
         public Adress Adress
@@ -4590,9 +4543,9 @@ namespace PLSE_MVVMStrong.Model
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.CommandText = "OutResources.prAddOrganization";
-            cmd.Parameters.Add("@Name", SqlDbType.NVarChar, 200).Value = Name;
-            cmd.Parameters.Add("@ShortName", SqlDbType.NVarChar, 150).Value = ConvertToDBNull(ShortName);
-            cmd.Parameters.Add("@Post", SqlDbType.Char, 6).Value = PostCode;
+            cmd.Parameters.Add("@Name", SqlDbType.NVarChar, 200).Value = _name;
+            cmd.Parameters.Add("@ShortName", SqlDbType.NVarChar, 150).Value = ConvertToDBNull(_shortname);
+            cmd.Parameters.Add("@Post", SqlDbType.Char, 6).Value = _postcode;
             cmd.Parameters.Add("@SettlementID", SqlDbType.Int).Value = Adress.Settlement.SettlementID;
             cmd.Parameters.Add("@StreetPrefix", SqlDbType.NVarChar, 10).Value = Adress.Streetprefix;
             cmd.Parameters.Add("@Street", SqlDbType.NVarChar, 40).Value = Adress.Street;
@@ -4600,11 +4553,11 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@Office", SqlDbType.NVarChar, 12).Value = ConvertToDBNull(Adress.Flat);
             cmd.Parameters.Add("@Corpus", SqlDbType.NVarChar, 12).Value = ConvertToDBNull(Adress.Corpus);
             cmd.Parameters.Add("@Structure", SqlDbType.NVarChar, 12).Value = ConvertToDBNull(Adress.Structure);
-            cmd.Parameters.Add("@Telephone", SqlDbType.VarChar, 20).Value = ConvertToDBNull(Telephone);
-            cmd.Parameters.Add("@Telephone_2", SqlDbType.VarChar, 20).Value = ConvertToDBNull(Telephone2);
-            cmd.Parameters.Add("@Fax", SqlDbType.VarChar, 20).Value = ConvertToDBNull(Fax);
-            cmd.Parameters.Add("@Email", SqlDbType.NVarChar, 50).Value = ConvertToDBNull(Email);
-            cmd.Parameters.Add("@WebSite", SqlDbType.NVarChar, 50).Value = ConvertToDBNull(WebSite);
+            cmd.Parameters.Add("@Telephone", SqlDbType.VarChar, 20).Value = ConvertToDBNull(_telephone);
+            cmd.Parameters.Add("@Telephone_2", SqlDbType.VarChar, 20).Value = ConvertToDBNull(_telephone2);
+            cmd.Parameters.Add("@Fax", SqlDbType.VarChar, 20).Value = ConvertToDBNull(_fax);
+            cmd.Parameters.Add("@Email", SqlDbType.NVarChar, 50).Value = ConvertToDBNull(_email);
+            cmd.Parameters.Add("@WebSite", SqlDbType.NVarChar, 50).Value = ConvertToDBNull(_website);
             var par = cmd.Parameters.Add("@InsertedID", SqlDbType.Int);
             par.Direction = ParameterDirection.Output;
             try
@@ -4628,9 +4581,9 @@ namespace PLSE_MVVMStrong.Model
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.CommandText = "OutResources.prEditOrganization";
-            cmd.Parameters.Add("@Name", SqlDbType.NVarChar, 200).Value = Name;
-            cmd.Parameters.Add("@ShortName", SqlDbType.NVarChar, 150).Value = ConvertToDBNull(ShortName);
-            cmd.Parameters.Add("@Post", SqlDbType.Char, 6).Value = PostCode;
+            cmd.Parameters.Add("@Name", SqlDbType.NVarChar, 200).Value = _name;
+            cmd.Parameters.Add("@ShortName", SqlDbType.NVarChar, 150).Value = ConvertToDBNull(_shortname);
+            cmd.Parameters.Add("@Post", SqlDbType.Char, 6).Value = _postcode;
             cmd.Parameters.Add("@SettlementID", SqlDbType.Int).Value = Adress.Settlement.SettlementID;
             cmd.Parameters.Add("@StreetPrefix", SqlDbType.NVarChar, 10).Value = Adress.Streetprefix;
             cmd.Parameters.Add("@Street", SqlDbType.NVarChar, 40).Value = Adress.Street;
@@ -4638,11 +4591,11 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@Office", SqlDbType.NVarChar, 12).Value = ConvertToDBNull(Adress.Flat);
             cmd.Parameters.Add("@Corpus", SqlDbType.NVarChar, 12).Value = ConvertToDBNull(Adress.Corpus);
             cmd.Parameters.Add("@Structure", SqlDbType.NVarChar, 12).Value = ConvertToDBNull(Adress.Structure);
-            cmd.Parameters.Add("@Telephone", SqlDbType.VarChar, 20).Value = ConvertToDBNull(Telephone);
-            cmd.Parameters.Add("@Telephone_2", SqlDbType.VarChar, 20).Value = ConvertToDBNull(Telephone2);
-            cmd.Parameters.Add("@Fax", SqlDbType.VarChar, 20).Value = ConvertToDBNull(Fax);
-            cmd.Parameters.Add("@Email", SqlDbType.NVarChar, 50).Value = ConvertToDBNull(Email);
-            cmd.Parameters.Add("@WebSite", SqlDbType.NVarChar, 50).Value = ConvertToDBNull(WebSite);
+            cmd.Parameters.Add("@Telephone", SqlDbType.VarChar, 20).Value = ConvertToDBNull(_telephone);
+            cmd.Parameters.Add("@Telephone_2", SqlDbType.VarChar, 20).Value = ConvertToDBNull(_telephone2);
+            cmd.Parameters.Add("@Fax", SqlDbType.VarChar, 20).Value = ConvertToDBNull(_fax);
+            cmd.Parameters.Add("@Email", SqlDbType.NVarChar, 50).Value = ConvertToDBNull(_email);
+            cmd.Parameters.Add("@WebSite", SqlDbType.NVarChar, 50).Value = ConvertToDBNull(_website);
             cmd.Parameters.Add("@StatusID", SqlDbType.NVarChar, 30).Value = _status;
             cmd.Parameters.Add("@OrganizationID", SqlDbType.Int).Value = OrganizationID;
             try
@@ -4899,18 +4852,18 @@ namespace PLSE_MVVMStrong.Model
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.CommandText = "OutResources.prAddCustomer";
-            cmd.Parameters.Add("@FN", SqlDbType.NVarChar, 25).Value = Fname;
-            cmd.Parameters.Add("@SN", SqlDbType.NVarChar, 25).Value = Sname;
-            cmd.Parameters.Add("@MN", SqlDbType.NVarChar, 25).Value = Mname;
-            cmd.Parameters.Add("@Declinated", SqlDbType.Bit).Value = Declinated;
-            cmd.Parameters.Add("@Gend", SqlDbType.NVarChar, 15).Value = Gender;
-            cmd.Parameters.Add("@WorkPhone", SqlDbType.VarChar, 20).Value = ConvertToDBNull(Workphone);
-            cmd.Parameters.Add("@MobilePhone", SqlDbType.VarChar, 20).Value = ConvertToDBNull(Mobilephone);
+            cmd.Parameters.Add("@FN", SqlDbType.NVarChar, 25).Value = _fname;
+            cmd.Parameters.Add("@SN", SqlDbType.NVarChar, 25).Value = _sname;
+            cmd.Parameters.Add("@MN", SqlDbType.NVarChar, 25).Value = _mname;
+            cmd.Parameters.Add("@Declinated", SqlDbType.Bit).Value = _declinated;
+            cmd.Parameters.Add("@Gend", SqlDbType.NVarChar, 15).Value = _gender;
+            cmd.Parameters.Add("@WorkPhone", SqlDbType.VarChar, 20).Value = ConvertToDBNull(_workphone);
+            cmd.Parameters.Add("@MobilePhone", SqlDbType.VarChar, 20).Value = ConvertToDBNull(_mobilephone);
             cmd.Parameters.Add("@OrgID", SqlDbType.Int).Value = ConvertToDBNull(Organization?.OrganizationID);
-            cmd.Parameters.Add("@Email", SqlDbType.NVarChar, 50).Value = ConvertToDBNull(Email);
-            cmd.Parameters.Add("@Rank", SqlDbType.NVarChar, 100).Value = ConvertToDBNull(Rank);
-            cmd.Parameters.Add("@Departament", SqlDbType.NVarChar, 100).Value = ConvertToDBNull(Departament);
-            cmd.Parameters.Add("@Office", SqlDbType.NVarChar, 150).Value = Office; 
+            cmd.Parameters.Add("@Email", SqlDbType.NVarChar, 50).Value = ConvertToDBNull(_email);
+            cmd.Parameters.Add("@Rank", SqlDbType.NVarChar, 100).Value = ConvertToDBNull(_rank);
+            cmd.Parameters.Add("@Departament", SqlDbType.NVarChar, 100).Value = ConvertToDBNull(_departament);
+            cmd.Parameters.Add("@Office", SqlDbType.NVarChar, 150).Value = _office; 
             var par = cmd.Parameters.Add("@InsertedID", SqlDbType.Int);
             par.Direction = ParameterDirection.Output;
             try
@@ -4934,18 +4887,18 @@ namespace PLSE_MVVMStrong.Model
             SqlCommand cmd = con.CreateCommand();
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.CommandText = "OutResources.prEditCustomer";
-            cmd.Parameters.Add("@FN", SqlDbType.NVarChar, 25).Value = Fname;
-            cmd.Parameters.Add("@SN", SqlDbType.NVarChar, 25).Value = Sname;
-            cmd.Parameters.Add("@MN", SqlDbType.NVarChar, 25).Value = Mname;
-            cmd.Parameters.Add("@Declinated", SqlDbType.Bit).Value = Declinated;
-            cmd.Parameters.Add("@Gend", SqlDbType.NVarChar, 15).Value = Gender;
-            cmd.Parameters.Add("@WorkPhone", SqlDbType.VarChar, 20).Value = ConvertToDBNull(Workphone);
-            cmd.Parameters.Add("@MobilePhone", SqlDbType.VarChar, 20).Value = ConvertToDBNull(Mobilephone);
+            cmd.Parameters.Add("@FN", SqlDbType.NVarChar, 25).Value = _fname;
+            cmd.Parameters.Add("@SN", SqlDbType.NVarChar, 25).Value = _sname;
+            cmd.Parameters.Add("@MN", SqlDbType.NVarChar, 25).Value = _mname;
+            cmd.Parameters.Add("@Declinated", SqlDbType.Bit).Value = _declinated;
+            cmd.Parameters.Add("@Gend", SqlDbType.NVarChar, 15).Value = _gender;
+            cmd.Parameters.Add("@WorkPhone", SqlDbType.VarChar, 20).Value = ConvertToDBNull(_workphone);
+            cmd.Parameters.Add("@MobilePhone", SqlDbType.VarChar, 20).Value = ConvertToDBNull(_mobilephone);
             cmd.Parameters.Add("@OrgID", SqlDbType.Int).Value = ConvertToDBNull(Organization?.OrganizationID);
-            cmd.Parameters.Add("@Email", SqlDbType.NVarChar, 50).Value = ConvertToDBNull(Email);
-            cmd.Parameters.Add("@Rank", SqlDbType.NVarChar, 100).Value = ConvertToDBNull(Rank);
-            cmd.Parameters.Add("@Departament", SqlDbType.NVarChar, 100).Value = ConvertToDBNull(Departament);
-            cmd.Parameters.Add("@Office", SqlDbType.NVarChar, 100).Value = Office;
+            cmd.Parameters.Add("@Email", SqlDbType.NVarChar, 50).Value = ConvertToDBNull(_email);
+            cmd.Parameters.Add("@Rank", SqlDbType.NVarChar, 100).Value = ConvertToDBNull(_rank);
+            cmd.Parameters.Add("@Departament", SqlDbType.NVarChar, 100).Value = ConvertToDBNull(_departament);
+            cmd.Parameters.Add("@Office", SqlDbType.NVarChar, 100).Value = _office;
             cmd.Parameters.Add("@Status", SqlDbType.Bit).Value = _status;
             cmd.Parameters.Add("@CusIden", SqlDbType.Int).Value = CustomerID;
             var par = cmd.Parameters.Add("@NewID", SqlDbType.Int);
@@ -5064,7 +5017,6 @@ namespace PLSE_MVVMStrong.Model
         private string _comment;
         private DateTime? _dispatchdate;
         #endregion
-
 #region Property
         public string ResolutionStatus
         {
@@ -5634,6 +5586,7 @@ namespace PLSE_MVVMStrong.Model
                 case "административное правонарушение":
                     return "25.9 КоАП РФ";
                 case "проверка КУСП":
+                case "проверка КУCП":
                     return "57 УПК РФ";
                 case "административное судопроизводство":
                     return "49 КАС РФ";
@@ -5649,6 +5602,7 @@ namespace PLSE_MVVMStrong.Model
                 case "гражданское":
                 case "арбитражное":
                 case "проверка КУСП":
+                case "проверка КУCП":
                 case "административное судопроизводство":
                     return "307 УК РФ";
                 case "административное правонарушение":
@@ -6501,7 +6455,7 @@ namespace PLSE_MVVMStrong.Model
         public ObservableCollection<EquipmentUsage> EquipmentUsage => _equipmentusage;
 #endregion
 
-        public static Expertise New => new Expertise() {_startdate = DateTime.Now, _timelimit = 30};
+        public static Expertise New => new Expertise() {_startdate = DateTime.Now, _timelimit = 30, _type = "первичная"};
         [Browsable(false)]
         public string RequestSummary
         {

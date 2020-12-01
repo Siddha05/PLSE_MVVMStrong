@@ -2,6 +2,7 @@
 using PLSE_MVVMStrong.View;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -55,6 +56,29 @@ namespace PLSE_MVVMStrong.ViewModel
             {
                 Specialities.Filter = x => (x as Expert).Employee.EmployeeID == (n as Employee).EmployeeID && !(x as Expert).ExpertCore.Closed;  
             });
+        }
+    }
+    /// <summary>
+    /// Конвертер преобразования типа экспертизы в Visibility
+    /// </summary>
+    public class ExpertiseTypeConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var s = value as string;
+            switch (s)
+            {
+                case "повторная":
+                case "дополнительная":
+                    return "Visible";
+                default:
+                    return "Hidden";
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 
@@ -22,6 +23,7 @@ namespace PLSE_MVVMStrong.ViewModel
         private RelayCommand _editcustomer;
         private RelayCommand _addexpertise;
         private RelayCommand _addquestion;
+        private MessageQuery _messages;
         #endregion Fields
 #region Properties
         public IReadOnlyList<string> ResolutionTypes => CommonInfo.ResolutionTypes;
@@ -29,6 +31,7 @@ namespace PLSE_MVVMStrong.ViewModel
         public ListCollectionView CustomersList { get; }
         public object SelectedCustomer { get; set; }
         public Resolution Resolution { get; set; }
+        public MessageQuery Messages => _messages;
         public bool CustomersListOpened
         {
             get { return (bool)GetValue(CustomersListOpenedProperty); }
@@ -50,13 +53,13 @@ namespace PLSE_MVVMStrong.ViewModel
         }
         public static readonly DependencyProperty ObjectTextProperty =
             DependencyProperty.Register("ObjectText", typeof(string), typeof(ResolutionAddVM), new PropertyMetadata("", ObjectText_Changed));
-        public string CustomerSearchText
-        {
-            get { return (string)GetValue(CustomerSearchTextProperty); }
-            set { SetValue(CustomerSearchTextProperty, value); }
-        }
-        public static readonly DependencyProperty CustomerSearchTextProperty =
-            DependencyProperty.Register("CustomerSearchText", typeof(string), typeof(ResolutionAddVM), new PropertyMetadata(String.Empty, CustomerSearchTextChanged));
+        //public string CustomerSearchText
+        //{
+        //    get { return (string)GetValue(CustomerSearchTextProperty); }
+        //    set { SetValue(CustomerSearchTextProperty, value); }
+        //}
+        //public static readonly DependencyProperty CustomerSearchTextProperty =
+        //    DependencyProperty.Register("CustomerSearchText", typeof(string), typeof(ResolutionAddVM), new PropertyMetadata(String.Empty, CustomerSearchTextChanged));
         public IEnumerable<string> CaseTypesList
         {
             get => (IEnumerable<string>)GetValue(CaseTypesListProperty);
@@ -84,20 +87,54 @@ namespace PLSE_MVVMStrong.ViewModel
         #endregion Properties
 
 #region Commands
-        public RelayCommand ObjectsClick { get; }
-        public RelayCommand Save { get; }
+        //public RelayCommand ObjectsClick { get; }
+        public RelayCommand Save
+        {
+            get
+            {
+                return new RelayCommand(n =>
+                {
+                    var infownd = new ResolutionAddInfo(Resolution);
+                    infownd.ShowDialog();
+                    //try
+                    //{
+                    //    var bd = new RuningTask("Сохранение в базу данных");
+                    //    Resolution.SaveChanges(CommonInfo.connection);
+                    //    Thread.Sleep(500);
+                    //    bd.Status = RuningTaskStatus.Completed;
+                    //    //var pr = new DocsCreater(Resolution);
+                    //    //var t = pr.OnExpertiseCreateAsync();
+                    //    //if (MessageBox.Show("Сохранение успешно. Продолжить?", "Сохранение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    //    //{
+                    //    //    Resolution = InicialState();
+                    //    //}
+                    //    //else (n as Window).Close();
+                    //}
+                    //catch (Exception ex)
+                    //{
+                    //    MessageBox.Show(ex.Message);
+                    //}
+                },
+             o =>
+             {
+                 if (Resolution.IsInstanceValidState) return true;
+                 else return false;
+             });
+            }
+        }
         public RelayCommand AddExpertise
         {
             get
             {
                 return _addexpertise != null ? _addexpertise : new RelayCommand(n =>
                                                                 {
-                                                                    var wnd = new ExpertiseAdd { Owner = n as ResolutionAdd };
-                                                                    wnd.ShowDialog();
-                                                                    if (wnd.DialogResult ?? false)
-                                                                    {
-                                                                        Resolution.Expertisies.Add((wnd.DataContext as ExpertiseAddVM).Expertise);
-                                                                    }
+                                                                    Messages.Add(new Message("Сохранение в базу данных прошло успешно"));
+                                                                    //var wnd = new ExpertiseAdd { Owner = n as ResolutionAdd };
+                                                                    //wnd.ShowDialog();
+                                                                    //if (wnd.DialogResult ?? false)
+                                                                    //{
+                                                                    //    Resolution.Expertisies.Add((wnd.DataContext as ExpertiseAddVM).Expertise);
+                                                                    //}
                                                                 });
             }
         }
@@ -155,6 +192,7 @@ namespace PLSE_MVVMStrong.ViewModel
             }
         }
         public RelayCommand SelectCustomer { get; }
+        public RelayCommand SearchCustomerChanged { get; }
         #endregion Commands
         
         public ResolutionAddVM()
@@ -162,6 +200,8 @@ namespace PLSE_MVVMStrong.ViewModel
             Resolution = InicialState();
             Resolution.PropertyChanged += Resolution_PropertyChanged;
             CustomersList = new ListCollectionView(CommonInfo.Customers);
+            _messages = new MessageQuery();
+            
             //Resolution.Expertisies.Add(new Expertise(id: 0,
             //                                          number: "12",
             //                                          expert: CommonInfo.Experts.Single(n => n.ExpertID == 6),
@@ -188,48 +228,33 @@ namespace PLSE_MVVMStrong.ViewModel
             SelectCustomer = new RelayCommand(n =>
             {
                 Resolution.Customer = SelectedCustomer as Customer;
-                CustomerSearchText = "";
+                CustomersListOpened = false;
             },
                 o => // Advisably ?? 
             {
                 if (SelectedCustomer != null) return true;
                 return false;
             });
-            
-            ObjectsClick = new RelayCommand(n =>
+            SearchCustomerChanged = new RelayCommand(n =>
             {
-                var o = n as Popup;
-                if (o.IsOpen) o.IsOpen = false;
-                else o.IsOpen = true;
+                var tb = n as TextBox;
+                if (tb == null) return;
+                if (tb.Text.Length > 2)
+                {
+                    CustomersList.Filter = x => (x as Customer).Sname.StartsWith(tb.Text, StringComparison.CurrentCultureIgnoreCase);
+                    CustomersListOpened = true;
+                }
+                else
+                {
+                    CustomersListOpened = false;
+                }
             });
-            Save = new RelayCommand(n =>
-            {
-                var infownd = new ResolutionAddInfo(Resolution);
-                infownd.ShowDialog();
-                //try
-                //{
-                //    var bd = new RuningTask("Сохранение в базу данных");
-                //    Resolution.SaveChanges(CommonInfo.connection);
-                //    Thread.Sleep(500);
-                //    bd.Status = RuningTaskStatus.Completed;
-                //    //var pr = new DocsCreater(Resolution);
-                //    //var t = pr.OnExpertiseCreateAsync();
-                //    //if (MessageBox.Show("Сохранение успешно. Продолжить?", "Сохранение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
-                //    //{
-                //    //    Resolution = InicialState();
-                //    //}
-                //    //else (n as Window).Close();
-                //}
-                //catch (Exception ex)
-                //{
-                //    MessageBox.Show(ex.Message);
-                //}
-            },
-             o=>
-             {
-                 if (Resolution.IsInstanceValidState) return true;
-                 else return false;
-             });
+            //ObjectsClick = new RelayCommand(n =>
+            //{
+            //    var o = n as Popup;
+            //    if (o.IsOpen) o.IsOpen = false;
+            //    else o.IsOpen = true;
+            //});
         }
         private void Resolution_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
@@ -268,20 +293,6 @@ namespace PLSE_MVVMStrong.ViewModel
                 }
             }
         }
-        private static void CustomerSearchTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var instance = d as ResolutionAddVM;
-            if (instance.CustomerSearchText.Length > 1)
-            {
-                instance.CustomersListOpened = true;
-                instance.CustomersList.Filter = n => (n as Customer).Sname.StartsWith(instance.CustomerSearchText, StringComparison.CurrentCultureIgnoreCase);
-            }
-            else
-            {
-                instance.CustomersList.Filter = null;
-                instance.CustomersListOpened = false;
-            }
-        }
         private static void QuestionText_Changed(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var ins = d as ResolutionAddVM;
@@ -305,9 +316,6 @@ namespace PLSE_MVVMStrong.ViewModel
         {
             var r = Resolution.New;
             r.TypeCase = "уголовное";
-            //r.Objects.Objects.Add(new ContentWrapper("материалы гражданского дела № 22541"));
-            //r.Objects.Objects.Add(new ContentWrapper("руководство по эксплуатации"));
-           //r.Questions.Questions.Add(new ContentWrapper("Какова остаточная стоимость предоставленного на исследование сотового телефона марки \"Apple IPhone 11s\" с учетом износа на дату совершения кражи, т.е. на 21.07.2020? Какова стоимость указанного телефона без учета износа на дату совершения кражи, т.е. на 24.12.2020?"));
             return r;
         }
 

@@ -19,10 +19,8 @@ namespace PLSE_MVVMStrong.ViewModel
         RelayCommand _continue;
         private Resolution _resol;
         private ObservableCollection<RuningTask> _tasks = new ObservableCollection<RuningTask>();
-
-
-        #endregion
-        #region Properties
+#endregion
+#region Properties
         public bool Completed { get; set; } = false;
         public Resolution Resolution
         {
@@ -32,8 +30,8 @@ namespace PLSE_MVVMStrong.ViewModel
         {
             get => _tasks;
         }
-        #endregion
-        #region Commands
+#endregion
+#region Commands
         public RelayCommand Exit
         {
             get => _exit;

@@ -198,12 +198,12 @@ namespace PLSE_MVVMStrong.Model
         }
         public static bool isValidName(string name)
         {
-            Regex regex = new Regex(@"^\p{IsCyrillic}{2,25}$", RegexOptions.IgnoreCase);
+            Regex regex = new Regex(@"^\p{IsCyrillic}{2,25}$|^\p{IsCyrillic}\.$", RegexOptions.IgnoreCase);
             return regex.IsMatch(name);
         }
         public static bool isValidMiddleName(string mname)
         {
-            Regex regex = new Regex(@"^\p{IsCyrillic}{2,25}$", RegexOptions.IgnoreCase);
+            Regex regex = new Regex(@"^\p{IsCyrillic}{2,25}$|^\p{IsCyrillic}\.$", RegexOptions.IgnoreCase);
             return regex.IsMatch(mname);
         }
         public static bool isValidSecondName(string sname)
