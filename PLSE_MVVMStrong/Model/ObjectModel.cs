@@ -1887,39 +1887,24 @@ namespace PLSE_MVVMStrong.Model
         Error = 0x0008,
         Congratulation = 0x0010
     }
-    public class Message
+    public class Message ///TODO rework in struct
     {
         private string _msg;
         private MsgType _msgtype;
         private DateTime _inicialtime;
         private TimeSpan _lifetime;
 
-        public TimeSpan LifeTime
-        {
-            get => _lifetime;
-            set => _lifetime = value;
-        }
+        public TimeSpan LifeTime => _lifetime;
         public DateTime InicialTime => _inicialtime;
-        public MsgType Type
-        {
-            get => _msgtype;
-            set => _msgtype = value;
-        }
-        public string Msg
-        {
-            get => _msg;
-            set => _msg = value;
-        }
+        public MsgType Type => _msgtype;
+        public string Msg => _msg;
 
         public override string ToString()
         {
             return _msg + " (" + _inicialtime.ToString() + ")";
         }
-
-        //public Message()
-        //{
-        //    _inicialtime = DateTime.Now;
-        //}
+        public bool IsExpired => (DateTime.Now - _inicialtime) > _lifetime;
+        
         public Message(string msg, MsgType type, TimeSpan lifetime)
         {
             _msg = msg; _msgtype = type; _inicialtime = DateTime.Now; _lifetime = lifetime;
@@ -1929,8 +1914,7 @@ namespace PLSE_MVVMStrong.Model
     }
     public class MessageQuery : ObservableCollection<Message>
     {
-        private DispatcherTimer timer;
-
+        private DispatcherTimer _timer;
         public int TickInterval { get; set; } = 1;
         private void OnTimerTick(object sender, EventArgs e)
         {
@@ -1940,16 +1924,77 @@ namespace PLSE_MVVMStrong.Model
                 if (item.Type == MsgType.Temporary) Remove(item);
             }
         }
-        public MessageQuery()
+        public MessageQuery() : this(3) { }
+        public MessageQuery(int maxstack)
         {
-            timer = new DispatcherTimer(DispatcherPriority.Normal)
+            _timer = new DispatcherTimer(DispatcherPriority.Normal)
             {
                 Interval = TimeSpan.FromSeconds(TickInterval),
             };
-            timer.Tick += OnTimerTick;
-            timer.Start();
+            _timer.Tick += OnTimerTick;
+            _timer.Start();
         }
     }
+    public class MessageStackQuery : INotifyCollectionChanged, INotifyPropertyChanged
+    {
+#region Fields
+        private int _maxstack;
+        private DispatcherTimer _timer;
+        private int _interval = 3;
+        private Queue<Message> _queue = new Queue<Message>(5);
+#endregion
+#region Properties
+        public int MaxStack => _maxstack;
+        public IEnumerable<Message> StackQuery => _queue.Take(_maxstack);
+        #endregion
+#region Functions
+        public void Add(Message message)
+        {
+
+            _timer.Dispatcher.Invoke(() => _queue.Enqueue(message));
+            OnCollectionChanged(NotifyCollectionChangedAction.Add);
+            OnPropertyChanged("StackQuery");
+        }
+        public void Clear()
+        {
+            _timer.Dispatcher.Invoke(() => _queue.Clear());
+            OnCollectionChanged(NotifyCollectionChangedAction.Reset);
+            OnPropertyChanged("StackQuery");
+        }
+        private void OnCollectionChanged(NotifyCollectionChangedAction action)
+        {
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(action));
+        }
+        private void OnPropertyChanged([CallerMemberName]string prop = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
+        }
+        #endregion
+        public event NotifyCollectionChangedEventHandler CollectionChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public MessageStackQuery() : this(3) { }
+        public MessageStackQuery(int maxstack)
+        {
+            _maxstack = maxstack;
+            _timer = new DispatcherTimer(DispatcherPriority.Normal)
+            {
+                Interval = TimeSpan.FromSeconds(_interval)
+            };
+            _timer.Tick += _timer_Tick;
+            _timer.Start();
+        }
+        private void _timer_Tick(object sender, EventArgs e)
+        {
+            if (_queue.Count > 0)
+            {
+                _queue.Dequeue();
+                OnCollectionChanged(NotifyCollectionChangedAction.Remove);
+                OnPropertyChanged("StackQuery");
+            }
+        }
+    }
+
     public enum RuningTaskStatus
     {
         None,
@@ -5397,6 +5442,31 @@ namespace PLSE_MVVMStrong.Model
         /// <param name="con">SqlConnection. Строка подключения к базе данных</param>
         /// <exception cref="NullReferenceException">Поле <c>Customer</c> или аргумент <paramref name="con"/> равны null</exception>
         /// <exception cref="SqlException"></exception>
+        private SqlCommand AddCommand()
+        {
+            SqlCommand cmd = new SqlCommand();
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.CommandText = "Activity.prAddResolution";
+            cmd.Parameters.Add("@RegDate", SqlDbType.Date).Value = RegistrationDate;
+            cmd.Parameters.Add("@ResolDate", SqlDbType.Date).Value = ConvertToDBNull(ResolutionDate);
+            cmd.Parameters.Add("@TypeResol", SqlDbType.NVarChar, 30).Value = ResolutionType;
+            cmd.Parameters.Add("@Status", SqlDbType.NVarChar, 30).Value = _status;
+            cmd.Parameters.Add("@CustID", SqlDbType.Int).Value = Customer.CustomerID;
+            cmd.Parameters.Add("@TypeCase", SqlDbType.Char, 1).Value = CommonInfo.CaseTypes[TypeCase];
+            cmd.Parameters.Add("@Annotate", SqlDbType.NVarChar, 500).Value = ConvertToDBNull(CaseAnnotate);
+            cmd.Parameters.Add("@Comment", SqlDbType.NVarChar, 500).Value = ConvertToDBNull(Comment);
+            cmd.Parameters.Add("@NumberCase", SqlDbType.NVarChar, 50).Value = ConvertToDBNull(CaseNumber);
+            cmd.Parameters.Add("@Respondent", SqlDbType.NVarChar, 150).Value = ConvertToDBNull(Respondent);
+            cmd.Parameters.Add("@Plaintiff", SqlDbType.NVarChar, 150).Value = ConvertToDBNull(Plaintiff);
+            cmd.Parameters.Add("@DispatchDate", SqlDbType.Date).Value = ConvertToDBNull(DispatchDate);
+            cmd.Parameters.Add("@PrescribeType", SqlDbType.NVarChar, 200).Value = ConvertToDBNull(PrescribeType);
+            cmd.Parameters.Add("@Questions", SqlDbType.NVarChar).Value = ConvertToDBNull(CollectionToDBString(Questions));
+            cmd.Parameters.Add("@Objects", SqlDbType.NVarChar).Value = ConvertToDBNull(CollectionToDBString(Objects));
+            cmd.Parameters.Add("@NativeQNumeration", SqlDbType.Bit).Value = NativeQuestionNumeration;
+            var par = cmd.Parameters.Add("@InsertedID", SqlDbType.Int);
+            par.Direction = ParameterDirection.Output;
+            return cmd;
+        }
         private void AddToDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
@@ -5501,8 +5571,37 @@ namespace PLSE_MVVMStrong.Model
                 item.SaveChanges(con);
             }
         }
+        
         public override void SaveChanges(SqlConnection con)
         {
+            try
+            {
+                con.Open();
+                var tran = con.BeginTransaction();
+                switch (Version)
+                {
+                    case Version.New:
+                        var cmd = AddCommand();
+                        cmd.Connection = con;
+                        cmd.Transaction = tran;
+                        ContentToDB(con);
+                        break;
+                    case Version.Edited:
+                        EditToDB(con);
+                        ContentToDB(con);
+                        break;
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            finally
+            {
+
+            }
+            
             Customer.SaveChanges(con);
             switch (Version)
             {
@@ -5961,7 +6060,6 @@ namespace PLSE_MVVMStrong.Model
         private ObservableCollection<Bill> _bills = new ObservableCollection<Bill>();
         private ObservableCollection<EquipmentUsage> _equipmentusage = new ObservableCollection<EquipmentUsage>();
         #endregion
-
 #region Properties
         public short? SpendHours
         {
@@ -6570,6 +6668,25 @@ namespace PLSE_MVVMStrong.Model
         /// <returns>Int32. Новое значение ключа идентификации в базе данных</returns>
         /// <exception cref="System.NullReferenceException">Поля <c>Resolution</c>, <c>Expert</c> или аргумент <c>con</c> равны null</exception>
         /// <exception cref="System.Data.SqlClient.SqlException"></exception>
+        public SqlCommand AddCommand()
+        {
+            var cmd = new SqlCommand();
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.CommandText = "Activity.prAddExpertise";
+            cmd.Parameters.Add("@Num", SqlDbType.VarChar, 5).Value = _number;
+            cmd.Parameters.Add("@Expert", SqlDbType.Int).Value = Expert.ExpertID;
+            cmd.Parameters.Add("@Result", SqlDbType.NVarChar, 50).Value = _result;
+            cmd.Parameters.Add("@StartDate", SqlDbType.Date).Value = _startdate;
+            cmd.Parameters.Add("@ExDate", SqlDbType.Date).Value = ConvertToDBNull(_enddate);
+            cmd.Parameters.Add("@Limit", SqlDbType.TinyInt).Value = _timelimit;
+            cmd.Parameters.Add("@Resol", SqlDbType.Int).Value = _resolution.ResolutionID;
+            cmd.Parameters.Add("@Type", SqlDbType.NVarChar, 50).Value = _type;
+            cmd.Parameters.Add("@PreviousExpertise", SqlDbType.Int).Value = ConvertToDBNull(_prevexp);
+            //cmd.Parameters.Add("@SpendHours", SqlDbType.SmallInt).Value = ConvertToDBNull(SpendHours);
+            var par = cmd.Parameters.Add("@InsertedID", SqlDbType.Int);
+            par.Direction = ParameterDirection.Output;
+            return cmd;
+        }
         private void AddToDB(SqlConnection con)
         {
             SqlCommand cmd = con.CreateCommand();
@@ -6584,7 +6701,7 @@ namespace PLSE_MVVMStrong.Model
             cmd.Parameters.Add("@Resol", SqlDbType.Int).Value = _resolution.ResolutionID;
             cmd.Parameters.Add("@Type", SqlDbType.NVarChar, 50).Value = _type;
             cmd.Parameters.Add("@PreviousExpertise", SqlDbType.Int).Value = ConvertToDBNull(_prevexp);
-            cmd.Parameters.Add("@SpendHours", SqlDbType.SmallInt).Value = ConvertToDBNull(SpendHours);
+            //cmd.Parameters.Add("@SpendHours", SqlDbType.SmallInt).Value = ConvertToDBNull(SpendHours);
             var par = cmd.Parameters.Add("@InsertedID", SqlDbType.Int);
             par.Direction = ParameterDirection.Output;
             try
@@ -7722,6 +7839,7 @@ namespace PLSE_MVVMStrong.Model
             await System.Threading.Tasks.Task.Run(() => CreateConclusion(resolution));
             task.Status = RuningTaskStatus.Completed;
         }
+        
     }
     public class SpecialityCompererBySpecies : IEqualityComparer<Speciality>
     {

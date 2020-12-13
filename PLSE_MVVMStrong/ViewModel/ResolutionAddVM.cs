@@ -23,7 +23,8 @@ namespace PLSE_MVVMStrong.ViewModel
         private RelayCommand _editcustomer;
         private RelayCommand _addexpertise;
         private RelayCommand _addquestion;
-        private MessageQuery _messages;
+        //private MessageQuery _messages;
+        private MessageStackQuery _messages = new MessageStackQuery();
         #endregion Fields
 #region Properties
         public IReadOnlyList<string> ResolutionTypes => CommonInfo.ResolutionTypes;
@@ -31,7 +32,7 @@ namespace PLSE_MVVMStrong.ViewModel
         public ListCollectionView CustomersList { get; }
         public object SelectedCustomer { get; set; }
         public Resolution Resolution { get; set; }
-        public MessageQuery Messages => _messages;
+        public MessageStackQuery Messages => _messages;
         public bool CustomersListOpened
         {
             get { return (bool)GetValue(CustomersListOpenedProperty); }
@@ -94,26 +95,23 @@ namespace PLSE_MVVMStrong.ViewModel
             {
                 return new RelayCommand(n =>
                 {
-                    var infownd = new ResolutionAddInfo(Resolution);
-                    infownd.ShowDialog();
-                    //try
-                    //{
-                    //    var bd = new RuningTask("Сохранение в базу данных");
-                    //    Resolution.SaveChanges(CommonInfo.connection);
-                    //    Thread.Sleep(500);
-                    //    bd.Status = RuningTaskStatus.Completed;
-                    //    //var pr = new DocsCreater(Resolution);
-                    //    //var t = pr.OnExpertiseCreateAsync();
-                    //    //if (MessageBox.Show("Сохранение успешно. Продолжить?", "Сохранение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
-                    //    //{
-                    //    //    Resolution = InicialState();
-                    //    //}
-                    //    //else (n as Window).Close();
-                    //}
-                    //catch (Exception ex)
-                    //{
-                    //    MessageBox.Show(ex.Message);
-                    //}
+                    //var infownd = new ResolutionAddInfo(Resolution);
+                    //infownd.ShowDialog();
+                    try
+                    {
+                        Resolution.SaveChanges(CommonInfo.connection);
+                        InitialDocs();
+                        if (MessageBox.Show("Сохранение успешно. Продолжить?", "Сохранение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                        {
+                            Resolution = InicialState();
+                        }
+                        else (n as Window).Close();
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.Print(ex.Message);
+                        Messages.Add(new Message($"Ошибка при сохранении в базу данных {ex.Message}"));
+                    }
                 },
              o =>
              {
@@ -128,13 +126,14 @@ namespace PLSE_MVVMStrong.ViewModel
             {
                 return _addexpertise != null ? _addexpertise : new RelayCommand(n =>
                                                                 {
-                                                                    Messages.Add(new Message("Сохранение в базу данных прошло успешно"));
-                                                                    //var wnd = new ExpertiseAdd { Owner = n as ResolutionAdd };
-                                                                    //wnd.ShowDialog();
-                                                                    //if (wnd.DialogResult ?? false)
-                                                                    //{
-                                                                    //    Resolution.Expertisies.Add((wnd.DataContext as ExpertiseAddVM).Expertise);
-                                                                    //}
+                                                                    var wnd = new ExpertiseAdd { Owner = n as ResolutionAdd };
+                                                                    wnd.ShowDialog();
+                                                                    if (wnd.DialogResult ?? false)
+                                                                    {
+                                                                        var exp = (wnd.DataContext as ExpertiseAddVM).Expertise;
+                                                                        Resolution.Expertisies.Add(exp);
+                                                                        Messages.Add(new Message($"Добавлена экспертиза № {exp.FullNumber}"));
+                                                                    }
                                                                 });
             }
         }
@@ -200,8 +199,9 @@ namespace PLSE_MVVMStrong.ViewModel
             Resolution = InicialState();
             Resolution.PropertyChanged += Resolution_PropertyChanged;
             CustomersList = new ListCollectionView(CommonInfo.Customers);
-            _messages = new MessageQuery();
-            
+            //_messages = new MessageQuery();
+            _messages.Add(new Message("Это сообщение содержит много символов, чтобы визуально проверить восприятие текста большой длинны на ограниченном пространстве", MsgType.Warning, TimeSpan.FromSeconds(3)));
+
             //Resolution.Expertisies.Add(new Expertise(id: 0,
             //                                          number: "12",
             //                                          expert: CommonInfo.Experts.Single(n => n.ExpertID == 6),
@@ -311,7 +311,26 @@ namespace PLSE_MVVMStrong.ViewModel
                 ins.ObjectText = "";
             }
         }
-
+        private async void InitialDocs()
+        {
+            
+            var word = new Microsoft.Office.Interop.Word.Application();
+            var pr = new DocsCreater(@"d:\Work\созданный VBA\");
+            var task = new RuningTask("", RuningTaskStatus.None);
+            await pr.CreateNotifyAsync(Resolution, task, word);
+            if (task.Status != RuningTaskStatus.None)
+            {
+                foreach (var item in task.SubTasks)
+                {
+                    Messages.Add(new Message($"{item.RuningAction}"));
+                }
+            }
+            await pr.CreateSubscribeAsync(Resolution, task, word);
+            foreach (var item in task.SubTasks)
+            {
+                Messages.Add(new Message($"{item.RuningAction}"));
+            }
+        }
         private Resolution InicialState()
         {
             var r = Resolution.New;

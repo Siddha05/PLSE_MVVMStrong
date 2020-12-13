@@ -20,7 +20,17 @@
         <plse_mvvmstrong:ZeroToVisibilityConverter x:Key="IntToVisibConv"/>
         <Style x:Key="romb" TargetType="{x:Type Path}">
             <Setter Property="Data" Value="M 0,0 H 10 L 0,15 H -10 Z "/>
-        </Style> 
+        </Style>
+        <Style x:Key="simpleLBItem" TargetType="{x:Type ListBoxItem}">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                        <ContentPresenter/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -341,37 +351,24 @@
                 </ListBox.ItemContainerStyle>
             </ListBox>
         </StackPanel>
-        <ListBox Grid.Row="1" Background="Transparent" BorderThickness="0" MaxHeight="300" VerticalAlignment="Bottom" Margin="5,0,0,5" Width="350" HorizontalAlignment="Left"
-                 ItemsSource="{Binding Path=Messages}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch">
+        <ListBox Grid.Row="1" Background="Transparent" BorderThickness="0" MaxHeight="350" VerticalAlignment="Bottom" Margin="1,0,0,3" Width="400" HorizontalAlignment="Left"
+                 ItemsSource="{Binding Path=Messages.StackQuery}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch" 
+                 ScrollViewer.VerticalScrollBarVisibility="Disabled" ItemContainerStyle="{StaticResource simpleLBItem}" Panel.ZIndex="4">
             <ListBox.ItemTemplate>
                 <DataTemplate DataType="Message">
-                    <Border x:Name="brd" Background="LightGray" Height="97" Margin="0,1">
+                    <Border x:Name="brd" CornerRadius="5" Height="65" Margin="1,1" BorderThickness="1" BorderBrush="Blue">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="50"/>
                                 <ColumnDefinition/>
                             </Grid.ColumnDefinitions>
-                             <Image Source="Resources/Info.png" Margin="1,1,2,1"/>
-                            <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding Path=Msg}" FontSize="{StaticResource UIFontSize}" FontStyle="Italic" TextWrapping="Wrap"/>
+                            <Image Source="pack://application:,,,/Resources/Info.png" Margin="2,1,4,1"/>
+                            <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding Path=Msg}" FontSize="{StaticResource RegularFontSize}" FontStyle="Italic"
+                                       TextWrapping="Wrap"/>
                         </Grid>
-                       
                     </Border>
                 </DataTemplate>
             </ListBox.ItemTemplate>
-            <!--<ListBox.Style>
-                <Style TargetType="{x:Type ListBox}">
-                    <Setter Property="OverridesDefaultStyle" Value="True"/>
-                    <Setter Property="ItemTemplate">
-                        <Setter.Value>
-                            <DataTemplate DataType="Message">
-                                <Border x:Name="brd" Background="Beige">
-                                    <TextBlock Text="{Binding Path=Msg}" FontSize="{StaticResource UIFontSize}" FontStyle="Italic"/>
-                                </Border>
-                            </DataTemplate>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-            </ListBox.Style>-->
         </ListBox>
     </Grid>
 </Window>
